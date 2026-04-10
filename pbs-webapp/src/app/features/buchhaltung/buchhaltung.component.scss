@@ -1,0 +1,304 @@
+// ============================================================
+// Buchhaltung — Smart Container Styles
+// ============================================================
+
+.buchhaltung {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--gray-50);
+}
+
+// ── Toolbar ──────────────────────────────────────────────────────────────────
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+.jahr-select {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--gray-700);
+  cursor: pointer;
+}
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+.btn {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--gray-700);
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--gray-100);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &--speichern {
+    color: var(--primary-dark);
+    border-color: var(--primary);
+    background: var(--primary-light);
+
+    &:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+  }
+
+  &--dirty {
+    background: var(--warning);
+    border-color: var(--warning);
+    color: #fff;
+
+    &:hover {
+      background: #d97706;
+    }
+  }
+
+  &--sperren {
+    color: var(--danger);
+    border-color: var(--danger-light);
+
+    &:hover {
+      background: var(--danger-light);
+    }
+  }
+
+  &--entsperren {
+    color: var(--success);
+    border-color: var(--success-light);
+
+    &:hover {
+      background: var(--success-light);
+    }
+  }
+
+  &--gefaehrlich-klein {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.5rem;
+    color: var(--danger);
+    border-color: var(--danger-light);
+
+    &:hover {
+      background: var(--danger-light);
+    }
+  }
+
+  &--klein {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    text-decoration: none;
+    display: inline-block;
+  }
+}
+
+// ── Fehler / Lade ─────────────────────────────────────────────────────────────
+.fehler-banner {
+  margin: 0.75rem 1.5rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--danger-light);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: #991b1b;
+}
+
+.lade-indikator {
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--gray-400);
+}
+
+// ── Monatsansicht ─────────────────────────────────────────────────────────────
+.monat-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  align-items: start;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.linke-spalte {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.rechte-spalte {
+  min-width: 0;
+}
+
+// ── Karten ────────────────────────────────────────────────────────────────────
+.karte {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+
+  &--einnahmen {
+    border-top: 3px solid var(--success);
+  }
+
+  &--ausgaben {
+    border-top: 3px solid var(--danger);
+  }
+}
+
+.karte-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.karte-titel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin: 0;
+}
+
+// ── Beleg-Modal ───────────────────────────────────────────────────────────────
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  max-width: 560px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-titel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin: 0 0 0.5rem;
+}
+
+.modal-hinweis {
+  font-size: 0.75rem;
+  color: var(--gray-400);
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+.modal-fusszeile {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.beleg-laedt {
+  padding: 1rem;
+  text-align: center;
+  color: var(--gray-400);
+  font-size: 0.82rem;
+}
+
+.beleg-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--gray-50);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.beleg-datei {
+  flex: 1;
+  min-width: 0;
+}
+
+.beleg-datei-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.beleg-datei-meta {
+  font-size: 0.72rem;
+  color: var(--gray-400);
+  margin-top: 0.2rem;
+
+  code {
+    font-family: monospace;
+    font-size: 0.68rem;
+  }
+}
+
+.beleg-aktionen {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.beleg-ersetzen {
+  margin-top: 0.5rem;
+}
+
+.beleg-ersetzen-label {
+  font-size: 0.78rem;
+  color: var(--gray-500);
+  margin: 0 0 0.35rem;
+}
+
+.beleg-upload {
+  padding: 1.25rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+.beleg-upload-hinweis {
+  font-size: 0.82rem;
+  color: var(--gray-500);
+  margin: 0 0 0.75rem;
+}

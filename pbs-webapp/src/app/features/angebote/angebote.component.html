@@ -1,0 +1,111 @@
+<div class="page-wrap">
+<app-page-title titel="Angebote" untertitel="Erstellen & Verwalten" />
+
+<div class="page-tabs">
+  <button
+    class="page-tab"
+    [class.active]="facade.aktiverTab() === 'formular'"
+    (click)="facade.tabWechseln('formular')">
+    @if (facade.bearbeitetesAngebot()) { Bearbeiten } @else { Erstellen }
+  </button>
+  <button
+    class="page-tab"
+    [class.active]="facade.aktiverTab() === 'tracker'"
+    (click)="facade.tabWechseln('tracker')">
+    Tracker
+  </button>
+</div>
+
+@if (facade.fehler()) {
+  <div class="error-banner">{{ facade.fehler() }}</div>
+}
+
+@if (facade.aktiverTab() === 'formular') {
+  <div class="card">
+    <div class="card-header">
+      <button class="btn btn-sm" (click)="facade.bearbeitungAbbrechen()">+ Neues Angebot</button>
+    </div>
+    <app-angebote-formular
+      [formularDaten]="facade.formularDaten()"
+      [kunden]="facade.kunden()"
+      [bearbeitetesAngebot]="facade.bearbeitetesAngebot()"
+      [speichert]="facade.speichert()"
+      [netto]="facade.netto()"
+      [brutto]="facade.brutto()"
+      [mwstBetrag]="facade.mwstBetrag()"
+      (speichern)="onSpeichern()"
+      (vorschau)="onVorschau()"
+      (abbrechen)="onAbbrechen()"
+      (positionHinzufuegen)="onPositionHinzufuegen()"
+      (positionEntfernen)="onPositionEntfernen($event)"
+      (positionKopieren)="onPositionKopieren($event)"
+      (positionAktualisieren)="onPositionAktualisieren($event)"
+      (feldAktualisieren)="onFeldAktualisieren($event)"
+      (kundeAuswaehlen)="onKundeAuswaehlen($event)"
+      (alsKundeSpeichern)="onAlsKundeSpeichern()"
+    />
+  </div>
+}
+
+@if (facade.aktiverTab() === 'tracker') {
+  <div class="card">
+    <app-search-toolbar
+      platzhalter="Angebot suchen…"
+      aktionLabel="+ Neues Angebot"
+      [(suchbegriff)]="facade.suchbegriff"
+      (aktion)="facade.tabWechseln('formular')"
+    />
+
+    <app-angebote-tabelle
+      [angebote]="facade.seitenAngebote()"
+      [laedt]="facade.laedt()"
+      [aktiverFilter]="facade.aktiverFilter()"
+      (bearbeiten)="onBearbeiten($event)"
+      (loeschen)="onLoeschen($event)"
+      (statusSetzen)="onStatusSetzen($event)"
+      (pdfGenerieren)="onPdfGenerieren($event)"
+      (zuRechnungKonvertieren)="onZuRechnungKonvertieren($event)"
+      (filterAendern)="onFilterAendern($event)"
+      (kopieren)="onKopieren($event)"
+    />
+
+    @if (facade.gesamtSeiten() > 1) {
+      <div class="pagination">
+        <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() <= 1" (click)="facade.seiteZurueck()">← Zurück</button>
+        <span class="pagination-info">Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{ facade.gefilterteAngebote().length }} Einträge)</span>
+        <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()" (click)="facade.seiteVor()">Weiter →</button>
+      </div>
+    }
+  </div>
+}
+
+@if (facade.loeschKandidat() !== null) {
+  <app-confirm-modal
+    titel="Angebot löschen"
+    nachricht="Dieses Angebot wird unwiderruflich gelöscht."
+    bestaetigenLabel="Löschen"
+    (bestaetigt)="facade.loeschenAusfuehren()"
+    (abgebrochen)="facade.loeschenAbbrechen()"
+  />
+}
+
+<!-- Send-Modal nach Speichern -->
+@if (facade.sendModal()) {
+  <div class="modal-overlay" (click)="facade.sendModalSchliessen()">
+    <div class="modal" style="max-width:580px" (click)="$event.stopPropagation()">
+      <h3 style="margin-bottom:0.75rem">Angebot versenden</h3>
+      <div style="background:var(--gray-50);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:0.75rem;font-size:12px">
+        <div><strong>An:</strong> {{ facade.sendModal()!.email }}</div>
+        <div style="margin-top:4px"><strong>Betreff:</strong> {{ sendBetreff() }}</div>
+      </div>
+      <label style="font-size:12px;color:var(--gray-500)">E-Mail Text:</label>
+      <textarea class="form-input" rows="8" [value]="sendText()" readonly style="font-size:12px;font-family:inherit;margin-top:4px"></textarea>
+      <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+        <button class="btn btn-primary" (click)="outlookOeffnen()">Outlook öffnen</button>
+        <button class="btn" (click)="textKopieren()">Kopieren</button>
+        <button class="btn" (click)="facade.sendModalSchliessen()">Schließen</button>
+      </div>
+    </div>
+  </div>
+}
+</div>

@@ -1,0 +1,123 @@
+<div class="page-wrap">
+<app-page-title titel="DATEV Export" untertitel="Buchungsstapel für Steuerberater" />
+
+<!-- Zeitraum-Auswahl -->
+<div class="card">
+  <div class="zeitraum-zeile">
+    <div>
+      <label class="feld-label">Jahr</label>
+      <select [value]="facade.aktuellesJahr()" (change)="jahrGeaendert($event)" style="font-size:13px;padding:0.35rem 0.6rem;width:auto">
+        @for (j of facade.verfuegbareJahre(); track j) {
+          <option [value]="j">{{ j }}</option>
+        }
+      </select>
+    </div>
+    <div>
+      <label class="feld-label">Zeitraum</label>
+      <div class="zeitraum-btns">
+        @for (typ of zeitraumTypen; track typ.id) {
+          <button class="zeitraum-btn" [class.aktiv]="facade.zeitraumTyp() === typ.id" (click)="facade.zeitraumTypSetzen(typ.id)">{{ typ.label }}</button>
+        }
+      </div>
+    </div>
+    @if (facade.zeitraumTyp() === 'month') {
+      <div>
+        <label class="feld-label">Monat</label>
+        <select [value]="facade.aktiverMonat()" (change)="monatGeaendert($event)" style="font-size:13px;padding:0.35rem 0.6rem;width:auto">
+          @for (m of monate; track $index) {
+            <option [value]="$index">{{ m }}</option>
+          }
+        </select>
+      </div>
+    }
+  </div>
+  <div class="datev-hinweis">
+    <strong>Hinweis:</strong> DATEV-Export wird üblicherweise <strong>quartalsweise</strong> an den Steuerberater übergeben (passend zur USt-Voranmeldung).
+  </div>
+</div>
+
+<!-- Validierung + Vorschau -->
+<div class="card datev-export-card">
+  <div class="export-kopf">
+    <h3 class="section-title" style="margin:0">
+      @if (facade.laedt()) { Prüfung läuft… } @else { Vorschau: {{ facade.zeitraumLabel() }} }
+    </h3>
+    <button class="btn btn-sm" (click)="facade.ladeDaten()">Neu prüfen</button>
+  </div>
+
+  <!-- Validierungsmeldungen -->
+  @for (meldung of facade.meldungen(); track $index) {
+    <div class="meldung" [class.meldung-fehler]="meldung.typ === 'error'" [class.meldung-warnung]="meldung.typ === 'warning'">
+      <span class="meldung-badge" [class.badge-fehler]="meldung.typ === 'error'" [class.badge-warnung]="meldung.typ === 'warning'">
+        {{ meldung.typ === 'error' ? 'FEHLER' : 'HINWEIS' }}
+      </span>
+      {{ meldung.msg }}
+    </div>
+  }
+  @if (!facade.laedt() && !facade.meldungen().length && facade.vorschauZeilen().length > 0) {
+    <div class="meldung meldung-ok">Alle Prüfungen bestanden — Export bereit.</div>
+  }
+
+  <!-- Statistik -->
+  @if (facade.stats() && facade.vorschauZeilen().length > 0) {
+    <div class="statistik-zeile">
+      <span><strong style="color:#16a34a">{{ facade.stats()!.totalInc }}</strong> Einnahmen · Netto: <strong style="color:#16a34a">{{ fmt(facade.stats()!.sumIncNetto) }} €</strong></span>
+      <span><strong style="color:#dc2626">{{ facade.stats()!.totalExp }}</strong> Ausgaben · Netto: <strong style="color:#dc2626">{{ fmt(facade.stats()!.sumExpNetto) }} €</strong></span>
+      <span>Zahllast: <strong [style.color]="facade.stats()!.zahllast >= 0 ? 'var(--danger)' : 'var(--success)'">{{ fmt(facade.stats()!.zahllast) }} €</strong></span>
+      <span class="grau-text">{{ facade.vorschauZeilen().length }} Buchungen gesamt</span>
+    </div>
+  }
+
+  <!-- Vorschau-Tabelle -->
+  @if (facade.vorschauZeilen().length > 0) {
+    <div class="vorschau-tabelle-wrap">
+      <table class="vorschau-tabelle">
+        <thead>
+          <tr>
+            <th>Datum</th><th>Typ</th><th>Bezeichnung</th><th>Beleg-Nr.</th>
+            <th class="rechts">Brutto</th><th class="rechts">MwSt</th>
+            <th class="rechts">Netto</th><th class="rechts">USt</th>
+            <th class="mitte">SKR03</th><th class="mitte">S/H</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (zeile of facade.vorschauZeilen().slice(0, 200); track $index) {
+            <tr [class.zeile-einnahme]="zeile.typ === 'inc'" [class.zeile-ausgabe]="zeile.typ === 'exp'">
+              <td class="datum-zelle">{{ zeile.datum || '—' }}</td>
+              <td><span class="typ-badge" [class.badge-inc]="zeile.typ === 'inc'" [class.badge-exp]="zeile.typ === 'exp'">{{ zeile.typ === 'inc' ? 'Einnahme' : 'Ausgabe' }}</span></td>
+              <td class="name-zelle" [title]="zeile.name">{{ zeile.name || '—' }}</td>
+              <td class="grau-text">{{ zeile.belegnr || '—' }}</td>
+              <td class="rechts">{{ fmt(zeile.brutto) }} €</td>
+              <td class="rechts">{{ zeile.mwst }} %</td>
+              <td class="rechts">{{ fmt(zeile.netto) }} €</td>
+              <td class="rechts">{{ fmt(zeile.ust) }} €</td>
+              <td class="mitte fett">{{ zeile.konto }}</td>
+              <td class="mitte">{{ zeile.shKz }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (facade.vorschauZeilen().length > 200) {
+      <div class="mehr-hinweis">… und {{ facade.vorschauZeilen().length - 200 }} weitere Buchungen (im Export enthalten)</div>
+    }
+  } @else if (!facade.laedt()) {
+    <div class="leer-hinweis">Keine Buchungen für diesen Zeitraum</div>
+  }
+
+  <!-- Export-Buttons -->
+  <div class="export-btns">
+    <button class="btn btn-primary" [disabled]="!facade.exportBereit()" (click)="facade.csvExportieren()">DATEV CSV herunterladen</button>
+    <button class="btn" [disabled]="!facade.exportBereit()" (click)="facade.excelExportieren()">DATEV Excel herunterladen</button>
+  </div>
+  <div class="hint" style="margin-top:0.5rem">CSV = EXTF-Format für direkten DATEV-Import &bull; Excel = 3 Sheets: Buchungen, Zusammenfassung, USt-Voranmeldung</div>
+
+  <!-- DATEV-Nummern -->
+  @if (facade.firma().datev_beraternr || facade.firma().datev_mandantennr) {
+    <div class="datev-nummern">
+      <span>Beraternr.: <strong>{{ facade.firma().datev_beraternr || '—' }}</strong></span>
+      <span>Mandantennr.: <strong>{{ facade.firma().datev_mandantennr || '—' }}</strong></span>
+    </div>
+  }
+</div>
+</div>

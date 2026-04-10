@@ -1,0 +1,62 @@
+<div class="shell">
+  <!-- Mobile Overlay -->
+  @if (mobileSidebarOffen()) {
+    <div
+      class="shell__overlay"
+      (click)="mobileSidebarSchliessen()"
+      aria-hidden="true"
+    ></div>
+  }
+
+  <!-- Sidebar -->
+  <aside
+    class="shell__sidebar"
+    [class.shell__sidebar--offen]="mobileSidebarOffen()"
+    aria-label="Seitennavigation"
+  >
+    <app-sidebar
+      (geschlossen)="mobileSidebarSchliessen()"
+      [notifAnzahl]="ungeleseneNotifs().length"
+      [darkMode]="darkMode()"
+      (darkModeGeaendert)="darkModeUmschalten()"
+    />
+  </aside>
+
+  <!-- Hauptbereich -->
+  <div class="shell__main">
+    <!-- Benachrichtigungs-Banner -->
+    @if (notifBannerSichtbar()) {
+      <div class="notif-banner" role="alert">
+        <div class="notif-banner__content">
+          <strong>{{ ungeleseneNotifs().length }} Benachrichtigung(en)</strong>
+          @for (n of ungeleseneNotifs().slice(0, 5); track n.id) {
+            <span class="notif-item">{{ n.titel }}</span>
+          }
+        </div>
+        <button class="btn btn-sm" (click)="alleGelesenMarkieren()">OK, verstanden</button>
+      </div>
+    }
+
+    <!-- Mobile Header -->
+    <header class="shell__mobile-header">
+      <button
+        class="shell__menu-btn btn btn--ghost btn--icon"
+        (click)="mobileSidebarUmschalten()"
+        [attr.aria-expanded]="mobileSidebarOffen()"
+        aria-label="Navigation öffnen"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <span class="shell__mobile-title">PBS Buchhaltung</span>
+    </header>
+
+    <!-- Router-Outlet -->
+    <main class="shell__content" id="main-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

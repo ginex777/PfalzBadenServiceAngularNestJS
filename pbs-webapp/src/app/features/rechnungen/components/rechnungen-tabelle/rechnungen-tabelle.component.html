@@ -1,0 +1,71 @@
+<div class="filter-bar">
+  <select class="filter-select" [value]="aktiverFilter()" (change)="onFilterSelectChange($event)">
+    <option value="alle">Alle Status</option>
+    <option value="offen">Offen</option>
+    <option value="ueberfaellig">Überfällig</option>
+    <option value="bezahlt">Bezahlt</option>
+  </select>
+  <select class="filter-select" (change)="monatGeaendert($event)">
+    <option value="">Alle Monate</option>
+    @for (m of MONATE; track $index) {
+      <option [value]="$index">{{ m }}</option>
+    }
+  </select>
+  <button class="btn btn-sm" (click)="suchbegriffLeeren()">Leeren</button>
+  <span class="count-hint">{{ gefilterteRechnungen().length }} Einträge</span>
+</div>
+
+@if (laedt()) {
+  <div class="loading-state">Lade Rechnungen…</div>
+} @else if (rechnungen().length === 0) {
+  <app-empty-state
+    titel="Keine Rechnungen gefunden"
+    beschreibung="Erstellen Sie Ihre erste Rechnung über das Formular."
+  />
+} @else {
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Nr.</th><th>Titel</th><th>Empfänger</th><th>Datum</th>
+          <th class="text-right">Betrag (Brutto)</th><th>Zahlungsziel</th><th>Status</th><th class="actions-col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (rechnung of gefilterteRechnungen(); track rechnung.id) {
+          <tr [class.row--bezahlt]="rechnung.bezahlt" [class.row--ueberfaellig]="istUeberfaellig(rechnung)">
+            <td class="nr-cell">{{ rechnung.nr }}</td>
+            <td>{{ rechnung.titel || '–' }}</td>
+            <td>{{ rechnung.empf }}</td>
+            <td>{{ datumFormatieren(rechnung.datum) }}</td>
+            <td class="text-right amount-cell">{{ waehrungFormatieren(rechnung.brutto) }}</td>
+            <td>
+              @if (rechnung.frist) {
+                <span [class.text-danger]="istUeberfaellig(rechnung)">
+                  {{ datumFormatieren(rechnung.frist) }}
+                  @if (istUeberfaellig(rechnung)) {
+                    <span class="overdue-badge">({{ tageUeberfaellig(rechnung) }} Tage)</span>
+                  }
+                </span>
+              } @else { – }
+            </td>
+            <td><app-status-badge [status]="statusTyp(rechnung)" /></td>
+            <td class="actions-cell">
+              <button class="btn-action" (click)="pdfGenerieren.emit(rechnung)">PDF</button>
+              <button class="btn-action" (click)="kopieren.emit(rechnung)">Kopie</button>
+              <button class="btn-action" (click)="mahnung.emit(rechnung)" title="Mahnungen verwalten">Mahnung</button>
+              @if (!rechnung.bezahlt) {
+                <button class="btn-action btn-action--success" (click)="alsGezahlt.emit(rechnung)">Bezahlt</button>
+                <button class="btn-action" (click)="bearbeiten.emit(rechnung)">Bearbeiten</button>
+                <button class="btn-action btn-action--danger" (click)="loeschen.emit(rechnung.id)">Löschen</button>
+              }
+              @if (rechnung.bezahlt) {
+                <span class="gobd-hint">Gesperrt</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

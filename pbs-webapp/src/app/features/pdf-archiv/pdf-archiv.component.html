@@ -1,0 +1,83 @@
+<div class="page-wrap">
+<app-page-title titel="PDF-Archiv" untertitel="Alle generierten Dokumente" />
+
+@if (facade.fehler()) {
+  <div class="alert alert--danger">{{ facade.fehler() }}</div>
+}
+
+<div class="toolbar">
+  <input class="form-input toolbar__search" type="search" placeholder="Suchen…"
+    [value]="facade.suchbegriff()"
+    (input)="suchbegriffGeaendert($event)" />
+  <div class="filter-btns">
+    <select class="filter-select" [value]="facade.aktiverFilter()" (change)="filterSelectGeaendert($event)">
+      <option value="alle">Alle Typen</option>
+      <option value="rechnung">Rechnungen</option>
+      <option value="angebot">Angebote</option>
+      <option value="mitarbeiter">Mitarbeiter</option>
+      <option value="hausmeister">Hausmeisterdienste</option>
+      <option value="muellplan">Müllplan</option>
+    </select>
+  </div>
+  <span class="anzahl">{{ facade.gefilterteEintraege().length }} Dokumente</span>
+  <button class="btn btn-sm btn-danger" [disabled]="facade.loeschenLaedt()" (click)="facade.alleLoeschen()">
+    {{ facade.loeschenLaedt() ? 'Leert…' : 'Protokoll leeren' }}
+  </button>
+</div>
+
+@if (facade.laedt()) {
+  <app-skeleton-rows [anzahl]="6" />
+} @else if (!facade.gefilterteEintraege().length) {
+  <app-empty-state
+    titel="Keine PDFs gefunden"
+    beschreibung="Generierte PDFs erscheinen hier automatisch."
+  />
+} @else {
+  <div class="card">
+    <div class="tabelle-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Typ</th>
+            <th>Referenz-Nr.</th>
+            <th>Empfänger</th>
+            <th>Titel</th>
+            <th>Datum</th>
+            <th>Erstellt am</th>
+            <th>Datei</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of facade.seitenEintraege(); track e.id) {
+            <tr>
+              <td>
+                <span class="typ-badge">{{ typLabels[e.typ] || e.typ }}</span>
+              </td>
+              <td class="td-nr">{{ e.referenz_nr }}</td>
+              <td>{{ e.empf || '–' }}</td>
+              <td>{{ e.titel || '–' }}</td>
+              <td>{{ datumFormatieren(e.datum) }}</td>
+              <td class="grau-text">{{ datumFormatieren(e.erstellt_am) }}</td>
+              <td>
+                <a [href]="'/api/pdf/archiv/' + e.id + '/regenerate'" target="_blank" class="btn btn-sm">
+                  Öffnen
+                </a>
+                <button class="btn btn-sm btn-danger" style="margin-left:4px" (click)="facade.eintragLoeschen(e.id)">Löschen</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  @if (facade.gesamtSeiten() > 1) {
+    <div class="pagination">
+      <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() <= 1" (click)="facade.seiteZurueck()">← Zurück</button>
+      <span class="pagination-info">Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{ facade.gefilterteEintraege().length }} Dokumente)</span>
+      <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()" (click)="facade.seiteVor()">Weiter →</button>
+    </div>
+  }
+}
+
+</div>

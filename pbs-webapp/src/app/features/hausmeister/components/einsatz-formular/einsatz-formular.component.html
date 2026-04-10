@@ -1,0 +1,78 @@
+<div class="modal-overlay" (click)="abbrechen.emit()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3 class="modal-titel">{{ bearbeiteterEinsatz() ? 'Einsatz bearbeiten' : 'Neuer Einsatz' }}</h3>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Mitarbeiter *</label>
+        <select class="form-select"
+          [value]="daten().mitarbeiter_id ?? ''"
+          (change)="mitarbeiterGeaendert($event)">
+          <option value="">-- Mitarbeiter wählen --</option>
+          @for (ma of mitarbeiter(); track ma.id) {
+            <option [value]="ma.id">{{ ma.name }}</option>
+          }
+        </select>
+        @if (einsatzForm.mitarbeiter_name().touched() && einsatzForm.mitarbeiter_name().invalid()) {
+          <span class="form-fehler">{{ einsatzForm.mitarbeiter_name().errors()[0]?.message }}</span>
+        }
+      </div>
+      <div class="form-field">
+        <label class="form-label">Datum *</label>
+        <input class="form-input" type="date" [formField]="einsatzForm.datum" />
+        @if (einsatzForm.datum().touched() && einsatzForm.datum().invalid()) {
+          <span class="form-fehler">{{ einsatzForm.datum().errors()[0]?.message }}</span>
+        }
+      </div>
+      <div class="form-field">
+        <label class="form-label">Kunde (optional)</label>
+        <select class="form-select"
+          [value]="daten().kunden_id ?? ''"
+          (change)="kundeGeaendert($event)">
+          <option value="">-- kein Kunde --</option>
+          @for (k of kunden(); track k.id) {
+            <option [value]="k.id">{{ k.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="taetigkeiten-bereich">
+      <div class="taetigkeiten-kopf">
+        <label class="form-label">Tätigkeiten</label>
+        <button class="btn btn-sm" (click)="taetigkeitHinzufuegen.emit()">+ Tätigkeit</button>
+      </div>
+      @for (t of daten().taetigkeiten; track $index) {
+        <div class="taetigkeit-zeile">
+          <input class="form-input" type="text" placeholder="Beschreibung der Tätigkeit"
+            [value]="t.beschreibung" (input)="taetigkeitBeschreibungGeaendert($index, $event)" />
+          <input class="form-input stunden-input" type="number" min="0" step="0.5" placeholder="Std."
+            [value]="t.stunden || ''" (input)="taetigkeitStundenGeaendert($index, $event)" />
+          @if (daten().taetigkeiten.length > 1) {
+            <button class="btn-remove" (click)="taetigkeitEntfernen.emit($index)">×</button>
+          }
+        </div>
+      }
+      <div class="stunden-summe">
+        Gesamt: <strong>{{ stundenGesamt().toLocaleString('de-DE', {minimumFractionDigits:1}) }} Stunden</strong>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Notiz</label>
+      <textarea class="form-input" rows="2" placeholder="Interne Notizen…"
+        [value]="daten().notiz"
+        (input)="notizGeaendert($event)"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" (click)="abbrechen.emit()">Abbrechen</button>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-right:auto">
+        <input type="checkbox" [checked]="syncStunden()" (change)="syncStundenGeaendert($event)" style="width:auto;margin:0">
+        Stunden auch bei Mitarbeiter eintragen
+      </label>
+      <button class="btn btn-primary" [disabled]="einsatzForm().invalid()" (click)="speichern.emit({withPdf: true, syncStunden: syncStunden()})">Speichern & PDF</button>
+      <button class="btn" [disabled]="einsatzForm().invalid()" (click)="speichern.emit({withPdf: false, syncStunden: syncStunden()})">Nur speichern</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,46 @@
+.data-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.data-table {
+  &__th--rechts,
+  &__td--rechts {
+    text-align: right;
+  }
+
+  &__th--mitte,
+  &__td--mitte {
+    text-align: center;
+  }
+
+  &__zeile {
+    cursor: pointer;
+  }
+
+  &__ladeindikator {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__skeleton-zeile {
+    height: 40px;
+    background: var(--gray-100);
+    border-radius: var(--radius-sm);
+    animation: pulsieren 1.5s ease-in-out infinite;
+
+    &:nth-child(2) { animation-delay: 0.1s; }
+    &:nth-child(3) { animation-delay: 0.2s; }
+    &:nth-child(4) { animation-delay: 0.3s; }
+    &:nth-child(5) { animation-delay: 0.4s; }
+  }
+}
+
+@keyframes pulsieren {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

@@ -1,0 +1,123 @@
+<app-page-title titel="Wiederkehrende Kosten" untertitel="Monatliche Fixkosten" />
+
+@if (facade.formularSichtbar()) {
+  <div class="card">
+    <h3 class="section-title">{{ facade.bearbeiteteAusgabe() ? 'Bearbeiten: ' + facade.bearbeiteteAusgabe()!.name : 'Neuer wiederkehrender Kostenpunkt' }}</h3>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Bezeichnung *</label>
+        <input type="text" placeholder="z.B. Miete Büro, Telefon, Software-Abo" [formField]="ausgabeForm.name" />
+        @if (ausgabeForm.name().touched() && ausgabeForm.name().invalid()) {
+          <span class="form-fehler">{{ ausgabeForm.name().errors()[0]?.message }}</span>
+        }
+      </div>
+      <div class="form-field">
+        <label>Kategorie</label>
+        <select [value]="ausgabeModell().kategorie" (change)="kategorieGeaendert($event)">
+          @for (k of kategorien; track k) {
+            <option [value]="k">{{ k }}</option>
+          }
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Brutto (€) *</label>
+        <input type="number" step="0.01" [formField]="ausgabeForm.brutto" placeholder="0,00" />
+        @if (ausgabeForm.brutto().touched() && ausgabeForm.brutto().invalid()) {
+          <span class="form-fehler">{{ ausgabeForm.brutto().errors()[0]?.message }}</span>
+        }
+      </div>
+      <div class="form-field">
+        <label>MwSt.</label>
+        <select [value]="ausgabeModell().mwst"
+          (change)="mwstGeaendert($event)">
+          <option value="0">0 %</option>
+          <option value="7">7 %</option>
+          <option value="19">19 %</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Abzug %</label>
+        <input type="number" [formField]="ausgabeForm.abzug" />
+      </div>
+      <div class="form-field">
+        <label>Beleg-Nr.</label>
+        <input type="text" [formField]="ausgabeForm.belegnr" placeholder="B-001" />
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" [disabled]="ausgabeForm().invalid()" (click)="speichern()">Speichern</button>
+      <button class="btn" (click)="formularSchliessen()">Abbrechen</button>
+    </div>
+  </div>
+}
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h3 class="section-title" style="margin:0">
+        Definierte Kosten
+        <span class="hint" style="margin:0;margin-left:0.5rem">{{ facade.ausgaben().length }} Einträge</span>
+      </h3>
+      @if (facade.aktiveSumme().brutto > 0) {
+        <div class="aktive-summe">Aktive Fixkosten: Netto {{ fmt(facade.aktiveSumme().netto) }} · Vorsteuer {{ fmt(facade.aktiveSumme().vst) }}</div>
+      }
+    </div>
+    <div style="display:flex;gap:0.5rem;align-items:center">
+      <input type="text" placeholder="Suchen…" (input)="suchbegriffGeaendert($event)" style="width:180px;font-size:12px">
+      <button class="btn btn-sm btn-primary" (click)="formularOeffnen()">+ Neu</button>
+    </div>
+  </div>
+
+  @if (!facade.gefilterteAusgaben().length) {
+    <app-empty-state
+      titel="Noch keine Fixkosten definiert"
+      beschreibung="Trage wiederkehrende Kosten ein — sie lassen sich dann per Klick in die Buchhaltung übernehmen."
+      aktionLabel="+ Ersten Kostenpunkt anlegen"
+      (aktion)="formularOeffnen()"
+    />
+  } @else {
+    <div class="tabelle-scroll">
+      <table class="tabelle">
+        <thead>
+          <tr>
+            <th>Bezeichnung</th><th>Kategorie</th>
+            <th class="rechts">Brutto</th><th class="rechts">Netto</th><th class="rechts">Vorsteuer</th>
+            <th class="mitte">MwSt.</th><th class="mitte">Abzug</th><th class="mitte">Aktiv</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of facade.gefilterteAusgaben(); track a.id) {
+            <tr [class.inaktiv]="!a.aktiv">
+              <td class="name-zelle">{{ a.name }}</td>
+              <td class="grau-text">{{ a.kategorie }}</td>
+              <td class="rechts">{{ fmt(a.brutto) }}</td>
+              <td class="rechts">{{ fmt(nettoBerechnen(a)) }}</td>
+              <td class="rechts success-text">{{ fmt(vstBerechnen(a)) }}</td>
+              <td class="mitte">{{ a.mwst }} %</td>
+              <td class="mitte">{{ a.abzug }} %</td>
+              <td class="mitte">
+                <input type="checkbox" [checked]="a.aktiv"
+                  (change)="aktivToggle(a.id, $event)">
+              </td>
+              <td class="aktionen">
+                <button class="btn-action" (click)="formularOeffnen(a)">Bearbeiten</button>
+                <button class="btn-action btn-action-danger" (click)="facade.loeschenBestaetigen(a.id)">✕</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (facade.loeschKandidat() !== null) {
+  <app-confirm-modal
+    titel="Kostenpunkt löschen"
+    [nachricht]="(facade.ausgaben().find(a => a.id === facade.loeschKandidat())?.name || '') + ' wirklich löschen?'"
+    (bestaetigt)="facade.loeschenAusfuehren()"
+    (abgebrochen)="facade.loeschenAbbrechen()"
+  />
+}

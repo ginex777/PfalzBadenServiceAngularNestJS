@@ -1,0 +1,43 @@
+<div class="formular-card">
+  <h3 class="formular-titel">{{ titelText }}</h3>
+
+  <div class="form-row">
+    <div class="form-field">
+      <label class="form-label">Name *</label>
+      <input class="form-input" type="text" placeholder="Firmenname oder Vollständiger Name" [formField]="kundenForm.name" />
+      @if (kundenForm.name().touched() && kundenForm.name().invalid()) {
+        <span class="form-fehler">{{ kundenForm.name().errors()[0]?.message }}</span>
+      }
+    </div>
+    <div class="form-field">
+      <label class="form-label">Straße</label>
+      <input class="form-input" type="text" placeholder="Musterstraße 1" [formField]="kundenForm.strasse" />
+    </div>
+    <div class="form-field">
+      <label class="form-label">PLZ Ort</label>
+      <input class="form-input" type="text" placeholder="67346 Speyer" [formField]="kundenForm.ort" />
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-field">
+      <label class="form-label">Telefon</label>
+      <input class="form-input" type="text" placeholder="0123 456789" [formField]="kundenForm.tel" />
+    </div>
+    <div class="form-field">
+      <label class="form-label">E-Mail</label>
+      <input class="form-input" type="email" placeholder="info@firma.de" [formField]="kundenForm.email" />
+    </div>
+    <div class="form-field">
+      <label class="form-label">Notiz</label>
+      <input class="form-input" type="text" placeholder="z.B. Ansprechpartner" [formField]="kundenForm.notiz" />
+    </div>
+  </div>
+
+  <div class="form-aktionen">
+    <button class="btn btn-primary" [disabled]="kundenForm().invalid()" (click)="speichern()">
+      {{ submitLabel }}
+    </button>
+    <button class="btn" (click)="abbrechen()">Abbrechen</button>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow var(--transition), border-color var(--transition);
+  position: relative;
+  overflow: hidden;
+
+  &:hover { box-shadow: var(--shadow-sm); }
+
+  &__titel {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  &__wert {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--gray-900);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  &__untertitel {
+    font-size: 11px;
+    color: var(--gray-400);
+  }
+
+  &__skeleton {
+    height: 26px;
+    width: 55%;
+    background: var(--gray-100);
+    border-radius: var(--radius-sm);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  // Accent bar on left
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+    background: var(--gray-200);
+  }
+
+  &--success::before { background: var(--success); }
+  &--danger::before  { background: var(--danger); }
+  &--warning::before { background: var(--warning); }
+  &--primary::before { background: var(--primary); }
+
+  &--success &__wert { color: var(--success); }
+  &--danger  &__wert { color: var(--danger); }
+  &--warning &__wert { color: var(--warning); }
+  &--primary &__wert { color: var(--primary); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

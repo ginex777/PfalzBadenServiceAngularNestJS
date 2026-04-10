@@ -1,0 +1,175 @@
+<div class="jahres-uebersicht">
+  <h2 class="jahres-titel">Jahresübersicht {{ jahr() }}</h2>
+
+  <!-- VST-Voranmeldung -->
+  <div class="karte">
+    <h3 class="karte-titel">Vorsteuer / USt-Voranmeldung — Jahresübersicht {{ jahr() }}</h3>
+    <div class="vst-scroll">
+      <table class="tabelle">
+        <thead>
+          <tr>
+            <th rowspan="2" class="col-zeitraum">Zeitraum</th>
+            <th colspan="3" class="th-elster-gruppe">ELSTER USt-Voranmeldung</th>
+            <th rowspan="2" class="col-rechts">
+              Vorsteuer<br /><span class="th-sub">Kz. 66</span>
+            </th>
+            <th rowspan="2" class="col-rechts">Zahllast</th>
+            <th rowspan="2" class="col-mitte">Bezahlt an FA</th>
+            <th rowspan="2" class="col-datum">Datum</th>
+            <th rowspan="2" class="col-rechts">Offen</th>
+          </tr>
+          <tr>
+            <th class="col-rechts th-sub-col">
+              Kz. 81<br /><span class="th-sub">Netto 19%</span>
+            </th>
+            <th class="col-rechts th-sub-col">
+              Kz. 86<br /><span class="th-sub">Netto 7%</span>
+            </th>
+            <th class="col-rechts th-sub-col">
+              Kz. 83+85<br /><span class="th-sub">USt gesamt</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (quartal of vstQuartale(); track quartal.schluessel) {
+            <tr [class.zeile--bezahlt]="quartal.bezahlt">
+              <td class="quartal-label">{{ quartal.label }}</td>
+              <td class="zahl">{{ formatieren(quartal.elster.kz81) }}</td>
+              <td class="zahl">{{ formatieren(quartal.elster.kz86) }}</td>
+              <td class="zahl">{{ formatieren(quartal.elster.kz83 + quartal.elster.kz85) }}</td>
+              <td class="zahl zahl--gruen">{{ formatieren(quartal.elster.kz66) }}</td>
+              <td class="zahl" [class]="zahllastKlasse(quartal.zahllast)">
+                {{ formatieren(quartal.zahllast) }}
+              </td>
+              <td class="mitte">
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    [checked]="quartal.bezahlt"
+                    (change)="vstToggle(quartal)"
+                  />
+                  <span>{{ quartal.bezahlt ? 'Ja' : 'Nein' }}</span>
+                </label>
+              </td>
+              <td class="datum-zelle">
+                @if (quartal.bezahlt && quartal.datum) {
+                  {{ datumFormatieren(quartal.datum) }}
+                } @else {
+                  <span class="leer">–</span>
+                }
+              </td>
+              <td class="zahl" [class]="quartal.offen > 0 ? 'zahl--verlust' : 'zahl--gruen'">
+                {{ quartal.offen > 0 ? formatieren(quartal.offen) : '–' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="hinweis">
+      Kz. 81 = steuerpflichtige Umsätze 19 % (Netto) · Kz. 83 = USt darauf · Kz. 86 = steuerpflichtige Umsätze 7 % (Netto) · Kz. 85 = USt darauf · Kz. 66 = Vorsteuer aus Eingangsrechnungen.
+      Klicke auf die Checkbox, um Zahlungen an das Finanzamt als erledigt zu markieren.
+    </p>
+  </div>
+
+  <!-- Quartals- und Jahresübersicht nebeneinander -->
+  <div class="zwei-spalten">
+    <!-- Quartalsübersicht -->
+    <div class="karte">
+      <h3 class="karte-titel">Quartalsübersicht {{ jahr() }}</h3>
+      <table class="tabelle">
+        <thead>
+          <tr>
+            <th>Quartal</th>
+            <th class="col-rechts">Einn.</th>
+            <th class="col-rechts">USt.</th>
+            <th class="col-rechts">Ausg.</th>
+            <th class="col-rechts">Vorst.</th>
+            <th class="col-rechts">Zahll.</th>
+            <th class="col-rechts">Gewinn</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (quartal of quartalsDaten(); track quartal.label) {
+            @if (quartal.einnahmenNetto > 0 || quartal.ausgabenNetto > 0) {
+              <tr>
+                <td>{{ quartal.label }}</td>
+                <td class="zahl">{{ formatieren(quartal.einnahmenNetto) }}</td>
+                <td class="zahl zahl--rot">{{ formatieren(quartal.einnahmenUst) }}</td>
+                <td class="zahl">{{ formatieren(quartal.ausgabenNetto) }}</td>
+                <td class="zahl zahl--gruen">{{ formatieren(quartal.vorsteuer) }}</td>
+                <td class="zahl" [class]="zahllastKlasse(quartal.zahllast)">{{ formatieren(quartal.zahllast) }}</td>
+                <td class="zahl" [class]="gewinnKlasse(quartal.gewinn)">{{ formatieren(quartal.gewinn) }}</td>
+              </tr>
+            } @else {
+              <tr class="zeile--leer">
+                <td>{{ quartal.label }}</td>
+                <td colspan="6" class="leer-zelle">–</td>
+              </tr>
+            }
+          }
+        </tbody>
+        <tfoot>
+          <tr class="gesamt-zeile">
+            <td>Gesamt</td>
+            <td class="zahl">{{ formatieren(quartalGesamtEinnahmen()) }}</td>
+            <td class="zahl zahl--rot">{{ formatieren(quartalGesamtUst()) }}</td>
+            <td class="zahl">{{ formatieren(quartalGesamtAusgaben()) }}</td>
+            <td class="zahl zahl--gruen">{{ formatieren(quartalGesamtVorsteuer()) }}</td>
+            <td class="zahl" [class]="zahllastKlasse(quartalGesamtZahllast())">{{ formatieren(quartalGesamtZahllast()) }}</td>
+            <td class="zahl" [class]="gewinnKlasse(quartalGesamtGewinn())">{{ formatieren(quartalGesamtGewinn()) }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Monatsübersicht -->
+    <div class="karte">
+      <h3 class="karte-titel">Monatsübersicht {{ jahr() }}</h3>
+      <table class="tabelle">
+        <thead>
+          <tr>
+            <th>Monat</th>
+            <th class="col-rechts">Einn.</th>
+            <th class="col-rechts">USt.</th>
+            <th class="col-rechts">Ausg.</th>
+            <th class="col-rechts">Vorst.</th>
+            <th class="col-rechts">Zahll.</th>
+            <th class="col-rechts">Gewinn</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (monat of jahresMonatsDaten(); track monat.monat) {
+            @if (hatDaten(monat)) {
+              <tr>
+                <td>{{ monat.name.substring(0, 3) }}</td>
+                <td class="zahl">{{ formatieren(monat.einnahmenNetto) }}</td>
+                <td class="zahl zahl--rot">{{ formatieren(monat.einnahmenUst) }}</td>
+                <td class="zahl">{{ formatieren(monat.ausgabenNetto) }}</td>
+                <td class="zahl zahl--gruen">{{ formatieren(monat.vorsteuer) }}</td>
+                <td class="zahl" [class]="zahllastKlasse(monat.zahllast)">{{ formatieren(monat.zahllast) }}</td>
+                <td class="zahl" [class]="gewinnKlasse(monat.gewinn)">{{ formatieren(monat.gewinn) }}</td>
+              </tr>
+            } @else {
+              <tr class="zeile--leer">
+                <td>{{ monat.name.substring(0, 3) }}</td>
+                <td colspan="6" class="leer-zelle">–</td>
+              </tr>
+            }
+          }
+        </tbody>
+        <tfoot>
+          <tr class="gesamt-zeile">
+            <td>Gesamt</td>
+            <td class="zahl">{{ formatieren(jahresGesamtEinnahmen()) }}</td>
+            <td class="zahl zahl--rot">{{ formatieren(jahresGesamtUst()) }}</td>
+            <td class="zahl">{{ formatieren(jahresGesamtAusgaben()) }}</td>
+            <td class="zahl zahl--gruen">{{ formatieren(jahresGesamtVorsteuer()) }}</td>
+            <td class="zahl" [class]="zahllastKlasse(jahresGesamtZahllast())">{{ formatieren(jahresGesamtZahllast()) }}</td>
+            <td class="zahl" [class]="gewinnKlasse(jahresGesamtGewinn())">{{ formatieren(jahresGesamtGewinn()) }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,129 @@
+@use '../tabelle-shared' as shared;
+
+.tabelle-container {
+  @include shared.tabelle-container;
+}
+
+.tabelle-kopf {
+  @include shared.tabelle-kopf;
+}
+
+.badge--rot {
+  @include shared.badge-rot;
+}
+
+.anzahl {
+  @include shared.anzahl;
+}
+
+.gesperrt-banner {
+  @include shared.gesperrt-banner;
+}
+
+.btn-wiederkehrend {
+  margin-left: auto;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: var(--gray-600);
+  white-space: nowrap;
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    border-color: var(--primary);
+  }
+}
+
+.tabelle-scroll {
+  overflow-x: auto;
+}
+
+.tabelle {
+  @include shared.tabelle-basis;
+
+  .col-kategorie   { min-width: 120px; }
+  .col-belegnr     { width: 80px; }
+  .col-bezeichnung { min-width: 110px; }
+  .col-datum       { width: 115px; }
+  .col-brutto      { width: 90px; }
+  .col-mwst        { width: 65px; }
+  .col-abzug       { width: 60px; }
+  .col-netto       { width: 85px; text-align: right; }
+  .col-vorsteuer   { width: 75px; text-align: right; }
+  .col-aktionen    { width: 160px; }
+}
+
+.eingabe {
+  @include shared.eingabe;
+
+  &--rechts {
+    text-align: right;
+  }
+
+  &--fehlt {
+    border-color: var(--danger) !important;
+    background: #fff5f5 !important;
+  }
+}
+
+.zahl {
+  text-align: right;
+  white-space: nowrap;
+  font-size: 0.82rem;
+  color: var(--gray-700);
+}
+
+.aktionen {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn-beleg {
+  @include shared.btn-aktion;
+  &--vorhanden {
+    color: var(--success);
+    border-color: var(--success-light);
+  }
+}
+
+.btn-kopie {
+  @include shared.btn-aktion;
+}
+
+.btn-loeschen {
+  @include shared.btn-aktion;
+  color: var(--danger);
+  &:hover { background: var(--danger-light); }
+}
+
+.gesperrt-label {
+  font-size: 11px;
+  color: var(--gray-400);
+}
+
+.btn-hinzufuegen {
+  @include shared.btn-hinzufuegen;
+  &--rot {
+    color: var(--danger);
+    border-color: var(--danger-light);
+    &:hover { background: var(--danger-light); }
+  }
+}
+
+.zusammenfassung {
+  @include shared.zusammenfassung;
+}
+
+.zusammenfassung-zeile {
+  @include shared.zusammenfassung-zeile;
+  &--gesamt {
+    @include shared.zusammenfassung-zeile-gesamt;
+  }
+}

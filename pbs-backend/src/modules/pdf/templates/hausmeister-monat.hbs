@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Verdana, Arial, sans-serif; font-size: 10px; color: #000; }
+  .page { padding: 18mm 20mm 30mm 20mm; min-height: 257mm; position: relative; }
+  .doc-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1.5px solid #333; padding-bottom: 8px; margin-bottom: 14px; }
+  .firma-name { font-size: 15px; font-weight: bold; }
+  .firma-sub { font-size: 10px; color: #555; margin-top: 2px; }
+  .logo { max-height: 48px; max-width: 140px; }
+  h1 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .sub { font-size: 10px; color: #555; margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+  th { background: #f0f0f0; padding: 5px 8px; text-align: left; border-bottom: 2px solid #000; font-size: 9px; text-transform: uppercase; }
+  td { padding: 5px 8px; border-bottom: 1px solid #e8e8e8; font-size: 9.5px; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .rechts { text-align: right; }
+  .summary { margin-top: 12px; padding: 8px 12px; background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; font-size: 10px; font-weight: 700; }
+  .doc-footer { position: absolute; bottom: 10mm; left: 20mm; right: 20mm; border-top: 0.5px solid #ccc; padding-top: 5px; font-size: 9px; color: #666; display: flex; justify-content: space-between; gap: 20px; }
+  .doc-footer > div { flex: 1; }
+</style>
+</head>
+<body>
+<div class="page">
+  {{> header}}
+
+  <h1>{{titel}}</h1>
+  <div class="sub">Erstellt am {{erstelltAm}} · PBS Pfalz-Baden Service</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Datum</th>
+        <th>Mitarbeiter</th>
+        <th>Kunde / Objekt</th>
+        <th>Tätigkeiten</th>
+        <th class="rechts">Stunden</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each einsaetze}}
+      <tr>
+        <td style="white-space:nowrap">{{datumFormatiert}}</td>
+        <td>{{mitarbeiter_name}}</td>
+        <td>{{kunden_name}}</td>
+        <td style="font-size:9px">{{taetigkeitenText}}</td>
+        <td class="rechts" style="font-weight:600">{{fmtStunden stunden_gesamt}}h</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <div class="summary">Gesamt: {{anzahl}} Einsätze · {{fmtStunden gesamtStunden}} Stunden</div>
+
+  {{> footer}}
+</div>
+</body>
+</html>

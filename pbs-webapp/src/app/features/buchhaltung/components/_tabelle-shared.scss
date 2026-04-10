@@ -1,0 +1,171 @@
+// ============================================================
+// Buchhaltung — Gemeinsame Tabellen-Styles (SCSS Partial)
+// ============================================================
+
+@mixin tabelle-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@mixin tabelle-kopf {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@mixin badge-gruen {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--success-light);
+  color: var(--success);
+}
+
+@mixin badge-rot {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+@mixin anzahl {
+  font-size: 0.75rem;
+  color: var(--gray-400);
+}
+
+@mixin gesperrt-banner {
+  background: var(--warning-light);
+  border: 1px solid var(--warning);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  color: #92400e;
+}
+
+@mixin tabelle-basis {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+
+  th {
+    padding: 0.4rem 0.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gray-500);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    background: var(--gray-50);
+  }
+
+  td {
+    padding: 0.3rem 0.4rem;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: var(--gray-50);
+  }
+}
+
+@mixin eingabe {
+  width: 100%;
+  padding: 0.25rem 0.35rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  background: transparent;
+  color: var(--gray-800);
+  transition: border-color 0.15s;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--surface);
+  }
+
+  &:hover:not(:focus):not([readonly]):not([disabled]) {
+    border-color: var(--gray-200);
+    background: var(--surface);
+  }
+
+  &[readonly],
+  &[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@mixin btn-aktion {
+  padding: 0.2rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 0.72rem;
+  cursor: pointer;
+  color: var(--gray-600);
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--gray-100);
+  }
+}
+
+@mixin btn-hinzufuegen {
+  align-self: flex-start;
+  padding: 0.35rem 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: var(--gray-500);
+  transition: all 0.15s;
+  margin-top: 0.25rem;
+
+  &:hover {
+    background: var(--gray-50);
+  }
+}
+
+@mixin zusammenfassung {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  align-self: flex-end;
+  min-width: 220px;
+}
+
+@mixin zusammenfassung-zeile {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--gray-600);
+}
+
+@mixin zusammenfassung-zeile-gesamt {
+  font-weight: 600;
+  color: var(--gray-800);
+  border-top: 1px solid var(--border);
+  padding-top: 0.2rem;
+  margin-top: 0.1rem;
+}

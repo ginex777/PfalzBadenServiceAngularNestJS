@@ -1,0 +1,143 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.modal-titel {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0 0 1rem;
+}
+
+// ── Kennzahlen ────────────────────────────────────────────────────────────
+.kennzahlen {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.kennzahl {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  min-width: 140px;
+
+  &--danger  { background: var(--danger-light); }
+  &--success { background: var(--success-light); }
+  &--warning { background: var(--warning-light); }
+}
+
+.kennzahl-wert {
+  font-size: 14px;
+  font-weight: 700;
+
+  .kennzahl--danger &  { color: var(--danger); }
+  .kennzahl--success & { color: var(--success); }
+  .kennzahl--warning & { color: var(--warning); }
+}
+
+.kennzahl-label {
+  font-size: 11px;
+  color: var(--gray-500);
+}
+
+// ── Tabelle ───────────────────────────────────────────────────────────────
+.tabelle-wrapper {
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-500);
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+  }
+
+  td {
+    padding: 0.5rem 0.5rem;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+}
+
+.col-nr     { font-weight: 600; white-space: nowrap; }
+.col-titel  { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.col-datum  { white-space: nowrap; }
+.col-betrag { font-weight: 600; }
+.text-right { text-align: right; }
+.hint-sm    { font-size: 11px; color: var(--gray-500); }
+
+.leer {
+  text-align: center;
+  color: var(--gray-400);
+  padding: 1.5rem;
+}
+
+// ── Status ────────────────────────────────────────────────────────────────
+.status-bezahlt     { color: var(--success); font-weight: 600; }
+.status-ueberfaellig { color: var(--danger);  font-weight: 600; }
+.status-offen       { color: var(--warning); }
+
+// ── Aktionen ──────────────────────────────────────────────────────────────
+.modal-aktionen {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.btn {
+  padding: 0.45rem 1rem;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover { background: var(--gray-50); }
+
+  &-primary {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    &:hover { background: var(--primary-dark); }
+  }
+}

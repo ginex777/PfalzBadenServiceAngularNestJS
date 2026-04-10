@@ -1,0 +1,172 @@
+<div class="page-wrap">
+<app-page-title titel="Beleg-Archiv" untertitel="Digitale Belegverwaltung (GoBD-konform)" />
+
+@if (facade.fehler()) {
+  <div class="alert alert--danger">{{ facade.fehler() }}</div>
+}
+
+<!-- Upload -->
+<div class="card upload-card">
+  <h3 class="section-title">Beleg hochladen</h3>
+  <div class="upload-zeile">
+    <select class="form-select" style="width:auto"
+      [value]="uploadTyp"
+      (change)="uploadTypAendern($event)">
+      <option value="beleg">Beleg</option>
+      <option value="rechnung">Rechnung</option>
+      <option value="quittung">Quittung</option>
+      <option value="sonstiges">Sonstiges</option>
+    </select>
+    <input class="form-input" type="text" placeholder="Notiz (optional, max. 500 Zeichen)"
+      [formField]="notizForm.notiz" style="flex:1" />
+    <label class="btn btn-primary">
+      Datei wählen
+      <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" style="display:none" (change)="dateiHochladen($event)" />
+    </label>
+  </div>
+  @if (notizForm.notiz().touched() && notizForm.notiz().invalid()) {
+    <span class="form-fehler">{{ notizForm.notiz().errors()[0]?.message }}</span>
+  }
+  <div class="hint">Erlaubte Formate: PDF, JPG, PNG · GoBD: 10 Jahre Aufbewahrungspflicht</div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1rem">
+  <app-stat-card titel="Belege gesamt" [wert]="facade.belege().length.toString()" variante="primary" />
+  <app-stat-card titel="Gespeichertes Volumen" [wert]="facade.gesamtGroesse()" variante="primary" />
+  <app-stat-card titel="Aufbewahrung bis" [wert]="facade.spaetesteAufbewahrung()" variante="primary" />
+</div>
+
+<!-- Filter + Suche -->
+<div class="toolbar">
+  <input class="form-input toolbar__search" type="search" placeholder="Suchen…"
+    [value]="facade.suchbegriff()"
+    (input)="suchbegriffGeaendert($event)" />
+  <div class="filter-btns">
+    <select class="filter-select" [value]="facade.aktiverFilter()" (change)="filterSelectGeaendert($event)">
+      <option value="alle">Alle Typen</option>
+      <option value="beleg">Beleg</option>
+      <option value="rechnung">Rechnung</option>
+      <option value="quittung">Quittung</option>
+      <option value="sonstiges">Sonstiges</option>
+    </select>
+    <select class="filter-select" [value]="facade.jahrFilter() ?? ''" (change)="jahrFilterGeaendert($event)">
+      <option value="">Alle Jahre</option>
+      @for (j of facade.verfuegbareJahre(); track j) {
+        <option [value]="j">{{ j }}</option>
+      }
+    </select>
+  </div>
+  <span class="anzahl">{{ facade.gefilterteBelege().length }} Belege</span>
+</div>
+
+@if (facade.laedt()) {
+  <app-skeleton-rows [anzahl]="6" />
+} @else if (!facade.gefilterteBelege().length) {
+  <app-empty-state
+    titel="Keine Belege vorhanden"
+    beschreibung="Laden Sie Ihren ersten Beleg hoch."
+  />
+} @else {
+  <div class="card">
+    <div class="tabelle-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Typ</th>
+            <th>Dateiname</th>
+            <th>Buchung</th>
+            <th>Notiz</th>
+            <th>Größe</th>
+            <th>Hochgeladen</th>
+            <th>Aufbewahrung bis</th>
+            <th class="col-aktionen">Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (b of facade.seitenBelege(); track b.id) {
+            <tr>
+              <td>
+                <span class="typ-badge">{{ typLabels[b.typ] }}</span>
+              </td>
+              <td class="td-datei">
+                <a class="link" style="cursor:pointer" (click)="facade.viewerOeffnen(b)">{{ b.filename }}</a>
+              </td>
+              <td>
+                @if (b.buchung_name) {
+                  <div class="buchung-name">{{ b.buchung_name }}</div>
+                  @if (b.buchung_brutto) {
+                    <div class="buchung-betrag">{{ b.buchung_brutto.toLocaleString('de-DE', {minimumFractionDigits:2}) }} €</div>
+                  }
+                } @else { – }
+              </td>
+              <td class="td-notiz">
+                @if (facade.notizBearbeitungId() === b.id) {
+                  <div class="notiz-edit">
+                    <input class="form-input" type="text" [formField]="notizForm.notiz" style="font-size:12px" />
+                    <button class="btn btn-sm btn-primary" (click)="notizSpeichern(b.id)">Speichern</button>
+                    <button class="btn btn-sm" (click)="facade.notizBearbeitungAbbrechen()">✕</button>
+                  </div>
+                } @else {
+                  <span class="notiz-text" (click)="notizBearbeitungStarten(b)">
+                    {{ b.notiz || '+ Notiz' }}
+                  </span>
+                }
+              </td>
+              <td class="grau-text">{{ facade.dateigroesseFormatieren(b.filesize) }}</td>
+              <td class="grau-text">{{ datumFormatieren(b.erstellt_am) }}</td>
+              <td class="grau-text">{{ datumFormatieren(b.aufbewahrung_bis) }}</td>
+              <td class="td-aktionen">
+                <a [href]="facade.downloadUrl(b.id)" class="btn btn-sm">Download</a>
+                <button class="btn-action btn-action--danger" title="Löschen" (click)="facade.loeschenBestaetigen(b.id)">Löschen</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  @if (facade.gesamtSeiten() > 1) {
+    <div class="pagination">
+      <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() <= 1" (click)="facade.seiteZurueck()">← Zurück</button>
+      <span class="pagination-info">Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{ facade.gefilterteBelege().length }} Einträge)</span>
+      <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()" (click)="facade.seiteVor()">Weiter →</button>
+    </div>
+  }
+}
+
+<!-- Inline-Viewer Modal -->
+@if (facade.viewerBeleg()) {
+  <div class="modal-overlay" (click)="facade.viewerSchliessen()">
+    <div class="modal modal--lg" style="max-width:860px;max-height:90vh;display:flex;flex-direction:column" (click)="$event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+        <span style="font-weight:600;font-size:14px">{{ facade.viewerBeleg()!.filename }}</span>
+        <div style="display:flex;gap:0.5rem">
+          <a [href]="facade.downloadUrl(facade.viewerBeleg()!.id)" class="btn btn-sm">Download</a>
+          <button class="btn btn-sm" (click)="facade.viewerSchliessen()">Schließen</button>
+        </div>
+      </div>
+      <div style="flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;min-height:300px;background:var(--gray-50);border-radius:8px;padding:8px">
+        @if (facade.istBild(facade.viewerBeleg()!)) {
+          <img [src]="viewerSafeUrl()" alt="{{ facade.viewerBeleg()!.filename }}"
+            style="max-width:100%;max-height:70vh;object-fit:contain;border-radius:4px" />
+        } @else {
+          <iframe [src]="viewerSafeUrl()"
+            style="width:100%;height:70vh;border:none;border-radius:4px" title="{{ facade.viewerBeleg()!.filename }}">
+          </iframe>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+@if (facade.loeschKandidat() !== null) {
+  <app-confirm-modal
+    titel="Beleg löschen"
+    nachricht="Diesen Beleg wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+    (bestaetigt)="facade.loeschenAusfuehren()"
+    (abgebrochen)="facade.loeschenAbbrechen()"
+  />
+}
+</div>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Verdana, Arial, sans-serif; font-size: 10px; color: #000; padding: 20px 30px; }
+  h1 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .sub { font-size: 9px; color: #555; margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 3px 6px; border-bottom: 1px solid #eee; font-size: 9px; }
+  .betrag { text-align: right; white-space: nowrap; }
+  .section-head td { background: #f0f0f0; font-weight: 700; font-size: 9px; text-transform: uppercase; padding: 4px 6px; border-top: 1px solid #ccc; }
+  .total-row td { font-weight: 700; border-top: 1px solid #999; background: #f8f8f8; }
+  .gewinn-row td { font-weight: 700; font-size: 11px; border-top: 2px solid #333; background: #eef2ff; padding: 5px 6px; }
+</style>
+</head>
+<body>
+  <h1>{{firma.firma}} — EÜR {{jahr}}</h1>
+  <div class="sub">§4 Abs. 3 EStG · Wirtschaftsjahr {{jahr}} · Erstellt: {{erstelltAm}}</div>
+  <table>
+    <tbody>
+      <tr class="section-head"><td colspan="3">BETRIEBSEINNAHMEN</td></tr>
+      {{#if einnahmen.inc0}}<tr><td>Z. 14/17</td><td>Umsätze 0 % MwSt (steuerfrei)</td><td class="betrag">{{fmtEur einnahmen.inc0}}</td></tr>{{/if}}
+      {{#if einnahmen.inc7}}<tr><td>Z. 15</td><td>Umsätze 7 % USt</td><td class="betrag">{{fmtEur einnahmen.inc7}}</td></tr>{{/if}}
+      <tr><td>Z. 16</td><td>Umsätze 19 % USt</td><td class="betrag">{{fmtEur einnahmen.inc19}}</td></tr>
+      <tr class="total-row"><td></td><td>Summe Betriebseinnahmen (Netto)</td><td class="betrag">{{fmtEur einnahmen.summe}}</td></tr>
+
+      <tr class="section-head"><td colspan="3">BETRIEBSAUSGABEN</td></tr>
+      {{#each ausgaben.zeilen}}
+      {{#if betrag}}<tr><td>Z. {{zeile}}</td><td>{{label}}</td><td class="betrag">{{fmtEur betrag}}</td></tr>{{/if}}
+      {{/each}}
+      <tr class="total-row"><td></td><td>Summe Betriebsausgaben</td><td class="betrag">{{fmtEur ausgaben.summe}}</td></tr>
+
+      <tr class="section-head"><td colspan="3">UMSATZSTEUER</td></tr>
+      {{#if ust.ust7}}<tr><td></td><td>USt 7 %</td><td class="betrag">{{fmtEur ust.ust7}}</td></tr>{{/if}}
+      <tr><td></td><td>USt 19 %</td><td class="betrag">{{fmtEur ust.ust19}}</td></tr>
+      <tr><td></td><td>Abzugsfähige Vorsteuer</td><td class="betrag">{{fmtEur ust.vstGesamt}}</td></tr>
+      <tr class="total-row"><td></td><td>Zahllast (USt − Vorsteuer)</td><td class="betrag">{{fmtEur ust.zahllast}}</td></tr>
+
+      <tr class="gewinn-row"><td></td><td>GEWINN / VERLUST (§4 Abs. 3 EStG)</td><td class="betrag">{{fmtEur gewinn}}</td></tr>
+    </tbody>
+  </table>
+</body>
+</html>

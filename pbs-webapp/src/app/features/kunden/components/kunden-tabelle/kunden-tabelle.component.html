@@ -1,0 +1,73 @@
+@if (laedt()) {
+  <app-skeleton-rows [anzahl]="6" />
+} @else if (kunden().length === 0 && !suchbegriff()) {
+  <app-empty-state
+    titel="Noch keine Kunden angelegt"
+    beschreibung="Trage oben den ersten Kunden ein."
+    aktionLabel="Ersten Kunden anlegen"
+    (aktion)="neuAnlegen.emit()"
+  />
+} @else if (kunden().length === 0 && suchbegriff()) {
+  <div class="keine-treffer">
+    Keine Treffer für „{{ suchbegriff() }}"
+  </div>
+} @else {
+  <div class="tabelle-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Straße</th>
+          <th>Ort</th>
+          <th>Telefon</th>
+          <th>E-Mail</th>
+          <th class="text-right">Umsatz (bezahlt)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (kunde of kunden(); track kunde.id) {
+          <tr>
+            <td class="col-name">
+              <div class="name-cell">
+                <span class="name-text">{{ kunde.name }}</span>
+                @if (umsatzFuerKunde(kunde.id); as u) {
+                  @if (u.rechnungenAnzahl > 0) {
+                    <a class="tag tag-green" [routerLink]="['/rechnungen']" [queryParams]="{q: kunde.name}" title="Rechnungen anzeigen">{{ u.rechnungenAnzahl }} RE</a>
+                  }
+                  @if (u.angeboteAnzahl > 0) {
+                    <a class="tag tag-primary" [routerLink]="['/angebote']" [queryParams]="{q: kunde.name}" title="Angebote anzeigen">{{ u.angeboteAnzahl }} ANG</a>
+                  }
+                }
+              </div>
+            </td>
+            <td class="col-text">{{ kunde.strasse || '–' }}</td>
+            <td class="col-text">{{ kunde.ort || '–' }}</td>
+            <td class="col-text">{{ kunde.tel || '–' }}</td>
+            <td class="col-text">{{ kunde.email || '–' }}</td>
+            <td class="col-umsatz text-right">
+              @if (umsatzFuerKunde(kunde.id)?.umsatzBezahlt) {
+                <span class="text-success">{{ waehrungFormatieren(umsatzFuerKunde(kunde.id)!.umsatzBezahlt) }}</span>
+              } @else {
+                <span class="text-muted">–</span>
+              }
+            </td>
+            <td class="col-aktionen">
+              <div class="aktionen">
+                <button class="btn-action" (click)="offenePosten.emit(kunde.id)">Offene Posten</button>
+                <button class="btn-action btn-action--primary" (click)="rechnung.emit(kunde)">+ Rechnung</button>
+                <button class="btn-action btn-action--success" (click)="angebot.emit(kunde)">+ Angebot</button>
+                <button class="btn-action" (click)="bearbeiten.emit(kunde)">Bearbeiten</button>
+                @if (hatVerknuepfteDokumente(kunde.id)) {
+                  <span class="btn-action btn-action--disabled" title="Hat verknüpfte Dokumente">Nicht löschbar</span>
+                } @else {
+                  <button class="btn-action btn-action--danger" (click)="loeschen.emit(kunde.id)">Löschen</button>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

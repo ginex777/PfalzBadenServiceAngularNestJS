@@ -1,0 +1,109 @@
+<!-- Objekt-Header -->
+<div class="detail-header">
+  <div class="detail-header__info">
+    <span class="detail-header__name">{{ objekt().name }}</span>
+    <span class="detail-header__adresse">{{ adresseFormatieren(objekt()) }}</span>
+    @if (aktiveVorlage()) {
+      <span class="vorlage-badge">✓ {{ aktiveVorlage()!.name }}</span>
+    }
+  </div>
+  <div class="detail-header__actions">
+    <select class="filter-select" [value]="monatFilter() ?? ''" (change)="onMonatFilter($event)">
+      <option value="">Alle Monate</option>
+      @for (monat of monate; track $index) {
+        <option [value]="$index">{{ monat }}</option>
+      }
+    </select>
+    <label class="btn btn-sm vergangene-toggle">
+      <input
+        type="checkbox"
+        [checked]="vergangeneAusblenden()"
+        (change)="vergangeneToggle.emit($any($event.target).checked)"
+      />
+      Vergangene
+    </label>
+    <button class="btn btn-sm btn-primary" (click)="terminHinzufuegen.emit()">+ Termin</button>
+    <button
+      class="btn btn-sm"
+      [class.btn-filter-aktiv]="hatAktivenFilter()"
+      (click)="filterOeffnen.emit()"
+    >Filter</button>
+    <button class="btn btn-sm" (click)="vorlageAnwenden.emit()">Vorlage anwenden</button>
+    <button class="btn btn-sm" (click)="pdfErstellen.emit()">Monatsabschluss</button>
+    <button class="btn btn-sm" (click)="bearbeiten.emit()">Bearbeiten</button>
+    <button class="btn btn-sm btn-danger" (click)="loeschen.emit()">Löschen</button>
+  </div>
+</div>
+
+<!-- Nächste Termine -->
+@if (naechsteTermine().length > 0) {
+  <div class="naechste-termine">
+    <span class="naechste-termine__label">Nächste:</span>
+    @for (t of naechsteTermine(); track t.id) {
+      <div class="naechster-termin" [class]="'naechster-termin--' + t.status">
+        <span class="termin-punkt" [style.background]="t.farbe"></span>
+        {{ t.muellart }} — {{ naechsterLabel(t) }}
+        <span class="naechster-termin__abholung">(Abholung {{ datumFormatieren(t.abholungAnzeige) }})</span>
+      </div>
+    }
+  </div>
+}
+
+<!-- Termin-Tabelle -->
+@if (termine().length === 0) {
+  <div class="termin-leer">Keine Termine</div>
+} @else {
+  <div class="termin-tabelle-wrap">
+    <table class="termin-tabelle">
+      <thead>
+        <tr>
+          <th>Tonne rausstellen</th>
+          <th>Müllabholung</th>
+          <th>Müllart</th>
+          <th>Status</th>
+          <th class="col-erledigt">Erledigt</th>
+          <th class="col-aktion"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (gruppe of monatsGruppen(); track gruppe.key) {
+          <tr class="monat-gruppe-header">
+            <td colspan="6">{{ gruppe.label }}</td>
+          </tr>
+          @for (t of gruppe.termine; track t.id) {
+            <tr
+              class="termin-zeile"
+              [class.termin-zeile--heute]="t.status === 'heute'"
+              [class.termin-zeile--bald]="t.status === 'morgen' || t.status === 'bald'"
+              [class.termin-zeile--verpasst]="t.status === 'verpasst'"
+              [class.termin-zeile--erledigt]="t.erledigt"
+            >
+              <td class="col-rausstellen">{{ datumFormatieren(t.rausstellen) }}</td>
+              <td class="col-abholung">{{ datumFormatieren(t.abholungAnzeige) }}</td>
+              <td>
+                <span class="muell-badge" [style.background]="t.farbe">{{ t.muellart }}</span>
+              </td>
+              <td>
+                <span class="status-badge" [class]="'status-badge--' + t.status">
+                  {{ statusLabel(t) }}
+                </span>
+              </td>
+              <td class="col-erledigt">
+                <input
+                  type="checkbox"
+                  [checked]="t.erledigt"
+                  [disabled]="!erledigtAenderbar(t)"
+                  [title]="!erledigtAenderbar(t) ? 'Erst ab ' + datumFormatieren(t.rausstellen) + ' abhakbar' : ''"
+                  (change)="terminErledigt.emit({ id: t.id, erledigt: $any($event.target).checked })"
+                />
+              </td>
+              <td class="col-aktion">
+                <button class="btn-action btn-action-danger" (click)="terminLoeschen.emit(t.id)">Löschen</button>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+}

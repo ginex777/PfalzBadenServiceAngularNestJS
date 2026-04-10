@@ -1,0 +1,76 @@
+<div class="modal-overlay" (click)="schliessen()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <h3 class="modal-titel">Offene Posten – {{ daten().kundeName }}</h3>
+
+    <!-- Kennzahlen -->
+    <div class="kennzahlen">
+      <div class="kennzahl kennzahl--danger">
+        <span class="kennzahl-wert">{{ waehrungFormatieren(daten().offenSaldo) }}</span>
+        <span class="kennzahl-label">{{ daten().offeneAnzahl }} offene Rechnung(en)</span>
+      </div>
+      <div class="kennzahl kennzahl--success">
+        <span class="kennzahl-wert">{{ waehrungFormatieren(daten().umsatzBezahlt) }}</span>
+        <span class="kennzahl-label">Gesamtumsatz bezahlt</span>
+      </div>
+      @if (daten().ueberfaelligeAnzahl > 0) {
+        <div class="kennzahl kennzahl--warning">
+          <span class="kennzahl-wert">{{ daten().ueberfaelligeAnzahl }} überfällig</span>
+          <span class="kennzahl-label">{{ waehrungFormatieren(daten().ueberfaelligeSumme) }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Rechnungsliste -->
+    <div class="tabelle-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nr.</th>
+            <th>Titel</th>
+            <th>Datum</th>
+            <th class="text-right">Betrag</th>
+            <th>Status</th>
+            <th>Fällig / Bezahlt</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (daten().rechnungen.length === 0) {
+            <tr>
+              <td colspan="6" class="leer">Keine Rechnungen vorhanden</td>
+            </tr>
+          } @else {
+            @for (re of daten().rechnungen; track re.id) {
+              <tr>
+                <td class="col-nr">{{ re.nr }}</td>
+                <td class="col-titel">{{ re.titel || '–' }}</td>
+                <td class="col-datum">{{ datumFormatieren(re.datum) }}</td>
+                <td class="col-betrag text-right">{{ waehrungFormatieren(re.brutto) }}</td>
+                <td>
+                  <span [class]="rechnungStatusKlasse(re.bezahlt, re.ueberfaellig)">
+                    {{ rechnungStatusText(re.bezahlt, re.ueberfaellig) }}
+                  </span>
+                </td>
+                <td class="col-datum hint-sm">
+                  {{ re.bezahlt ? datumFormatieren(re.bezahlt_am) : datumFormatieren(re.frist) }}
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Aktionen -->
+    <div class="modal-aktionen">
+      <button class="btn btn-primary" (click)="rechnungErstellen()">+ Neue Rechnung</button>
+      @if (daten().ueberfaelligeAnzahl > 0) {
+        <button class="btn btn-danger" (click)="sammelMahnungSenden()">
+          Sammel-Mahnung ({{ daten().ueberfaelligeAnzahl }})
+        </button>
+      }
+      <button class="btn" (click)="schliessen()">Schließen</button>
+    </div>
+
+  </div>
+</div>

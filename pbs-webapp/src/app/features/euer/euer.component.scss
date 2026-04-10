@@ -1,0 +1,36 @@
+.jahr-toolbar {
+  display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;
+}
+.jahr-label { font-size: 13px; font-weight: 500; }
+.laedt-hinweis { font-size: 12px; color: var(--gray-500); }
+.ergebnis-banner {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac;
+  border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem;
+  &.verlust { background: linear-gradient(135deg, #fef2f2, #fee2e2); border-color: #fca5a5; }
+}
+.ergebnis-haupt { margin-bottom: 0.75rem; }
+.ergebnis-label { font-size: 12px; color: var(--gray-600); margin-bottom: 0.25rem; }
+.ergebnis-wert { font-size: 28px; font-weight: 800; color: var(--gray-900); }
+.ergebnis-details { display: flex; gap: 2rem; flex-wrap: wrap; }
+.ergebnis-detail { }
+.detail-label { font-size: 11px; color: var(--gray-500); margin-bottom: 2px; }
+.detail-wert { font-size: 15px; font-weight: 700;
+  &.success { color: var(--success); }
+  &.danger { color: var(--danger); }
+}
+.card-kopf { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+.tabellen-titel { font-size: 15px; font-weight: 700; }
+.tabellen-untertitel { font-size: 12px; color: var(--gray-500); }
+.firma-info { font-size: 11px; color: var(--gray-600); text-align: right; line-height: 1.5; }
+.euer-tabelle { width: 100%; border-collapse: collapse;
+  td { padding: 5px 8px; border-bottom: 1px solid var(--gray-100); font-size: 12px; }
+}
+.zeile-nr { color: var(--gray-400); font-size: 10px; width: 60px; }
+.eingerueckt { padding-left: 1.5rem !important; }
+.betrag { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.section-head td { background: var(--gray-100); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 8px !important; }
+.total-row td { font-weight: 700; border-top: 2px solid var(--gray-300); background: var(--gray-50); }
+.danger-text { color: var(--danger); }
+.success-text { color: var(--success); }
+.euer-hinweis { font-size: 11px; color: var(--gray-500); margin-top: 1rem; padding: 0.75rem; background: var(--gray-50); border-radius: var(--radius-sm); line-height: 1.6; }
+.ust-card { margin-top: 1rem; }

@@ -1,0 +1,321 @@
+<div class="page-wrap">
+  <app-page-title titel="Müllplan" untertitel="Betreuungsobjekte & Abholtermine" />
+
+  @if (facade.fehler()) {
+    <div class="fehler-banner">{{ facade.fehler() }}</div>
+  }
+
+  <!-- Objekte -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="section-title" style="margin:0">
+        Objekte <span class="hint" style="margin:0;margin-left:0.4rem">{{ facade.objekte().length }}</span>
+      </h3>
+      <div style="display:flex;gap:0.4rem">
+        <button class="btn btn-sm" (click)="facade.vorlagenModalOeffnen()">
+          Vorlagen <span class="hint" style="margin:0;margin-left:0.25rem">{{ facade.vorlagen().length }}</span>
+        </button>
+        <button class="btn btn-sm btn-primary" (click)="facade.objektFormularOeffnen()">+ Objekt</button>
+      </div>
+    </div>
+    <app-objekt-liste
+      [objekte]="facade.objekte()"
+      [aktuellesObjekt]="facade.aktuellesObjekt()"
+      (auswaehlen)="facade.objektAuswaehlen($event)"
+      (bearbeiten)="facade.objektFormularOeffnen($event)"
+      (loeschen)="facade.objektLoeschenBestaetigen($event)"
+      (neuAnlegen)="facade.objektFormularOeffnen()"
+    />
+  </div>
+
+  <!-- Anstehende Termine -->
+  @if (facade.anstehendeTermine().length) {
+    <div class="card">
+      <h3 class="section-title">Anstehende Termine (nächste 5)</h3>
+      <div class="anstehende-liste">
+        @for (termin of facade.anstehendeTermine(); track termin.id) {
+          <div class="anstehender-termin">
+            <span class="muell-badge" [style.background]="termin.farbe">{{ termin.muellart }}</span>
+            <span class="termin-objekt">{{ termin.objekt_name }}</span>
+            <span class="termin-datum">{{ fmtDatum(termin.abholung) }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Detail Panel -->
+  @if (facade.aktuellesObjekt()) {
+    <div class="card">
+      <div class="detail-kopf">
+        <div>
+          <span class="detail-name">{{ facade.aktuellesObjekt()!.name }}</span>
+          @if (facade.aktuellesObjekt()!.strasse || facade.aktuellesObjekt()!.ort) {
+            <span class="detail-adresse">{{ adresseFormatieren(facade.aktuellesObjekt()!) }}</span>
+          }
+          @if (facade.aktuellesObjekt()!.vorlage_id) {
+            <span class="vorlage-aktiv-badge">Vorlage aktiv</span>
+          }
+          <div style="display:inline-flex;gap:0.25rem;margin-left:0.5rem">
+            <button class="btn-action" (click)="facade.objektFormularOeffnen(facade.aktuellesObjekt()!)">Bearbeiten</button>
+            <button class="btn-action btn-action--danger" (click)="facade.objektLoeschenBestaetigen(facade.aktuellesObjekt()!.id)">Löschen</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+          <select class="filter-select" [value]="facade.terminMonatFilter()" (change)="terminMonatFilterGeaendert($event)">
+            <option value="">Alle Monate</option>
+            @for (m of monate; track $index) {
+              <option [value]="$index">{{ m }}</option>
+            }
+          </select>
+          <select class="filter-select" [value]="facade.muellartFilter()" (change)="facade.muellartFilter.set($any($event.target).value)">
+            <option value="">Alle Müllarten</option>
+            @for (art of facade.eindeutigeMuellarten(); track art) {
+              <option [value]="art">{{ art }}</option>
+            }
+          </select>
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer">
+            <input type="checkbox" [checked]="facade.vergangeneAusblenden()" (change)="facade.vergangeneAusblenden.update(v => !v)" style="width:auto;margin:0">
+            Vergangene
+          </label>
+          <button class="btn btn-sm" (click)="facade.monatsabschlussPdfGenerieren()">Monatsabschluss</button>
+          <button class="btn btn-sm" (click)="facade.kopierenModalOeffnen()">Termine kopieren</button>
+          <button class="btn btn-sm" (click)="facade.vorlageAnwendenOeffnen()">Vorlage anwenden</button>
+          <button class="btn btn-sm btn-primary" (click)="facade.terminFormularOeffnen()">+ Termin</button>
+        </div>
+      </div>
+      <app-termin-liste
+        [termine]="facade.gefilterteTermine()"
+        (bearbeiten)="facade.terminFormularOeffnen($event)"
+        (loeschen)="facade.terminLoeschen($event)"
+        (erledigtToggle)="facade.erledigtToggle($event)"
+      />
+    </div>
+  }
+
+  @if (!facade.aktuellesObjekt() && !facade.objekte().length && !facade.laedt()) {
+    <div class="leer-hinweis">Objekt auswählen oder neues Objekt anlegen</div>
+  }
+</div>
+
+<!-- Objekt Modal -->
+@if (facade.objektFormularSichtbar()) {
+  <div class="modal-overlay" (click)="facade.objektFormularSchliessen()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3 style="margin-bottom:1rem">{{ facade.bearbeitetesObjekt() ? 'Objekt bearbeiten' : 'Neues Objekt' }}</h3>
+      <div class="form-field">
+        <label>Name *</label>
+        <input type="text" [value]="facade.objektFormularDaten().name" (input)="objektFeldGeaendert('name', $event)" placeholder="z.B. Wohnanlage Musterstraße">
+      </div>
+      <div class="form-row">
+        <div class="form-field" style="flex:2">
+          <label>Straße</label>
+          <input type="text" [value]="facade.objektFormularDaten().strasse" (input)="objektFeldGeaendert('strasse', $event)">
+        </div>
+        <div class="form-field" style="flex:1">
+          <label>PLZ</label>
+          <input type="text" [value]="facade.objektFormularDaten().plz" (input)="objektFeldGeaendert('plz', $event)" maxlength="5">
+        </div>
+        <div class="form-field" style="flex:2">
+          <label>Ort</label>
+          <input type="text" [value]="facade.objektFormularDaten().ort" (input)="objektFeldGeaendert('ort', $event)">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Kunde (optional)</label>
+        <select [value]="facade.objektFormularDaten().kunden_id ?? ''" (change)="objektFeldGeaendert('kunden_id', $event)">
+          <option value="">-- kein Kunde --</option>
+          @for (k of facade.kunden(); track k.id) {
+            <option [value]="k.id">{{ k.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Notiz</label>
+        <textarea rows="2" [value]="facade.objektFormularDaten().notiz" (input)="objektFeldGeaendert('notiz', $event)"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" (click)="facade.objektFormularSchliessen()">Abbrechen</button>
+        <button class="btn btn-primary" (click)="facade.objektSpeichern()">Speichern</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Termin Modal -->
+@if (facade.terminFormularSichtbar()) {
+  <div class="modal-overlay" (click)="facade.terminFormularSchliessen()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3 style="margin-bottom:1rem">{{ facade.bearbeiteterTermin() ? 'Termin bearbeiten' : 'Neuer Abholtermin' }}</h3>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Müllart *</label>
+          <input type="text" [value]="facade.terminFormularDaten().muellart" (input)="terminFeldGeaendert('muellart', $event)" placeholder="z.B. Restmüll, Gelber Sack">
+        </div>
+        <div class="form-field" style="flex:0 0 80px">
+          <label>Farbe</label>
+          <input type="color" [value]="facade.terminFormularDaten().farbe" (input)="terminFeldGeaendert('farbe', $event)" style="height:38px;padding:2px 4px;cursor:pointer;width:100%">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Abholungsdatum *</label>
+        <input type="date" [value]="facade.terminFormularDaten().abholung" (change)="terminFeldGeaendert('abholung', $event)">
+        <span class="form-hint">Rausstellen: 1 Tag vorher (automatisch)</span>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" (click)="facade.terminFormularSchliessen()">Abbrechen</button>
+        <button class="btn btn-primary" (click)="facade.terminSpeichern()">Speichern</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Vorlagen Management Modal -->
+@if (facade.vorlagenModalSichtbar()) {
+  <div class="modal-overlay" (click)="facade.vorlagenModalSchliessen()">
+    <div class="modal modal--lg" (click)="$event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <h3 style="margin:0">Müllplan-Vorlagen <span class="hint" style="margin:0;margin-left:0.5rem">{{ facade.vorlagen().length }}</span></h3>
+        <button class="btn btn-sm btn-primary" (click)="facade.vorlagenModalSchliessen(); facade.vorlageFormularOeffnen()">+ Neue Vorlage</button>
+      </div>
+
+      @if (!facade.vorlagen().length) {
+        <div class="leer-hinweis">Noch keine Vorlagen — klicke "+ Neue Vorlage"</div>
+      } @else {
+        <div class="vorlagen-liste">
+          @for (v of facade.vorlagen(); track v.id) {
+            <div class="vorlage-zeile">
+              <span class="vorlage-name">{{ v.name }}</span>
+              <div style="display:flex;gap:0.3rem;align-items:center">
+                @if (v.pdf_name) {
+                  <button class="btn-action" (click)="facade.vorlagePdfOeffnen(v.id)" title="PDF öffnen">PDF öffnen</button>
+                }
+                <label class="btn-action" style="cursor:pointer;margin:0" title="PDF hochladen">
+                  PDF
+                  <input type="file" accept="application/pdf" style="display:none" (change)="vorlagePdfHochladen(v.id, $event)">
+                </label>
+                <button class="btn-action btn-action--danger" (click)="facade.vorlageLoeschen(v.id)">Löschen</button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="modal-footer">
+        <button class="btn" (click)="facade.vorlagenModalSchliessen()">Schließen</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Neue Vorlage Modal -->
+@if (facade.vorlageFormularSichtbar()) {
+  <div class="modal-overlay" (click)="facade.vorlageFormularSchliessen()">
+    <div class="modal modal--lg" (click)="$event.stopPropagation()">
+      <h3 style="margin-bottom:0.5rem">Müllplan-Vorlage anlegen</h3>
+      <p class="hint" style="margin-bottom:0.75rem">
+        Gib einen Namen ein und füge den Abfuhrplan als Text ein — z.B. direkt aus dem PDF kopiert.<br>
+        Format: <code style="font-size:11px;background:var(--gray-100);padding:1px 4px;border-radius:3px">Januar: Biotonne 8.22, Restmüll 8.22, Gelber Sack 2.15.29</code>
+      </p>
+      <div class="form-row">
+        <div class="form-field" style="flex:3">
+          <label>Vorlagenname *</label>
+          <input type="text" [value]="facade.vorlageFormularDaten().name" (input)="vorlageFeldGeaendert('name', $event)" placeholder="z.B. Blaues Abfuhrgebiet Speyer 2026">
+        </div>
+        <div class="form-field" style="flex:1">
+          <label>Jahr</label>
+          <input type="number" [value]="facade.vorlageFormularDaten().jahr" (input)="vorlageFeldGeaendert('jahr', $event)" style="width:100px">
+        </div>
+      </div>
+      <div class="form-field" style="margin-bottom:0.75rem">
+        <label>Abfuhrplan-Text *</label>
+        <textarea rows="8" [value]="facade.vorlageFormularDaten().text" (input)="vorlageFeldGeaendert('text', $event)"
+          placeholder="Januar: Biotonne 8.22, Restmüll 8.22, Gelber Sack 2.15.29&#10;Februar: Biotonne 5.19, Restmüll 5.19, Gelber Sack 12.26&#10;..."
+          style="font-family:monospace;font-size:12px"></textarea>
+      </div>
+
+      @if (facade.vorlageVorschau().length) {
+        <div class="vorschau-box">
+          <strong>Vorschau: {{ facade.vorlageVorschau().length }} Termine erkannt</strong>
+          <div class="vorschau-liste">
+            @for (t of facade.vorlageVorschau().slice(0, 10); track t.datum + t.muellart) {
+              <span class="muell-badge" [style.background]="t.farbe">{{ t.muellart }} {{ fmtDatum(t.datum) }}</span>
+            }
+            @if (facade.vorlageVorschau().length > 10) {
+              <span class="hint">… und {{ facade.vorlageVorschau().length - 10 }} weitere</span>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="modal-footer">
+        <button class="btn" (click)="facade.vorlageVorschauBerechnen()">Vorschau</button>
+        <button class="btn btn-primary" (click)="facade.vorlageSpeichern()">Vorlage speichern</button>
+        <button class="btn" (click)="facade.vorlageFormularSchliessen()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Vorlage anwenden Modal -->
+@if (facade.vorlageAnwendenSichtbar()) {
+  <div class="modal-overlay" (click)="facade.vorlageAnwendenSchliessen()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3 style="margin-bottom:0.5rem">Vorlage anwenden</h3>
+      <p class="hint" style="margin-bottom:0.75rem">
+        Vorlage auf <strong>{{ facade.aktuellesObjekt()?.name }}</strong> anwenden
+      </p>
+      <div class="form-field" style="margin-bottom:0.75rem">
+        <label>Vorlage wählen</label>
+        <select [value]="facade.vorlageAnwendenId() ?? ''" (change)="facade.vorlageAnwendenId.set($any($event.target).value ? +$any($event.target).value : null)">
+          <option value="">-- Vorlage wählen --</option>
+          @for (v of facade.vorlagen(); track v.id) {
+            <option [value]="v.id">{{ v.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" [disabled]="!facade.vorlageAnwendenId()" (click)="facade.vorlageAnwenden()">Anwenden</button>
+        <button class="btn" (click)="facade.vorlageAnwendenSchliessen()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Termine kopieren Modal -->
+@if (facade.kopierenModalSichtbar()) {
+  <div class="modal-overlay" (click)="facade.kopierenModalSchliessen()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3 style="margin-bottom:0.5rem">Termine kopieren von</h3>
+      <p class="hint" style="margin-bottom:0.75rem">
+        Alle Termine eines anderen Objekts in <strong>{{ facade.aktuellesObjekt()?.name }}</strong> kopieren.
+      </p>
+      <div class="form-field" style="margin-bottom:0.75rem">
+        <label>Quell-Objekt</label>
+        <select [value]="facade.kopierenVonObjektId() ?? ''"
+          (change)="facade.kopierenVonObjektId.set($any($event.target).value ? +$any($event.target).value : null)">
+          <option value="">-- Objekt wählen --</option>
+          @for (o of facade.objekte(); track o.id) {
+            @if (o.id !== facade.aktuellesObjekt()?.id) {
+              <option [value]="o.id">{{ o.name }}</option>
+            }
+          }
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" [disabled]="!facade.kopierenVonObjektId()" (click)="facade.termineKopierenAusfuehren()">Kopieren</button>
+        <button class="btn" (click)="facade.kopierenModalSchliessen()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Löschen Bestätigung -->
+@if (facade.loeschKandidat() !== null) {
+  <app-confirm-modal
+    titel="Objekt löschen"
+    nachricht="Dieses Objekt und alle Termine löschen?"
+    (bestaetigt)="facade.objektLoeschenAusfuehren()"
+    (abgebrochen)="facade.loeschenAbbrechen()"
+  />
+}

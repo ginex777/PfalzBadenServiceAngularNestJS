@@ -1,0 +1,238 @@
+<div class="buchhaltung">
+
+  <!-- Monatstabs -->
+  <app-monats-tabs
+    [aktuellerMonat]="facade.aktuellerMonat()"
+    [ansichtsModus]="facade.ansichtsModus()"
+    [gesperrteMonateSet]="facade.gesperrteMonateSet()"
+    [monatHatDaten]="facade.monatHatDaten()"
+    (monatGewaehlt)="monatWechseln($event)"
+    (jahresansichtGewaehlt)="jahresansichtUmschalten()"
+  />
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <select
+      class="jahr-select"
+      [value]="facade.aktuellesJahr()"
+      (change)="jahrWechseln($event)"
+    >
+      @for (jahr of verfuegbareJahre(); track jahr) {
+        <option [value]="jahr" [selected]="jahr === facade.aktuellesJahr()">{{ jahr }}</option>
+      }
+    </select>
+
+    @if (facade.ansichtsModus() === 'monat') {
+      @if (facade.speicherStatus().dirty) {
+        <button
+          class="btn btn--speichern btn--dirty"
+          (click)="batchSpeichern()"
+          [disabled]="facade.speicherStatus().speichernLaeuft"
+          type="button"
+        >
+          @if (facade.speicherStatus().speichernLaeuft) {
+            Speichert…
+          } @else {
+            ● Speichern
+          }
+        </button>
+      } @else {
+        <button class="btn btn--speichern" (click)="batchSpeichern()" type="button">
+          Speichern
+        </button>
+      }
+
+      @if (facade.istGesperrt()) {
+        <button class="btn btn--entsperren" (click)="monatEntsperren()" type="button">
+          Monat entsperren
+        </button>
+      } @else {
+        <button class="btn btn--sperren" (click)="monatSperren()" type="button">
+          Monat sperren
+        </button>
+      }
+    }
+
+    <div class="toolbar-spacer"></div>
+    <button class="btn btn-sm" (click)="pdfExportieren()">PDF exportieren</button>
+    <button class="btn btn-sm" (click)="excelExportieren()">Excel exportieren</button>
+    <button class="btn btn-sm btn-primary" (click)="jahresabschlussExportieren()">Jahresabschluss PDF</button>
+    <a [routerLink]="['/datev']" class="btn btn-sm">DATEV Export</a>
+  </div>
+
+  <!-- Fehler-Banner -->
+  @if (facade.fehler()) {
+    <div class="fehler-banner">
+      {{ facade.fehler() }}
+    </div>
+  }
+
+  <!-- Ladeindikator -->
+  @if (facade.ladelaeuft()) {
+    <div class="lade-indikator">Daten werden geladen…</div>
+  }
+
+  <!-- Monatsansicht -->
+  @if (facade.ansichtsModus() === 'monat' && !facade.ladelaeuft()) {
+    <div class="monat-layout">
+      <div class="linke-spalte">
+
+        <!-- Einnahmen -->
+        <div class="karte karte--einnahmen">
+          <div class="karte-kopf">
+            <h3 class="karte-titel">{{ aktuellerMonatName() }}</h3>
+            @if (!facade.istGesperrt()) {
+              <button class="btn btn--gefaehrlich-klein" (click)="monatLeeren()" type="button">
+                Monat leeren
+              </button>
+            }
+          </div>
+          <app-einnahmen-tabelle
+            [zeilen]="facade.aktuelleEinnahmen()"
+            [istGesperrt]="facade.istGesperrt()"
+            (zeileHinzufuegen)="einnahmeZeileHinzufuegen()"
+            (zeileEntfernen)="einnahmeZeileEntfernen($event)"
+            (zeileKopieren)="einnahmeZeileKopieren($event)"
+            (zeileAktualisieren)="einnahmeZeileAktualisieren($event)"
+            (belegOeffnen)="einnahmeBelegOeffnen($event)"
+          />
+        </div>
+
+        <!-- Ausgaben -->
+        <div class="karte karte--ausgaben">
+          <app-ausgaben-tabelle
+            [zeilen]="facade.aktuelleAusgaben()"
+            [istGesperrt]="facade.istGesperrt()"
+            (zeileHinzufuegen)="ausgabeZeileHinzufuegen()"
+            (zeileEntfernen)="ausgabeZeileEntfernen($event)"
+            (zeileKopieren)="ausgabeZeileKopieren($event)"
+            (zeileAktualisieren)="ausgabeZeileAktualisieren($event)"
+            (kategorieAktualisieren)="kategorieAktualisieren($event)"
+            (wiederkehrendeKostenAnwenden)="wiederkehrendeKostenAnwenden()"
+            (belegOeffnen)="ausgabeBelegOeffnen($event)"
+          />
+        </div>
+
+      </div>
+
+      <!-- Monatsergebnis (rechte Spalte) -->
+      <div class="rechte-spalte">
+        <app-monats-ergebnis
+          [ergebnis]="facade.aktuellesMonatsergebnis()"
+          [monatName]="aktuellerMonatName()"
+        />
+      </div>
+    </div>
+  }
+
+  <!-- Jahresübersicht -->
+  @if (facade.ansichtsModus() === 'jahresuebersicht' && !facade.ladelaeuft()) {
+    <app-jahres-uebersicht
+      [jahr]="facade.aktuellesJahr()"
+      [quartalsDaten]="facade.quartalsDaten()"
+      [jahresMonatsDaten]="facade.jahresMonatsDaten()"
+      [vstQuartale]="facade.vstQuartale()"
+      (vstAlsGezahltMarkieren)="vstAlsGezahltMarkieren($event)"
+      (vstZahlungZuruecksetzen)="vstZahlungZuruecksetzen($event)"
+    />
+  }
+
+</div>
+
+<!-- Belegnummer-Warnung Modal (GoBD) -->
+@if (belegnummerWarnungSichtbar()) {
+  <div class="modal-overlay" (click)="belegnummerWarnungAbbrechen()">
+    <div class="modal" style="max-width:480px" (click)="$event.stopPropagation()">
+      <h3 style="margin-bottom:0.75rem">Belegnummer fehlt</h3>
+      <p style="color:var(--gray-600);font-size:13px;margin-bottom:0.75rem">
+        Einige Ausgaben haben keine Belegnummer. Laut GoBD (§146 AO) muss jede Buchung
+        einer Belegnummer zugeordnet sein, um die Nachvollziehbarkeit zu gewährleisten.
+      </p>
+      <p style="color:var(--gray-600);font-size:13px;margin-bottom:1rem">
+        Möchten Sie trotzdem speichern?
+      </p>
+      <div class="modal-footer">
+        <button class="btn" (click)="belegnummerWarnungAbbrechen()">Abbrechen</button>
+        <button class="btn btn-primary" (click)="belegnummerWarnungBestaetigen()">Trotzdem speichern</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Bestätigungs-Dialog -->
+@if (facade.bestaetigenDialog()) {
+  <app-confirm-modal
+    [titel]="facade.bestaetigenDialog()!.titel"
+    [nachricht]="facade.bestaetigenDialog()!.nachricht"
+    bestaetigenLabel="Bestätigen"
+    (bestaetigt)="dialogBestaetigen()"
+    (abgebrochen)="dialogAbbrechen()"
+  />
+}
+
+<!-- Beleg-Modal -->
+@if (belegModalOffen()) {
+  <div class="modal-overlay" (click)="belegModalSchliessen()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3 class="modal-titel">
+        Beleg — {{ belegModalZeile()?.name || (belegModalTyp() === 'inc' ? 'Einnahme' : 'Ausgabe') }}
+      </h3>
+      <p class="modal-hinweis">
+        GoBD §146 AO: Belege werden unveränderlich gespeichert (SHA-256 gesichert).<br />
+        Aufbewahrungspflicht: 10 Jahre (§147 AO).
+      </p>
+
+      @if (belegLaedt()) {
+        <div class="beleg-laedt">Wird geladen…</div>
+      } @else if (vorhandenerBeleg()) {
+        <div class="beleg-info">
+          <div class="beleg-datei">
+            <div class="beleg-datei-name">{{ vorhandenerBeleg()!.filename }}</div>
+            <div class="beleg-datei-meta">
+              {{ (vorhandenerBeleg()!.filesize / 1024).toFixed(1) }} KB ·
+              {{ vorhandenerBeleg()!.mimetype }} ·
+              SHA-256: <code>{{ vorhandenerBeleg()!.sha256.slice(0, 16) }}…</code>
+            </div>
+          </div>
+          <div class="beleg-aktionen">
+            <a
+              [href]="belegDownloadUrl(vorhandenerBeleg()!.id, true)"
+              target="_blank"
+              class="btn btn--klein"
+            >Anzeigen</a>
+            <a
+              [href]="belegDownloadUrl(vorhandenerBeleg()!.id)"
+              class="btn btn--klein"
+            >Download</a>
+          </div>
+        </div>
+        <div class="beleg-ersetzen">
+          <p class="beleg-ersetzen-label">Anderen Beleg hochladen (ersetzt den aktuellen):</p>
+          <input
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.tiff"
+            (change)="belegDateiHochladen($event)"
+            [disabled]="belegHochladen()"
+          />
+        </div>
+      } @else {
+        <div class="beleg-upload">
+          <p class="beleg-upload-hinweis">PDF oder Bild auswählen</p>
+          <input
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.tiff"
+            (change)="belegDateiHochladen($event)"
+            [disabled]="belegHochladen()"
+          />
+          @if (belegHochladen()) {
+            <p class="beleg-laedt">Wird hochgeladen…</p>
+          }
+        </div>
+      }
+
+      <div class="modal-fusszeile">
+        <button class="btn" (click)="belegModalSchliessen()" type="button">Schließen</button>
+      </div>
+    </div>
+  </div>
+}

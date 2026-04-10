@@ -1,0 +1,16 @@
+.objekt-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem;
+}
+.objekt-karte {
+  border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 0.75rem;
+  cursor: pointer; transition: border-color 0.15s, background 0.15s; position: relative;
+  &:hover { border-color: var(--primary); background: var(--primary-light); }
+  &.aktiv { border-color: var(--primary); background: var(--primary-light); }
+}
+.objekt-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+.objekt-adresse { font-size: 11px; color: var(--gray-500); }
+.objekt-aktionen {
+  position: absolute; top: 0.4rem; right: 0.4rem;
+  display: flex; gap: 2px; opacity: 0;
+  .objekt-karte:hover & { opacity: 1; }
+}

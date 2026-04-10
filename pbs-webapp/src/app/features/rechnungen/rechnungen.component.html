@@ -1,0 +1,224 @@
+<div class="page-wrap">
+<app-page-title titel="Rechnungen" untertitel="Erstellen & Verwalten" />
+
+<div class="stat-cards">
+  <app-stat-card
+    titel="Offen"
+    [wert]="waehrungFormatieren(facade.statistik().offen)"
+    variante="warning"
+    [laedt]="facade.laedt()"
+  />
+  <app-stat-card
+    titel="Bezahlt (Monat)"
+    [wert]="waehrungFormatieren(facade.statistik().bezahltMonat)"
+    variante="success"
+    [laedt]="facade.laedt()"
+  />
+  <app-stat-card
+    titel="Überfällig"
+    [wert]="waehrungFormatieren(facade.statistik().ueberfaellig)"
+    variante="danger"
+    [laedt]="facade.laedt()"
+  />
+  <app-stat-card
+    titel="Gesamtumsatz"
+    [wert]="waehrungFormatieren(facade.statistik().gesamtumsatz)"
+    variante="primary"
+    [laedt]="facade.laedt()"
+  />
+</div>
+
+<div class="page-tabs">
+  <button
+    class="page-tab"
+    [class.active]="facade.aktiverTab() === 'formular'"
+    (click)="facade.tabWechseln('formular')">
+    @if (facade.bearbeiteteRechnung()) { Bearbeiten } @else { Erstellen }
+  </button>
+  <button
+    class="page-tab"
+    [class.active]="facade.aktiverTab() === 'tracker'"
+    (click)="facade.tabWechseln('tracker')">
+    Tracker
+  </button>
+</div>
+
+@if (facade.fehler()) {
+  <div class="error-banner">{{ facade.fehler() }}</div>
+}
+
+@if (facade.aktiverTab() === 'formular') {
+  <div class="card">
+    <div class="card-header">
+      <button class="btn btn-sm" (click)="facade.bearbeitungAbbrechen()">+ Neue Rechnung</button>
+    </div>
+    <app-rechnungen-formular
+      [formularDaten]="facade.formularDaten()"
+      [kunden]="facade.kunden()"
+      [bearbeiteteRechnung]="facade.bearbeiteteRechnung()"
+      [speichert]="facade.speichert()"
+      [netto]="facade.netto()"
+      [brutto]="facade.brutto()"
+      [mwstBetrag]="facade.mwstBetrag()"
+      (speichern)="onSpeichern()"
+      (vorschau)="onVorschau()"
+      (abbrechen)="onAbbrechen()"
+      (positionHinzufuegen)="onPositionHinzufuegen()"
+      (positionEntfernen)="onPositionEntfernen($event)"
+      (positionKopieren)="facade.positionKopieren($event)"
+      (positionAktualisieren)="onPositionAktualisieren($event)"
+      (feldAktualisieren)="onFeldAktualisieren($event)"
+      (kundeAuswaehlen)="onKundeAuswaehlen($event)"
+    />
+  </div>
+}
+
+@if (facade.aktiverTab() === 'tracker') {
+  <div class="card">
+    <app-search-toolbar
+      platzhalter="Rechnung suchen…"
+      aktionLabel="+ Neue Rechnung"
+      [(suchbegriff)]="facade.suchbegriff"
+      (aktion)="facade.tabWechseln('formular')"
+    />
+
+    <app-rechnungen-tabelle
+      [rechnungen]="facade.seitenRechnungen()"
+      [laedt]="facade.laedt()"
+      [aktiverFilter]="facade.aktiverFilter()"
+      (bearbeiten)="onBearbeiten($event)"
+      (loeschen)="onLoeschen($event)"
+      (alsGezahlt)="onAlsGezahlt($event)"
+      (pdfGenerieren)="onPdfGenerieren($event)"
+      (filterAendern)="onFilterAendern($event)"
+      (kopieren)="onKopieren($event)"
+      (mahnung)="onMahnung($event)"
+    />
+
+    @if (facade.gesamtSeiten() > 1) {
+      <div class="pagination">
+        <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() <= 1" (click)="facade.seiteZurueck()">← Zurück</button>
+        <span class="pagination-info">Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{ facade.gefilterteRechnungen().length }} Einträge)</span>
+        <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()" (click)="facade.seiteVor()">Weiter →</button>
+      </div>
+    }
+  </div>
+
+  <app-zahlungs-tracker
+    [rechnungen]="facade.rechnungen()"
+    [bezahltKandidat]="facade.bezahltKandidat()"
+    [bezahltDatum]="facade.bezahltDatum()"
+    (alsGezahltBestaetigen)="facade.alsGezahltMarkieren()"
+    (alsGezahltAbbrechen)="facade.alsGezahltMarkierenAbbrechen()"
+    (bezahltDatumAendern)="facade.bezahltDatum.set($event)"
+  />
+}
+
+@if (facade.loeschKandidat() !== null) {
+  <app-confirm-modal
+    titel="Rechnung löschen"
+    nachricht="Diese Rechnung wird unwiderruflich gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden."
+    bestaetigenLabel="Löschen"
+    (bestaetigt)="facade.loeschenAusfuehren()"
+    (abgebrochen)="facade.loeschenAbbrechen()"
+  />
+}
+
+<!-- Mahnungen Modal -->
+@if (facade.mahnungenModalRechnung()) {
+  <div class="modal-overlay" (click)="facade.mahnungenSchliessen()">
+    <div class="modal" style="max-width:640px" (click)="$event.stopPropagation()">
+      <h3 style="margin-bottom:0.25rem">Mahnungen — Rechnung {{ facade.mahnungenModalRechnung()!.nr }}</h3>
+      <p style="font-size:12px;color:var(--gray-500);margin-bottom:1rem">{{ facade.mahnungenModalRechnung()!.empf }} · {{ facade.mahnungenModalRechnung()!.brutto | number:'1.2-2' }} EUR</p>
+
+      @if (facade.mahnungenLaedt()) {
+        <div style="padding:1rem;text-align:center;color:var(--gray-400)">Laden…</div>
+      } @else if (facade.mahnungen().length === 0) {
+        <p style="font-size:13px;color:var(--gray-400);margin-bottom:1rem">Noch keine Mahnungen vorhanden.</p>
+      } @else {
+        <table class="data-table" style="margin-bottom:1rem">
+          <thead>
+            <tr>
+              <th>Stufe</th><th>Datum</th><th class="text-right">Mahngebühr</th><th>Notiz</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of facade.mahnungen(); track m.id) {
+              <tr>
+                <td>{{ m.stufe }}. Mahnung</td>
+                <td>{{ m.datum }}</td>
+                <td class="text-right amount-cell">{{ (m.betrag_gebuehr ?? 0) | number:'1.2-2' }} €</td>
+                <td style="font-size:12px;color:var(--gray-500)">{{ m.notiz || '–' }}</td>
+                <td>
+                  <button class="btn btn--ghost btn--sm btn--danger-ghost" (click)="facade.mahnungLoeschen(m.id)" title="Mahnung löschen">
+                    Löschen
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+
+      <div style="border-top:1px solid var(--gray-200);padding-top:1rem;margin-top:0.5rem">
+        <p style="font-size:12px;font-weight:600;margin-bottom:0.5rem">Neue Mahnung erfassen</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+          <div>
+            <label style="font-size:11px;color:var(--gray-500)">Stufe</label>
+            <select class="form-input" style="font-size:12px"
+              [value]="facade.mahnungFormular().stufe"
+              (change)="onMahnungFeld('stufe', $event)">
+              <option value="1">1. Mahnung</option>
+              <option value="2">2. Mahnung</option>
+              <option value="3">3. Mahnung</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--gray-500)">Datum</label>
+            <input class="form-input" type="date" style="font-size:12px"
+              [value]="facade.mahnungFormular().datum"
+              (input)="onMahnungFeld('datum', $event)" />
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--gray-500)">Mahngebühr (€)</label>
+            <input class="form-input" type="number" min="0" step="0.50" placeholder="z.B. 5.00" style="font-size:12px"
+              [value]="facade.mahnungFormular().betrag_gebuehr"
+              (input)="onMahnungFeld('betrag_gebuehr', $event)" />
+          </div>
+        </div>
+        <div style="margin-bottom:8px">
+          <label style="font-size:11px;color:var(--gray-500)">Notiz (optional)</label>
+          <input class="form-input" type="text" placeholder="z.B. Zahlungserinnerung versandt" style="font-size:12px"
+            [value]="facade.mahnungFormular().notiz"
+            (input)="onMahnungFeld('notiz', $event)" />
+        </div>
+        <button class="btn btn-primary" style="font-size:12px" (click)="facade.mahnungHinzufuegen()">Mahnung hinzufügen</button>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:1rem">
+        <button class="btn" (click)="facade.mahnungenSchliessen()">Schließen</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Send-Modal nach Speichern -->
+@if (facade.sendModalRechnung()) {
+  <div class="modal-overlay" (click)="facade.sendModalSchliessen()">
+    <div class="modal" style="max-width:580px" (click)="$event.stopPropagation()">
+      <h3 style="margin-bottom:0.75rem">Rechnung versenden</h3>
+      <div style="background:var(--gray-50);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:0.75rem;font-size:12px">
+        <div><strong>An:</strong> {{ facade.sendModalRechnung()!.email }}</div>
+        <div style="margin-top:4px"><strong>Betreff:</strong> Rechnung {{ facade.sendModalRechnung()!.nr }}</div>
+      </div>
+      <label style="font-size:12px;color:var(--gray-500)">E-Mail Text:</label>
+      <textarea class="form-input" rows="8" [value]="sendText()" readonly style="font-size:12px;font-family:inherit;margin-top:4px"></textarea>
+      <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+        <button class="btn btn-primary" (click)="outlookOeffnen()">Outlook öffnen</button>
+        <button class="btn" (click)="textKopieren()">Kopieren</button>
+        <button class="btn" (click)="facade.sendModalSchliessen()">Schließen</button>
+      </div>
+    </div>
+  </div>
+}
+</div>

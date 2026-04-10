@@ -1,0 +1,46 @@
+.zeitraum-zeile { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1rem; }
+.feld-label { display: block; font-size: 11px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.zeitraum-btns { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.zeitraum-btn {
+  padding: 0.3rem 0.6rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); font-size: 12px; cursor: pointer; transition: all 0.15s;
+  &.aktiv { background: var(--primary); color: #fff; border-color: var(--primary); }
+  &:hover:not(.aktiv) { border-color: var(--primary); color: var(--primary); }
+}
+.datev-hinweis { font-size: 12px; color: var(--gray-500); padding: 0.5rem 0.75rem; background: var(--gray-50); border-radius: var(--radius-sm); }
+.datev-export-card { }
+.export-kopf { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.meldung {
+  padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); margin-bottom: 0.5rem; font-size: 12px;
+  display: flex; align-items: center; gap: 0.5rem;
+  &-fehler { background: var(--danger-light); color: #991b1b; }
+  &-warnung { background: var(--warning-light); color: #92400e; }
+  &-ok { background: var(--success-light); color: #065f46; }
+}
+.meldung-badge { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px;
+  &.badge-fehler { background: var(--danger); color: #fff; }
+  &.badge-warnung { background: var(--warning); color: #fff; }
+}
+.statistik-zeile { display: flex; gap: 1.5rem; flex-wrap: wrap; padding: 0.75rem; background: var(--gray-50); border-radius: var(--radius-sm); margin-bottom: 1rem; font-size: 12px; }
+.grau-text { color: var(--gray-500); }
+.vorschau-tabelle-wrap { overflow-x: auto; max-height: 500px; overflow-y: auto; }
+.vorschau-tabelle { width: 100%; border-collapse: collapse; font-size: 11px;
+  th { background: var(--gray-100); padding: 5px 8px; text-align: left; font-weight: 600; position: sticky; top: 0; }
+  td { padding: 4px 8px; border-bottom: 1px solid var(--gray-100); }
+}
+.rechts { text-align: right; }
+.mitte { text-align: center; }
+.fett { font-weight: 700; }
+.datum-zelle { white-space: nowrap; }
+.name-zelle { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zeile-einnahme { background: #f0fdf4; }
+.zeile-ausgabe { background: #fef2f2; }
+.typ-badge { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px;
+  &.badge-inc { background: var(--success-light); color: #065f46; }
+  &.badge-exp { background: var(--danger-light); color: #991b1b; }
+}
+.mehr-hinweis { font-size: 11px; color: var(--gray-500); padding: 0.5rem; text-align: center; }
+.leer-hinweis { padding: 2rem; text-align: center; color: var(--gray-500); }
+.export-btns { display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap; }
+.hint { font-size: 11px; color: var(--gray-500); }
+.datev-nummern { display: flex; gap: 1.5rem; font-size: 12px; margin-top: 0.75rem; color: var(--gray-600); }

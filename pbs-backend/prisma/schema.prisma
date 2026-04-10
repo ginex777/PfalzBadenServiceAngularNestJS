@@ -1,0 +1,372 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Kunden {
+  id         BigInt    @id @default(autoincrement())
+  name       String    @db.VarChar(200)
+  strasse    String?
+  ort        String?
+  tel        String?   @db.VarChar(50)
+  email      String?   @db.VarChar(254)
+  notiz      String?
+  created_at DateTime? @default(now()) @db.Date
+  updated_at DateTime? @updatedAt
+
+  rechnungen             Rechnungen[]
+  angebote               Angebote[]
+  objekte                Objekte[]
+  hausmeister_einsaetze  HausmeisterEinsaetze[]
+  wiederkehrende_rechnungen WiederkehrendeRechnungen[]
+
+  @@map("kunden")
+}
+
+model Rechnungen {
+  id             BigInt    @id @default(autoincrement())
+  nr             String    @unique @db.VarChar(50)
+  empf           String    @db.VarChar(200)
+  str            String?
+  ort            String?
+  titel          String?
+  datum          DateTime? @db.Date
+  leistungsdatum String?
+  email          String?   @db.VarChar(254)
+  zahlungsziel   Int?      @default(14)
+  kunden_id      BigInt?
+  brutto         Decimal   @default(0) @db.Decimal(12, 2)
+  frist          DateTime? @db.Date
+  bezahlt        Boolean   @default(false)
+  bezahlt_am     DateTime? @db.Date
+  positionen     Json      @default("[]")
+  mwst_satz      Decimal   @default(19) @db.Decimal(5, 2)
+  created_at     DateTime? @default(now()) @db.Date
+  updated_at     DateTime? @updatedAt
+
+  kunden   Kunden?   @relation(fields: [kunden_id], references: [id])
+  mahnungen Mahnungen[]
+
+  @@map("rechnungen")
+}
+
+model Angebote {
+  id          BigInt    @id @default(autoincrement())
+  nr          String    @db.VarChar(50)
+  empf        String    @db.VarChar(200)
+  str         String?
+  ort         String?
+  titel       String?
+  datum       DateTime? @db.Date
+  brutto      Decimal   @default(0) @db.Decimal(12, 2)
+  gueltig_bis DateTime? @db.Date
+  angenommen  Boolean   @default(false)
+  abgelehnt   Boolean   @default(false)
+  gesendet    Boolean   @default(false)
+  zusatz      String?
+  positionen  Json      @default("[]")
+  kunden_id   BigInt?
+  created_at  DateTime? @default(now()) @db.Date
+  updated_at  DateTime? @updatedAt
+
+  kunden Kunden? @relation(fields: [kunden_id], references: [id])
+
+  @@map("angebote")
+}
+
+model Buchhaltung {
+  id        BigInt    @id @default(autoincrement())
+  jahr      Int
+  monat     Int
+  typ       String    @db.VarChar(3)
+  name      String?
+  datum     DateTime? @db.Date
+  brutto    Decimal   @default(0) @db.Decimal(12, 2)
+  mwst      Decimal   @default(19) @db.Decimal(5, 2)
+  abzug     Decimal   @default(100) @db.Decimal(5, 2)
+  kategorie String?   @db.VarChar(100)
+  renr      String?   @db.VarChar(50)
+  belegnr   String?   @db.VarChar(50)
+  beleg_id  BigInt?
+
+  belege Belege[]
+
+  @@map("buchhaltung")
+}
+
+model VstPaid {
+  id      BigInt    @id @default(autoincrement())
+  jahr    Int
+  quartal String    @db.VarChar(10)
+  paid    Boolean   @default(false)
+  datum   DateTime? @db.Date
+
+  @@unique([jahr, quartal])
+  @@map("vst_paid")
+}
+
+model GesperrteMonat {
+  id          BigInt   @id @default(autoincrement())
+  jahr        Int
+  monat       Int
+  gesperrt_am DateTime @default(now())
+
+  @@unique([jahr, monat])
+  @@map("gesperrte_monate")
+}
+
+model Marketing {
+  id           BigInt    @id @default(autoincrement())
+  name         String    @db.VarChar(200)
+  person       String?   @db.VarChar(200)
+  email        String    @db.VarChar(254)
+  tel          String?   @db.VarChar(50)
+  strasse      String?
+  ort          String?
+  notiz        String?
+  status       String    @default("neu") @db.VarChar(20)
+  status_notiz String?
+  datum        DateTime? @default(now()) @db.Date
+
+  @@map("marketing")
+}
+
+model PdfArchive {
+  id          BigInt    @id @default(autoincrement())
+  typ         String    @db.VarChar(50)
+  referenz_nr String    @db.VarChar(50)
+  referenz_id BigInt?
+  empf        String?
+  titel       String?
+  datum       DateTime? @db.Date
+  filename    String    @db.VarChar(100)
+  html_body   String?
+  html_footer String?
+  erstellt_am DateTime  @default(now())
+
+  @@map("pdf_archive")
+}
+
+model Settings {
+  key   String @id @db.VarChar(100)
+  value String @default("{}")
+
+  @@map("settings")
+}
+
+model Objekte {
+  id           BigInt    @id @default(autoincrement())
+  name         String    @db.VarChar(200)
+  strasse      String?
+  plz          String?   @db.VarChar(10)
+  ort          String?   @db.VarChar(100)
+  notiz        String?
+  filter_typen String?   @default("")
+  vorlage_id   BigInt?
+  kunden_id    BigInt?
+  created_at   DateTime? @default(now()) @db.Date
+
+  kunden       Kunden?   @relation(fields: [kunden_id], references: [id])
+  muellplan    Muellplan[]
+  muellplan_pdf MuellplanPdf[]
+
+  @@map("objekte")
+}
+
+model MuellplanVorlagen {
+  id         BigInt   @id @default(autoincrement())
+  name       String   @db.VarChar(200)
+  termine    Json     @default("[]")
+  pdf_data   Bytes?
+  pdf_name   String?  @db.VarChar(200)
+  created_at DateTime @default(now())
+
+  @@map("muellplan_vorlagen")
+}
+
+model Muellplan {
+  id         BigInt    @id @default(autoincrement())
+  objekt_id  BigInt
+  muellart   String    @db.VarChar(100)
+  farbe      String    @default("#6366f1") @db.VarChar(20)
+  abholung   DateTime  @db.Date
+  erledigt   Boolean   @default(false)
+  created_at DateTime? @default(now()) @db.Date
+
+  objekte Objekte @relation(fields: [objekt_id], references: [id])
+
+  @@map("muellplan")
+}
+
+model MuellplanPdf {
+  id         BigInt   @id @default(autoincrement())
+  objekt_id  BigInt
+  filename   String   @db.VarChar(200)
+  pdf_data   Bytes
+  verified   Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  objekte Objekte @relation(fields: [objekt_id], references: [id])
+
+  @@map("muellplan_pdf")
+}
+
+model Mitarbeiter {
+  id          BigInt    @id @default(autoincrement())
+  name        String    @db.VarChar(200)
+  rolle       String?   @db.VarChar(100)
+  stundenlohn Decimal   @default(0) @db.Decimal(8, 2)
+  email       String?   @db.VarChar(254)
+  tel         String?   @db.VarChar(50)
+  notiz       String?
+  aktiv       Boolean   @default(true)
+  created_at  DateTime? @default(now()) @db.Date
+
+  stunden               MitarbeiterStunden[]
+  hausmeister_einsaetze HausmeisterEinsaetze[]
+
+  @@map("mitarbeiter")
+}
+
+model MitarbeiterStunden {
+  id             BigInt    @id @default(autoincrement())
+  mitarbeiter_id BigInt
+  datum          DateTime  @db.Date
+  stunden        Decimal   @db.Decimal(6, 2)
+  beschreibung   String?
+  ort            String?   @db.VarChar(200)
+  lohn           Decimal   @default(0) @db.Decimal(10, 2)
+  zuschlag       Decimal   @default(0) @db.Decimal(10, 2)
+  zuschlag_typ   String?   @default("") @db.VarChar(20)
+  bezahlt        Boolean   @default(false)
+  created_at     DateTime? @default(now()) @db.Date
+
+  mitarbeiter Mitarbeiter @relation(fields: [mitarbeiter_id], references: [id])
+
+  @@map("mitarbeiter_stunden")
+}
+
+model HausmeisterEinsaetze {
+  id               BigInt    @id @default(autoincrement())
+  mitarbeiter_id   BigInt?
+  mitarbeiter_name String    @db.VarChar(200)
+  kunden_id        BigInt?
+  kunden_name      String?   @db.VarChar(200)
+  datum            DateTime  @db.Date
+  taetigkeiten     Json      @default("[]")
+  stunden_gesamt   Decimal   @default(0) @db.Decimal(6, 2)
+  notiz            String?
+  abgeschlossen    Boolean   @default(false)
+  created_at       DateTime  @default(now())
+
+  mitarbeiter Mitarbeiter? @relation(fields: [mitarbeiter_id], references: [id])
+  kunden      Kunden?      @relation(fields: [kunden_id], references: [id])
+
+  @@map("hausmeister_einsaetze")
+}
+
+model AuditLog {
+  id           BigInt   @id @default(autoincrement())
+  tabelle      String   @db.VarChar(100)
+  datensatz_id BigInt
+  aktion       String   @db.VarChar(20)
+  alt_wert     Json?
+  neu_wert     Json?
+  zeitstempel  DateTime @default(now())
+
+  @@map("audit_log")
+}
+
+model Mahnungen {
+  id             BigInt   @id @default(autoincrement())
+  rechnung_id    BigInt
+  stufe          Int      @default(1)
+  datum          DateTime @db.Date
+  betrag_gebuehr Decimal  @default(0) @db.Decimal(8, 2)
+  notiz          String?
+  created_at     DateTime @default(now())
+
+  rechnung Rechnungen @relation(fields: [rechnung_id], references: [id])
+
+  @@map("mahnungen")
+}
+
+model WiederkehrendeRechnungen {
+  id                BigInt    @id @default(autoincrement())
+  kunden_id         BigInt?
+  kunden_name       String?   @db.VarChar(200)
+  titel             String    @db.VarChar(200)
+  positionen        Json      @default("[]")
+  intervall         String    @default("monatlich") @db.VarChar(20)
+  aktiv             Boolean   @default(true)
+  letzte_erstellung DateTime? @db.Date
+  created_at        DateTime  @default(now())
+
+  kunden Kunden? @relation(fields: [kunden_id], references: [id])
+
+  @@map("wiederkehrende_rechnungen")
+}
+
+model WiederkehrendeAusgaben {
+  id         BigInt    @id @default(autoincrement())
+  name       String    @db.VarChar(200)
+  kategorie  String    @default("Betriebsausgabe") @db.VarChar(100)
+  brutto     Decimal   @default(0) @db.Decimal(12, 2)
+  mwst       Decimal   @default(19) @db.Decimal(5, 2)
+  abzug      Decimal   @default(100) @db.Decimal(5, 2)
+  belegnr    String?   @db.VarChar(50)
+  aktiv      Boolean   @default(true)
+  created_at DateTime? @default(now()) @db.Date
+
+  @@map("wiederkehrende_ausgaben")
+}
+
+model Benachrichtigungen {
+  id          BigInt   @id @default(autoincrement())
+  typ         String   @db.VarChar(50)
+  titel       String   @db.VarChar(200)
+  nachricht   String?
+  link        String?
+  gelesen     Boolean  @default(false)
+  erstellt_am DateTime @default(now())
+
+  @@map("benachrichtigungen")
+}
+
+model Tasks {
+  id           BigInt    @id @default(autoincrement())
+  titel        String    @db.VarChar(200)
+  beschreibung String?
+  datum        DateTime? @db.Date
+  bearbeiter   String?   @db.VarChar(100)
+  kategorie    String    @default("Sonstiges") @db.VarChar(100)
+  status       String    @default("todo") @db.VarChar(20)
+  prioritaet   String    @default("mittel") @db.VarChar(20)
+  position     Int       @default(0)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  @@map("tasks")
+}
+
+model Belege {
+  id               BigInt    @id @default(autoincrement())
+  buchhaltung_id   BigInt?
+  filename         String    @db.VarChar(255)
+  mimetype         String    @db.VarChar(100)
+  filesize         Int
+  data             Bytes
+  sha256           String    @unique @db.VarChar(64)
+  typ              String    @default("beleg") @db.VarChar(20)
+  notiz            String?
+  aufbewahrung_bis DateTime? @db.Date
+  erstellt_am      DateTime  @default(now())
+  erstellt_von     String    @default("system") @db.VarChar(100)
+
+  buchhaltung Buchhaltung? @relation(fields: [buchhaltung_id], references: [id])
+
+  @@map("belege")
+}

@@ -1,0 +1,44 @@
+<div class="data-table-wrapper">
+  @if (laedt()) {
+    <div class="data-table__ladeindikator" role="status" aria-label="Daten werden geladen">
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <div class="data-table__skeleton-zeile"></div>
+      }
+    </div>
+  } @else {
+    <table class="table data-table" role="grid">
+      <thead>
+        <tr>
+          @for (spalte of spalten(); track spalte.schluessel) {
+            <th
+              [style.width]="spalte.breite ?? 'auto'"
+              [class.data-table__th--rechts]="spalte.ausrichtung === 'rechts'"
+              [class.data-table__th--mitte]="spalte.ausrichtung === 'mitte'"
+              scope="col"
+            >
+              {{ spalte.bezeichnung }}
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (zeile of zeilen(); track $index) {
+          <tr
+            class="data-table__zeile"
+            (click)="zeilenKlickAusfuehren(zeile)"
+            role="row"
+          >
+            @for (spalte of spalten(); track spalte.schluessel) {
+              <td
+                [class.data-table__td--rechts]="spalte.ausrichtung === 'rechts'"
+                [class.data-table__td--mitte]="spalte.ausrichtung === 'mitte'"
+              >
+                {{ zellenWertLesen(zeile, spalte.schluessel) }}
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

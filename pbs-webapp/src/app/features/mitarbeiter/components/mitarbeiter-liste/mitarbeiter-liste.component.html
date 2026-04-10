@@ -1,0 +1,48 @@
+@if (laedt()) {
+  <app-skeleton-rows [anzahl]="5" />
+} @else if (!mitarbeiter().length) {
+  <app-empty-state
+    titel="Keine Mitarbeiter vorhanden"
+    beschreibung="Legen Sie Ihren ersten Mitarbeiter an."
+  />
+} @else {
+  <div class="tabelle-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Rolle</th>
+          <th class="rechts">Stundenlohn</th>
+          <th>Kontakt</th>
+          <th class="mitte">Aktiv</th>
+          <th class="col-aktionen">Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (ma of mitarbeiter(); track ma.id) {
+          <tr [class.inaktiv]="!ma.aktiv">
+            <td class="td-name">
+              <strong>{{ ma.name }}</strong>
+              @if (ma.notiz) { <div class="td-notiz">{{ ma.notiz }}</div> }
+            </td>
+            <td>{{ ma.rolle || '–' }}</td>
+            <td class="rechts">{{ fmt(ma.stundenlohn) }}/h</td>
+            <td>
+              @if (ma.email) { <div class="td-kontakt">{{ ma.email }}</div> }
+              @if (ma.tel) { <div class="td-kontakt">{{ ma.tel }}</div> }
+            </td>
+            <td class="mitte">
+              <input type="checkbox" [checked]="ma.aktiv"
+                (change)="aktivGeaendert(ma.id, $event)" />
+            </td>
+            <td class="td-aktionen">
+              <button class="btn btn-sm" (click)="stundenOeffnen.emit(ma.id)">Stunden</button>
+              <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(ma)">Bearbeiten</button>
+              <button class="btn-action btn-action--danger" title="Löschen" (click)="loeschen.emit(ma.id)">Löschen</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

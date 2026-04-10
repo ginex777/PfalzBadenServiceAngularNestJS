@@ -1,0 +1,103 @@
+@use '../tabelle-shared' as shared;
+
+.tabelle-container {
+  @include shared.tabelle-container;
+}
+
+.tabelle-kopf {
+  @include shared.tabelle-kopf;
+}
+
+.badge--gruen {
+  @include shared.badge-gruen;
+}
+
+.anzahl {
+  @include shared.anzahl;
+}
+
+.gesperrt-banner {
+  @include shared.gesperrt-banner;
+}
+
+.tabelle-scroll {
+  overflow-x: auto;
+}
+
+.tabelle {
+  @include shared.tabelle-basis;
+
+  .col-renr      { width: 80px; }
+  .col-bezeichnung { min-width: 130px; }
+  .col-datum     { width: 120px; }
+  .col-brutto    { width: 100px; }
+  .col-mwst      { width: 70px; }
+  .col-netto     { width: 90px; text-align: right; }
+  .col-ust       { width: 80px; text-align: right; }
+  .col-aktionen  { width: 160px; }
+}
+
+.eingabe {
+  @include shared.eingabe;
+}
+
+.eingabe--rechts {
+  text-align: right;
+}
+
+.zahl {
+  text-align: right;
+  white-space: nowrap;
+  font-size: 0.82rem;
+  color: var(--gray-700);
+}
+
+.aktionen {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn-beleg {
+  @include shared.btn-aktion;
+  &--vorhanden {
+    color: var(--success);
+    border-color: var(--success-light);
+  }
+}
+
+.btn-kopie {
+  @include shared.btn-aktion;
+}
+
+.btn-loeschen {
+  @include shared.btn-aktion;
+  color: var(--danger);
+  &:hover { background: var(--danger-light); }
+}
+
+.gesperrt-label {
+  font-size: 11px;
+  color: var(--gray-400);
+}
+
+.btn-hinzufuegen {
+  @include shared.btn-hinzufuegen;
+  &--gruen {
+    color: var(--success);
+    border-color: var(--success-light);
+    &:hover { background: var(--success-light); }
+  }
+}
+
+.zusammenfassung {
+  @include shared.zusammenfassung;
+}
+
+.zusammenfassung-zeile {
+  @include shared.zusammenfassung-zeile;
+  &--gesamt {
+    @include shared.zusammenfassung-zeile-gesamt;
+  }
+}

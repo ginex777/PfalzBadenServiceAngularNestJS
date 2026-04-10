@@ -1,0 +1,150 @@
+@if (bearbeitetesAngebot()) {
+  <div class="editing-banner">
+    ✏️ Bearbeitung: Angebot {{ bearbeitetesAngebot()!.nr }}
+  </div>
+}
+
+<div class="form-section">
+  <div class="form-row">
+    <div class="form-field">
+      <label>Angebots-Nr. *</label>
+      <input type="text" [value]="formularDaten().nr" placeholder="2026-001" (input)="onFeldChange('nr', $event)">
+    </div>
+    <div class="form-field">
+      <label>Datum</label>
+      <input type="date" [value]="formularDaten().datum" (input)="onFeldChange('datum', $event)">
+    </div>
+    <div class="form-field">
+      <label>Titel *</label>
+      <input type="text" [value]="formularDaten().titel" placeholder="Angebot Gebäudereinigung" (input)="onFeldChange('titel', $event)">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-field">
+      <label>Kunde auswählen</label>
+      <select (change)="onKundeChange($event)">
+        <option value="">-- Kunde wählen --</option>
+        @for (kunde of kunden(); track kunde.id) {
+          <option [value]="kunde.id" [selected]="formularDaten().kunden_id === kunde.id">
+            {{ kunde.name }}{{ kunde.ort ? ' – ' + kunde.ort : '' }}
+          </option>
+        }
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Empfänger *</label>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="text" [value]="formularDaten().empf" placeholder="Firmenname"
+          (input)="onFeldChange('empf', $event)" style="flex:1">
+        <button class="btn btn-sm" type="button" title="Empfänger als neuen Kunden anlegen"
+          (click)="alsKundeSpeichern.emit()">+ Als Kunde</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-field">
+      <label>Straße / Postfach</label>
+      <input type="text" [value]="formularDaten().str" placeholder="Musterstraße 1" (input)="onFeldChange('str', $event)">
+    </div>
+    <div class="form-field">
+      <label>PLZ Ort</label>
+      <input type="text" [value]="formularDaten().ort" placeholder="12345 Musterstadt" (input)="onFeldChange('ort', $event)">
+    </div>
+    <div class="form-field">
+      <label>E-Mail</label>
+      <input type="email" [value]="formularDaten().email" placeholder="kunde@firma.de" (input)="onFeldChange('email', $event)">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-field">
+      <label>Gültig bis</label>
+      <input type="date" [value]="formularDaten().gueltig_bis" (input)="onFeldChange('gueltig_bis', $event)">
+    </div>
+  </div>
+</div>
+
+<div class="section-title">Positionen</div>
+
+<div class="positions-wrapper">
+  <table class="pos-table">
+    <thead>
+      <tr>
+        <th class="pos-nr">Pos.</th>
+        <th>Bezeichnung</th>
+        <th class="pos-stunden">Stunden</th>
+        <th class="pos-preis">Einzelpreis (Netto)</th>
+        <th class="pos-preis">Gesamtpreis (Netto)</th>
+        <th class="pos-action"></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (pos of formularDaten().positionen; track $index) {
+        <tr>
+          <td class="pos-nr">{{ $index + 1 }}</td>
+          <td>
+            <textarea rows="2" [value]="pos.bez" placeholder="Bezeichnung der Leistung"
+              (input)="onPositionBezChange($index, $event)"></textarea>
+          </td>
+          <td>
+            <input type="text" [value]="pos.stunden ?? ''" placeholder="z.B. 8"
+              (input)="onPositionStundenChange($index, $event)"
+              (change)="autoCalc($index)">
+          </td>
+          <td>
+            <input type="number" min="0" step="0.01" [value]="pos.einzelpreis ?? ''" placeholder="Pauschal"
+              (input)="onPositionEinzelpreisChange($index, $event)"
+              (change)="autoCalc($index)">
+          </td>
+          <td>
+            <input type="number" min="0" step="0.01" [value]="pos.gesamtpreis" placeholder="0.00"
+              (input)="onPositionGesamtpreisChange($index, $event)">
+          </td>
+          <td class="pos-actions">
+            <button class="btn-action" (click)="positionKopieren.emit($index)">Kopie</button>
+            @if (formularDaten().positionen.length > 1) {
+              <button class="btn-remove" (click)="positionEntfernen.emit($index)" title="Entfernen">×</button>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<button class="btn btn-sm" (click)="positionHinzufuegen.emit()">+ Position hinzufügen</button>
+
+<div class="totals-block">
+  <div class="totals-row">
+    <span>Nettobetrag:</span>
+    <span>{{ waehrungFormatieren(netto()) }}</span>
+  </div>
+  <div class="totals-row">
+    <span>MwSt. 19 %:</span>
+    <span>{{ waehrungFormatieren(mwstBetrag()) }}</span>
+  </div>
+  <div class="totals-row totals-row--total">
+    <span>Gesamtbetrag:</span>
+    <span>{{ waehrungFormatieren(brutto()) }}</span>
+  </div>
+</div>
+
+<div class="section-title">Zusätzliche Vereinbarungen</div>
+<textarea
+  class="zusatz-textarea"
+  rows="3"
+  [value]="formularDaten().zusatz"
+  placeholder="z. B. Sondereinsätze, Stundensätze, besondere Bedingungen…"
+  (input)="onFeldChange('zusatz', $event)"></textarea>
+
+<div class="form-actions">
+  <button class="btn btn-primary" [disabled]="speichert()" (click)="speichern.emit()">
+    @if (speichert()) { Speichert… } @else { Speichern & Senden }
+  </button>
+  <button class="btn" (click)="vorschau.emit()">Vorschau</button>
+  <button class="btn" (click)="abbrechen.emit()">
+    @if (bearbeitetesAngebot()) { Abbrechen } @else { Zurücksetzen }
+  </button>
+</div>

@@ -1,0 +1,8 @@
+.tabelle-scroll { overflow-x: auto; }
+.td-name strong { display: block; font-weight: 600; }
+.td-notiz, .td-kontakt { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+.td-aktionen { white-space: nowrap; }
+.inaktiv { opacity: 0.55; }
+.laedt { padding: 2rem; text-align: center; color: var(--gray-500); }
+.rechts { text-align: right; }
+.mitte { text-align: center; }

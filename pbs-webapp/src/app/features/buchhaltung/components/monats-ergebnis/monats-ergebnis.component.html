@@ -1,0 +1,53 @@
+<div class="ergebnis-karte">
+  <h3 class="ergebnis-titel">Monatsergebnis</h3>
+  <p class="ergebnis-monat">{{ monatName() }}</p>
+
+  <div class="ergebnis-abschnitt">
+    <div class="ergebnis-zeile">
+      <span class="ergebnis-label">Einnahmen Brutto</span>
+      <span class="ergebnis-wert">{{ formatieren(ergebnis().einnahmenNetto + ergebnis().einnahmenUst) }}</span>
+    </div>
+    <div class="ergebnis-zeile">
+      <span class="ergebnis-label">Einnahmen Netto</span>
+      <span class="ergebnis-wert wert--gruen">{{ formatieren(ergebnis().einnahmenNetto) }}</span>
+    </div>
+    <div class="ergebnis-zeile">
+      <span class="ergebnis-label">USt. (Einnahmen)</span>
+      <span class="ergebnis-wert wert--rot">{{ formatieren(ergebnis().einnahmenUst) }}</span>
+    </div>
+  </div>
+
+  <div class="ergebnis-trennlinie"></div>
+
+  <div class="ergebnis-abschnitt">
+    <div class="ergebnis-zeile">
+      <span class="ergebnis-label">Ausgaben Brutto</span>
+      <span class="ergebnis-wert">{{ formatieren(ergebnis().ausgabenNetto + ergebnis().vorsteuer) }}</span>
+    </div>
+    <div class="ergebnis-zeile">
+      <span class="ergebnis-label">Ausgaben Netto (abzugsf.)</span>
+      <span class="ergebnis-wert wert--rot">{{ formatieren(ergebnis().ausgabenNetto) }}</span>
+    </div>
+    <div class="ergebnis-zeile">
+      <span class="ergebnis-label">Vorsteuer (abzugsf.)</span>
+      <span class="ergebnis-wert wert--gruen">{{ formatieren(ergebnis().vorsteuer) }}</span>
+    </div>
+  </div>
+
+  <div class="ergebnis-trennlinie"></div>
+
+  <div class="ergebnis-abschnitt">
+    <div class="ergebnis-zeile ergebnis-zeile--gesamt">
+      <span class="ergebnis-label">{{ zahllastLabel() }}</span>
+      <span class="ergebnis-wert ergebnis-wert--gross" [class]="zahllastKlasse()">
+        {{ formatieren(ergebnis().zahllast) }}
+      </span>
+    </div>
+    <div class="ergebnis-zeile ergebnis-zeile--gesamt">
+      <span class="ergebnis-label">Gewinn / Verlust</span>
+      <span class="ergebnis-wert ergebnis-wert--gross" [class]="gewinnKlasse()">
+        {{ formatieren(ergebnis().gewinn) }}
+      </span>
+    </div>
+  </div>
+</div>

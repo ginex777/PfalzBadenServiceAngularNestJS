@@ -1,0 +1,78 @@
+.ergebnis-karte {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  position: sticky;
+  top: 1.5rem;
+}
+
+.ergebnis-titel {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin: 0 0 0.2rem;
+}
+
+.ergebnis-monat {
+  font-size: 0.78rem;
+  color: var(--gray-400);
+  margin: 0 0 1rem;
+}
+
+.ergebnis-abschnitt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ergebnis-trennlinie {
+  height: 1px;
+  background: var(--border);
+  margin: 0.75rem 0;
+}
+
+.ergebnis-zeile {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+
+  &--gesamt {
+    margin-top: 0.1rem;
+  }
+}
+
+.ergebnis-label {
+  font-size: 0.8rem;
+  color: var(--gray-600);
+  flex: 1;
+}
+
+.ergebnis-wert {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  white-space: nowrap;
+
+  &--gross {
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+}
+
+.wert--gruen {
+  color: var(--success);
+}
+
+.wert--rot {
+  color: var(--danger);
+}
+
+.wert--gewinn {
+  color: var(--success);
+}
+
+.wert--verlust {
+  color: var(--danger);
+}

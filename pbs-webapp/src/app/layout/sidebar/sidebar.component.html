@@ -1,0 +1,36 @@
+<nav class="sidebar" aria-label="Hauptnavigation">
+  <div class="sidebar__logo">
+    <div class="sidebar__logo-icon">P</div>
+    <div>
+      <span class="sidebar__logo-text">PBS</span>
+      <span class="sidebar__logo-sub">Buchhaltung</span>
+    </div>
+  </div>
+
+  <ul class="sidebar__nav" role="list">
+    @for (eintrag of navEintraege; track eintrag.path) {
+      @if (eintrag.section) {
+        <li class="sidebar__section-label" aria-hidden="true">{{ eintrag.section }}</li>
+      }
+      <li class="sidebar__item">
+        <a
+          class="sidebar__link"
+          [routerLink]="eintrag.path"
+          routerLinkActive="sidebar__link--aktiv"
+          (click)="navigiertZu()"
+        >
+          {{ eintrag.label }}
+          @if (eintrag.path === '/dashboard' && notifAnzahl() > 0) {
+            <span class="sidebar__notif-badge">{{ notifAnzahl() }}</span>
+          }
+        </a>
+      </li>
+    }
+  </ul>
+
+  <div class="sidebar__footer">
+    <button class="sidebar__theme-btn" (click)="darkModeGeaendert.emit()" [title]="darkMode() ? 'Light Mode' : 'Dark Mode'">
+      {{ darkMode() ? '☀ Light' : '◑ Dark' }}
+    </button>
+  </div>
+</nav>

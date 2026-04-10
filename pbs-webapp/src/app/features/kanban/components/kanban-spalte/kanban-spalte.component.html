@@ -1,0 +1,54 @@
+<div class="spalte" [class.drag-over]="dragOver"
+  [attr.data-status]="spalteId()"
+  (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)">
+
+  <div class="spalte-kopf">
+    <span class="spalte-label">{{ label() }}</span>
+    <span class="spalte-anzahl">{{ tasks().length }}</span>
+  </div>
+
+  <div class="task-liste">
+    @for (task of tasks(); track task.id) {
+      <div class="task-karte" draggable="true"
+        [attr.data-prioritaet]="task.prioritaet"
+        [class.wird-gezogen]="dragTaskId() === task.id"
+        (dragstart)="onDragStart(task.id, $event)"
+        (dragend)="dragEnd.emit()">
+
+        <div class="task-kopf">
+          <span class="task-titel">{{ task.titel }}</span>
+          <div class="task-aktionen">
+            <button class="btn-action" (click)="taskBearbeiten.emit(task)">Bearbeiten</button>
+            <button class="btn-action btn-action--danger" (click)="taskLoeschen.emit(task.id)">Löschen</button>
+          </div>
+        </div>
+
+        @if (task.beschreibung) {
+          <div class="task-beschreibung">{{ task.beschreibung }}</div>
+        }
+
+        <div class="task-meta">
+          <span class="task-kategorie" [style.background]="kategorieStyle(task.kategorie).background" [style.color]="kategorieStyle(task.kategorie).color">
+            {{ task.kategorie }}
+          </span>
+          <span class="task-prioritaet" [style.color]="prioritaetFarben[task.prioritaet]">
+            ● {{ task.prioritaet }}
+          </span>
+          @if (task.datum) {
+            <span class="task-datum">{{ datumFormatieren(task.datum) }}</span>
+          }
+          @if (task.bearbeiter) {
+            <span class="task-bearbeiter">{{ task.bearbeiter }}</span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="schnell-hinzufuegen">
+    <input type="text" placeholder="+ Schnell hinzufügen…"
+      [value]="schnellTitel"
+      (input)="schnellTitelGeaendert($event)"
+      (keydown)="onSchnellKeydown($event)" class="schnell-input" />
+  </div>
+</div>

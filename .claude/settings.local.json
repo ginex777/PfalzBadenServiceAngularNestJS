@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Read(//c/Users/Schuh/.claude/projects/c--Users-Schuh-Desktop-Entwicklung-PBS-Angular-NESTJS/memory/**)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(xargs grep:*)",
+      "Bash(npx ng:*)",
+      "Bash(npm run:*)",
+      "Bash(timeout 30 npx nest build)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(node_modules/.bin/nest build:*)",
+      "Bash(timeout 60 npx nest build --tsc)",
+      "Bash(node_modules/.bin/nest --version)",
+      "Bash(timeout 120 npx nest build)",
+      "Bash(timeout 90 npx nest build)",
+      "Read(//c/Users/Schuh/Desktop/Entwicklung/**)",
+      "Bash(find . -name \"*.scss\" -exec sed -i 's/background: #fff;/background: var\\(--surface\\);/g' {} \\\\;)",
+      "Bash(sed -n '5,15p' ./buchhaltung/buchhaltung.component.scss)",
+      "Bash(sed -n '1,12p' ./kunden/kunden.component.scss)",
+      "Bash(sed -n '1,10p' ./buchhaltung/buchhaltung.component.scss)",
+      "Bash(sed -n '1,10p' ./kanban/kanban.component.scss)"
+    ]
+  }
+}

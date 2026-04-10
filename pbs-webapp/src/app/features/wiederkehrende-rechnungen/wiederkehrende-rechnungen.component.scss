@@ -1,0 +1,82 @@
+:host {
+  display: block;
+  padding: 24px 28px;
+  max-width: var(--content-max);
+
+  @media (max-width: 1024px) { padding: 20px; }
+  @media (max-width: 768px)  { padding: 16px; }
+}
+
+.positionen-bereich {
+  margin: 1rem 0;
+}
+
+.positionen-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.position-zeile {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin-bottom: 0.4rem;
+
+  textarea {
+    flex: 1;
+    resize: none;
+  }
+}
+
+.pos-preis {
+  width: 120px;
+}
+
+.positionen-summe {
+  text-align: right;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.inaktiv {
+  opacity: 0.5;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.toolbar__info {
+  font-size: 0.85rem;
+  color: var(--gray-500);
+}
+
+.tabelle-wrapper {
+  overflow-x: auto;
+}
+
+.rechts {
+  text-align: right;
+}
+
+.mitte {
+  text-align: center;
+}
+
+.td-name {
+  font-weight: 500;
+}
+
+.td-aktionen {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  white-space: nowrap;
+}

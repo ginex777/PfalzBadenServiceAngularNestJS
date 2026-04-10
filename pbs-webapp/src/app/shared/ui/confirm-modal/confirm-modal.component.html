@@ -1,0 +1,23 @@
+<div class="modal-backdrop" (click)="abbrechen()" aria-hidden="true"></div>
+
+<div class="modal" role="dialog" [attr.aria-label]="titel()" aria-modal="true">
+  <div class="modal__header">
+    <h2 class="modal__titel">{{ titel() }}</h2>
+  </div>
+  <div class="modal__body">
+    <p class="modal__nachricht">{{ nachricht() }}</p>
+  </div>
+  <div class="modal__footer">
+    <button class="btn btn--secondary" (click)="abbrechen()">
+      {{ abbrechenLabel() }}
+    </button>
+    <button
+      class="btn"
+      [class.btn--danger]="gefaehrlich()"
+      [class.btn--primary]="!gefaehrlich()"
+      (click)="bestaetigen()"
+    >
+      {{ bestaetigenLabel() }}
+    </button>
+  </div>
+</div>

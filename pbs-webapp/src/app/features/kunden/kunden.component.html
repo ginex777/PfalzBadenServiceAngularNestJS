@@ -1,0 +1,98 @@
+<div class="kunden-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <app-page-title
+      titel="Kunden"
+      [untertitel]="facade.kunden().length + ' Kunden'"
+    />
+  </div>
+
+  <!-- Fehler -->
+  @if (facade.fehler()) {
+    <div class="fehler-banner">{{ facade.fehler() }}</div>
+  }
+
+  <!-- Formular -->
+  <app-kunden-formular
+    [bearbeiteterKunde]="facade.bearbeiteterKunde()"
+    (gespeichert)="speichern($event)"
+    (abgebrochen)="bearbeitungAbbrechen()"
+  />
+
+  <!-- Kundenliste -->
+  <div class="kunden-liste-card">
+    <div class="liste-header">
+      <h3 class="section-title">Kundenliste</h3>
+      <app-search-toolbar
+        platzhalter="Kunden suchen…"
+        [(suchbegriff)]="facade.suchbegriff"
+      />
+    </div>
+
+    <app-kunden-tabelle
+      [kunden]="facade.seitenKunden()"
+      [umsaetze]="facade.umsaetze()"
+      [laedt]="facade.laedt()"
+      [suchbegriff]="facade.suchbegriff()"
+      (bearbeiten)="bearbeitungStarten($event)"
+      (loeschen)="loeschenBestaetigen($event)"
+      (rechnung)="zuRechnungNavigieren($event)"
+      (angebot)="zuAngebotNavigieren($event)"
+      (offenePosten)="offenePostenAnzeigen($event)"
+      (neuAnlegen)="facade.formularSichtbar.set(true)"
+    />
+
+    @if (facade.gesamtSeiten() > 1) {
+      <div class="pagination">
+        <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() <= 1" (click)="facade.seiteZurueck()">← Zurück</button>
+        <span class="pagination-info">Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{ facade.gefilterteKunden().length }} Kunden)</span>
+        <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()" (click)="facade.seiteVor()">Weiter →</button>
+      </div>
+    }
+  </div>
+
+  <!-- Löschen-Bestätigung -->
+  @if (facade.loeschKandidat() !== null) {
+    <app-confirm-modal
+      titel="Kunde löschen"
+      nachricht="Diesen Kunden wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+      bestaetigenLabel="Löschen"
+      abbrechenLabel="Abbrechen"
+      [gefaehrlich]="true"
+      (bestaetigt)="loeschenAusfuehren()"
+      (abgebrochen)="loeschenAbbrechen()"
+    />
+  }
+
+  <!-- Offene Posten Modal -->
+  @if (facade.offenePostenSichtbar() && facade.offenePosten()) {
+    <app-offene-posten-modal
+      [daten]="facade.offenePosten()!"
+      (geschlossen)="facade.offenePostenSchliessen()"
+      (neueRechnung)="offenePostenRechnungNavigieren($event)"
+      (sammelMahnung)="facade.sammelMahnungOeffnen($event)"
+    />
+  }
+
+  <!-- Sammel-Mahnung Modal -->
+  @if (facade.sammelMahnungSichtbar()) {
+    <div class="modal-overlay" (click)="facade.sammelMahnungSchliessen()">
+      <div class="modal" style="max-width:580px" (click)="$event.stopPropagation()">
+        <h3 style="margin-bottom:0.75rem;color:var(--danger)">Sammel-Mahnung</h3>
+        <textarea class="form-input" rows="12" [value]="facade.sammelMahnungText()" readonly
+          style="font-size:12px;font-family:monospace;resize:vertical"></textarea>
+        <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+          @if (facade.sammelMahnungEmail()) {
+            <a class="btn btn-danger" style="text-decoration:none"
+              [href]="'https://outlook.office365.com/mail/deeplink/compose?to=' + facade.sammelMahnungEmail() + '&subject=' + facade.sammelMahnungBetreff() + '&body=' + facade.sammelMahnungText()"
+              target="_blank">Outlook öffnen</a>
+          }
+          <button class="btn" (click)="mahnungKopieren()">Kopieren</button>
+          <button class="btn" (click)="facade.sammelMahnungSchliessen()">Schließen</button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

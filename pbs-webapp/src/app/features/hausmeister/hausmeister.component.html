@@ -1,0 +1,99 @@
+<app-page-title titel="Hausmeisterdienste" untertitel="Einsätze & Nachweise" />
+
+<div class="statistik-zeile">
+  <app-stat-card titel="Einsätze gesamt" [wert]="facade.statistik().gesamt.toString()" />
+  <app-stat-card titel="Diesen Monat" [wert]="facade.statistik().monat.toString()" />
+  <app-stat-card titel="Stunden diesen Monat" [wert]="facade.statistik().stundenMonat.toLocaleString('de-DE', {minimumFractionDigits:1, maximumFractionDigits:1})" />
+</div>
+
+<div class="card">
+  <div class="toolbar">
+    <select (change)="mitarbeiterFilterGeaendert($event)" style="width:auto;font-size:12px">
+      <option value="">Alle Mitarbeiter</option>
+      @for (ma of facade.eindeutigeMitarbeiter(); track ma) {
+        <option [value]="ma">{{ ma }}</option>
+      }
+    </select>
+    <select (change)="monatFilterGeaendert($event)" style="width:auto;font-size:12px">
+      <option value="">Alle Monate</option>
+      @for (monat of facade.eindeutigeMonate(); track monat) {
+        <option [value]="monat">{{ monatLabel(monat) }}</option>
+      }
+    </select>
+    <input type="text" placeholder="Suchen…" (input)="suchbegriffGeaendert($event)" style="width:160px;font-size:12px">
+    <span class="anzahl-hinweis">{{ facade.gefilterteEinsaetze().length }} Einträge</span>
+    <button class="btn btn-sm" (click)="facade.monatsnachweisPdfGenerieren()">Monatsnachweis PDF</button>
+    <div class="ansicht-toggle" style="margin-left:auto;display:flex;gap:4px">
+      <button class="btn btn-sm" [class.btn-primary]="!wochenAnsicht()" (click)="wochenAnsicht.set(false)" title="Listenansicht">☰ Liste</button>
+      <button class="btn btn-sm" [class.btn-primary]="wochenAnsicht()" (click)="wochenAnsicht.set(true)" title="Wochenansicht">▦ Woche</button>
+    </div>
+    <button class="btn btn-primary btn-sm" (click)="facade.formularOeffnen()">+ Neuer Einsatz</button>
+  </div>
+
+  @if (wochenAnsicht()) {
+    <!-- Wochenansicht -->
+    <div class="wochen-nav">
+      <button class="btn btn-sm" (click)="wocheZurueck()">← Zurück</button>
+      <span class="wochen-label">{{ wocheLabel() }}</span>
+      <button class="btn btn-sm" (click)="heuteAnzeigen()">Heute</button>
+      <button class="btn btn-sm" (click)="wocheVor()">Weiter →</button>
+    </div>
+    <div class="wochen-grid">
+      @for (tag of wocheTage(); track tag.toISOString(); let i = $index) {
+        <div class="wochen-spalte" [class.wochen-spalte--heute]="istHeute(tag)">
+          <div class="wochen-kopf">
+            <span class="wochen-wochentag">{{ wochentage[i] }}</span>
+            <span class="wochen-datum" [class.wochen-datum--heute]="istHeute(tag)">{{ tag.getDate() }}.</span>
+          </div>
+          <div class="wochen-eintraege">
+            @for (e of einsaetzeProTag()[i]; track e.id) {
+              <div class="wochen-karte" (click)="einsatzBearbeiten(e)">
+                <div class="wochen-karte__ma">{{ e.mitarbeiter_name }}</div>
+                <div class="wochen-karte__kunde">{{ e.kunden_name || '–' }}</div>
+                <div class="wochen-karte__std">{{ e.stunden_gesamt.toLocaleString('de-DE', {minimumFractionDigits:1}) }} h</div>
+              </div>
+            }
+            @if (!einsaetzeProTag()[i].length) {
+              <div class="wochen-leer">–</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Listenansicht -->
+    <app-einsatz-liste
+      [einsaetze]="facade.gefilterteEinsaetze()"
+      (bearbeiten)="facade.formularOeffnen($event)"
+      (loeschen)="facade.loeschenBestaetigen($event)"
+      (pdfGenerieren)="facade.einsatzPdfGenerieren($event)"
+    />
+  }
+</div>
+
+@if (facade.formularSichtbar()) {
+  <app-einsatz-formular
+    [daten]="facade.formularDaten()"
+    [mitarbeiter]="facade.mitarbeiter()"
+    [kunden]="facade.kunden()"
+    [bearbeiteterEinsatz]="facade.bearbeiteterEinsatz()"
+    [stundenGesamt]="facade.stundenGesamt()"
+    (speichern)="onEinsatzSpeichern($event)"
+    (abbrechen)="facade.formularSchliessen()"
+    (mitarbeiterAuswaehlen)="facade.mitarbeiterAuswaehlen($event)"
+    (kundeAuswaehlen)="facade.kundeAuswaehlen($event)"
+    (taetigkeitHinzufuegen)="facade.taetigkeitHinzufuegen()"
+    (taetigkeitEntfernen)="facade.taetigkeitEntfernen($event)"
+    (taetigkeitAktualisieren)="facade.taetigkeitAktualisieren($event.index, $event.taetigkeit)"
+    (feldAktualisieren)="facade.formularFeldAktualisieren($event.feld, $event.wert)"
+  />
+}
+
+@if (facade.loeschKandidat() !== null) {
+  <app-confirm-modal
+    titel="Einsatz löschen"
+    nachricht="Diesen Einsatz wirklich löschen?"
+    (bestaetigt)="facade.loeschenAusfuehren()"
+    (abgebrochen)="facade.loeschenAbbrechen()"
+  />
+}

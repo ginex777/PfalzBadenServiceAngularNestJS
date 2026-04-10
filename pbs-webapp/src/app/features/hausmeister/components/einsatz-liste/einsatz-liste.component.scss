@@ -1,0 +1,10 @@
+.tabelle-scroll { overflow-x: auto; }
+.td-name { font-weight: 600; }
+.td-taetigkeiten { max-width: 300px; }
+.taetigkeit-zeile { display: flex; justify-content: space-between; font-size: 12px; gap: 0.5rem; }
+.taetigkeit-stunden { color: var(--gray-500); white-space: nowrap; }
+.notiz { font-size: 11px; color: var(--gray-500); margin-top: 2px; font-style: italic; }
+.stunden-gesamt { font-weight: 600; }
+.rechts { text-align: right; }
+.abgeschlossen { opacity: 0.6; }
+.td-aktionen { white-space: nowrap; }

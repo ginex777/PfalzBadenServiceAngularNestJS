@@ -1,0 +1,125 @@
+.lade-hinweis {
+  padding: 2rem;
+  text-align: center;
+  color: var(--gray-400);
+  font-size: 13px;
+}
+
+.keine-treffer {
+  padding: 2rem;
+  text-align: center;
+  color: var(--gray-400);
+  font-size: 13px;
+}
+
+.tabelle-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-500);
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--gray-50); }
+}
+
+.col-name   { min-width: 160px; }
+.col-text   { color: var(--gray-700); }
+.col-umsatz { white-space: nowrap; font-weight: 600; }
+.col-aktionen { white-space: nowrap; }
+
+.name-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.name-text {
+  font-weight: 500;
+  color: var(--gray-900);
+}
+
+// ── Tags ──────────────────────────────────────────────────────────────────
+.tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 600;
+
+  &-green   { background: var(--success-light); color: var(--success); }
+  &-primary { background: var(--primary-light); color: var(--primary); }
+}
+
+// ── Aktionen ──────────────────────────────────────────────────────────────
+.aktionen {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.btn-action {
+  display: inline-block;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--gray-700);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover { background: var(--gray-50); }
+
+  &--primary {
+    color: var(--primary);
+    border-color: var(--primary-light);
+    &:hover { background: var(--primary-light); }
+  }
+
+  &--success {
+    color: var(--success);
+    border-color: var(--success-light);
+    &:hover { background: var(--success-light); }
+  }
+
+  &--danger {
+    color: var(--danger);
+    border-color: var(--danger-light);
+    &:hover { background: var(--danger-light); }
+  }
+
+  &--disabled {
+    color: var(--gray-400);
+    cursor: default;
+    &:hover { background: var(--surface); }
+  }
+}
+
+// ── Utility ───────────────────────────────────────────────────────────────
+.text-right   { text-align: right; }
+.text-success { color: var(--success); }
+.text-muted   { color: var(--gray-400); }

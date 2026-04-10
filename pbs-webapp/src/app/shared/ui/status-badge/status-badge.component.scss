@@ -1,0 +1,5 @@
+// Styles are inherited from global .badge utility class in styles.scss
+// Component-level overrides only
+:host {
+  display: inline-flex;
+}

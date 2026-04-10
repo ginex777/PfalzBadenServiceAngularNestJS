@@ -1,0 +1,168 @@
+.jahres-uebersicht {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+}
+
+.jahres-titel {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin: 0;
+}
+
+.karte {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+
+.karte-titel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin: 0 0 0.75rem;
+}
+
+.vst-scroll {
+  overflow-x: auto;
+}
+
+.tabelle {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+
+  th {
+    padding: 0.4rem 0.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gray-500);
+    border-bottom: 1px solid var(--border);
+    background: var(--gray-50);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: var(--gray-50);
+  }
+}
+
+.th-elster-gruppe {
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.72rem;
+  color: var(--primary);
+}
+
+.th-sub {
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: var(--gray-400);
+}
+
+.th-sub-col {
+  font-size: 0.72rem;
+  min-width: 90px;
+}
+
+.col-zeitraum { min-width: 120px; }
+.col-rechts   { text-align: right; min-width: 90px; }
+.col-mitte    { text-align: center; min-width: 90px; }
+.col-datum    { min-width: 110px; }
+
+.zahl {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.zahl--gruen  { color: var(--success); font-weight: 500; }
+.zahl--rot    { color: var(--danger); font-weight: 500; }
+.zahl--gewinn { color: var(--success); font-weight: 600; }
+.zahl--verlust { color: var(--danger); font-weight: 600; }
+
+.quartal-label {
+  font-weight: 500;
+}
+
+.zeile--bezahlt td {
+  opacity: 0.7;
+}
+
+.zeile--leer td {
+  color: var(--gray-300);
+  font-size: 0.78rem;
+}
+
+.leer-zelle {
+  text-align: center;
+}
+
+.gesamt-zeile {
+  font-weight: 700;
+  background: var(--gray-50);
+  border-top: 2px solid var(--border);
+
+  td {
+    border-bottom: none;
+  }
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  justify-content: center;
+
+  input[type='checkbox'] {
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.datum-zelle {
+  font-size: 0.8rem;
+  color: var(--gray-600);
+}
+
+.leer {
+  color: var(--gray-300);
+}
+
+.mitte {
+  text-align: center;
+}
+
+.hinweis {
+  font-size: 0.72rem;
+  color: var(--gray-400);
+  margin: 0.75rem 0 0;
+  line-height: 1.5;
+}
+
+.zwei-spalten {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}

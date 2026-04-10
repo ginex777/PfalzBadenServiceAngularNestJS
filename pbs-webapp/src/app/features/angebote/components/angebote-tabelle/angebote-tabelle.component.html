@@ -1,0 +1,90 @@
+<div class="filter-bar">
+  <select class="filter-select" [value]="aktiverFilter()" (change)="onFilterSelectChange($event)">
+    <option value="alle">Alle Status</option>
+    <option value="offen">Offen</option>
+    <option value="gesendet">Gesendet</option>
+    <option value="angenommen">Angenommen</option>
+    <option value="abgelehnt">Abgelehnt</option>
+  </select>
+  <select class="filter-select" (change)="monatGeaendert($event)">
+    <option value="">Alle Monate</option>
+    @for (m of MONATE; track $index) {
+      <option [value]="$index">{{ m }}</option>
+    }
+  </select>
+  <button class="btn btn-sm" (click)="filterLeeren()">Leeren</button>
+  <span class="count-hint">{{ gefilterteAngebote().length }} Einträge</span>
+</div>
+
+@if (laedt()) {
+  <div class="loading-state">Lade Angebote…</div>
+} @else if (angebote().length === 0) {
+  <app-empty-state
+    titel="Keine Angebote gefunden"
+    beschreibung="Erstellen Sie Ihr erstes Angebot über das Formular."
+  />
+} @else {
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Nr.</th>
+          <th>Titel</th>
+          <th>Empfänger</th>
+          <th>Datum</th>
+          <th class="text-right">Betrag</th>
+          <th>Gültig bis</th>
+          <th>Status</th>
+          <th class="actions-col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (angebot of gefilterteAngebote(); track angebot.id) {
+          <tr [class.row--angenommen]="angebot.angenommen" [class.row--abgelehnt]="angebot.abgelehnt">
+            <td class="nr-cell">{{ angebot.nr }}</td>
+            <td>{{ angebot.titel || '–' }}</td>
+            <td>{{ angebot.empf }}</td>
+            <td>{{ datumFormatieren(angebot.datum) }}</td>
+            <td class="text-right amount-cell">{{ waehrungFormatieren(angebot.brutto) }}</td>
+            <td>
+              @if (angebot.gueltig_bis) {
+                <span [class.text-danger]="istAbgelaufen(angebot)">
+                  {{ datumFormatieren(angebot.gueltig_bis) }}
+                </span>
+              } @else { – }
+            </td>
+            <td>
+              <app-status-badge [status]="statusTyp(angebot)" />
+            </td>
+            <td class="actions-cell">
+              <button class="btn-action" title="PDF generieren" (click)="pdfGenerieren.emit(angebot)">PDF</button>
+              <button class="btn-action" title="Kopieren" (click)="kopieren.emit(angebot)">Kopie</button>
+
+              @if (!angebot.angenommen) {
+                <select class="filter-select" style="font-size:11px;padding:2px 6px;width:auto"
+                  (change)="onStatusChange(angebot, $event)">
+                  <option value="">Status…</option>
+                  <option value="offen">Offen</option>
+                  <option value="gesendet">Gesendet</option>
+                  <option value="angenommen">Angenommen</option>
+                  <option value="abgelehnt">Abgelehnt</option>
+                </select>
+              }
+
+              @if (angebot.angenommen) {
+                <button class="btn-action btn-action--primary" title="Zu Rechnung konvertieren"
+                  (click)="zuRechnungKonvertieren.emit(angebot)">→ Rechnung</button>
+                <span class="gobd-hint">Angenommen</span>
+              }
+
+              @if (!angebot.angenommen) {
+                <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(angebot)">Bearbeiten</button>
+              }
+              <button class="btn-action btn-action--danger" title="Löschen" (click)="loeschen.emit(angebot.id)">Löschen</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

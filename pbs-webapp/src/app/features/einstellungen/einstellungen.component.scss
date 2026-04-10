@@ -1,0 +1,15 @@
+.backup-banner {
+  display: flex; align-items: center; gap: 1rem; padding: 0.75rem;
+  background: var(--gray-50); border-radius: var(--radius-sm); margin-bottom: 0.75rem;
+}
+.backup-dot {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--gray-300); flex-shrink: 0;
+  &.backup-ok { background: var(--success); }
+}
+.backup-info { flex: 1; }
+.backup-titel { font-size: 13px; font-weight: 500; }
+.backup-sub { font-size: 11px; color: var(--gray-500); }
+.backup-dateien { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+.backup-datei {
+  font-size: 11px; background: var(--gray-100); padding: 2px 8px; border-radius: 10px; color: var(--gray-600);
+}

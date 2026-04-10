@@ -1,0 +1,22 @@
+<div class="monats-tabs">
+  <button
+    [class]="uebersichtKlasse()"
+    (click)="jahresansichtWaehlen()"
+    type="button"
+  >
+    Übersicht
+  </button>
+
+  @for (monat of monate; track $index) {
+    <button
+      [class]="tabKlasse($index)"
+      (click)="monatWaehlen($index)"
+      type="button"
+    >
+      {{ monatKurzname($index) }}
+      @if (istGesperrt($index)) {
+        <span class="lock-icon" title="Gesperrt (GoBD)">&#x1F512;</span>
+      }
+    </button>
+  }
+</div>

@@ -1,0 +1,133 @@
+<div class="board-seite">
+  <div class="board-kopf">
+    <div class="seiten-titel">Aufgaben <span class="untertitel">Kanban-Board</span></div>
+    <button class="btn btn-primary btn-sm" (click)="facade.formularOeffnen()">+ Neue Aufgabe</button>
+  </div>
+
+  <div class="filter-toolbar">
+    <input type="text" placeholder="Suchen…" [value]="facade.filter().suchbegriff"
+      (input)="filterSuchbegriffGeaendert($event)"
+      style="width:160px;font-size:12px">
+    <select [value]="facade.filter().kategorie"
+      (change)="filterKategorieGeaendert($event)"
+      style="width:auto;font-size:12px">
+      <option value="">Alle Kategorien</option>
+      <option value="Operativ">Operativ</option>
+      <option value="Marketing">Marketing</option>
+      <option value="Buchhaltung">Buchhaltung</option>
+      <option value="Sonstiges">Sonstiges</option>
+    </select>
+    <select [value]="facade.filter().bearbeiter"
+      (change)="filterBearbeiterGeaendert($event)"
+      style="width:auto;font-size:12px">
+      <option value="">Alle Bearbeiter</option>
+      @for (b of facade.eindeutigeBearbeiter(); track b) {
+        <option [value]="b">{{ b }}</option>
+      }
+    </select>
+    <select [value]="facade.filter().prioritaet"
+      (change)="filterPrioritaetGeaendert($event)"
+      style="width:auto;font-size:12px">
+      <option value="">Alle Prioritäten</option>
+      <option value="hoch">Hoch</option>
+      <option value="mittel">Mittel</option>
+      <option value="niedrig">Niedrig</option>
+    </select>
+    <button class="btn btn-sm" (click)="facade.filterLeeren()" style="font-size:12px">Filter leeren</button>
+    <span class="anzahl-hinweis">{{ facade.tasks().length }} Aufgaben</span>
+  </div>
+
+  <div class="board">
+    @for (spalte of spalten; track spalte.id) {
+      <app-kanban-spalte
+        [spalteId]="spalte.id"
+        [label]="spalte.label"
+        [tasks]="facade.gefilterteTasksProSpalte()[spalte.id]"
+        [dragTaskId]="facade.dragTaskId()"
+        (taskBearbeiten)="facade.formularOeffnen($event)"
+        (taskLoeschen)="facade.loeschenBestaetigen($event)"
+        (dragStart)="facade.dragStart($event)"
+        (dragEnd)="facade.dragEnd()"
+        (drop)="facade.drop($event)"
+        (schnellHinzufuegen)="facade.schnellHinzufuegen($event.titel, $event.status)"
+      />
+    }
+  </div>
+</div>
+
+@if (facade.formularSichtbar()) {
+  <div class="modal-overlay" (click)="facade.formularSchliessen()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3 style="margin-bottom:1rem">{{ facade.bearbeiteterTask() ? 'Aufgabe bearbeiten' : 'Neue Aufgabe' }}</h3>
+      <div class="form-field" style="margin-bottom:0.6rem">
+        <label>Titel *</label>
+        <input type="text" [value]="facade.formularDaten().titel"
+          (input)="titelGeaendert($event)"
+          placeholder="Aufgabe beschreiben…">
+      </div>
+      <div class="form-field" style="margin-bottom:0.6rem">
+        <label>Beschreibung</label>
+        <textarea rows="3" [value]="facade.formularDaten().beschreibung"
+          (input)="beschreibungGeaendert($event)"
+          placeholder="Details, Links, Notizen…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Fälligkeit</label>
+          <input type="date" [value]="facade.formularDaten().datum"
+            (change)="datumGeaendert($event)">
+        </div>
+        <div class="form-field">
+          <label>Bearbeiter</label>
+          <input type="text" [value]="facade.formularDaten().bearbeiter"
+            (input)="bearbeiterGeaendert($event)"
+            placeholder="Name">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Kategorie</label>
+          <select [value]="facade.formularDaten().kategorie"
+            (change)="kategorieGeaendert($event)">
+            <option value="Operativ">Operativ</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Buchhaltung">Buchhaltung</option>
+            <option value="Sonstiges">Sonstiges</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Priorität</label>
+          <select [value]="facade.formularDaten().prioritaet"
+            (change)="prioritaetGeaendert($event)">
+            <option value="hoch">Hoch</option>
+            <option value="mittel">Mittel</option>
+            <option value="niedrig">Niedrig</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Status</label>
+          <select [value]="facade.formularDaten().status"
+            (change)="statusGeaendert($event)">
+            <option value="todo">To Do</option>
+            <option value="inprogress">In Bearbeitung</option>
+            <option value="done">Done</option>
+            <option value="blocked">Blocked</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" (click)="facade.formularSchliessen()">Abbrechen</button>
+        <button class="btn btn-primary" (click)="facade.speichern()">Speichern</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (facade.loeschKandidat() !== null) {
+  <app-confirm-modal
+    titel="Aufgabe löschen"
+    nachricht="Diese Aufgabe wirklich löschen?"
+    (bestaetigt)="facade.loeschenAusfuehren()"
+    (abgebrochen)="facade.loeschenAbbrechen()"
+  />
+}

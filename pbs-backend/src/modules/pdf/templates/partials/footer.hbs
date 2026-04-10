@@ -1,0 +1,18 @@
+<div class="doc-footer">
+  <div>
+    <div><strong>{{#if firma.zusatz}}{{firma.zusatz}}{{else}}{{firma.firma}}{{/if}}</strong></div>
+    <div>{{firma.strasse}}, {{firma.ort}}</div>
+    {{#if firma.steuernr}}<div>Steuernummer: {{firma.steuernr}}</div>{{/if}}
+    {{#if firma.ustId}}<div>USt-IdNr.: {{firma.ustId}}</div>{{/if}}
+  </div>
+  <div>
+    <div class="footer-section-label">Kontakt</div>
+    {{#if firma.tel}}<div>Tel. {{firma.tel}}</div>{{/if}}
+    {{#if firma.email}}<div>{{firma.email}}</div>{{/if}}
+  </div>
+  <div>
+    <div class="footer-section-label">Bankverbindung</div>
+    {{#if firma.bank}}<div>{{firma.bank}}</div>{{/if}}
+    {{#if firma.bic}}{{#if firma.iban}}<div>BIC: {{firma.bic}}  IBAN: {{firma.iban}}</div>{{else}}<div>BIC: {{firma.bic}}</div>{{/if}}{{else}}{{#if firma.iban}}<div>IBAN: {{firma.iban}}</div>{{/if}}{{/if}}
+  </div>
+</div>

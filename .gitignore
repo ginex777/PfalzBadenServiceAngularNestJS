@@ -1,0 +1,24 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Env Dateien (sehr wichtig!)
+.env
+.env.*
+
+# Build / Output
+dist/
+build/
+
+# Logs
+logs/
+*.log
+
+# OS Müll
+.DS_Store
+Thumbs.db
+
+# Docker (optional)
+*.tar
+*md

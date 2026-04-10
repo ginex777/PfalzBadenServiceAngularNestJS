@@ -1,0 +1,49 @@
+@if (!einsaetze().length) {
+  <app-empty-state
+    titel="Keine Einsätze vorhanden"
+    beschreibung="Legen Sie den ersten Hausmeistereinsatz an."
+  />
+} @else {
+  <div class="tabelle-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Datum</th>
+          <th>Mitarbeiter</th>
+          <th>Kunde / Objekt</th>
+          <th>Tätigkeiten</th>
+          <th class="rechts">Stunden</th>
+          <th class="col-aktionen">Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (e of einsaetze(); track e.id) {
+          <tr [class.abgeschlossen]="e.abgeschlossen">
+            <td>{{ datumFormatieren(e.datum) }}</td>
+            <td class="td-name">{{ e.mitarbeiter_name }}</td>
+            <td>{{ e.kunden_name || '–' }}</td>
+            <td class="td-taetigkeiten">
+              @for (t of e.taetigkeiten; track $index) {
+                <div class="taetigkeit-zeile">
+                  <span>{{ t.beschreibung }}</span>
+                  <span class="taetigkeit-stunden">{{ t.stunden.toLocaleString('de-DE', {minimumFractionDigits:1}) }} h</span>
+                </div>
+              }
+              @if (e.notiz) {
+                <div class="notiz">{{ e.notiz }}</div>
+              }
+            </td>
+            <td class="rechts stunden-gesamt">
+              {{ e.stunden_gesamt.toLocaleString('de-DE', {minimumFractionDigits:1}) }} h
+            </td>
+            <td class="td-aktionen">
+              <button class="btn-action" title="PDF erstellen" (click)="pdfGenerieren.emit(e)">PDF</button>
+              <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(e)">Bearbeiten</button>
+              <button class="btn-action btn-action--danger" title="Löschen" (click)="loeschen.emit(e.id)">Löschen</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

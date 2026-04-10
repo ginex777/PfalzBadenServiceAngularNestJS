@@ -1,0 +1,123 @@
+:host {
+  display: block;
+  padding: 24px 28px;
+  max-width: var(--content-max);
+
+  @media (max-width: 1024px) { padding: 20px; }
+  @media (max-width: 768px)  { padding: 16px; }
+}
+
+.statistik-zeile { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.toolbar {
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;
+}
+.anzahl-hinweis { font-size: 12px; color: var(--gray-500); }
+
+// ── Wochenansicht ──────────────────────────────────────────────────────────
+.wochen-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.wochen-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+  min-width: 160px;
+  text-align: center;
+}
+.wochen-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  min-height: 200px;
+}
+.wochen-spalte {
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface);
+
+  &--heute {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 4%, var(--surface));
+  }
+}
+.wochen-kopf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 4px 4px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  gap: 2px;
+}
+.wochen-wochentag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.wochen-datum {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-700);
+  line-height: 1;
+
+  &--heute {
+    color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+}
+.wochen-eintraege {
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 80px;
+}
+.wochen-karte {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 4px;
+  padding: 5px 7px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover { opacity: 0.85; }
+}
+.wochen-karte__ma {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wochen-karte__kunde {
+  font-size: 10px;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wochen-karte__std {
+  font-size: 10px;
+  opacity: 0.75;
+  margin-top: 2px;
+}
+.wochen-leer {
+  color: var(--gray-300);
+  font-size: 12px;
+  text-align: center;
+  padding: 8px 0;
+}
