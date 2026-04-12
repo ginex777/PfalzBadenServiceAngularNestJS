@@ -19,6 +19,7 @@
       [notifAnzahl]="ungeleseneNotifs().length"
       [darkMode]="darkMode()"
       (darkModeGeaendert)="darkModeUmschalten()"
+      (nutzerWechselnGeklickt)="nutzerWechselnOeffnen()"
     />
   </aside>
 
@@ -52,7 +53,34 @@
         </svg>
       </button>
       <span class="shell__mobile-title">PBS Buchhaltung</span>
+      <button class="nutzer-btn" (click)="nutzerWechselnOeffnen()" type="button" title="Aktiver Nutzer wechseln">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        {{ nutzerService.aktiverNutzer() || 'Nutzer wählen' }}
+      </button>
     </header>
+
+    @if (nutzerEingabeOffen()) {
+      <div class="nutzer-modal-backdrop" (click)="nutzerAbbrechen()" aria-hidden="true"></div>
+      <div class="nutzer-modal" role="dialog" aria-label="Nutzer auswählen">
+        <p style="font-size:13px;font-weight:600;margin-bottom:10px">Wer arbeitet gerade?</p>
+        <input
+          class="nutzer-input"
+          type="text"
+          placeholder="Dein Name..."
+          [(ngModel)]="nutzerEingabe"
+          (keydown.enter)="nutzerSpeichern()"
+          (keydown.escape)="nutzerAbbrechen()"
+          maxlength="100"
+          autofocus
+        />
+        <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
+          <button class="btn btn--ghost btn--sm" (click)="nutzerAbbrechen()" type="button">Abbrechen</button>
+          <button class="btn btn--primary btn--sm" (click)="nutzerSpeichern()" type="button">Speichern</button>
+        </div>
+      </div>
+    }
 
     <!-- Router-Outlet -->
     <main class="shell__content" id="main-content">
@@ -60,3 +88,6 @@
     </main>
   </div>
 </div>
+
+<app-toast />
+<app-onboarding />

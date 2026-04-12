@@ -4,6 +4,7 @@
 
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { BuchhaltungService } from './buchhaltung.service';
+import { ToastService } from '../../core/services/toast.service';
 import { BuchhaltungEintrag, BuchhaltungJahr, VstPaid, WiederkehrendeAusgabe } from '../../core/models';
 import {
   BuchhaltungZeile,
@@ -27,6 +28,7 @@ function eintragZuZeile(e: BuchhaltungEintrag): BuchhaltungZeile {
 @Injectable({ providedIn: 'root' })
 export class BuchhaltungFacade {
   private readonly service = inject(BuchhaltungService);
+  private readonly toast = inject(ToastService);
 
   // ── State ────────────────────────────────────────────────────────────────
   readonly ladelaeuft = signal(false);
@@ -307,11 +309,13 @@ export class BuchhaltungFacade {
         next: (gespeichert) => {
           this._idsNachSpeichernAktualisieren(monat, gespeichert);
           this.speicherStatus.set({ dirty: false, speichernLaeuft: false });
+          this.toast.success('Buchhaltung gespeichert.');
           resolve();
         },
         error: (err: Error) => {
           this.speicherStatus.set({ dirty: true, speichernLaeuft: false });
           this.fehler.set('Speichern fehlgeschlagen: ' + err.message);
+          this.toast.error('Speichern fehlgeschlagen.');
           reject(err);
         },
       });

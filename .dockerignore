@@ -4,3 +4,8 @@
 **/.git
 **/coverage
 data/
+pbs-backend
+pbs-mobile
+*.md
+.env
+.env.*

@@ -106,7 +106,7 @@
                     <span class="text-danger hint-sm">{{ tageText(re.tageUeberfaellig, true) }}</span>
                   </td>
                   <td class="col-action">
-                    <button class="btn-action" (click)="facade.zuRechnungenNavigieren()">Öffnen</button>
+                    <button class="btn-action" (click)="facade.rechnungOeffnen(re.id)">Öffnen</button>
                   </td>
                 </tr>
               }
@@ -145,7 +145,7 @@
                     }
                   </td>
                   <td class="col-action">
-                    <button class="btn-action" (click)="facade.zuRechnungenNavigieren()">Öffnen</button>
+                    <button class="btn-action" (click)="facade.rechnungOeffnen(re.id)">Öffnen</button>
                   </td>
                 </tr>
               }
@@ -184,7 +184,7 @@
                     }
                   </td>
                   <td class="col-action">
-                    <button class="btn-action" (click)="facade.zuAngeboteNavigieren()">Öffnen</button>
+                    <button class="btn-action" (click)="facade.angebotOeffnen(ang.id)">Öffnen</button>
                   </td>
                 </tr>
               }

@@ -70,6 +70,32 @@
       (feldAktualisieren)="onFeldAktualisieren($event)"
       (kundeAuswaehlen)="onKundeAuswaehlen($event)"
     />
+
+    @if (facade.bearbeiteteRechnung()) {
+      <details class="aktivitaeten-section">
+        <summary class="aktivitaeten-summary">
+          Aktivitäten
+          @if (!facade.aktivitaetenLaedt()) {
+            ({{ facade.aktivitaeten().length }})
+          }
+        </summary>
+        @if (facade.aktivitaetenLaedt()) {
+          <div class="aktivitaeten-laedt">Laden…</div>
+        } @else if (facade.aktivitaeten().length === 0) {
+          <div class="aktivitaeten-leer">Keine Aktivitäten gefunden.</div>
+        } @else {
+          <div class="aktivitaeten-liste">
+            @for (a of facade.aktivitaeten(); track a.id) {
+              <div class="aktivitaet">
+                <span class="aktivitaet__zeit">{{ a.zeitstempel | date:'dd.MM.yyyy HH:mm' }}</span>
+                <span class="aktivitaet__aktion">{{ a.aktion }}</span>
+                <span class="aktivitaet__text">{{ a.neu_wert || a.alt_wert || '–' }}</span>
+              </div>
+            }
+          </div>
+        }
+      </details>
+    }
   </div>
 }
 
@@ -93,12 +119,14 @@
       (filterAendern)="onFilterAendern($event)"
       (kopieren)="onKopieren($event)"
       (mahnung)="onMahnung($event)"
+      (bulkLoeschen)="onBulkLoeschen($event)"
+      (bulkAlsGezahlt)="onBulkAlsGezahlt($event)"
     />
 
     @if (facade.gesamtSeiten() > 1) {
       <div class="pagination">
         <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() <= 1" (click)="facade.seiteZurueck()">← Zurück</button>
-        <span class="pagination-info">Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{ facade.gefilterteRechnungen().length }} Einträge)</span>
+        <span class="pagination-info">Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{ facade.seitenRechnungen().length }} von {{ facade.gefilterteRechnungen().length }} Einträgen)</span>
         <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()" (click)="facade.seiteVor()">Weiter →</button>
       </div>
     }
@@ -212,10 +240,10 @@
         <div style="margin-top:4px"><strong>Betreff:</strong> Rechnung {{ facade.sendModalRechnung()!.nr }}</div>
       </div>
       <label style="font-size:12px;color:var(--gray-500)">E-Mail Text:</label>
-      <textarea class="form-input" rows="8" [value]="sendText()" readonly style="font-size:12px;font-family:inherit;margin-top:4px"></textarea>
+      <textarea class="form-input" rows="8" [value]="facade.sendText()" readonly style="font-size:12px;font-family:inherit;margin-top:4px"></textarea>
       <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
-        <button class="btn btn-primary" (click)="outlookOeffnen()">Outlook öffnen</button>
-        <button class="btn" (click)="textKopieren()">Kopieren</button>
+        <button class="btn btn-primary" (click)="onOutlookOeffnen()">Outlook öffnen</button>
+        <button class="btn" (click)="onTextKopieren()">Kopieren</button>
         <button class="btn" (click)="facade.sendModalSchliessen()">Schließen</button>
       </div>
     </div>

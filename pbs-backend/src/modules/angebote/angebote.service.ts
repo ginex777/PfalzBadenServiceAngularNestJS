@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
-import { AuditService } from '../../core/audit/audit.service';
+import { AuditService } from '../../modules/audit/audit.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -12,25 +12,25 @@ export class AngeboteService {
     return rows.map(r => this.mapAngebot(r));
   }
 
-  async angebotErstellen(daten: Record<string, unknown>) {
+  async angebotErstellen(daten: Record<string, unknown>, nutzer?: string) {
     const angebot = await this.prisma.angebote.create({ data: this.angebotDatenMappen(daten) });
-    await this.audit.protokollieren('angebote', angebot.id, 'CREATE', null, angebot);
+    await this.audit.protokollieren('angebote', angebot.id, 'CREATE', null, angebot, nutzer);
     return this.mapAngebot(angebot);
   }
 
-  async angebotAktualisieren(id: number, daten: Record<string, unknown>) {
+  async angebotAktualisieren(id: number, daten: Record<string, unknown>, nutzer?: string) {
     const alt = await this.prisma.angebote.findUnique({ where: { id: BigInt(id) } });
     if (!alt) throw new NotFoundException(`Angebot ${id} nicht gefunden`);
     const neu = await this.prisma.angebote.update({ where: { id: BigInt(id) }, data: this.angebotDatenMappen(daten) });
-    await this.audit.protokollieren('angebote', BigInt(id), 'UPDATE', alt, neu);
+    await this.audit.protokollieren('angebote', BigInt(id), 'UPDATE', alt, neu, nutzer);
     return this.mapAngebot(neu);
   }
 
-  async angebotLoeschen(id: number) {
+  async angebotLoeschen(id: number, nutzer?: string) {
     const alt = await this.prisma.angebote.findUnique({ where: { id: BigInt(id) } });
     if (!alt) throw new NotFoundException(`Angebot ${id} nicht gefunden`);
     await this.prisma.angebote.delete({ where: { id: BigInt(id) } });
-    await this.audit.protokollieren('angebote', BigInt(id), 'DELETE', alt, null);
+    await this.audit.protokollieren('angebote', BigInt(id), 'DELETE', alt, null, nutzer);
     return { ok: true };
   }
 

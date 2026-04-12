@@ -1,0 +1,119 @@
+.page-stempeluhr {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 4rem;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: var(--primary);
+  color: #fff;
+
+  .topbar-title { font-size: 1rem; font-weight: 600; }
+}
+
+.btn-logout {
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  padding: .375rem .75rem;
+  border-radius: var(--radius-sm);
+  font-size: .8125rem;
+  font-weight: 500;
+  transition: background var(--transition);
+
+  &:hover { background: rgba(255,255,255,.25); }
+}
+
+.welcome {
+  text-align: center;
+  color: var(--gray-500);
+  font-size: .8125rem;
+  margin: .875rem 0 0;
+}
+
+.uhr-card {
+  margin: 1.5rem 1.25rem;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  border: 2px solid var(--border);
+  transition: border-color var(--transition);
+
+  &.aktiv { border-color: var(--success); }
+}
+
+.uhr-status {
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--gray-500);
+  margin-bottom: .75rem;
+}
+
+.laufzeit {
+  font-size: 3rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--gray-900);
+  margin-bottom: 1.5rem;
+  letter-spacing: -.02em;
+}
+
+.btn-start, .btn-stop {
+  width: 100%;
+  padding: .875rem;
+  border-radius: var(--radius-lg);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: opacity var(--transition), transform var(--transition);
+
+  &:disabled { opacity: .5; cursor: not-allowed; }
+  &:active:not(:disabled) { transform: translateY(1px); }
+}
+
+.btn-start { background: var(--success); color: #fff; }
+.btn-stop  { background: var(--danger);  color: #fff; }
+
+.meldung {
+  text-align: center;
+  font-size: .875rem;
+  color: var(--primary);
+  background: var(--primary-light);
+  margin: 0 1.25rem;
+  padding: .75rem;
+  border-radius: var(--radius-md);
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: .875rem .5rem;
+    text-decoration: none;
+    color: var(--gray-400);
+    font-size: .8125rem;
+    font-weight: 500;
+    transition: color var(--transition);
+
+    &.active { color: var(--primary); font-weight: 600; }
+    &:hover  { color: var(--gray-700); }
+  }
+}

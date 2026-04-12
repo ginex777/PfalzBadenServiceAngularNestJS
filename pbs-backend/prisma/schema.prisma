@@ -17,11 +17,12 @@ model Kunden {
   created_at DateTime? @default(now()) @db.Date
   updated_at DateTime? @updatedAt
 
-  rechnungen             Rechnungen[]
-  angebote               Angebote[]
-  objekte                Objekte[]
-  hausmeister_einsaetze  HausmeisterEinsaetze[]
+  rechnungen                Rechnungen[]
+  angebote                  Angebote[]
+  objekte                   Objekte[]
+  hausmeister_einsaetze     HausmeisterEinsaetze[]
   wiederkehrende_rechnungen WiederkehrendeRechnungen[]
+  vertraege                 Vertraege[]
 
   @@map("kunden")
 }
@@ -47,7 +48,7 @@ model Rechnungen {
   created_at     DateTime? @default(now()) @db.Date
   updated_at     DateTime? @updatedAt
 
-  kunden   Kunden?   @relation(fields: [kunden_id], references: [id])
+  kunden    Kunden?     @relation(fields: [kunden_id], references: [id])
   mahnungen Mahnungen[]
 
   @@map("rechnungen")
@@ -169,8 +170,8 @@ model Objekte {
   kunden_id    BigInt?
   created_at   DateTime? @default(now()) @db.Date
 
-  kunden       Kunden?   @relation(fields: [kunden_id], references: [id])
-  muellplan    Muellplan[]
+  kunden        Kunden?        @relation(fields: [kunden_id], references: [id])
+  muellplan     Muellplan[]
   muellplan_pdf MuellplanPdf[]
 
   @@map("objekte")
@@ -227,6 +228,7 @@ model Mitarbeiter {
 
   stunden               MitarbeiterStunden[]
   hausmeister_einsaetze HausmeisterEinsaetze[]
+  stempel               Stempel[]
 
   @@map("mitarbeiter")
 }
@@ -250,17 +252,17 @@ model MitarbeiterStunden {
 }
 
 model HausmeisterEinsaetze {
-  id               BigInt    @id @default(autoincrement())
+  id               BigInt   @id @default(autoincrement())
   mitarbeiter_id   BigInt?
-  mitarbeiter_name String    @db.VarChar(200)
+  mitarbeiter_name String   @db.VarChar(200)
   kunden_id        BigInt?
-  kunden_name      String?   @db.VarChar(200)
-  datum            DateTime  @db.Date
-  taetigkeiten     Json      @default("[]")
-  stunden_gesamt   Decimal   @default(0) @db.Decimal(6, 2)
+  kunden_name      String?  @db.VarChar(200)
+  datum            DateTime @db.Date
+  taetigkeiten     Json     @default("[]")
+  stunden_gesamt   Decimal  @default(0) @db.Decimal(6, 2)
   notiz            String?
-  abgeschlossen    Boolean   @default(false)
-  created_at       DateTime  @default(now())
+  abgeschlossen    Boolean  @default(false)
+  created_at       DateTime @default(now())
 
   mitarbeiter Mitarbeiter? @relation(fields: [mitarbeiter_id], references: [id])
   kunden      Kunden?      @relation(fields: [kunden_id], references: [id])
@@ -276,6 +278,7 @@ model AuditLog {
   alt_wert     Json?
   neu_wert     Json?
   zeitstempel  DateTime @default(now())
+  nutzer       String?  @db.VarChar(100)
 
   @@map("audit_log")
 }
@@ -308,6 +311,20 @@ model WiederkehrendeRechnungen {
   kunden Kunden? @relation(fields: [kunden_id], references: [id])
 
   @@map("wiederkehrende_rechnungen")
+}
+
+model Stempel {
+  id             BigInt    @id @default(autoincrement())
+  mitarbeiter_id BigInt
+  start          DateTime
+  stop           DateTime?
+  dauer_minuten  Int?
+  notiz          String?
+  created_at     DateTime  @default(now())
+
+  mitarbeiter Mitarbeiter @relation(fields: [mitarbeiter_id], references: [id])
+
+  @@map("stempel")
 }
 
 model WiederkehrendeAusgaben {
@@ -350,6 +367,52 @@ model Tasks {
   updated_at   DateTime  @updatedAt
 
   @@map("tasks")
+}
+
+model Vertraege {
+  id              BigInt    @id @default(autoincrement())
+  kunden_id       BigInt?
+  kunden_name     String    @db.VarChar(200)
+  kunden_strasse  String?
+  kunden_ort      String?
+  vorlage         String    @db.VarChar(50)
+  titel           String    @db.VarChar(200)
+  vertragsbeginn  DateTime  @db.Date
+  laufzeit_monate Int       @default(12)
+  monatliche_rate Decimal   @default(0) @db.Decimal(10, 2)
+  leistungsumfang String?
+  kuendigungsfrist Int      @default(3)
+  pdf_filename    String?   @db.VarChar(200)
+  html_body       String?
+  status          String    @default("aktiv") @db.VarChar(20)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  kunden Kunden? @relation(fields: [kunden_id], references: [id])
+
+  @@map("vertraege")
+}
+
+model Users {
+  id            BigInt   @id @default(autoincrement())
+  email         String   @unique @db.VarChar(254)
+  password_hash String   @db.VarChar(255)
+  rolle         String   @default("admin") @db.VarChar(20)
+  aktiv         Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("users")
+}
+
+model RefreshTokens {
+  id         BigInt   @id @default(autoincrement())
+  user_id    BigInt
+  token_hash String   @unique @db.VarChar(255)
+  expires_at DateTime
+  created_at DateTime @default(now())
+
+  @@map("refresh_tokens")
 }
 
 model Belege {

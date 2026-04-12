@@ -24,16 +24,34 @@ export class AusgabenTabelleComponent {
   protected readonly mwstOptionen = [0, 7, 19];
   protected readonly kategorienListe = Object.keys(KATEGORIEN);
   protected suchbegriff = '';
+  protected kategorieFilter = '';
+
+  protected verwendeteKategorien(): string[] {
+    const alle = this.zeilen().map(z => z.kategorie ?? '').filter(Boolean);
+    return [...new Set(alle)].sort();
+  }
 
   protected gefilterteZeilen(): BuchhaltungZeile[] {
     const q = this.suchbegriff.toLowerCase();
-    if (!q) return this.zeilen();
-    return this.zeilen().filter(z =>
-      (z.name ?? '').toLowerCase().includes(q) ||
-      (z.kategorie ?? '').toLowerCase().includes(q) ||
-      (z.belegnr ?? '').toLowerCase().includes(q) ||
-      (z.datum ?? '').includes(q)
-    );
+    const kf = this.kategorieFilter;
+    return this.zeilen().filter(z => {
+      if (kf && z.kategorie !== kf) return false;
+      if (!q) return true;
+      return (
+        (z.name ?? '').toLowerCase().includes(q) ||
+        (z.kategorie ?? '').toLowerCase().includes(q) ||
+        (z.belegnr ?? '').toLowerCase().includes(q) ||
+        (z.datum ?? '').includes(q)
+      );
+    });
+  }
+
+  protected kategorieChipKlicken(kat: string): void {
+    this.kategorieFilter = this.kategorieFilter === kat ? '' : kat;
+  }
+
+  protected kategorieAnzahl(kat: string): number {
+    return this.zeilen().filter(z => z.kategorie === kat).length;
   }
 
   protected nettoBerechnen(brutto: number, mwst: number, abzug: number): string {

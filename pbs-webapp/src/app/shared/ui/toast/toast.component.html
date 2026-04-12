@@ -1,0 +1,23 @@
+@if (toast.toasts().length > 0) {
+  <div class="toast-container" role="region" aria-live="polite" aria-label="Benachrichtigungen">
+    @for (t of toast.toasts(); track t.id) {
+      <div class="toast toast--{{ t.typ }}" role="alert">
+        <span class="toast__icon">
+          @switch (t.typ) {
+            @case ('success') { ✓ }
+            @case ('error')   { ✕ }
+            @case ('warning') { ⚠ }
+            @case ('info')    { ℹ }
+          }
+        </span>
+        <span class="toast__text">{{ t.nachricht }}</span>
+        <button
+          class="toast__close"
+          (click)="toast.entfernen(t.id)"
+          aria-label="Benachrichtigung schließen"
+          type="button"
+        >×</button>
+      </div>
+    }
+  </div>
+}

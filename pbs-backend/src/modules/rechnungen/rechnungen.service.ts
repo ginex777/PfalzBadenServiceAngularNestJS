@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
-import { AuditService } from '../../core/audit/audit.service';
+import { AuditService } from '../../modules/audit/audit.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class RechnungenService {
     return rows.map(r => this.mapRechnung(r));
   }
 
-  async rechnungErstellen(daten: Record<string, unknown>) {
+  async rechnungErstellen(daten: Record<string, unknown>, nutzer?: string) {
     const nr = String(daten['nr'] ?? '');
     const vorhanden = await this.prisma.rechnungen.findUnique({ where: { nr } });
     if (vorhanden) throw new ConflictException(`Rechnungsnummer "${nr}" existiert bereits.`);
@@ -20,11 +20,11 @@ export class RechnungenService {
     const rechnung = await this.prisma.rechnungen.create({
       data: this.rechnungDatenMappen(daten),
     });
-    await this.audit.protokollieren('rechnungen', rechnung.id, 'CREATE', null, rechnung);
+    await this.audit.protokollieren('rechnungen', rechnung.id, 'CREATE', null, rechnung, nutzer);
     return this.mapRechnung(rechnung);
   }
 
-  async rechnungAktualisieren(id: number, daten: Record<string, unknown>) {
+  async rechnungAktualisieren(id: number, daten: Record<string, unknown>, nutzer?: string) {
     const alt = await this.prisma.rechnungen.findUnique({ where: { id: BigInt(id) } });
     if (!alt) throw new NotFoundException(`Rechnung ${id} nicht gefunden`);
 
@@ -44,16 +44,16 @@ export class RechnungenService {
       where: { id: BigInt(id) },
       data: this.rechnungDatenMappen(daten),
     });
-    await this.audit.protokollieren('rechnungen', BigInt(id), 'UPDATE', alt, neu);
+    await this.audit.protokollieren('rechnungen', BigInt(id), 'UPDATE', alt, neu, nutzer);
     return this.mapRechnung(neu);
   }
 
-  async rechnungLoeschen(id: number) {
+  async rechnungLoeschen(id: number, nutzer?: string) {
     const alt = await this.prisma.rechnungen.findUnique({ where: { id: BigInt(id) } });
     if (!alt) throw new NotFoundException(`Rechnung ${id} nicht gefunden`);
     if (alt.bezahlt) throw new ForbiddenException('Bezahlte Rechnungen können nicht gelöscht werden (GoBD §146 AO).');
     await this.prisma.rechnungen.delete({ where: { id: BigInt(id) } });
-    await this.audit.protokollieren('rechnungen', BigInt(id), 'DELETE', alt, null);
+    await this.audit.protokollieren('rechnungen', BigInt(id), 'DELETE', alt, null, nutzer);
     return { ok: true };
   }
 

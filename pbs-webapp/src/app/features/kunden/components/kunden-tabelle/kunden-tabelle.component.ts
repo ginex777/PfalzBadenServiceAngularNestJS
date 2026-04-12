@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Kunde } from '../../../../core/models';
 import { KundeUmsatz } from '../../kunden.models';
@@ -28,6 +28,28 @@ export class KundenTabelleComponent {
   readonly neuAnlegen = output<void>();
 
   protected readonly waehrungFormatieren = waehrungFormatieren;
+
+  protected readonly sortSpalte = signal<keyof Kunde>('name');
+  protected readonly sortAufsteigend = signal(true);
+
+  protected readonly sortierteKunden = computed(() => {
+    const col = this.sortSpalte();
+    const asc = this.sortAufsteigend();
+    return [...this.kunden()].sort((a, b) => {
+      const va = String(a[col] ?? '');
+      const vb = String(b[col] ?? '');
+      return asc ? va.localeCompare(vb) : vb.localeCompare(va);
+    });
+  });
+
+  protected toggleSort(col: keyof Kunde): void {
+    if (this.sortSpalte() === col) {
+      this.sortAufsteigend.update(v => !v);
+    } else {
+      this.sortSpalte.set(col);
+      this.sortAufsteigend.set(true);
+    }
+  }
 
   protected umsatzFuerKunde(kundeId: number): KundeUmsatz | undefined {
     return this.umsaetze().find(u => u.kundeId === kundeId);

@@ -141,7 +141,7 @@
 
 <div class="form-actions">
   <button class="btn btn-primary" [disabled]="speichert()" (click)="speichern.emit()">
-    @if (speichert()) { Speichert… } @else { Speichern & Senden }
+    @if (speichert()) { <span class="spinner" aria-hidden="true"></span> Speichert… } @else { Speichern & Senden }
   </button>
   <button class="btn" (click)="vorschau.emit()">Vorschau</button>
   <button class="btn" (click)="abbrechen.emit()">

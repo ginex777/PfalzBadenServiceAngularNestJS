@@ -4,6 +4,8 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 
 import { routes } from './app.routes';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
+import { nutzerInterceptor } from './core/interceptors/nutzer.interceptor';
+import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { API_BASE_URL } from './core/tokens';
 import { environment } from '../environments/environment';
 
@@ -12,7 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
-    provideHttpClient(withFetch(), withInterceptors([httpErrorInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([jwtInterceptor, nutzerInterceptor, httpErrorInterceptor])),
     { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
   ],
 };

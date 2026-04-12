@@ -2,6 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { MS_PER_DAY, DEFAULT_PAGE_SIZE } from '../../core/constants';
 import { Router } from '@angular/router';
 import { KundenService } from './kunden.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Kunde, Rechnung } from '../../core/models';
 import {
   KundeUmsatz, KundenFormularDaten, OffenePostenDaten,
@@ -12,6 +13,7 @@ import {
 export class KundenFacade {
   private readonly service = inject(KundenService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
   readonly fehler = signal<string | null>(null);
@@ -92,14 +94,17 @@ export class KundenFacade {
         if (editId) {
           this.kunden.update(list => list.map(k => k.id === editId ? gespeicherterKunde : k));
           this.umsaetze.update(list => list.map(u => u.kundeId === editId ? { ...u } : u));
+          this.toast.success('Kunde aktualisiert.');
         } else {
           this.kunden.update(list => [...list, gespeicherterKunde]);
           this.umsaetze.update(list => [...list, { kundeId: gespeicherterKunde.id, rechnungenAnzahl: 0, angeboteAnzahl: 0, umsatzBezahlt: 0 }]);
+          this.toast.success('Kunde gespeichert.');
         }
         this.bearbeitungAbbrechen();
       },
       error: () => {
         this.fehler.set('Kunde konnte nicht gespeichert werden.');
+        this.toast.error('Kunde konnte nicht gespeichert werden.');
       },
     });
   }
@@ -129,9 +134,11 @@ export class KundenFacade {
         this.kunden.update(list => list.filter(k => k.id !== id));
         this.umsaetze.update(list => list.filter(u => u.kundeId !== id));
         this.loeschKandidat.set(null);
+        this.toast.success('Kunde gelöscht.');
       },
       error: () => {
         this.fehler.set('Kunde konnte nicht gelöscht werden.');
+        this.toast.error('Kunde konnte nicht gelöscht werden.');
         this.loeschKandidat.set(null);
       },
     });

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #1a1a1a;
+    line-height: 1.5;
+  }
+
+  @page { margin: 34mm 0 30mm 0; size: A4; }
+
+  /* ── Fixed header ─────────────────────────────────────────────────── */
+  .doc-header {
+    position: fixed;
+    top: -34mm; left: 0; right: 0;
+    height: 34mm;
+    padding: 8mm 20mm 6mm;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .firma-info .firma-name { font-size: 14px; font-weight: 700; color: #111; }
+  .firma-info .firma-sub  { font-size: 9.5px; color: #444; margin-top: 2px; }
+  .logo { max-height: 52px; max-width: 140px; object-fit: contain; }
+
+  .header-rule {
+    position: fixed;
+    top: -2mm; left: 20mm; right: 20mm;
+    border: none;
+    border-top: 1px solid #555;
+    margin: 0;
+  }
+
+  /* ── Fixed footer ─────────────────────────────────────────────────── */
+  .doc-footer {
+    position: fixed;
+    bottom: -30mm; left: 0; right: 0;
+    height: 30mm;
+    padding: 3mm 20mm 6mm;
+    border-top: 0.75px solid #999;
+    font-size: 8.5px;
+    color: #444;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    background: #fff;
+  }
+  .doc-footer > div { flex: 1; line-height: 1.65; }
+  .footer-section-label { font-weight: 700; margin-bottom: 1px; }
+
+  /* ── Content ──────────────────────────────────────────────────────── */
+  .content { padding: 0 20mm; }
+
+  /* Parties block */
+  .parties {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .party-block {
+    flex: 1;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 8px 10px;
+  }
+  .party-block .party-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 4px;
+  }
+  .party-block .party-name { font-weight: 700; font-size: 11px; }
+  .party-block .party-addr { font-size: 10px; color: #444; margin-top: 2px; }
+
+  /* Title */
+  .doc-titel {
+    text-align: center;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #1a1a1a;
+  }
+  .doc-titel h1 { font-size: 18px; font-weight: 700; }
+  .doc-titel .sub { font-size: 10px; color: #555; margin-top: 4px; }
+
+  /* Paragraphs */
+  .paragraph {
+    margin-bottom: 14px;
+    page-break-inside: avoid;
+  }
+  .paragraph h2 {
+    font-size: 11.5px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 3px;
+  }
+  .paragraph p { margin-bottom: 4px; line-height: 1.6; }
+  .paragraph ul {
+    margin: 4px 0 4px 16px;
+    padding: 0;
+  }
+  .paragraph ul li { margin-bottom: 2px; }
+
+  /* Meta table */
+  .meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+    font-size: 10.5px;
+  }
+  .meta-table td {
+    padding: 4px 8px;
+    border: 1px solid #e0e0e0;
+  }
+  .meta-table td:first-child {
+    background: #f5f5f5;
+    font-weight: 700;
+    width: 38%;
+  }
+
+  /* Signature block */
+  .signature-block {
+    display: flex;
+    gap: 32px;
+    margin-top: 28px;
+    page-break-inside: avoid;
+  }
+  .signature-col { flex: 1; }
+  .sig-line {
+    border-top: 1px solid #555;
+    margin-top: 32px;
+    padding-top: 4px;
+    font-size: 9.5px;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+
+{{> header}}
+
+<div class="content">
+
+  <div class="doc-titel">
+    <h1>{{vertrag.titel}}</h1>
+    <div class="sub">Vertragsnummer: V-{{vertrag.id}} · Erstellt am {{vertrag.erstelltAmFormatiert}}</div>
+  </div>
+
+  <div class="parties">
+    <div class="party-block">
+      <div class="party-label">Auftragnehmer</div>
+      <div class="party-name">{{firma.firma}}</div>
+      <div class="party-addr">
+        {{#if firma.strasse}}{{firma.strasse}}<br>{{/if}}
+        {{#if firma.ort}}{{firma.ort}}{{/if}}
+      </div>
+    </div>
+    <div class="party-block">
+      <div class="party-label">Auftraggeber</div>
+      <div class="party-name">{{vertrag.kunden_name}}</div>
+      <div class="party-addr">
+        {{#if vertrag.kunden_strasse}}{{vertrag.kunden_strasse}}<br>{{/if}}
+        {{#if vertrag.kunden_ort}}{{vertrag.kunden_ort}}{{/if}}
+      </div>
+    </div>
+  </div>
+
+  <table class="meta-table">
+    <tr>
+      <td>Vertragsart</td>
+      <td>{{vertrag.vorlage}}</td>
+    </tr>
+    <tr>
+      <td>Vertragsbeginn</td>
+      <td>{{vertrag.vertragsbeginnFormatiert}}</td>
+    </tr>
+    <tr>
+      <td>Mindestlaufzeit</td>
+      <td>{{vertrag.laufzeit_monate}} Monate</td>
+    </tr>
+    <tr>
+      <td>Monatliche Vergütung</td>
+      <td>{{vertrag.rateFormatiert}} zzgl. gesetzl. MwSt.</td>
+    </tr>
+    <tr>
+      <td>Kündigungsfrist</td>
+      <td>{{vertrag.kuendigungsfrist}} Monate zum Monatsende</td>
+    </tr>
+  </table>
+
+  <div class="paragraph">
+    <h2>§ 1 Gegenstand des Vertrags</h2>
+    <p>Der Auftragnehmer verpflichtet sich, für den Auftraggeber folgende Leistungen zu erbringen:</p>
+    {{#if vertrag.leistungsumfang}}
+      <p>{{vertrag.leistungsumfang}}</p>
+    {{else}}
+      <p>Die zu erbringenden Leistungen werden zwischen den Vertragsparteien gesondert vereinbart.</p>
+    {{/if}}
+  </div>
+
+  <div class="paragraph">
+    <h2>§ 2 Leistungsumfang und -erbringung</h2>
+    <p>Die Leistungen werden nach den allgemein anerkannten Regeln der Technik und den gesetzlichen
+    Vorschriften erbracht. Der Auftragnehmer ist berechtigt, Teilleistungen durch qualifizierte Dritte
+    erbringen zu lassen, bleibt jedoch gegenüber dem Auftraggeber für die ordnungsgemäße Ausführung
+    verantwortlich.</p>
+  </div>
+
+  <div class="paragraph">
+    <h2>§ 3 Vergütung</h2>
+    <p>Der Auftraggeber zahlt dem Auftragnehmer für die vereinbarten Leistungen eine monatliche
+    Pauschale in Höhe von <strong>{{vertrag.rateFormatiert}}</strong> zzgl. der gesetzlichen
+    Mehrwertsteuer.</p>
+    <p>Die Rechnungsstellung erfolgt monatlich. Zahlungen sind innerhalb von 14 Tagen nach
+    Rechnungsdatum ohne Abzug fällig.</p>
+  </div>
+
+  <div class="paragraph">
+    <h2>§ 4 Vertragslaufzeit und Kündigung</h2>
+    <p>Der Vertrag beginnt am <strong>{{vertrag.vertragsbeginnFormatiert}}</strong> und hat eine
+    Mindestlaufzeit von <strong>{{vertrag.laufzeit_monate}} Monaten</strong>.</p>
+    <p>Nach Ablauf der Mindestlaufzeit verlängert sich der Vertrag automatisch um jeweils 12 Monate,
+    sofern er nicht mit einer Frist von {{vertrag.kuendigungsfrist}} Monaten zum Monatsende schriftlich
+    gekündigt wird.</p>
+    <p>Das Recht zur außerordentlichen Kündigung aus wichtigem Grund bleibt unberührt.</p>
+  </div>
+
+  <div class="paragraph">
+    <h2>§ 5 Pflichten des Auftraggebers</h2>
+    <p>Der Auftraggeber stellt dem Auftragnehmer alle für die Leistungserbringung notwendigen
+    Informationen, Zugänge und Unterlagen rechtzeitig zur Verfügung. Änderungen, die die
+    Leistungserbringung beeinflussen, sind unverzüglich mitzuteilen.</p>
+  </div>
+
+  <div class="paragraph">
+    <h2>§ 6 Haftung</h2>
+    <p>Der Auftragnehmer haftet für Schäden, die auf Vorsatz oder grober Fahrlässigkeit beruhen. Die
+    Haftung für leichte Fahrlässigkeit ist auf den vorhersehbaren, vertragstypischen Schaden begrenzt.
+    Eine weitergehende Haftung ist ausgeschlossen, soweit gesetzlich zulässig.</p>
+  </div>
+
+  <div class="paragraph">
+    <h2>§ 7 Datenschutz (DSGVO)</h2>
+    <p>Beide Vertragsparteien verpflichten sich, die einschlägigen datenschutzrechtlichen Vorschriften,
+    insbesondere die Bestimmungen der Datenschutz-Grundverordnung (DSGVO), einzuhalten.
+    Personenbezogene Daten werden ausschließlich zur Vertragserfüllung verarbeitet und nicht an
+    Dritte weitergegeben, sofern keine gesetzliche Pflicht oder ausdrückliche Einwilligung vorliegt.</p>
+  </div>
+
+  <div class="paragraph">
+    <h2>§ 8 Schlussbestimmungen</h2>
+    <ul>
+      <li>Änderungen und Ergänzungen dieses Vertrages bedürfen der Schriftform.</li>
+      <li>Sollten einzelne Bestimmungen dieses Vertrages unwirksam sein, bleibt die Wirksamkeit
+      des übrigen Vertrages unberührt (Salvatorische Klausel).</li>
+      <li>Es gilt das Recht der Bundesrepublik Deutschland. Gerichtsstand ist, soweit gesetzlich
+      zulässig, der Sitz des Auftragnehmers.</li>
+    </ul>
+  </div>
+
+  <div class="signature-block">
+    <div class="signature-col">
+      <div class="sig-line">Ort, Datum / Unterschrift Auftragnehmer</div>
+      <div style="margin-top:6px;font-size:10px;">{{firma.firma}}</div>
+    </div>
+    <div class="signature-col">
+      <div class="sig-line">Ort, Datum / Unterschrift Auftraggeber</div>
+      <div style="margin-top:6px;font-size:10px;">{{vertrag.kunden_name}}</div>
+    </div>
+  </div>
+
+</div>
+
+{{> footer}}
+
+</body>
+</html>

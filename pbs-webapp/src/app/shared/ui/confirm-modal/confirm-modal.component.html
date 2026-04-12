@@ -1,8 +1,8 @@
 <div class="modal-backdrop" (click)="abbrechen()" aria-hidden="true"></div>
 
-<div class="modal" role="dialog" [attr.aria-label]="titel()" aria-modal="true">
+<div class="modal" role="dialog" aria-labelledby="confirm-modal-titel" aria-modal="true">
   <div class="modal__header">
-    <h2 class="modal__titel">{{ titel() }}</h2>
+    <h2 class="modal__titel" id="confirm-modal-titel">{{ titel() }}</h2>
   </div>
   <div class="modal__body">
     <p class="modal__nachricht">{{ nachricht() }}</p>

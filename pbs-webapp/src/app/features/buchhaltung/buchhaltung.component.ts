@@ -46,6 +46,10 @@ export class BuchhaltungComponent implements OnInit {
   protected readonly facade = inject(BuchhaltungFacade);
   private readonly service = inject(BuchhaltungService);
 
+  hatUngespeicherteAenderungen(): boolean {
+    return this.facade.speicherStatus().dirty;
+  }
+
   protected readonly belegModal = signal<BelegModalState>({
     offen: false, zeile: null, typ: 'exp',
     laedt: false, hochladen: false, beleg: null,
@@ -210,32 +214,24 @@ export class BuchhaltungComponent implements OnInit {
   }
 
   private _belegModalAnzeigen(zeile: BuchhaltungZeile, typ: 'inc' | 'exp'): void {
-    this.belegModalZeile.set(zeile);
-    this.belegModalTyp.set(typ);
-    this.vorhandenerBeleg.set(null);
-    this.belegModalOffen.set(true);
+    this.belegModal.set({ offen: true, zeile, typ, laedt: false, hochladen: false, beleg: null });
 
     if (zeile.beleg_id) {
-      this.belegLaedt.set(true);
+      this.belegModal.update(s => ({ ...s, laedt: true }));
       this.service.belegeFuerBuchungLaden(zeile.id!).subscribe({
-        next: (belege) => {
-          this.vorhandenerBeleg.set(belege[0] ?? null);
-          this.belegLaedt.set(false);
-        },
-        error: () => this.belegLaedt.set(false),
+        next: (belege) => this.belegModal.update(s => ({ ...s, beleg: belege[0] ?? null, laedt: false })),
+        error: () => this.belegModal.update(s => ({ ...s, laedt: false })),
       });
     }
   }
 
   protected belegModalSchliessen(): void {
-    this.belegModalOffen.set(false);
-    this.belegModalZeile.set(null);
-    this.vorhandenerBeleg.set(null);
+    this.belegModal.update(s => ({ ...s, offen: false, zeile: null, beleg: null }));
   }
 
   protected belegDateiHochladen(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const zeile = this.belegModalZeile();
+    const zeile = this.belegModal().zeile;
     if (!input.files?.length || !zeile?.id) return;
 
     const datei = input.files[0];
@@ -246,19 +242,17 @@ export class BuchhaltungComponent implements OnInit {
     fd.append('buchhaltung_id', String(zeile.id));
     fd.append('typ', 'beleg');
 
-    this.belegHochladen.set(true);
+    this.belegModal.update(s => ({ ...s, hochladen: true }));
     this.service.belegHochladen(fd).subscribe({
       next: (beleg) => {
-        this.vorhandenerBeleg.set(beleg);
-        this.belegHochladen.set(false);
-        // Zeile mit beleg_id aktualisieren
-        if (this.belegModalTyp() === 'inc') {
+        this.belegModal.update(s => ({ ...s, beleg, hochladen: false }));
+        if (this.belegModal().typ === 'inc') {
           this.facade.einnahmeZeileAktualisieren(zeile._tempId, { beleg_id: beleg.id });
         } else {
           this.facade.ausgabeZeileAktualisieren(zeile._tempId, { beleg_id: beleg.id });
         }
       },
-      error: () => this.belegHochladen.set(false),
+      error: () => this.belegModal.update(s => ({ ...s, hochladen: false })),
     });
   }
 

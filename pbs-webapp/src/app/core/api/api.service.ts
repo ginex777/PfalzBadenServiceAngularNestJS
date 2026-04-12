@@ -8,7 +8,7 @@ import {
   TaskReorderUpdate, Beleg, AuditLogEntry, Benachrichtigung,
   WiederkehrendeAusgabe, WiederkehrendeRechnung, FirmaSettings,
   PdfArchiveEntry, Mahnung, DatevValidation, DatevPreviewRow,
-  BackupInfo, SettingsKey,
+  BackupInfo, SettingsKey, Vertrag,
 } from '../models';
 
 @Injectable({ providedIn: 'root' })
@@ -361,6 +361,24 @@ export class ApiService {
   }
   pdfArchivLaden(): Observable<PdfArchiveEntry[]> {
     return this.http.get<PdfArchiveEntry[]>(`${this.basis}/pdf/archiv`);
+  }
+
+  // ── Verträge ────────────────────────────────────────────────────────────
+  vertraegeLaden(kundenId?: number): Observable<Vertrag[]> {
+    const params = kundenId ? new HttpParams().set('kunden_id', kundenId) : undefined;
+    return this.http.get<Vertrag[]>(`${this.basis}/vertraege`, { params });
+  }
+  vertragErstellen(daten: Partial<Vertrag>): Observable<Vertrag> {
+    return this.http.post<Vertrag>(`${this.basis}/vertraege`, daten);
+  }
+  vertragAktualisieren(id: number, daten: Partial<Vertrag>): Observable<Vertrag> {
+    return this.http.put<Vertrag>(`${this.basis}/vertraege/${id}`, daten);
+  }
+  vertragLoeschen(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.basis}/vertraege/${id}`);
+  }
+  vertragPdfErstellen(id: number): Observable<{ token: string; url: string }> {
+    return this.http.post<{ token: string; url: string }>(`${this.basis}/vertraege/${id}/pdf`, {});
   }
 
   // ── Backup ──────────────────────────────────────────────────────────────

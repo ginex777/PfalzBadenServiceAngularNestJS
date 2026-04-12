@@ -25,6 +25,11 @@ import { AngebotFilter, AngebotFormularDaten } from './angebote.models';
 })
 export class AngeboteComponent implements OnInit {
   protected readonly facade = inject(AngeboteFacade);
+
+  hatUngespeicherteAenderungen(): boolean {
+    const d = this.facade.formularDaten();
+    return !!(d.empf?.trim() || d.titel?.trim() || d.positionen.some(p => p.bez?.trim()));
+  }
   private readonly route = inject(ActivatedRoute);
   private urlId: number | null = null;
 

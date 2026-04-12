@@ -6,7 +6,8 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { DEFAULT_PAGE_SIZE } from '../../core/constants';
 import { Router } from '@angular/router';
 import { RechnungenService } from './rechnungen.service';
-import { Rechnung, Kunde, FirmaSettings, RechnungPosition, Mahnung } from '../../core/models';
+import { ToastService } from '../../core/services/toast.service';
+import { Rechnung, Kunde, FirmaSettings, RechnungPosition, Mahnung, AuditLogEntry } from '../../core/models';
 import {
   RechnungFilter, RechnungFormularDaten, RechnungPrefill,
   AngebotKonvertierungsDaten, WiederkehrendPrefill,
@@ -17,6 +18,7 @@ import {
 export class RechnungenFacade {
   private readonly service = inject(RechnungenService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
   readonly speichert = signal(false);
@@ -43,12 +45,20 @@ export class RechnungenFacade {
   // Send-Modal nach Speichern
   readonly sendModalRechnung = signal<Rechnung | null>(null);
 
+  // Audit-Trail
+  readonly aktivitaeten = signal<AuditLogEntry[]>([]);
+  readonly aktivitaetenLaedt = signal(false);
+
+  /** ID of a rechnung to open automatically after data loads (set via router state) */
+  private readonly _openId = signal<number | null>(null);
+
   constructor() {
     const nav = this.router.getCurrentNavigation();
     const state = nav?.extras?.state as {
       prefill?: RechnungPrefill;
       convertFrom?: string;
       data?: unknown;
+      openId?: number;
     } | undefined;
     if (state?.prefill) {
       this.prefill.set(state.prefill);
@@ -59,6 +69,9 @@ export class RechnungenFacade {
     }
     if (state?.convertFrom === 'wiederkehrend') {
       this.prefillAusWiederkehrend(state.data as WiederkehrendPrefill);
+    }
+    if (state?.openId) {
+      this._openId.set(state.openId);
     }
   }
 
@@ -146,6 +159,13 @@ export class RechnungenFacade {
         if (!this.formularDaten().datum) {
           this.formularDaten.update(d => ({ ...d, datum: new Date().toISOString().split('T')[0] }));
         }
+        // Auto-open a specific rechnung when navigated from dashboard
+        const openId = this._openId();
+        if (openId !== null) {
+          const target = rechnungen.find(r => r.id === openId);
+          if (target) this.bearbeitungStarten(target);
+          this._openId.set(null);
+        }
       },
       error: () => {
         this.fehler.set('Daten konnten nicht geladen werden.');
@@ -197,19 +217,21 @@ export class RechnungenFacade {
       next: gespeichert => {
         if (editId) {
           this.rechnungen.update(list => list.map(r => r.id === editId ? gespeichert : r));
+          this.toast.success('Rechnung aktualisiert.');
         } else {
           this.rechnungen.update(list => [gespeichert, ...list]);
+          this.toast.success('Rechnung gespeichert.');
         }
         this.speichert.set(false);
         this.bearbeitungAbbrechen();
         this.aktiverTab.set('tracker');
-        // Send-Modal anzeigen wenn E-Mail vorhanden
         if (gespeichert.email) {
           this.sendModalRechnung.set(gespeichert);
         }
       },
       error: () => {
         this.fehler.set('Rechnung konnte nicht gespeichert werden.');
+        this.toast.error('Rechnung konnte nicht gespeichert werden.');
         this.speichert.set(false);
       },
     });
@@ -230,6 +252,20 @@ export class RechnungenFacade {
       kunden_id: rechnung.kunden_id,
     });
     this.aktiverTab.set('formular');
+    if (rechnung.id) {
+      this.aktivitaetenLaden(rechnung.id);
+    }
+  }
+
+  private aktivitaetenLaden(rechnungId: number): void {
+    this.aktivitaetenLaedt.set(true);
+    this.service.auditEintraegeLaden(rechnungId).subscribe({
+      next: eintraege => {
+        this.aktivitaeten.set(eintraege);
+        this.aktivitaetenLaedt.set(false);
+      },
+      error: () => this.aktivitaetenLaedt.set(false),
+    });
   }
 
   bearbeitungAbbrechen(): void {
@@ -260,11 +296,20 @@ export class RechnungenFacade {
       next: () => {
         this.rechnungen.update(list => list.filter(r => r.id !== id));
         this.loeschKandidat.set(null);
+        this.toast.success('Rechnung gelöscht.');
       },
       error: () => {
         this.fehler.set('Rechnung konnte nicht gelöscht werden.');
+        this.toast.error('Rechnung konnte nicht gelöscht werden.');
         this.loeschKandidat.set(null);
       },
+    });
+  }
+
+  loeschenSofort(id: number): void {
+    this.service.rechnungLoeschen(id).subscribe({
+      next: () => this.rechnungen.update(list => list.filter(r => r.id !== id)),
+      error: () => this.fehler.set(`Rechnung #${id} konnte nicht gelöscht werden.`),
     });
   }
 
@@ -288,9 +333,11 @@ export class RechnungenFacade {
         this.rechnungen.update(list => list.map(x => x.id === r.id ? aktualisiert : x));
         this.bezahltKandidat.set(null);
         this.bezahltDatum.set('');
+        this.toast.success(`Rechnung ${r.nr} als bezahlt markiert.`);
       },
       error: () => {
         this.fehler.set('Status konnte nicht aktualisiert werden.');
+        this.toast.error('Status konnte nicht aktualisiert werden.');
       },
     });
   }
@@ -514,6 +561,24 @@ export class RechnungenFacade {
   }
 
   // ── Send-Modal ─────────────────────────────────────────────────────────────
+
+  readonly formularGeaendert = computed(() => {
+    const d = this.formularDaten();
+    return !!(d.empf?.trim() || d.titel?.trim() || d.positionen.some(p => p.bez?.trim()));
+  });
+
+  readonly sendBetreff = computed(() => {
+    const r = this.sendModalRechnung();
+    if (!r) return '';
+    return encodeURIComponent(`Rechnung ${r.nr}`);
+  });
+
+  readonly sendText = computed(() => {
+    const r = this.sendModalRechnung();
+    const f = this.firma();
+    if (!r) return '';
+    return `Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie unsere Rechnung ${r.nr} vom ${r.datum ?? ''} über ${r.brutto?.toFixed(2) ?? '0.00'} EUR.\n\nBitte überweisen Sie den Betrag bis zum ${r.frist ?? ''} auf unser Konto.\n\nMit freundlichen Grüßen\n ${f.firma ?? ''}`;
+  });
 
   sendModalSchliessen(): void {
     this.sendModalRechnung.set(null);

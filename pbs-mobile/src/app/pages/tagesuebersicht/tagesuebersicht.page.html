@@ -1,0 +1,38 @@
+<div class="page-uebersicht">
+  <header class="topbar">
+    <span class="topbar-title">Tagesübersicht</span>
+  </header>
+
+  <div class="gesamt-card">
+    <span class="gesamt-label">Gesamt heute</span>
+    <span class="gesamt-wert">{{ formatDauer(gesamtMinuten()) }}</span>
+  </div>
+
+  @if (laedt()) {
+    <p class="hint">Lade Einträge…</p>
+  } @else if (eintraege().length === 0) {
+    <p class="hint">Keine Zeiteinträge vorhanden.</p>
+  } @else {
+    <ul class="list">
+      @for (e of eintraege(); track e.id) {
+        <li class="list-item" [class.offen]="!e.stop">
+          <div class="item-time">
+            <span>{{ e.start | date:'HH:mm' }}</span>
+            <span class="arrow">→</span>
+            <span>{{ e.stop ? (e.stop | date:'HH:mm') : '…' }}</span>
+          </div>
+          <div class="item-dauer">{{ formatDauer(e.dauer_minuten) }}</div>
+          @if (e.notiz) {
+            <div class="item-notiz">{{ e.notiz }}</div>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  <nav class="bottom-nav">
+    <a routerLink="/stempeluhr" class="nav-item">Stempel</a>
+    <a routerLink="/tagesuebersicht" class="nav-item active">Übersicht</a>
+    <a routerLink="/foto-upload" class="nav-item">Foto</a>
+  </nav>
+</div>

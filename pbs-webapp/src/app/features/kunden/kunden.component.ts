@@ -27,6 +27,10 @@ import { KundenFormularDaten } from './kunden.models';
 export class KundenComponent implements OnInit {
   protected readonly facade = inject(KundenFacade);
 
+  hatUngespeicherteAenderungen(): boolean {
+    return this.facade.bearbeiteterKunde() !== null;
+  }
+
   ngOnInit(): void {
     this.facade.ladeDaten();
   }

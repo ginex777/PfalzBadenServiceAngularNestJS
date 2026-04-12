@@ -543,6 +543,7 @@ tr.total-row td { font-weight: 600; background: var(--gray-50); border-top: 1px 
 .page-wrap {
   padding: 24px 28px;
   max-width: 1300px;
+  margin: 0 auto;
 
   @media (max-width: 1024px) { padding: 20px; }
   @media (max-width: 768px)  { padding: 16px; }
@@ -551,6 +552,7 @@ tr.total-row td { font-weight: 600; background: var(--gray-50); border-top: 1px 
 .page-content {
   padding: 28px 32px;
   max-width: var(--content-max);
+  margin: 0 auto;
 }
 
 .page-header {
@@ -823,6 +825,45 @@ tr.total-row td { font-weight: 600; background: var(--gray-50); border-top: 1px 
   .stats-grid, .stat-cards { grid-template-columns: 1fr; }
 }
 
+/* ── Form field error state ────────────────────────────────── */
+.form-field--fehler {
+  input, select, textarea {
+    border-color: var(--danger) !important;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+      border-color: var(--danger) !important;
+    }
+  }
+}
+
+/* ── Button spinner (white variant for primary buttons) ─────── */
+.btn-primary .spinner,
+.btn--primary .spinner {
+  border-color: rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  width: 12px;
+  height: 12px;
+}
+
+/* ── Sortable table headers ────────────────────────────────── */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+
+  &:hover { color: var(--gray-700); background: var(--gray-100); }
+
+  .sort-icon {
+    display: inline-block;
+    margin-left: 4px;
+    font-size: 10px;
+    opacity: 0.5;
+  }
+
+  &--aktiv .sort-icon { opacity: 1; color: var(--primary); }
+}
+
 /* ── Focus ring ────────────────────────────────────────────── */
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
   outline: 2px solid var(--primary);
@@ -830,11 +871,75 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   border-radius: var(--radius-sm);
 }
 
+/* ── Mobile table scroll indicator ────────────────────────── */
+@media (max-width: 768px) {
+  .table-wrapper,
+  .tabelle-wrapper,
+  .table-scroll,
+  .tabelle-scroll {
+    background:
+      linear-gradient(to right, var(--surface) 20%, transparent) left / 16px 100% no-repeat local,
+      linear-gradient(to left,  var(--surface) 20%, transparent) right / 16px 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%,   rgba(0,0,0,0.10), transparent) left  / 10px 100% no-repeat scroll,
+      radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,0.10), transparent) right / 10px 100% no-repeat scroll;
+  }
+}
+
+/* ── Help Buttons ──────────────────────────────────────────── */
+.btn-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--gray-300);
+  background: var(--surface);
+  color: var(--gray-500);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: help;
+  vertical-align: middle;
+  margin-left: 3px;
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+}
+
 /* ── Scrollbar ─────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--gray-300); }
+
+/* ── Print ─────────────────────────────────────────────────── */
+@media print {
+  app-sidebar,
+  .toolbar,
+  .page-tabs,
+  .pagination,
+  .btn,
+  button { display: none !important; }
+
+  body { background: #fff; color: #000; font-size: 12px; }
+
+  .page-wrap,
+  .page-content { padding: 0; max-width: 100%; }
+
+  .card,
+  .form-card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+
+  table { font-size: 11px; }
+  th, td { padding: 6px 8px; }
+
+  a[href]::after { content: ' (' attr(href) ')'; font-size: 10px; color: #666; }
+  a[href^="#"]::after,
+  a[href^="javascript"]::after { content: ''; }
+}
 
 /* ── Dark Mode ─────────────────────────────────────────────── */
 [data-theme="dark"] {

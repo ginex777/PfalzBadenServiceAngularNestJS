@@ -1,0 +1,35 @@
+<div class="page-stempeluhr">
+  <header class="topbar">
+    <span class="topbar-title">Stempeluhr</span>
+    <button class="btn-logout" (click)="abmelden()">Abmelden</button>
+  </header>
+
+  @if (user()) {
+    <p class="welcome">Hallo, {{ user()!.email }}</p>
+  }
+
+  <div class="uhr-card" [class.aktiv]="istAktiv">
+    <div class="uhr-status">{{ istAktiv ? 'Aktiv' : 'Nicht gestempelt' }}</div>
+    <div class="laufzeit">{{ laufzeit() }}</div>
+
+    @if (istAktiv) {
+      <button class="btn-stop" [disabled]="laedt()" (click)="stop()">
+        Stoppen
+      </button>
+    } @else {
+      <button class="btn-start" [disabled]="laedt()" (click)="start()">
+        Stempeln
+      </button>
+    }
+  </div>
+
+  @if (meldung()) {
+    <p class="meldung">{{ meldung() }}</p>
+  }
+
+  <nav class="bottom-nav">
+    <a routerLink="/stempeluhr" class="nav-item active">Stempel</a>
+    <a routerLink="/tagesuebersicht" class="nav-item">Übersicht</a>
+    <a routerLink="/foto-upload" class="nav-item">Foto</a>
+  </nav>
+</div>

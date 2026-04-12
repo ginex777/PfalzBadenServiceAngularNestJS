@@ -83,6 +83,34 @@
 
 .row--bezahlt td { opacity: 0.7; }
 .row--ueberfaellig td { background: var(--danger-light) !important; }
+.row--ausgewaehlt td { background: var(--primary-muted) !important; }
+
+.col-check {
+  width: 32px;
+  padding: 0 0.5rem;
+  text-align: center;
+
+  input[type="checkbox"] { cursor: pointer; width: 14px; height: 14px; }
+}
+
+.bulk-aktionen {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--primary-muted);
+  border: 1px solid var(--primary-light);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+
+  &__info {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-right: 0.25rem;
+  }
+}
 
 .text-danger { color: var(--danger); font-weight: 500; }
 

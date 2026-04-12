@@ -1,25 +1,32 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal, HostListener } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { ToastComponent } from '../../shared/ui/toast/toast.component';
+import { OnboardingComponent } from '../../features/onboarding/onboarding.component';
+import { NutzerService } from '../../core/services/nutzer.service';
 import { Benachrichtigung } from '../../core/models';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, SidebarComponent],
+  imports: [RouterOutlet, SidebarComponent, ToastComponent, OnboardingComponent, FormsModule],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
 })
 export class ShellComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  protected readonly nutzerService = inject(NutzerService);
 
   protected readonly mobileSidebarOffen = signal(false);
   protected readonly ungeleseneNotifs = signal<Benachrichtigung[]>([]);
   protected readonly notifBannerSichtbar = signal(false);
   protected readonly darkMode = signal(false);
+  protected readonly nutzerEingabeOffen = signal(false);
+  protected nutzerEingabe = '';
 
   ngOnInit(): void {
     this.notifenLaden();
@@ -54,6 +61,20 @@ export class ShellComponent implements OnInit {
     this.mobileSidebarOffen.update(offen => !offen);
   }
 
+  protected nutzerWechselnOeffnen(): void {
+    this.nutzerEingabe = this.nutzerService.aktiverNutzer();
+    this.nutzerEingabeOffen.set(true);
+  }
+
+  protected nutzerSpeichern(): void {
+    this.nutzerService.setzen(this.nutzerEingabe);
+    this.nutzerEingabeOffen.set(false);
+  }
+
+  protected nutzerAbbrechen(): void {
+    this.nutzerEingabeOffen.set(false);
+  }
+
   protected mobileSidebarSchliessen(): void {
     this.mobileSidebarOffen.set(false);
   }
@@ -70,9 +91,17 @@ export class ShellComponent implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   protected onKeydown(e: KeyboardEvent): void {
+    // Ctrl+K / Cmd+K → globale Suche (immer aktiv)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      this.router.navigate(['/suche']);
+      return;
+    }
+
     const tag = (e.target as HTMLElement).tagName;
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
+
     switch (e.key) {
       case '/': e.preventDefault(); this.router.navigate(['/suche']); break;
       case 'n': this.router.navigate(['/rechnungen'], { state: { neueRechnung: true } }); break;

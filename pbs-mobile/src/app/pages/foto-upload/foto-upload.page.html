@@ -1,0 +1,39 @@
+<div class="page-foto">
+  <header class="topbar">
+    <span class="topbar-title">Beleg / Foto</span>
+  </header>
+
+  @if (!vorschau()) {
+    <div class="btn-group">
+      <button class="btn-action btn-kamera" (click)="fotoAufnehmen()">
+        Foto aufnehmen
+      </button>
+      <button class="btn-action btn-galerie" (click)="fotoAusGalerie()">
+        Aus Galerie wählen
+      </button>
+    </div>
+  } @else {
+    <div class="preview-wrap">
+      <img [src]="vorschau()!" class="preview-img" alt="Vorschau" />
+      <div class="preview-actions">
+        <button class="btn-upload" [disabled]="laedt()" (click)="hochladen()">
+          {{ laedt() ? 'Hochladen…' : 'Hochladen' }}
+        </button>
+        <button class="btn-verwerfen" (click)="verwerfen()">Verwerfen</button>
+      </div>
+    </div>
+  }
+
+  @if (meldung()) {
+    <p class="success-banner">{{ meldung() }}</p>
+  }
+  @if (fehler()) {
+    <p class="fehler-banner">{{ fehler() }}</p>
+  }
+
+  <nav class="bottom-nav">
+    <a routerLink="/stempeluhr" class="nav-item">Stempel</a>
+    <a routerLink="/tagesuebersicht" class="nav-item">Übersicht</a>
+    <a routerLink="/foto-upload" class="nav-item active">Foto</a>
+  </nav>
+</div>

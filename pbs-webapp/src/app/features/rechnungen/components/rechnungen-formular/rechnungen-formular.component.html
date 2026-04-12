@@ -4,26 +4,30 @@
   </div>
 }
 
+<div class="section-title">1. Empfänger &amp; Rechnungsdaten</div>
 <div class="form-section">
   <div class="form-row">
     <div class="form-field">
-      <label>Rechnungs-Nr. *</label>
+      <label for="rf-nr">Rechnungs-Nr. *</label>
       <input
+        id="rf-nr"
         type="text"
         [value]="formularDaten().nr"
         placeholder="R-2026-001"
         (input)="onFeldChange('nr', $event)">
     </div>
     <div class="form-field">
-      <label>Datum</label>
+      <label for="rf-datum">Datum</label>
       <input
+        id="rf-datum"
         type="date"
         [value]="formularDaten().datum"
         (input)="onFeldChange('datum', $event)">
     </div>
     <div class="form-field">
-      <label>Titel *</label>
+      <label for="rf-titel">Titel *</label>
       <input
+        id="rf-titel"
         type="text"
         [value]="formularDaten().titel"
         placeholder="Rechnung April"
@@ -33,8 +37,8 @@
 
   <div class="form-row">
     <div class="form-field">
-      <label>Kunde auswählen</label>
-      <select (change)="onKundeChange($event)">
+      <label for="rf-kunde">Kunde auswählen</label>
+      <select id="rf-kunde" (change)="onKundeChange($event)">
         <option value="">-- Kunde wählen --</option>
         @for (kunde of kunden(); track kunde.id) {
           <option [value]="kunde.id" [selected]="formularDaten().kunden_id === kunde.id">
@@ -44,8 +48,9 @@
       </select>
     </div>
     <div class="form-field">
-      <label>Empfänger *</label>
+      <label for="rf-empf">Empfänger *</label>
       <input
+        id="rf-empf"
         type="text"
         [value]="formularDaten().empf"
         placeholder="Firmenname"
@@ -55,67 +60,77 @@
 
   <div class="form-row">
     <div class="form-field">
-      <label>Straße / Postfach</label>
+      <label for="rf-str">Straße / Postfach</label>
       <input
+        id="rf-str"
         type="text"
         [value]="formularDaten().str"
         placeholder="Musterstraße 1"
         (input)="onFeldChange('str', $event)">
     </div>
     <div class="form-field">
-      <label>PLZ Ort</label>
+      <label for="rf-ort">PLZ Ort</label>
       <input
+        id="rf-ort"
         type="text"
         [value]="formularDaten().ort"
         placeholder="12345 Musterstadt"
         (input)="onFeldChange('ort', $event)">
     </div>
     <div class="form-field">
-      <label>E-Mail</label>
+      <label for="rf-email">E-Mail</label>
       <input
+        id="rf-email"
         type="email"
         [value]="formularDaten().email"
         placeholder="kunde@firma.de"
         (input)="onFeldChange('email', $event)">
     </div>
   </div>
-
-  <div class="form-row">
-    <div class="form-field form-field--wide">
-      <label>
-        Leistungszeitraum *
-        <span class="hint-label">(§14 Abs. 4 Nr. 6 UStG)</span>
-      </label>
-      <input
-        type="text"
-        [value]="formularDaten().leistungsdatum"
-        placeholder="z.B. April 2026 oder 01.04. – 30.04.2026"
-        (input)="onFeldChange('leistungsdatum', $event)">
-    </div>
-    <div class="form-field form-field--narrow">
-      <label>Zahlungsziel (Tage)</label>
-      <input
-        type="number"
-        min="1"
-        max="365"
-        [value]="formularDaten().zahlungsziel"
-        (input)="onSelectChange('zahlungsziel', $event)">
-    </div>
-    <div class="form-field">
-      <label>
-        MwSt.-Satz
-        <span class="hint-label">(§14 UStG)</span>
-      </label>
-      <select (change)="onSelectChange('mwst_satz', $event)">
-        <option value="19" [selected]="formularDaten().mwst_satz === 19">19 % (Regelsteuersatz)</option>
-        <option value="7" [selected]="formularDaten().mwst_satz === 7">7 % (ermäßigt)</option>
-        <option value="0" [selected]="formularDaten().mwst_satz === 0">0 % (steuerfrei / §19 UStG)</option>
-      </select>
-    </div>
-  </div>
 </div>
 
-<div class="section-title">Positionen</div>
+<details class="form-section-collapsible" open>
+  <summary class="section-title section-title--collapsible">2. Zahlungskonditionen &amp; MwSt.</summary>
+  <div class="form-section">
+    <div class="form-row">
+      <div class="form-field form-field--wide">
+        <label for="rf-leistungsdatum">
+          Leistungszeitraum *
+          <span class="hint-label">(§14 Abs. 4 Nr. 6 UStG)</span>
+        </label>
+        <input
+          id="rf-leistungsdatum"
+          type="text"
+          [value]="formularDaten().leistungsdatum"
+          placeholder="z.B. April 2026 oder 01.04. – 30.04.2026"
+          (input)="onFeldChange('leistungsdatum', $event)">
+      </div>
+      <div class="form-field form-field--narrow">
+        <label for="rf-zahlungsziel">Zahlungsziel (Tage)</label>
+        <input
+          id="rf-zahlungsziel"
+          type="number"
+          min="1"
+          max="365"
+          [value]="formularDaten().zahlungsziel"
+          (input)="onSelectChange('zahlungsziel', $event)">
+      </div>
+      <div class="form-field">
+        <label for="rf-mwst">
+          MwSt.-Satz
+          <span class="hint-label">(§14 UStG)</span>
+        </label>
+        <select id="rf-mwst" (change)="onSelectChange('mwst_satz', $event)">
+          <option value="19" [selected]="formularDaten().mwst_satz === 19">19 % (Regelsteuersatz)</option>
+          <option value="7" [selected]="formularDaten().mwst_satz === 7">7 % (ermäßigt)</option>
+          <option value="0" [selected]="formularDaten().mwst_satz === 0">0 % (steuerfrei / §19 UStG)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</details>
+
+<div class="section-title">3. Positionen</div>
 
 <div class="positions-wrapper">
   <table class="pos-table">
@@ -224,7 +239,7 @@
     class="btn btn-primary"
     [disabled]="speichert()"
     (click)="speichern.emit()">
-    @if (speichert()) { Speichert… } @else { Speichern & Senden }
+    @if (speichert()) { <span class="spinner" aria-hidden="true"></span> Speichert… } @else { Speichern & Senden }
   </button>
   <button class="btn" (click)="vorschau.emit()">Vorschau</button>
   @if (bearbeiteteRechnung()) {

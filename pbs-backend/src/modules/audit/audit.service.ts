@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()
 export class AuditService {
@@ -11,6 +11,7 @@ export class AuditService {
     aktion: 'CREATE' | 'UPDATE' | 'DELETE',
     altWert?: unknown,
     neuWert?: unknown,
+    nutzer?: string,
   ): Promise<void> {
     await this.prisma.auditLog.create({
       data: {
@@ -19,6 +20,7 @@ export class AuditService {
         aktion,
         alt_wert: altWert ? (altWert as object) : undefined,
         neu_wert: neuWert ? (neuWert as object) : undefined,
+        nutzer: nutzer ?? null,
       },
     });
   }

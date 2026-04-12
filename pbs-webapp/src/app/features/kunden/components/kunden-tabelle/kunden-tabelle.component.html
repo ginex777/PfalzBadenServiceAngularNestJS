@@ -16,17 +16,25 @@
     <table>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Straße</th>
-          <th>Ort</th>
+          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'name'" (click)="toggleSort('name')">
+            Name<span class="sort-icon">{{ sortSpalte() === 'name' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          </th>
+          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'strasse'" (click)="toggleSort('strasse')">
+            Straße<span class="sort-icon">{{ sortSpalte() === 'strasse' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          </th>
+          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'ort'" (click)="toggleSort('ort')">
+            Ort<span class="sort-icon">{{ sortSpalte() === 'ort' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          </th>
           <th>Telefon</th>
-          <th>E-Mail</th>
+          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'email'" (click)="toggleSort('email')">
+            E-Mail<span class="sort-icon">{{ sortSpalte() === 'email' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          </th>
           <th class="text-right">Umsatz (bezahlt)</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
-        @for (kunde of kunden(); track kunde.id) {
+        @for (kunde of sortierteKunden(); track kunde.id) {
           <tr>
             <td class="col-name">
               <div class="name-cell">

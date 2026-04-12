@@ -1,0 +1,57 @@
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="logo-text">PBS</span>
+      <span class="logo-sub">Buchhaltung</span>
+    </div>
+
+    @if (setupModus()) {
+      <h2>Ersteinrichtung</h2>
+      <p class="hint">Noch kein Benutzer vorhanden. Erstellen Sie jetzt den Admin-Account.</p>
+    } @else {
+      <h2>Anmelden</h2>
+      @if (sessionAbgelaufen()) {
+        <p class="warn">Ihre Session ist abgelaufen. Bitte erneut anmelden.</p>
+      }
+    }
+
+    <form (ngSubmit)="submit()" #f="ngForm">
+      <label>
+        E-Mail
+        <input
+          type="email"
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)"
+          name="email"
+          autocomplete="username"
+          required
+          placeholder="admin@firma.de"
+        />
+      </label>
+
+      <label>
+        Passwort
+        <input
+          type="password"
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
+          name="password"
+          autocomplete="current-password"
+          required
+          [minlength]="setupModus() ? 8 : 1"
+          placeholder="••••••••"
+        />
+      </label>
+
+      @if (fehler()) {
+        <p class="fehler">{{ fehler() }}</p>
+      }
+
+      <button type="submit" [disabled]="laedt()">
+        @if (laedt()) { Bitte warten… }
+        @else if (setupModus()) { Admin-Account erstellen }
+        @else { Anmelden }
+      </button>
+    </form>
+  </div>
+</div>

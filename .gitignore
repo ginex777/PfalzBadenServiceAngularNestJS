@@ -1,3 +1,7 @@
+# NX cache
+.nx/cache
+.nx/workspace-data
+
 # Node
 node_modules/
 npm-debug.log*

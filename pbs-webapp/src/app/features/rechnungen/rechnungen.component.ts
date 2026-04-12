@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, effect } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RechnungenFacade } from './rechnungen.facade';
@@ -27,6 +27,7 @@ import { waehrungFormatieren } from '../../core/utils/format.utils';
     ConfirmModalComponent,
     PageTitleComponent,
     DecimalPipe,
+    DatePipe,
   ],
   templateUrl: './rechnungen.component.html',
   styleUrl: './rechnungen.component.scss',
@@ -91,28 +92,15 @@ export class RechnungenComponent {
     this.facade.mahnungFormularFeld(feld, feld === 'betrag_gebuehr' || feld === 'stufe' ? parseFloat(val) || 0 : val);
   }
 
-  protected sendBetreff(): string {
-    const r = this.facade.sendModalRechnung();
-    if (!r) return '';
-    return encodeURIComponent(`Rechnung ${r.nr}`);
-  }
-
-  protected sendText(): string {
-    const r = this.facade.sendModalRechnung();
-    const f = this.facade.firma();
-    if (!r) return '';
-    return `Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie unsere Rechnung ${r.nr} vom ${r.datum ?? ''} über ${r.brutto?.toFixed(2) ?? '0.00'} EUR.\n\nBitte überweisen Sie den Betrag bis zum ${r.frist ?? ''} auf unser Konto.\n\nMit freundlichen Grüßen\n ${f.firma ?? ''}`;
-  }
-
-  protected outlookOeffnen(): void {
+  protected onOutlookOeffnen(): void {
     const r = this.facade.sendModalRechnung();
     if (!r) return;
-    const mailto = `mailto:${r.email}?subject=${this.sendBetreff()}&body=${encodeURIComponent(this.sendText())}`;
+    const mailto = `mailto:${r.email}?subject=${this.facade.sendBetreff()}&body=${encodeURIComponent(this.facade.sendText())}`;
     window.open(mailto, '_blank');
   }
 
-  protected textKopieren(): void {
-    navigator.clipboard.writeText(this.sendText()).catch(() => {});
+  protected onTextKopieren(): void {
+    navigator.clipboard.writeText(this.facade.sendText()).catch(() => {});
   }
 
   protected onFilterAendern(filter: RechnungFilter): void {
@@ -148,5 +136,18 @@ export class RechnungenComponent {
 
   protected onKundeAuswaehlen(kundeId: number): void {
     this.facade.kundeAuswaehlen(kundeId);
+  }
+
+  protected onBulkLoeschen(ids: number[]): void {
+    if (!confirm(`${ids.length} Rechnungen unwiderruflich löschen?`)) return;
+    ids.forEach(id => this.facade.loeschenSofort(id));
+  }
+
+  protected onBulkAlsGezahlt(rechnungen: Rechnung[]): void {
+    rechnungen.forEach(r => this.facade.alsGezahltMarkierenStarten(r));
+  }
+
+  hatUngespeicherteAenderungen(): boolean {
+    return this.facade.formularGeaendert();
   }
 }

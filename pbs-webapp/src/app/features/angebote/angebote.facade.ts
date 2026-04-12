@@ -5,6 +5,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngeboteService } from './angebote.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Angebot, Kunde, FirmaSettings, RechnungPosition } from '../../core/models';
 import {
   AngebotFilter, AngebotFormularDaten, AngebotPrefill,
@@ -15,6 +16,7 @@ import {
 export class AngeboteFacade {
   private readonly service = inject(AngeboteService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
   readonly speichert = signal(false);
@@ -32,13 +34,19 @@ export class AngeboteFacade {
   // Send-Modal nach Speichern
   readonly sendModal = signal<{ angebot: Angebot; email: string } | null>(null);
 
+  private readonly _openId = signal<number | null>(null);
+
   constructor() {
     const nav = this.router.getCurrentNavigation();
     const state = nav?.extras?.state as {
       prefill?: AngebotPrefill;
+      openId?: number;
     } | undefined;
     if (state?.prefill) {
       this.prefillAusRouterState(state.prefill);
+    }
+    if (state?.openId) {
+      this._openId.set(state.openId);
     }
   }
 
@@ -104,6 +112,13 @@ export class AngeboteFacade {
             datum: d.datum || new Date().toISOString().split('T')[0],
           }));
         }
+        // Auto-open a specific angebot when navigated from dashboard
+        const openId = this._openId();
+        if (openId !== null) {
+          const target = angebote.find(a => a.id === openId);
+          if (target) this.bearbeitungStarten(target);
+          this._openId.set(null);
+        }
       },
       error: () => { this.fehler.set('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
     });
@@ -145,8 +160,10 @@ export class AngeboteFacade {
       next: gespeichert => {
         if (editId) {
           this.angebote.update(list => list.map(a => a.id === editId ? gespeichert : a));
+          this.toast.success('Angebot aktualisiert.');
         } else {
           this.angebote.update(list => [gespeichert, ...list]);
+          this.toast.success('Angebot gespeichert.');
         }
         this.speichert.set(false);
         this.bearbeitungAbbrechen();
@@ -157,6 +174,7 @@ export class AngeboteFacade {
       },
       error: () => {
         this.fehler.set('Angebot konnte nicht gespeichert werden.');
+        this.toast.error('Angebot konnte nicht gespeichert werden.');
         this.speichert.set(false);
       },
     });
@@ -207,9 +225,11 @@ export class AngeboteFacade {
       next: () => {
         this.angebote.update(list => list.filter(a => a.id !== id));
         this.loeschKandidat.set(null);
+        this.toast.success('Angebot gelöscht.');
       },
       error: () => {
         this.fehler.set('Angebot konnte nicht gelöscht werden.');
+        this.toast.error('Angebot konnte nicht gelöscht werden.');
         this.loeschKandidat.set(null);
       },
     });

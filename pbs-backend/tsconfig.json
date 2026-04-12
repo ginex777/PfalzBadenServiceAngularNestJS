@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "ignoreDeprecations": "5.0",
     "moduleResolution": "node",
 
     "target": "ES2023",
     "outDir": "./dist",
     "baseUrl": "./",
+
+    "types": ["jest", "node"],
 
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

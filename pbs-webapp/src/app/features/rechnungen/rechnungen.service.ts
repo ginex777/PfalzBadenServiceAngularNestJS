@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, firstValueFrom } from 'rxjs';
 import { ApiService } from '../../core/api/api.service';
-import { Rechnung, Kunde, FirmaSettings, RechnungPosition, Mahnung } from '../../core/models';
+import { Rechnung, Kunde, FirmaSettings, RechnungPosition, Mahnung, AuditLogEntry } from '../../core/models';
 
 @Injectable({ providedIn: 'root' })
 export class RechnungenService {
@@ -43,6 +43,10 @@ export class RechnungenService {
 
   mahnungLoeschen(id: number): Observable<void> {
     return this.api.mahnungLoeschen(id);
+  }
+
+  auditEintraegeLaden(rechnungId: number): Observable<AuditLogEntry[]> {
+    return this.api.auditLogFuerDatensatzLaden('rechnungen', rechnungId);
   }
 
   nettoBerechnen(positionen: RechnungPosition[]): number {

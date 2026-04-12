@@ -1,4 +1,11 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { AuthModule } from './modules/auth/auth.module';
+import { VertraegeModule } from './modules/vertraege/vertraege.module';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { DatabaseModule } from './core/database/database.module';
 import { KundenModule } from './modules/kunden/kunden.module';
 import { RechnungenModule } from './modules/rechnungen/rechnungen.module';
@@ -23,6 +30,12 @@ import { HealthController } from './health.controller';
 
 @Module({
   imports: [
+    // Configuration — available everywhere via ConfigService
+    ConfigModule.forRoot({ isGlobal: true }),
+
+    // Rate limiting — 100 requests per 60 seconds per IP
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
+
     DatabaseModule,
     KundenModule, RechnungenModule, AngeboteModule,
     BuchhaltungModule, MarketingModule, MitarbeiterModule,
@@ -30,7 +43,13 @@ import { HealthController } from './health.controller';
     SettingsModule, AuditModule, BenachrichtigungenModule,
     WiederkehrendModule, MahnungenModule, PdfModule,
     BelegeModule, DatevModule, BackupModule, EmailModule,
+    AuthModule, VertraegeModule,
   ],
   controllers: [HealthController],
+  providers: [
+    // Global JWT guard — all routes protected unless @Public() is applied
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+  ],
 })
 export class AppModule {}

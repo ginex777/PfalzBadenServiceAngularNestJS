@@ -188,6 +188,14 @@ export class DashboardFacade {
     this.router.navigate(['/rechnungen']);
   }
 
+  rechnungOeffnen(id: number): void {
+    this.router.navigate(['/rechnungen'], { state: { openId: id } });
+  }
+
+  angebotOeffnen(id: number): void {
+    this.router.navigate(['/angebote'], { state: { openId: id } });
+  }
+
   zuAngeboteNavigieren(): void {
     this.router.navigate(['/angebote']);
   }

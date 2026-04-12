@@ -98,4 +98,54 @@ export class MitarbeiterService {
     await this.prisma.mitarbeiterStunden.delete({ where: { id: BigInt(stundenId) } });
     return { ok: true };
   }
+
+  // ── Mobile Stempeluhr ─────────────────────────────────────────────────────
+
+  async stempelStart(mitarbeiterId: number, d: Record<string, unknown>) {
+    // Close any open stempel first (safety)
+    await this.prisma.stempel.updateMany({
+      where: { mitarbeiter_id: BigInt(mitarbeiterId), stop: null },
+      data: { stop: new Date(), dauer_minuten: 0 },
+    });
+    const s = await this.prisma.stempel.create({
+      data: {
+        mitarbeiter: { connect: { id: BigInt(mitarbeiterId) } },
+        start: new Date(),
+        notiz: d['notiz'] ? String(d['notiz']) : null,
+      },
+    });
+    return { id: Number(s.id), mitarbeiter_id: Number(s.mitarbeiter_id), start: s.start };
+  }
+
+  async stempelStop(mitarbeiterId: number) {
+    const open = await this.prisma.stempel.findFirst({
+      where: { mitarbeiter_id: BigInt(mitarbeiterId), stop: null },
+      orderBy: { start: 'desc' },
+    });
+    if (!open) throw new NotFoundException('Kein offener Stempel gefunden');
+    const stop = new Date();
+    const dauerMs = stop.getTime() - open.start.getTime();
+    const dauerMinuten = Math.round(dauerMs / 60000);
+    const s = await this.prisma.stempel.update({
+      where: { id: open.id },
+      data: { stop, dauer_minuten: dauerMinuten },
+    });
+    return { id: Number(s.id), mitarbeiter_id: Number(s.mitarbeiter_id), start: s.start, stop: s.stop, dauer_minuten: s.dauer_minuten };
+  }
+
+  async zeiterfassungLaden(mitarbeiterId: number) {
+    const rows = await this.prisma.stempel.findMany({
+      where: { mitarbeiter_id: BigInt(mitarbeiterId) },
+      orderBy: { start: 'desc' },
+      take: 100,
+    });
+    return rows.map(s => ({
+      id: Number(s.id),
+      mitarbeiter_id: Number(s.mitarbeiter_id),
+      start: s.start,
+      stop: s.stop,
+      dauer_minuten: s.dauer_minuten,
+      notiz: s.notiz,
+    }));
+  }
 }

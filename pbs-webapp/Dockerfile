@@ -1,7 +1,10 @@
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
+RUN npm install -g npm@10.9.0
+
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
+
 COPY . .
 RUN npx ng build --configuration=production
 

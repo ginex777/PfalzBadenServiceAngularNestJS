@@ -4,34 +4,74 @@
 <meta charset="UTF-8">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #1a1a1a; line-height: 1.45; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #1a1a1a;
+    line-height: 1.45;
+  }
 
-  .page { padding: 16mm 20mm 35mm 20mm; min-height: 257mm; position: relative; }
+  /*
+   * @page creates reserved margins for the fixed header/footer bands.
+   * Puppeteer uses format:'A4' so these margins create the white space
+   * that the fixed elements expand into. Content flows in the middle.
+   */
+  @page { margin: 34mm 0 30mm 0; size: A4; }
 
-  /* ── Header ─────────────────────────────────────────── */
+  /* ── Fixed header — every page ─────────────────────────────────── */
   .doc-header {
+    position: fixed;
+    top: -34mm;
+    left: 0; right: 0;
+    height: 34mm;
+    padding: 8mm 20mm 6mm;
+    background: #fff;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding-bottom: 10px;
   }
-  .firma-name { font-size: 14px; font-weight: 700; color: #111; }
-  .firma-sub  { font-size: 10px; color: #444; margin-top: 2px; }
-  .logo       { max-height: 60px; max-width: 160px; }
-  .header-rule { border: none; border-top: 1px solid #555; margin: 0 0 18px; }
+  .firma-info .firma-name { font-size: 14px; font-weight: 700; color: #111; }
+  .firma-info .firma-sub  { font-size: 9.5px; color: #444; margin-top: 2px; }
+  .logo { max-height: 52px; max-width: 140px; object-fit: contain; }
 
-  /* ── Empfänger + Meta ──────────────────────────────── */
+  .header-rule {
+    position: fixed;
+    top: -2mm;
+    left: 20mm; right: 20mm;
+    border: none;
+    border-top: 1px solid #555;
+    margin: 0;
+  }
+
+  /* ── Fixed footer — every page ─────────────────────────────────── */
+  .doc-footer {
+    position: fixed;
+    bottom: -30mm;
+    left: 0; right: 0;
+    height: 30mm;
+    padding: 3mm 20mm 6mm;
+    border-top: 0.75px solid #999;
+    font-size: 8.5px;
+    color: #444;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    background: #fff;
+  }
+  .doc-footer > div { flex: 1; line-height: 1.65; }
+  .footer-section-label { font-weight: 700; margin-bottom: 1px; }
+
+  /* ── Main content ──────────────────────────────────────────────── */
+  .content { padding: 0 20mm; }
+
+  /* Empfänger + Meta */
   .empf-row {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
   }
-  .empf-block {
-    font-size: 11px;
-    line-height: 1.6;
-    color: #1a1a1a;
-  }
+  .empf-block { font-size: 11px; line-height: 1.6; }
   .meta-block {
     text-align: right;
     font-size: 11px;
@@ -41,10 +81,8 @@
   .meta-block .meta-label { color: #444; }
   .meta-block .meta-val   { font-weight: 700; }
 
-  /* ── Titel ──────────────────────────────────────────── */
-  .doc-titel {
-    margin-bottom: 16px;
-  }
+  /* Titel */
+  .doc-titel { margin-bottom: 14px; }
   .doc-titel h1 {
     font-size: 20px;
     font-weight: 700;
@@ -52,16 +90,15 @@
     letter-spacing: -0.01em;
   }
 
-  /* ── Positionen + Summen ─────────────────────────────── */
+  /* Positionen-Tabelle */
   table.pos {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 16px;
     border: 1px solid #ccc;
   }
-  table.pos thead tr {
-    background: #f5f5f5;
-  }
+  /* Repeat column headers on every page break */
+  table.pos thead { display: table-header-group; }
+  table.pos thead tr { background: #f5f5f5; }
   table.pos th {
     padding: 6px 8px;
     text-align: left;
@@ -70,9 +107,10 @@
     border-bottom: 1px solid #ccc;
     border-right: 1px solid #ddd;
   }
-  table.pos th:last-child, table.pos td:last-child { border-right: none; }
-  table.pos th.r, table.pos td.r { text-align: right; }
-
+  table.pos th:last-child,
+  table.pos td:last-child { border-right: none; }
+  table.pos th.r,
+  table.pos td.r { text-align: right; }
   table.pos tbody td {
     padding: 6px 8px;
     vertical-align: top;
@@ -80,8 +118,10 @@
     border-bottom: 1px solid #e0e0e0;
     border-right: 1px solid #e8e8e8;
   }
+  /* Never split a single row across pages */
+  table.pos tbody tr { page-break-inside: avoid; }
 
-  /* Totals inside table */
+  /* Totals rows */
   table.pos tr.totals-row td {
     padding: 5px 8px;
     border-bottom: 1px solid #e0e0e0;
@@ -94,45 +134,31 @@
     border-top: 1.5px solid #555;
     border-bottom: none;
   }
+  /* Keep totals block together */
+  .totals-group { page-break-inside: avoid; }
 
-  /* ── Hinweis / Grußformel ───────────────────────────── */
+  /* Hinweis / Grußformel */
   .hinweis {
+    margin-top: 16px;
     font-size: 11px;
     line-height: 1.7;
-    color: #1a1a1a;
+    page-break-inside: avoid;
   }
   .hinweis p + p { margin-top: 10px; }
   .gruss {
     margin-top: 24px;
     font-size: 11px;
     line-height: 1.6;
-  }
-
-  /* ── Footer ─────────────────────────────────────────── */
-  .doc-footer {
-    position: absolute;
-    bottom: 10mm;
-    left: 20mm;
-    right: 20mm;
-    border-top: 0.75px solid #999;
-    padding-top: 6px;
-    font-size: 9px;
-    color: #444;
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-  }
-  .doc-footer > div { flex: 1; line-height: 1.65; }
-  .footer-section-label {
-    font-weight: 700;
-    margin-bottom: 1px;
+    page-break-inside: avoid;
+    margin-bottom: 8mm;
   }
 </style>
 </head>
 <body>
-<div class="page">
 
-  {{> header}}
+{{> header}}
+
+<div class="content">
 
   <div class="empf-row">
     <div class="empf-block">
@@ -148,7 +174,7 @@
   </div>
 
   <div class="doc-titel">
-    <h1>Rechnung{{#if rechnung.titel}} {{rechnung.titel}}{{/if}}</h1>
+    <h1>Rechnung{{#if rechnung.titel}} – {{rechnung.titel}}{{/if}}</h1>
   </div>
 
   <table class="pos">
@@ -171,7 +197,7 @@
         <td class="r">{{fmtEur gesamtpreis}}</td>
       </tr>
       {{/each}}
-      <tr class="totals-row">
+      <tr class="totals-row totals-group">
         <td colspan="4">Nettobetrag</td>
         <td class="r">{{rechnung.nettoFormatiert}}</td>
       </tr>
@@ -196,7 +222,9 @@
     {{#if firma.gf}}<p style="margin-top:28px">{{firma.gf}}</p>{{/if}}
   </div>
 
-  {{> footer}}
 </div>
+
+{{> footer}}
+
 </body>
 </html>

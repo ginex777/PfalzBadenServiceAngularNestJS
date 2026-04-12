@@ -42,6 +42,7 @@
         <thead>
           <tr>
             <th>Zeitstempel</th>
+            <th>Nutzer</th>
             <th>Tabelle</th>
             <th>ID</th>
             <th>Aktion</th>
@@ -53,6 +54,7 @@
           @for (e of facade.seitenEintraege(); track e.id) {
             <tr>
               <td class="td-zeit">{{ zeitstempelFormatieren(e.zeitstempel) }}</td>
+              <td class="td-nutzer">{{ e.nutzer || '–' }}</td>
               <td>
                 <span class="tabelle-badge">{{ tabelleLabel(e.tabelle) }}</span>
               </td>
@@ -78,7 +80,7 @@
         </button>
         <span class="pagination-info">
           Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }}
-          ({{ facade.gefilterteEintraege().length }} Einträge)
+          ({{ facade.seitenEintraege().length }} von {{ facade.gefilterteEintraege().length }} Einträgen)
         </span>
         <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()" (click)="facade.seiteVor()">
           Weiter

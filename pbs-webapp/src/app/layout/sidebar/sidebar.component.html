@@ -1,4 +1,6 @@
 <nav class="sidebar" aria-label="Hauptnavigation">
+
+  <!-- Logo -->
   <div class="sidebar__logo">
     <div class="sidebar__logo-icon">P</div>
     <div>
@@ -7,30 +9,60 @@
     </div>
   </div>
 
+  <!-- Grouped navigation -->
   <ul class="sidebar__nav" role="list">
-    @for (eintrag of navEintraege; track eintrag.path) {
-      @if (eintrag.section) {
-        <li class="sidebar__section-label" aria-hidden="true">{{ eintrag.section }}</li>
-      }
-      <li class="sidebar__item">
-        <a
-          class="sidebar__link"
-          [routerLink]="eintrag.path"
-          routerLinkActive="sidebar__link--aktiv"
-          (click)="navigiertZu()"
+    @for (gruppe of navGruppen; track gruppe.id) {
+      <li class="sidebar__group" [class.sidebar__group--offen]="istOffen(gruppe.id)">
+
+        <!-- Group toggle button -->
+        <button
+          class="sidebar__group-btn"
+          (click)="toggleGruppe(gruppe.id)"
+          [attr.aria-expanded]="istOffen(gruppe.id)"
+          type="button"
         >
-          {{ eintrag.label }}
-          @if (eintrag.path === '/dashboard' && notifAnzahl() > 0) {
+          <span class="sidebar__group-label">{{ gruppe.label }}</span>
+          @if (gruppe.id === 'uebersicht' && notifAnzahl() > 0) {
             <span class="sidebar__notif-badge">{{ notifAnzahl() }}</span>
           }
-        </a>
+          <svg class="sidebar__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+
+        <!-- Sub-items (animated via max-height) -->
+        @if (istOffen(gruppe.id)) {
+          <ul class="sidebar__sub" role="list">
+            @for (item of gruppe.items; track item.path) {
+              <li>
+                <a
+                  class="sidebar__link"
+                  [routerLink]="item.path"
+                  routerLinkActive="sidebar__link--aktiv"
+                  (click)="navigiertZu()"
+                >
+                  {{ item.label }}
+                </a>
+              </li>
+            }
+          </ul>
+        }
+
       </li>
     }
   </ul>
 
+  <!-- Footer -->
   <div class="sidebar__footer">
+    <button class="sidebar__nutzer-btn" (click)="nutzerWechselnGeklickt.emit()" type="button">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+      {{ nutzerService.aktiverNutzer() || 'Nutzer wählen' }}
+    </button>
     <button class="sidebar__theme-btn" (click)="darkModeGeaendert.emit()" [title]="darkMode() ? 'Light Mode' : 'Dark Mode'">
       {{ darkMode() ? '☀ Light' : '◑ Dark' }}
     </button>
   </div>
+
 </nav>

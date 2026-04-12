@@ -46,7 +46,7 @@
     @if (facade.gesamtSeiten() > 1) {
       <div class="pagination">
         <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() <= 1" (click)="facade.seiteZurueck()">← Zurück</button>
-        <span class="pagination-info">Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{ facade.gefilterteKunden().length }} Kunden)</span>
+        <span class="pagination-info">Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{ facade.seitenKunden().length }} von {{ facade.gefilterteKunden().length }} Kunden)</span>
         <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()" (click)="facade.seiteVor()">Weiter →</button>
       </div>
     }

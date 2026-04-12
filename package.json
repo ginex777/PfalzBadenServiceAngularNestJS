@@ -1,0 +1,10 @@
+{
+  "name": "pbs",
+  "private": true,
+  "scripts": {
+    "start:frontend": "npm run start --prefix pbs-webapp",
+    "start:backend": "npm run start:dev --prefix pbs-backend",
+    "build:frontend": "npm run build --prefix pbs-webapp",
+    "build:backend": "npm run build --prefix pbs-backend"
+  }
+}

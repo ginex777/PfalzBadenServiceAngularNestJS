@@ -17,6 +17,25 @@
     }
   </div>
 
+  @if (verwendeteKategorien().length > 0) {
+    <div class="kategorie-chips">
+      <button
+        class="chip"
+        [class.chip--aktiv]="kategorieFilter === ''"
+        (click)="kategorieChipKlicken('')"
+        type="button"
+      >Alle ({{ zeilen().length }})</button>
+      @for (kat of verwendeteKategorien(); track kat) {
+        <button
+          class="chip"
+          [class.chip--aktiv]="kategorieFilter === kat"
+          (click)="kategorieChipKlicken(kat)"
+          type="button"
+        >{{ kat }} ({{ kategorieAnzahl(kat) }})</button>
+      }
+    </div>
+  }
+
   @if (istGesperrt()) {
     <div class="gesperrt-banner">
       Gesperrt (GoBD §146 AO) — nur lesbar.
@@ -28,14 +47,24 @@
       <thead>
         <tr>
           <th class="col-kategorie">Kategorie</th>
-          <th class="col-belegnr">Beleg-Nr.</th>
+          <th class="col-belegnr">
+            Beleg-Nr.
+            <button class="btn-help" type="button"
+              title="Belegnummer (GoBD-Pflicht nach §146 AO): Jede Buchung muss einer eindeutigen Belegnummer zugeordnet sein, um die lückenlose Nachvollziehbarkeit sicherzustellen.">?</button>
+          </th>
           <th class="col-bezeichnung">Bezeichnung</th>
           <th class="col-datum">Datum</th>
           <th class="col-brutto">Brutto</th>
           <th class="col-mwst">MwSt.</th>
-          <th class="col-abzug">Abzug</th>
+          <th class="col-abzug">Abzug %
+            <button class="btn-help" type="button"
+              title="Betrieblicher Abzug in %: Welcher Anteil dieser Ausgabe ist betrieblich veranlasst? (z.B. 50% bei gemischt privat/betrieblich genutzten Geräten)">?</button>
+          </th>
           <th class="col-netto">Netto</th>
-          <th class="col-vorsteuer">Vorst.</th>
+          <th class="col-vorsteuer">Vorst.
+            <button class="btn-help" type="button"
+              title="Vorsteuer (§15 UStG): Der abziehbare Umsatzsteueranteil dieser Ausgabe. Nur für VSt-pflichtige Unternehmer relevant.">?</button>
+          </th>
           <th class="col-aktionen"></th>
         </tr>
       </thead>

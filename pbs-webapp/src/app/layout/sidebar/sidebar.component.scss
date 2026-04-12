@@ -14,10 +14,9 @@
     gap: 10px;
     padding: 18px 16px 14px;
     border-bottom: 1px solid var(--sidebar-border);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     flex-shrink: 0;
   }
-
   &__logo-icon {
     width: 28px;
     height: 28px;
@@ -33,14 +32,12 @@
     box-shadow: 0 2px 8px rgba(99,102,241,0.4);
     flex-shrink: 0;
   }
-
   &__logo-text {
     font-size: 14px;
     font-weight: 600;
     color: #fff;
     letter-spacing: -0.01em;
   }
-
   &__logo-sub {
     font-size: 10px;
     color: rgba(255,255,255,0.3);
@@ -51,26 +48,78 @@
 
   &__nav {
     list-style: none;
-    padding: 4px 8px 16px;
+    padding: 6px 8px 16px;
     flex: 1;
   }
 
-  &__section-label {
-    font-size: 9px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.25);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 14px 8px 4px;
-    display: block;
+  /* ── Group ──────────────────────────────────────────── */
+  &__group {
+    margin-bottom: 2px;
+
+    &--offen .sidebar__chevron {
+      transform: rotate(180deg);
+    }
   }
 
-  &__item { margin: 1px 0; }
+  &__group-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    transition: background var(--transition), color var(--transition);
+    text-align: left;
+
+    &:hover {
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.9);
+    }
+  }
+
+  &__group-icon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  &__group-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  &__chevron {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    opacity: 0.5;
+    transition: transform var(--transition);
+  }
+
+  /* ── Sub-items ──────────────────────────────────────── */
+  &__sub {
+    list-style: none;
+    padding: 2px 0 4px 12px;
+    margin: 0;
+  }
 
   &__link {
     display: flex;
     align-items: center;
-    padding: 6px 10px;
+    padding: 5px 10px;
     border-radius: var(--radius-sm);
     font-size: 12.5px;
     font-weight: 400;
@@ -80,28 +129,26 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    gap: 8px;
+    margin: 1px 0;
 
     &:hover {
       background: rgba(255,255,255,0.06);
       color: rgba(255,255,255,0.85);
-      text-decoration: none;
     }
 
     &--aktiv {
-      background: rgba(99,102,241,0.15);
-      color: #a5b4fc;
+      background: var(--primary);
+      color: #fff;
       font-weight: 500;
 
       &:hover {
-        background: rgba(99,102,241,0.2);
-        color: #c7d2fe;
+        background: var(--primary-hover);
       }
     }
   }
 
+  /* ── Notification badge ─────────────────────────────── */
   &__notif-badge {
-    margin-left: auto;
     background: var(--danger);
     color: #fff;
     font-size: 10px;
@@ -113,10 +160,36 @@
     text-align: center;
   }
 
+  /* ── Footer ─────────────────────────────────────────── */
   &__footer {
     padding: 8px 12px 16px;
     border-top: 1px solid var(--sidebar-border);
     flex-shrink: 0;
+  }
+
+  &__nutzer-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: background var(--transition), color var(--transition);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:hover {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.85);
+      border-color: rgba(255,255,255,0.2);
+    }
   }
 
   &__theme-btn {

@@ -39,6 +39,34 @@
   }
 }
 
+.kategorie-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.25rem 0;
+}
+
+.chip {
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { background: var(--gray-100); }
+
+  &--aktiv {
+    background: var(--danger-light);
+    border-color: var(--danger);
+    color: var(--danger);
+    font-weight: 600;
+  }
+}
+
 .tabelle-scroll {
   overflow-x: auto;
 }

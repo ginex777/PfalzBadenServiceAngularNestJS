@@ -19,7 +19,30 @@
       "Bash(sed -n '5,15p' ./buchhaltung/buchhaltung.component.scss)",
       "Bash(sed -n '1,12p' ./kunden/kunden.component.scss)",
       "Bash(sed -n '1,10p' ./buchhaltung/buchhaltung.component.scss)",
-      "Bash(sed -n '1,10p' ./kanban/kanban.component.scss)"
+      "Bash(sed -n '1,10p' ./kanban/kanban.component.scss)",
+      "Bash(node -e \"const p=require\\('./pbs-webapp/package.json'\\); const s=p.scripts||{}; console.log\\(JSON.stringify\\({test:s.test,devDeps:Object.keys\\(p.devDependencies||{}\\).filter\\(k=>k.includes\\('jest'\\)||k.includes\\('vitest'\\)||k.includes\\('jasmine'\\)\\)}\\)\\)\")",
+      "Bash(del \"c:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\pbs-webapp\\\\src\\\\app\\\\features\\\\angebote\\\\components\\\\angebote-tabelle\\\\abgebote-tabelle.component.spec.ts\")",
+      "Bash(Remove-Item \"c:/Users/Schuh/Desktop/Entwicklung/PBS Angular NESTJS/pbs-webapp/src/app/features/angebote/components/angebote-tabelle/abgebote-tabelle.component.spec.ts\" -Force)",
+      "Bash(powershell.exe -Command \"Remove-Item 'c:/Users/Schuh/Desktop/Entwicklung/PBS Angular NESTJS/pbs-webapp/src/app/features/angebote/components/angebote-tabelle/abgebote-tabelle.component.spec.ts' -Force\")",
+      "Bash(python3 -c \"import os; f='c:/Users/Schuh/Desktop/Entwicklung/PBS Angular NESTJS/pbs-webapp/src/app/features/angebote/components/angebote-tabelle/abgebote-tabelle.component.spec.ts'; os.remove\\(f\\) if os.path.exists\\(f\\) else print\\('already gone'\\)\")",
+      "Bash(npm install:*)",
+      "Bash(npx nest:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npx jest:*)",
+      "Bash(ls src/*.ts)",
+      "Bash(npx vitest:*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); deps={**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}; [print\\(k\\) for k in sorted\\(deps.keys\\(\\)\\) if any\\(x in k for x in ['passport','jwt','bcrypt','auth']\\)]\")",
+      "Bash(node -e \"const fs=require\\('fs'\\); const pkg=JSON.parse\\(fs.readFileSync\\('package.json'\\)\\); const lock=JSON.parse\\(fs.readFileSync\\('package-lock.json'\\)\\); console.log\\('lock version:', lock.lockfileVersion\\); console.log\\('lock name:', lock.name\\); console.log\\('packages match:', Object.keys\\(lock.packages||{}\\).length, 'packages in lock'\\);\")",
+      "Bash(node -e ':*)",
+      "Bash(npm_config_workspaces=false npm install --package-lock-only)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(npm audit:*)",
+      "Bash(npm view:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm update:*)",
+      "Bash(npm cache:*)",
+      "Bash(grep -E \"^\\(#|[a-z@].+$\\)\")",
+      "Bash(docker compose:*)"
     ]
   }
 }

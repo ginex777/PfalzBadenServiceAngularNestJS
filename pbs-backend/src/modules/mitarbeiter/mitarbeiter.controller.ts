@@ -12,4 +12,8 @@ export class MitarbeiterController {
   @Post(':id/stunden') stundenErstellen(@Param('id', ParseIntPipe) id: number, @Body() b: Record<string, unknown>) { return this.service.stundenErstellen(id, b); }
   @Put('stunden/:id') stundenAktualisieren(@Param('id', ParseIntPipe) id: number, @Body() b: Record<string, unknown>) { return this.service.stundenAktualisieren(id, b); }
   @Delete('stunden/:id') stundenLoeschen(@Param('id', ParseIntPipe) id: number) { return this.service.stundenLoeschen(id); }
+  // ── Mobile Stempeluhr ────────────────────────────────────────────────────────
+  @Post(':id/stempel/start') stempelStart(@Param('id', ParseIntPipe) id: number, @Body() b: Record<string, unknown>) { return this.service.stempelStart(id, b); }
+  @Post(':id/stempel/stop') stempelStop(@Param('id', ParseIntPipe) id: number) { return this.service.stempelStop(id); }
+  @Get(':id/zeiterfassung') zeiterfassungLaden(@Param('id', ParseIntPipe) id: number) { return this.service.zeiterfassungLaden(id); }
 }
