@@ -279,6 +279,7 @@ model AuditLog {
   neu_wert     Json?
   zeitstempel  DateTime @default(now())
   nutzer       String?  @db.VarChar(100)
+  nutzer_name  String?  @db.VarChar(200)
 
   @@map("audit_log")
 }
@@ -398,6 +399,8 @@ model Users {
   email         String   @unique @db.VarChar(254)
   password_hash String   @db.VarChar(255)
   rolle         String   @default("admin") @db.VarChar(20)
+  vorname       String?  @db.VarChar(100)
+  nachname      String?  @db.VarChar(100)
   aktiv         Boolean  @default(true)
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt

@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { MuellplanService } from './muellplan.service';
+import { BrowserService } from '../../core/services/browser.service';
 import { Objekt, MuellplanTermin, MuellplanVorlage, Kunde } from '../../core/models';
 import { MuellplanFormularDaten, TerminFormularDaten, VorlageFormularDaten, LEERES_OBJEKT_FORMULAR, LEERER_TERMIN, LEERE_VORLAGE } from './muellplan.models';
 import { parseVorlageText } from './muellplan.utils';
@@ -7,6 +8,7 @@ import { parseVorlageText } from './muellplan.utils';
 @Injectable({ providedIn: 'root' })
 export class MuellplanFacade {
   private readonly service = inject(MuellplanService);
+  private readonly browser = inject(BrowserService);
 
   readonly laedt = signal(false);
   readonly fehler = signal<string | null>(null);

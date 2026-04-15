@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { DatevService } from './datev.service';
+import { BrowserService } from '../../core/services/browser.service';
 import { FirmaSettings } from '../../core/models';
 import { DatevZeitraumTyp, DatevVorschauZeile, DatevValidierungsMeldung, QUARTAL_MONATE, QUARTAL_LABELS } from './datev.models';
 import { MONATE } from '../../core/utils/format.utils';
@@ -7,6 +8,7 @@ import { MONATE } from '../../core/utils/format.utils';
 @Injectable({ providedIn: 'root' })
 export class DatevFacade {
   private readonly service = inject(DatevService);
+  private readonly browser = inject(BrowserService);
 
   readonly laedt = signal(false);
   readonly fehler = signal<string | null>(null);
@@ -71,11 +73,11 @@ export class DatevFacade {
 
   csvExportieren(): void {
     const { jahr, monat } = this.apiParameter();
-    window.open(this.service.exportUrl(jahr, monat), '_blank');
+    this.browser.blobOeffnen(this.service.exportUrl(jahr, monat)).catch(() => this.fehler.set('CSV-Export fehlgeschlagen.'));
   }
 
   excelExportieren(): void {
     const { jahr, monat } = this.apiParameter();
-    window.open(this.service.excelUrl(jahr, monat), '_blank');
+    this.browser.blobOeffnen(this.service.excelUrl(jahr, monat)).catch(() => this.fehler.set('Excel-Export fehlgeschlagen.'));
   }
 }

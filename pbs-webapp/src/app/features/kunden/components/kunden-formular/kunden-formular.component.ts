@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, OnChanges, SimpleChanges, signal, linkedSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, OnChanges, SimpleChanges, signal, linkedSignal, computed } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { Kunde } from '../../../../core/models';
 import { KundenFormularDaten, LEERES_FORMULAR } from '../../kunden.models';
@@ -22,6 +22,25 @@ export class KundenFormularComponent implements OnChanges {
     required(schema.name, { message: 'Name ist erforderlich' });
   });
 
+  protected readonly istFormularGueltig = computed(() => {
+    const daten = this.formModell();
+    const emailValid = !daten.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(daten.email);
+    return !!(daten.name?.trim() && emailValid);
+  });
+
+  protected readonly validierungsFehler = computed(() => {
+    const daten = this.formModell();
+    const errors: string[] = [];
+    
+    if (!daten.name?.trim()) errors.push('Name ist erforderlich');
+    
+    if (daten.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(daten.email)) {
+      errors.push('E-Mail-Adresse ist ungültig');
+    }
+    
+    return errors;
+  });
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['bearbeiteterKunde']) {
       const kunde = this.bearbeiteterKunde();
@@ -37,7 +56,7 @@ export class KundenFormularComponent implements OnChanges {
   }
 
   protected speichern(): void {
-    if (this.kundenForm().invalid()) return;
+    if (!this.istFormularGueltig()) return;
     const daten = this.formModell();
     this.gespeichert.emit({ ...daten, name: daten.name.trim() });
     this.formModell.set({ ...LEERES_FORMULAR });

@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy, Component, inject, input, output, signal, computed,
 } from '@angular/core';
 import { NutzerService } from '../../core/services/nutzer.service';
+import { AuthService } from '../../core/services/auth.service';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 
 interface NavItem {
@@ -59,11 +60,18 @@ const NAV_GRUPPEN: NavGroup[] = [
     id: 'verwaltung',
     label: 'Verwaltung',
     items: [
-      { path: '/mitarbeiter',   label: 'Mitarbeiter'  },
-      { path: '/vertraege',     label: 'Verträge'     },
-      { path: '/pdf-archiv',    label: 'PDF Archiv'   },
-      { path: '/audit-log',     label: 'Audit-Log'    },
-      { path: '/einstellungen', label: 'Einstellungen'},
+      { path: '/mitarbeiter',        label: 'Mitarbeiter'       },
+      { path: '/vertraege',          label: 'Verträge'          },
+      { path: '/pdf-archiv',         label: 'PDF Archiv'        },
+      { path: '/audit-log',          label: 'Audit-Log'         },
+      { path: '/einstellungen',      label: 'Einstellungen'     },
+    ],
+  },
+  {
+    id: 'benutzerverwaltung',
+    label: 'Benutzer',
+    items: [
+      { path: '/benutzerverwaltung', label: 'Benutzerverwaltung' },
     ],
   },
 ];
@@ -85,17 +93,37 @@ export class SidebarComponent {
 
   protected readonly navGruppen = NAV_GRUPPEN;
   protected readonly nutzerService = inject(NutzerService);
+  protected readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  /** Which group is currently open */
-  protected readonly offeneGruppe = signal<string>(this._initialGroup());
+  /** Which groups are currently open (multi-expand) */
+  protected readonly offeneGruppen = signal<Set<string>>(new Set([this._initialGroup()]));
+
+  /** Computed user display name */
+  protected readonly nutzerAnzeige = computed(() => {
+    const user = this.authService.currentUser();
+    if (user) {
+      if (user.vorname && user.nachname) {
+        return `${user.vorname} ${user.nachname}`;
+      }
+      if (user.vorname || user.nachname) {
+        return user.vorname || user.nachname;
+      }
+      return user.email;
+    }
+    return this.nutzerService.aktiverNutzer() || 'Nutzer wählen';
+  });
 
   protected toggleGruppe(id: string): void {
-    this.offeneGruppe.set(this.offeneGruppe() === id ? '' : id);
+    this.offeneGruppen.update(set => {
+      const next = new Set(set);
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
+      return next;
+    });
   }
 
   protected istOffen(id: string): boolean {
-    return this.offeneGruppe() === id;
+    return this.offeneGruppen().has(id);
   }
 
   protected navigiertZu(): void {

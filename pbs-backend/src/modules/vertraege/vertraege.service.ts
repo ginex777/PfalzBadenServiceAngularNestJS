@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../core/database/prisma.service';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class VertraegeService {
@@ -86,11 +87,15 @@ export class VertraegeService {
     pdf_filename: string | null; html_body: string | null;
     status: string; created_at: Date; updated_at: Date;
   }) {
+    const monatlicheRate = Number(v.monatliche_rate);
+    const gesamtwert = monatlicheRate * v.laufzeit_monate; // ADDED: Total contract value calculation
+    
     return {
       ...v,
       id: Number(v.id),
       kunden_id: v.kunden_id ? Number(v.kunden_id) : null,
-      monatliche_rate: Number(v.monatliche_rate),
+      monatliche_rate: monatlicheRate,
+      gesamtwert, // ADDED: Include total contract value
       html_body: undefined, // never send html_body over API
     };
   }

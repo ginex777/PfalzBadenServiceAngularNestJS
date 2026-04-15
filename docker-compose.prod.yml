@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: pbs
+      POSTGRES_USER: pbs
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pbs -d pbs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Do NOT expose port 5432 in production for security
+    networks:
+      - pbs-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: pbs-backend/Dockerfile
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://pbs:${POSTGRES_PASSWORD}@postgres:5432/pbs
+      FRONTEND_URL: ${FRONTEND_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: 900
+      JWT_REFRESH_EXPIRES_IN: 604800
+      PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+      BACKUP_DIR: /data/backups
+    volumes:
+      - backup-data:/data/backups
+    networks:
+      - pbs-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: pbs-webapp/Dockerfile
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ssl-certs:/etc/ssl/certs
+    networks:
+      - pbs-network
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.2'
+
+volumes:
+  pgdata:
+    driver: local
+  backup-data:
+    driver: local
+  ssl-certs:
+    driver: local
+
+networks:
+  pbs-network:
+    driver: bridge

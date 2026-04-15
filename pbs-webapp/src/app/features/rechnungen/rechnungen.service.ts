@@ -49,12 +49,14 @@ export class RechnungenService {
     return this.api.auditLogFuerDatensatzLaden('rechnungen', rechnungId);
   }
 
-  nettoBerechnen(positionen: RechnungPosition[]): number {
+  // FIXED: In Germany, positions contain gross prices (including VAT)
+  bruttoBerechnen(positionen: RechnungPosition[]): number {
     return positionen.reduce((s, p) => s + (parseFloat(String(p.gesamtpreis)) || 0), 0);
   }
 
-  bruttoBerechnen(positionen: RechnungPosition[], mwstSatz: number): number {
-    const netto = this.nettoBerechnen(positionen);
-    return netto + netto * (mwstSatz / 100);
+  // FIXED: Calculate net amount backwards from gross (German tax law)
+  nettoBerechnen(positionen: RechnungPosition[], mwstSatz: number = 19): number {
+    const brutto = this.bruttoBerechnen(positionen);
+    return brutto / (1 + mwstSatz / 100);
   }
 }

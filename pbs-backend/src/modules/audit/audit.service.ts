@@ -12,6 +12,7 @@ export class AuditService {
     altWert?: unknown,
     neuWert?: unknown,
     nutzer?: string,
+    nutzerName?: string,
   ): Promise<void> {
     await this.prisma.auditLog.create({
       data: {
@@ -21,6 +22,7 @@ export class AuditService {
         alt_wert: altWert ? (altWert as object) : undefined,
         neu_wert: neuWert ? (neuWert as object) : undefined,
         nutzer: nutzer ?? null,
+        nutzer_name: nutzerName ?? null,
       },
     });
   }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, linkedSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, linkedSignal, computed } from '@angular/core';
 import { form, required, applyEach, SchemaPathTree } from '@angular/forms/signals';
 import { Angebot, Kunde, RechnungPosition } from '../../../../core/models';
 import { AngebotFormularDaten } from '../../angebote.models';
@@ -42,6 +42,37 @@ export class AngeboteFormularComponent {
     required(schema.empf, { message: 'Empfänger erforderlich' });
     required(schema.nr, { message: 'Angebots-Nr. erforderlich' });
     applyEach(schema.positionen, positionSchema);
+  });
+
+  protected readonly istFormularGueltig = computed(() => {
+    const daten = this.formularDaten();
+    return !!(daten.empf?.trim() && daten.nr?.trim() && 
+             daten.positionen.every(p => p.bez?.trim() && p.gesamtpreis > 0));
+  });
+
+  protected readonly validierungsFehler = computed(() => {
+    const daten = this.formularDaten();
+    const errors: string[] = [];
+    
+    if (!daten.empf?.trim()) errors.push('Empfänger ist erforderlich');
+    if (!daten.nr?.trim()) errors.push('Angebots-Nr. ist erforderlich');
+    
+    // Email validation
+    if (daten.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(daten.email)) {
+      errors.push('E-Mail-Adresse ist ungültig');
+    }
+    
+    // Position validation
+    daten.positionen.forEach((pos, index) => {
+      if (!pos.bez?.trim()) {
+        errors.push(`Position ${index + 1}: Bezeichnung fehlt`);
+      }
+      if (pos.gesamtpreis <= 0) {
+        errors.push(`Position ${index + 1}: Gesamtpreis muss größer als 0 sein`);
+      }
+    });
+    
+    return errors;
   });
 
   protected readonly waehrungFormatieren = waehrungFormatieren;

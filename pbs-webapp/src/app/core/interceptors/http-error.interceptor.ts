@@ -10,7 +10,8 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       if (err.status === 0) {
         console.error('Netzwerkfehler — Server nicht erreichbar');
       } else if (err.status === 401) {
-        // Skip redirect for auth endpoints themselves
+        // The jwtInterceptor already attempted a token refresh before this point.
+        // If we still get a 401 here, the refresh also failed → redirect to login.
         if (!req.url.includes('/api/auth/')) {
           router.navigate(['/login'], { queryParams: { reason: 'session' } });
         }

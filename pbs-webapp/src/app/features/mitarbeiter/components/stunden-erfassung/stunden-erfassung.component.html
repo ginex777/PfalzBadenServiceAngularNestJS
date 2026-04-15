@@ -132,3 +132,41 @@
     </div>
   }
 </div>
+
+<!-- Mobile Stempeluhr Daten -->
+<div class="card">
+  <h4 class="section-title">Mobile Stempeluhr ({{ stempelEintraege().length }})</h4>
+  @if (stempelLaedt()) {
+    <app-skeleton-rows [anzahl]="3" />
+  } @else if (!stempelEintraege().length) {
+    <div class="leer">Keine Stempel-Einträge von der mobilen App.</div>
+  } @else {
+    <div class="tabelle-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Datum</th><th>Start</th><th>Ende</th><th>Dauer</th><th>Notiz</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of stempelEintraege(); track s.id) {
+            <tr>
+              <td>{{ datumFormatieren(s.start.split('T')[0]) }}</td>
+              <td>{{ zeitFormatieren(s.start) }}</td>
+              <td>{{ s.stop ? zeitFormatieren(s.stop) : 'Läuft...' }}</td>
+              <td>{{ s.dauer_minuten ? (s.dauer_minuten / 60).toFixed(1) + ' h' : '–' }}</td>
+              <td>{{ s.notiz || '–' }}</td>
+              <td>
+                @if (s.stop && s.dauer_minuten) {
+                  <button class="btn-action" (click)="stempelZuStundenKonvertieren.emit(s)">
+                    → Zu Stunden
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

@@ -13,3 +13,26 @@
 .backup-datei {
   font-size: 11px; background: var(--gray-100); padding: 2px 8px; border-radius: 10px; color: var(--gray-600);
 }
+
+.error-banner {
+  background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;
+  border-radius: var(--radius-sm); padding: 0.6rem 0.9rem; font-size: 13px; margin-bottom: 0.75rem;
+}
+.success-banner {
+  background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;
+  border-radius: var(--radius-sm); padding: 0.6rem 0.9rem; font-size: 13px; margin-bottom: 0.75rem;
+}
+
+.user-tabelle {
+  width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 13px;
+  th { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--gray-200); color: var(--gray-500); font-weight: 500; }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--gray-100); }
+  tr:last-child td { border-bottom: none; }
+}
+
+.rolle-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500;
+  &.rolle-admin { background: #ede9fe; color: #7c3aed; }
+  &.rolle-mitarbeiter { background: #dbeafe; color: #1d4ed8; }
+  &.rolle-readonly { background: var(--gray-100); color: var(--gray-600); }
+}

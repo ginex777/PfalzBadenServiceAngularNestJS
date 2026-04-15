@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { EinstellungenFacade } from './einstellungen.facade';
 import { FirmaFormularComponent } from './components/firma-formular/firma-formular.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
@@ -8,7 +10,7 @@ import { FirmaSettings } from '../../core/models';
   selector: 'app-einstellungen',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FirmaFormularComponent, PageTitleComponent],
+  imports: [FirmaFormularComponent, PageTitleComponent, RouterLink],
   templateUrl: './einstellungen.component.html',
   styleUrl: './einstellungen.component.scss',
 })

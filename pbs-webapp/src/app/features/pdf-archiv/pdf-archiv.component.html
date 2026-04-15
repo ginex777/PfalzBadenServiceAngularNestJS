@@ -59,9 +59,9 @@
               <td>{{ datumFormatieren(e.datum) }}</td>
               <td class="grau-text">{{ datumFormatieren(e.erstellt_am) }}</td>
               <td>
-                <a [href]="'/api/pdf/archiv/' + e.id + '/regenerate'" target="_blank" class="btn btn-sm">
+                <button class="btn btn-sm" (click)="facade.pdfOeffnen(e.id)">
                   Öffnen
-                </a>
+                </button>
                 <button class="btn btn-sm btn-danger" style="margin-left:4px" (click)="facade.eintragLoeschen(e.id)">Löschen</button>
               </td>
             </tr>

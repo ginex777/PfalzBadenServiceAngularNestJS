@@ -1,6 +1,23 @@
 @if (bearbeiteteRechnung()) {
-  <div class="editing-banner">
-    ✏️ Bearbeitung: Rechnung {{ bearbeiteteRechnung()!.nr }} — Änderungen werden gespeichert
+  @if (bearbeiteteRechnung()!.bezahlt) {
+    <div class="locked-banner">
+      🔒 Rechnung {{ bearbeiteteRechnung()!.nr }} ist als bezahlt markiert und kann nicht bearbeitet werden
+    </div>
+  } @else {
+    <div class="editing-banner">
+      ✏️ Bearbeitung: Rechnung {{ bearbeiteteRechnung()!.nr }} — Änderungen werden gespeichert
+    </div>
+  }
+}
+
+@if (validierungsFehler().length > 0) {
+  <div class="validation-errors">
+    <div class="validation-title">⚠️ Bitte korrigieren Sie folgende Fehler:</div>
+    <ul>
+      @for (fehler of validierungsFehler(); track fehler) {
+        <li>{{ fehler }}</li>
+      }
+    </ul>
   </div>
 }
 
@@ -14,6 +31,8 @@
         type="text"
         [value]="formularDaten().nr"
         placeholder="R-2026-001"
+        [disabled]="istGesperrt()"
+        [class.error]="!formularDaten().nr.trim()"
         (input)="onFeldChange('nr', $event)">
     </div>
     <div class="form-field">
@@ -22,6 +41,7 @@
         id="rf-datum"
         type="date"
         [value]="formularDaten().datum"
+        [disabled]="istGesperrt()"
         (input)="onFeldChange('datum', $event)">
     </div>
     <div class="form-field">
@@ -31,6 +51,7 @@
         type="text"
         [value]="formularDaten().titel"
         placeholder="Rechnung April"
+        [disabled]="istGesperrt()"
         (input)="onFeldChange('titel', $event)">
     </div>
   </div>
@@ -38,7 +59,7 @@
   <div class="form-row">
     <div class="form-field">
       <label for="rf-kunde">Kunde auswählen</label>
-      <select id="rf-kunde" (change)="onKundeChange($event)">
+      <select id="rf-kunde" [disabled]="istGesperrt()" (change)="onKundeChange($event)">
         <option value="">-- Kunde wählen --</option>
         @for (kunde of kunden(); track kunde.id) {
           <option [value]="kunde.id" [selected]="formularDaten().kunden_id === kunde.id">
@@ -54,6 +75,8 @@
         type="text"
         [value]="formularDaten().empf"
         placeholder="Firmenname"
+        [disabled]="istGesperrt()"
+        [class.error]="!formularDaten().empf.trim()"
         (input)="onFeldChange('empf', $event)">
     </div>
   </div>
@@ -84,6 +107,8 @@
         type="email"
         [value]="formularDaten().email"
         placeholder="kunde@firma.de"
+        [disabled]="istGesperrt()"
+        [class.error]="formularDaten().email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formularDaten().email)"
         (input)="onFeldChange('email', $event)">
     </div>
   </div>
@@ -153,6 +178,7 @@
               rows="2"
               [value]="pos.bez"
               placeholder="Bezeichnung der Leistung"
+              [disabled]="istGesperrt()"
               (input)="onPositionBezChange($index, $event)"></textarea>
           </td>
           <td>
@@ -160,6 +186,7 @@
               type="text"
               [value]="pos.stunden ?? ''"
               placeholder="z.B. 8"
+              [disabled]="istGesperrt()"
               (input)="onPositionStundenChange($index, $event)"
               (change)="autoCalc($index)">
           </td>
@@ -170,6 +197,7 @@
               step="0.01"
               [value]="pos.einzelpreis ?? ''"
               placeholder="Pauschal"
+              [disabled]="istGesperrt()"
               (input)="onPositionEinzelpreisChange($index, $event)"
               (change)="autoCalc($index)">
           </td>
@@ -180,12 +208,13 @@
               step="0.01"
               [value]="pos.gesamtpreis"
               placeholder="0.00"
+              [disabled]="istGesperrt()"
               (input)="onPositionGesamtpreisChange($index, $event)">
           </td>
           <td class="pos-actions">
-            <button class="btn-action" title="Kopieren" (click)="positionKopieren.emit($index)">Kopie</button>
+            <button class="btn-action" title="Kopieren" [disabled]="istGesperrt()" (click)="positionKopieren.emit($index)">Kopie</button>
             @if (formularDaten().positionen.length > 1) {
-              <button class="btn-remove" (click)="positionEntfernen.emit($index)" title="Entfernen">×</button>
+              <button class="btn-remove" [disabled]="istGesperrt()" (click)="positionEntfernen.emit($index)" title="Entfernen">×</button>
             }
           </td>
         </tr>
@@ -194,7 +223,7 @@
   </table>
 </div>
 
-<button class="btn btn-sm" (click)="positionHinzufuegen.emit()">+ Position hinzufügen</button>
+<button class="btn btn-sm" [disabled]="istGesperrt()" (click)="positionHinzufuegen.emit()">+ Position hinzufügen</button>
 
 <div class="totals-block">
   <div class="totals-row">
@@ -237,11 +266,11 @@
 <div class="form-actions">
   <button
     class="btn btn-primary"
-    [disabled]="speichert()"
+    [disabled]="speichert() || istGesperrt() || !istFormularGueltig()"
     (click)="speichern.emit()">
     @if (speichert()) { <span class="spinner" aria-hidden="true"></span> Speichert… } @else { Speichern & Senden }
   </button>
-  <button class="btn" (click)="vorschau.emit()">Vorschau</button>
+  <button class="btn" [disabled]="istGesperrt() || !istFormularGueltig()" (click)="vorschau.emit()">Vorschau</button>
   @if (bearbeiteteRechnung()) {
     <button class="btn" (click)="abbrechen.emit()">Abbrechen</button>
   }

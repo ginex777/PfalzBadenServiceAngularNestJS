@@ -59,6 +59,21 @@ export class MitarbeiterService {
   }
 
   async stundenErstellen(mitarbeiterId: number, d: Record<string, unknown>) {
+    // FIXED: Auto-calculate wage if not provided
+    let lohn = Number(d['lohn'] ?? 0);
+    let zuschlag = Number(d['zuschlag'] ?? 0);
+    
+    if (lohn === 0) {
+      // Auto-calculate from employee hourly rate
+      const mitarbeiter = await this.prisma.mitarbeiter.findUnique({ 
+        where: { id: BigInt(mitarbeiterId) } 
+      });
+      if (mitarbeiter) {
+        const stunden = Number(d['stunden'] ?? 0);
+        lohn = Number(mitarbeiter.stundenlohn) * stunden;
+      }
+    }
+
     const s = await this.prisma.mitarbeiterStunden.create({
       data: {
         mitarbeiter: { connect: { id: BigInt(mitarbeiterId) } },
@@ -66,8 +81,8 @@ export class MitarbeiterService {
         stunden: new Prisma.Decimal(Number(d['stunden'])),
         beschreibung: d['beschreibung'] ? String(d['beschreibung']) : null,
         ort: d['ort'] ? String(d['ort']) : null,
-        lohn: new Prisma.Decimal(Number(d['lohn'] ?? 0)),
-        zuschlag: new Prisma.Decimal(Number(d['zuschlag'] ?? 0)),
+        lohn: new Prisma.Decimal(lohn),
+        zuschlag: new Prisma.Decimal(zuschlag),
         zuschlag_typ: d['zuschlag_typ'] ? String(d['zuschlag_typ']) : '',
         bezahlt: Boolean(d['bezahlt']),
       },

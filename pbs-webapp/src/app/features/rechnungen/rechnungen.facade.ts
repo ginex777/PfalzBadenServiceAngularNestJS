@@ -134,11 +134,11 @@ export class RechnungenFacade {
   });
 
   readonly netto = computed(() =>
-    this.service.nettoBerechnen(this.formularDaten().positionen)
+    this.service.nettoBerechnen(this.formularDaten().positionen, this.formularDaten().mwst_satz)
   );
 
   readonly brutto = computed(() =>
-    this.service.bruttoBerechnen(this.formularDaten().positionen, this.formularDaten().mwst_satz)
+    this.service.bruttoBerechnen(this.formularDaten().positionen)
   );
 
   readonly mwstBetrag = computed(() => this.brutto() - this.netto());
@@ -166,10 +166,12 @@ export class RechnungenFacade {
           if (target) this.bearbeitungStarten(target);
           this._openId.set(null);
         }
+        this.toast.success(`${rechnungen.length} Rechnungen geladen.`);
       },
       error: () => {
         this.fehler.set('Daten konnten nicht geladen werden.');
         this.laedt.set(false);
+        this.toast.error('Daten konnten nicht geladen werden.');
       },
     });
     this.service.firmaEinstellungenLaden().subscribe({
@@ -423,11 +425,13 @@ export class RechnungenFacade {
     });
     this.bearbeiteteRechnung.set(null);
     this.aktiverTab.set('formular');
+    this.toast.info(`Rechnung ${rechnung.nr} als Vorlage kopiert.`);
   }
 
   pdfGenerieren(rechnung: Rechnung): void {
     this.service.pdfOeffnen(rechnung, this.firma()).catch(() => {
       this.fehler.set('PDF konnte nicht generiert werden.');
+      this.toast.error('PDF konnte nicht generiert werden.');
     });
   }
 
@@ -544,15 +548,25 @@ export class RechnungenFacade {
       next: m => {
         this.mahnungen.update(list => [...list, m]);
         this.mahnungFormular.set({ datum: new Date().toISOString().split('T')[0], stufe: this.mahnungen().length + 1, betrag_gebuehr: 0, notiz: '' });
+        this.toast.success(`${d.stufe}. Mahnung erstellt.`);
       },
-      error: () => this.fehler.set('Mahnung konnte nicht erstellt werden.'),
+      error: () => {
+        this.fehler.set('Mahnung konnte nicht erstellt werden.');
+        this.toast.error('Mahnung konnte nicht erstellt werden.');
+      },
     });
   }
 
   mahnungLoeschen(id: number): void {
     this.service.mahnungLoeschen(id).subscribe({
-      next: () => this.mahnungen.update(list => list.filter(m => m.id !== id)),
-      error: () => this.fehler.set('Mahnung konnte nicht gelöscht werden.'),
+      next: () => {
+        this.mahnungen.update(list => list.filter(m => m.id !== id));
+        this.toast.success('Mahnung gelöscht.');
+      },
+      error: () => {
+        this.fehler.set('Mahnung konnte nicht gelöscht werden.');
+        this.toast.error('Mahnung konnte nicht gelöscht werden.');
+      },
     });
   }
 

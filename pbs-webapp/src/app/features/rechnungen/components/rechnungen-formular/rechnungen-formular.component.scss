@@ -9,6 +9,42 @@
   margin-bottom: 1rem;
 }
 
+.locked-banner {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.75rem;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.validation-errors {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 12px;
+}
+
+.validation-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.validation-errors ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  list-style-type: disc;
+}
+
+.validation-errors li {
+  margin-bottom: 0.25rem;
+}
+
 .form-section {
   display: flex;
   flex-direction: column;
@@ -52,6 +88,11 @@
       outline: none;
       border-color: var(--primary);
       box-shadow: 0 0 0 2px var(--primary-light);
+    }
+
+    &.error {
+      border-color: var(--danger);
+      background: #fff5f5;
     }
   }
 

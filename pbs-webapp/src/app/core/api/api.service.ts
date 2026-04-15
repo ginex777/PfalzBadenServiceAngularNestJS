@@ -11,6 +11,16 @@ import {
   BackupInfo, SettingsKey, Vertrag,
 } from '../models';
 
+interface Stempel {
+  id: number;
+  mitarbeiter_id: number;
+  start: string;
+  stop?: string | null;
+  dauer_minuten?: number | null;
+  notiz?: string | null;
+  created_at?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
@@ -132,6 +142,17 @@ export class ApiService {
   }
   mitarbeiterStundenLoeschen(stundenId: number): Observable<void> {
     return this.http.delete<void>(`${this.basis}/mitarbeiter/stunden/${stundenId}`);
+  }
+
+  // ── Mobile Stempeluhr ───────────────────────────────────────────────────
+  stempelStart(mitarbeiterId: number, daten: { notiz?: string }): Observable<Stempel> {
+    return this.http.post<Stempel>(`${this.basis}/mitarbeiter/${mitarbeiterId}/stempel/start`, daten);
+  }
+  stempelStop(mitarbeiterId: number): Observable<Stempel> {
+    return this.http.post<Stempel>(`${this.basis}/mitarbeiter/${mitarbeiterId}/stempel/stop`, {});
+  }
+  zeiterfassungLaden(mitarbeiterId: number): Observable<Stempel[]> {
+    return this.http.get<Stempel[]>(`${this.basis}/mitarbeiter/${mitarbeiterId}/zeiterfassung`);
   }
 
   // ── Objekte ─────────────────────────────────────────────────────────────

@@ -44,6 +44,10 @@ export class PdfArchivFacade {
     });
   }
 
+  pdfOeffnen(id: number): void {
+    this.service.pdfOeffnen(id).catch(() => this.fehler.set('PDF konnte nicht geöffnet werden.'));
+  }
+
   eintragLoeschen(id: number): void {
     this.service.eintragLoeschen(id).subscribe({
       next: () => this.eintraege.update(list => list.filter(e => e.id !== id)),

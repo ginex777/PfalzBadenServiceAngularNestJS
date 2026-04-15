@@ -7,6 +7,12 @@ import { Pool } from 'pg';
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PrismaService.name);
 
+  constructor() {
+    const pool = new Pool({ connectionString: process.env['DATABASE_URL'] });
+    const adapter = new PrismaPg(pool);
+    super({ adapter });
+  }
+
   async onModuleInit() {
     await this.$connect();
     this.logger.log('PostgreSQL verbunden via Prisma');

@@ -2,6 +2,7 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { NutzerService } from '../../core/services/nutzer.service';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +15,7 @@ export class LoginComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly nutzerService = inject(NutzerService);
 
   email = signal('');
   password = signal('');
@@ -48,12 +50,12 @@ export class LoginComponent implements OnInit {
     action$.subscribe({
       next: () => {
         if (this.setupModus()) {
-          // After setup, log in automatically
           this.auth.login(this.email(), this.password()).subscribe({
-            next: () => this._redirect(),
+            next: () => { this._autoSetNutzer(); this._redirect(); },
             error: () => this._redirect(),
           });
         } else {
+          this._autoSetNutzer();
           this._redirect();
         }
       },
@@ -63,6 +65,16 @@ export class LoginComponent implements OnInit {
         this.fehler.set(msg ?? 'Anmeldung fehlgeschlagen.');
       },
     });
+  }
+
+  private _autoSetNutzer(): void {
+    const user = this.auth.currentUser();
+    if (user) {
+      const name = user.vorname && user.nachname
+        ? `${user.vorname} ${user.nachname}`
+        : user.vorname || user.nachname || user.email;
+      this.nutzerService.setzen(name);
+    }
   }
 
   private _redirect() {

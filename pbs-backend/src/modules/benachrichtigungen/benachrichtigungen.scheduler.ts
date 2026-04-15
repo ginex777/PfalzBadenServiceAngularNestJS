@@ -79,6 +79,16 @@ export class BenachrichtigungenScheduler implements OnModuleInit {
       const vor30Tagen = new Date(); vor30Tagen.setDate(vor30Tagen.getDate() - 30);
       await this.prisma.benachrichtigungen.deleteMany({ where: { gelesen: true, erstellt_am: { lt: vor30Tagen } } });
 
+      // Audit-Log bereinigen (>2 Jahre für GoBD-Konformität)
+      const vor2Jahren = new Date(); vor2Jahren.setFullYear(vor2Jahren.getFullYear() - 2);
+      const geloeschteAuditEintraege = await this.prisma.auditLog.deleteMany({ 
+        where: { zeitstempel: { lt: vor2Jahren } } 
+      });
+      
+      if (geloeschteAuditEintraege.count > 0) {
+        this.logger.log(`${geloeschteAuditEintraege.count} alte Audit-Log Einträge bereinigt (älter als 2 Jahre)`);
+      }
+
       this.logger.debug('Benachrichtigungs-Check abgeschlossen');
     } catch (e) {
       this.logger.warn('Benachrichtigungs-Check fehlgeschlagen: ' + (e as Error).message);

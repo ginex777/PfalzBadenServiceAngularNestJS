@@ -130,6 +130,16 @@ export interface MitarbeiterStunden {
   bezahlt: boolean;
 }
 
+export interface Stempel {
+  id: number;
+  mitarbeiter_id: number;
+  start: string;
+  stop?: string | null;
+  dauer_minuten?: number | null;
+  notiz?: string | null;
+  created_at?: string;
+}
+
 export interface Objekt {
   id: number;
   name: string;
@@ -221,6 +231,7 @@ export interface AuditLogEntry {
   neu_wert?: string;
   zeitstempel: string;
   nutzer?: string | null;
+  nutzer_name?: string | null;
 }
 
 export interface Benachrichtigung {

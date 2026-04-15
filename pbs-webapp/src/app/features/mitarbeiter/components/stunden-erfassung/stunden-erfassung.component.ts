@@ -6,6 +6,16 @@ import { StundenFormularDaten, StundenStatistik, ZUSCHLAG_OPTIONEN } from '../..
 import { datumFormatieren, waehrungFormatieren } from '../../../../core/utils/format.utils';
 import { SkeletonRowsComponent } from '../../../../shared/ui/skeleton-rows/skeleton-rows.component';
 
+interface Stempel {
+  id: number;
+  mitarbeiter_id: number;
+  start: string;
+  stop?: string | null;
+  dauer_minuten?: number | null;
+  notiz?: string | null;
+  created_at?: string;
+}
+
 @Component({
   selector: 'app-stunden-erfassung',
   standalone: true,
@@ -21,6 +31,8 @@ export class StundenErfassungComponent {
   readonly formularDaten = input.required<StundenFormularDaten>();
   readonly lohnVorschau = input<{ grundlohn: number; zuschlag: number; gesamt: number }>({ grundlohn: 0, zuschlag: 0, gesamt: 0 });
   readonly statistik = input.required<StundenStatistik>();
+  readonly stempelEintraege = input<Stempel[]>([]);
+  readonly stempelLaedt = input<boolean>(false);
 
   readonly zurueck = output<void>();
   readonly eintragen = output<void>();
@@ -28,6 +40,7 @@ export class StundenErfassungComponent {
   readonly loeschen = output<number>();
   readonly feldGeaendert = output<{ feld: keyof StundenFormularDaten; wert: string | number }>();
   readonly pdfGenerieren = output<void>();
+  readonly stempelZuStundenKonvertieren = output<Stempel>();
 
   protected readonly zuschlagOptionen = ZUSCHLAG_OPTIONEN;
   protected readonly datumFormatieren = datumFormatieren;
@@ -50,5 +63,12 @@ export class StundenErfassungComponent {
       ? parseFloat(el.value) || 0
       : el.value;
     this.feldGeaendert.emit({ feld, wert });
+  }
+
+  protected zeitFormatieren(isoString: string): string {
+    return new Date(isoString).toLocaleTimeString('de-DE', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
   }
 }

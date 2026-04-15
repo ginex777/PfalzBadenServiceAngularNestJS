@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { EinstellungenService } from './einstellungen.service';
+import { EinstellungenService, UserEintrag, UserAnlegenPayload } from './einstellungen.service';
 import { FirmaSettings } from '../../core/models';
 
 interface SmtpSettings { host: string; port: number; secure: boolean; user: string; pass: string; fromName?: string; }
@@ -21,6 +21,14 @@ export class EinstellungenFacade {
   readonly smtpTestLaedt = signal(false);
   readonly smtpErfolg = signal<string | null>(null);
 
+  // Benutzerverwaltung
+  readonly users = signal<UserEintrag[]>([]);
+  readonly userLaedt = signal(false);
+  readonly userAnlegenLaedt = signal(false);
+  readonly userErfolg = signal<string | null>(null);
+  readonly userFehler = signal<string | null>(null);
+  readonly neuerUser = signal<UserAnlegenPayload>({ email: '', password: '', rolle: 'readonly' });
+
   ladeDaten(): void {
     this.laedt.set(true);
     this.service.firmaLaden().subscribe({
@@ -32,6 +40,43 @@ export class EinstellungenFacade {
       error: () => {},
     });
     this.backupStatusLaden();
+    this.userListeLaden();
+  }
+
+  userListeLaden(): void {
+    this.userLaedt.set(true);
+    this.service.userListeLaden().subscribe({
+      next: list => { this.users.set(list); this.userLaedt.set(false); },
+      error: () => { this.userLaedt.set(false); },
+    });
+  }
+
+  neuerUserFeldSetzen(feld: keyof UserAnlegenPayload, wert: string): void {
+    this.neuerUser.update(u => ({ ...u, [feld]: wert }));
+  }
+
+  userAnlegenAusfuehren(): void {
+    const payload = this.neuerUser();
+    if (!payload.email || !payload.password) {
+      this.userFehler.set('E-Mail und Passwort sind Pflichtfelder.');
+      return;
+    }
+    this.userAnlegenLaedt.set(true);
+    this.userFehler.set(null);
+    this.userErfolg.set(null);
+    this.service.userAnlegen(payload).subscribe({
+      next: user => {
+        this.users.update(list => [...list, user]);
+        this.neuerUser.set({ email: '', password: '', rolle: 'readonly' });
+        this.userAnlegenLaedt.set(false);
+        this.userErfolg.set(`✓ Benutzer ${user.email} wurde angelegt`);
+        setTimeout(() => this.userErfolg.set(null), 4000);
+      },
+      error: (e: { error?: { message?: string } }) => {
+        this.userAnlegenLaedt.set(false);
+        this.userFehler.set(e?.error?.message ?? 'Benutzer konnte nicht angelegt werden.');
+      },
+    });
   }
 
   firmaSpeichern(): void {

@@ -6,7 +6,7 @@ import { PageTitleComponent } from '../../shared/ui/page-title/page-title.compon
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
 import { WiederkehrendeAusgabe } from '../../core/models';
 import { WiederkehrendeAusgabeFormularDaten, LEERES_FORMULAR } from './wiederkehrende-ausgaben.models';
-import { waehrungFormatieren, KATEGORIEN } from '../../core/utils/format.utils';
+import { waehrungFormatieren, nettoBerechnen, steuerBerechnen, KATEGORIEN } from '../../core/utils/format.utils';
 
 @Component({
   selector: 'app-wiederkehrende-ausgaben',
@@ -76,8 +76,13 @@ export class WiederkehrendeAusgabenComponent implements OnInit {
   }
 
   protected fmt(n: number): string { return waehrungFormatieren(n); }
-  protected nettoBerechnen(a: WiederkehrendeAusgabe): number { return a.brutto / (1 + a.mwst / 100); }
+  
+  // FIXED: Use shared calculation functions for consistency
+  protected nettoBerechnen(a: WiederkehrendeAusgabe): number { 
+    return nettoBerechnen(a.brutto, a.mwst); 
+  }
+  
   protected vstBerechnen(a: WiederkehrendeAusgabe): number {
-    return (a.brutto - a.brutto / (1 + a.mwst / 100)) * (a.abzug / 100);
+    return steuerBerechnen(a.brutto, a.mwst) * (a.abzug / 100);
   }
 }

@@ -6,6 +6,16 @@ import {
   LEERES_MITARBEITER_FORMULAR, LEERES_STUNDEN_FORMULAR,
 } from './mitarbeiter.models';
 
+interface Stempel {
+  id: number;
+  mitarbeiter_id: number;
+  start: string;
+  stop?: string | null;
+  dauer_minuten?: number | null;
+  notiz?: string | null;
+  created_at?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class MitarbeiterFacade {
   private readonly service = inject(MitarbeiterService);
@@ -16,6 +26,8 @@ export class MitarbeiterFacade {
   readonly aktiverMitarbeiter = signal<Mitarbeiter | null>(null);
   readonly stunden = signal<MitarbeiterStunden[]>([]);
   readonly stundenLaedt = signal(false);
+  readonly stempelEintraege = signal<Stempel[]>([]);
+  readonly stempelLaedt = signal(false);
   readonly bearbeiteterMitarbeiter = signal<Mitarbeiter | null>(null);
   readonly loeschKandidat = signal<number | null>(null);
   readonly loeschStundenKandidat = signal<number | null>(null);
@@ -107,14 +119,26 @@ export class MitarbeiterFacade {
     if (!ma) return;
     this.aktiverMitarbeiter.set(ma);
     this.stundenLaedt.set(true);
+    this.stempelLaedt.set(true);
     this.stundenFormular.set({ ...LEERES_STUNDEN_FORMULAR, datum: new Date().toISOString().slice(0, 10) });
+    
+    // Load both stunden and stempel data
     this.service.stundenLaden(id).subscribe({
       next: s => { this.stunden.set(s); this.stundenLaedt.set(false); },
       error: () => { this.stunden.set([]); this.stundenLaedt.set(false); },
     });
+    
+    this.service.zeiterfassungLaden(id).subscribe({
+      next: s => { this.stempelEintraege.set(s); this.stempelLaedt.set(false); },
+      error: () => { this.stempelEintraege.set([]); this.stempelLaedt.set(false); },
+    });
   }
 
-  stundenSchliessen(): void { this.aktiverMitarbeiter.set(null); this.stunden.set([]); }
+  stundenSchliessen(): void { 
+    this.aktiverMitarbeiter.set(null); 
+    this.stunden.set([]); 
+    this.stempelEintraege.set([]); 
+  }
 
   stundenEintragen(): void {
     const ma = this.aktiverMitarbeiter();
@@ -172,4 +196,48 @@ export class MitarbeiterFacade {
     if (!this.stunden().length) { this.fehler.set('Keine Stunden vorhanden.'); return; }
     this.service.abrechnungPdfOeffnen(ma.id).catch(() => this.fehler.set('PDF konnte nicht erstellt werden.'));
   }
+
+  // ── Mobile Stempeluhr Integration ─────────────────────────────────────────
+  stempelStart(notiz?: string): void {
+    const ma = this.aktiverMitarbeiter();
+    if (!ma) { this.fehler.set('Kein Mitarbeiter ausgewählt.'); return; }
+    
+    this.service.stempelStart(ma.id, notiz).subscribe({
+      next: stempel => {
+        this.stempelEintraege.update(list => [stempel, ...list]);
+        this.fehler.set(null);
+      },
+      error: () => this.fehler.set('Stempel konnte nicht gestartet werden.'),
+    });
+  }
+
+  stempelStop(): void {
+    const ma = this.aktiverMitarbeiter();
+    if (!ma) { this.fehler.set('Kein Mitarbeiter ausgewählt.'); return; }
+    
+    this.service.stempelStop(ma.id).subscribe({
+      next: stempel => {
+        this.stempelEintraege.update(list => list.map(s => s.id === stempel.id ? stempel : s));
+        this.fehler.set(null);
+      },
+      error: () => this.fehler.set('Stempel konnte nicht gestoppt werden.'),
+    });
+  }
+
+  readonly aktuellerStempel = computed(() => {
+    return this.stempelEintraege().find(s => !s.stop);
+  });
+
+  readonly stempelStatistik = computed(() => {
+    const eintraege = this.stempelEintraege();
+    const heute = new Date().toISOString().slice(0, 10);
+    const heuteEintraege = eintraege.filter(s => s.start.slice(0, 10) === heute);
+    const heuteMinuten = heuteEintraege.reduce((sum, s) => sum + (s.dauer_minuten || 0), 0);
+    
+    return {
+      heuteStunden: Math.round(heuteMinuten / 60 * 100) / 100,
+      heuteEintraege: heuteEintraege.length,
+      offenerStempel: eintraege.find(s => !s.stop),
+    };
+  });
 }

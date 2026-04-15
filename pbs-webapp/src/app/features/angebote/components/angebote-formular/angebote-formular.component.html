@@ -4,11 +4,24 @@
   </div>
 }
 
+@if (validierungsFehler().length > 0) {
+  <div class="validation-errors">
+    <div class="validation-title">⚠️ Bitte korrigieren Sie folgende Fehler:</div>
+    <ul>
+      @for (fehler of validierungsFehler(); track fehler) {
+        <li>{{ fehler }}</li>
+      }
+    </ul>
+  </div>
+}
+
 <div class="form-section">
   <div class="form-row">
     <div class="form-field">
       <label>Angebots-Nr. *</label>
-      <input type="text" [value]="formularDaten().nr" placeholder="2026-001" (input)="onFeldChange('nr', $event)">
+      <input type="text" [value]="formularDaten().nr" placeholder="2026-001" 
+        [class.error]="!formularDaten().nr.trim()"
+        (input)="onFeldChange('nr', $event)">
     </div>
     <div class="form-field">
       <label>Datum</label>
@@ -36,6 +49,7 @@
       <label>Empfänger *</label>
       <div style="display:flex;gap:6px;align-items:center">
         <input type="text" [value]="formularDaten().empf" placeholder="Firmenname"
+          [class.error]="!formularDaten().empf.trim()"
           (input)="onFeldChange('empf', $event)" style="flex:1">
         <button class="btn btn-sm" type="button" title="Empfänger als neuen Kunden anlegen"
           (click)="alsKundeSpeichern.emit()">+ Als Kunde</button>
@@ -140,10 +154,10 @@
   (input)="onFeldChange('zusatz', $event)"></textarea>
 
 <div class="form-actions">
-  <button class="btn btn-primary" [disabled]="speichert()" (click)="speichern.emit()">
+  <button class="btn btn-primary" [disabled]="speichert() || !istFormularGueltig()" (click)="speichern.emit()">
     @if (speichert()) { <span class="spinner" aria-hidden="true"></span> Speichert… } @else { Speichern & Senden }
   </button>
-  <button class="btn" (click)="vorschau.emit()">Vorschau</button>
+  <button class="btn" [disabled]="!istFormularGueltig()" (click)="vorschau.emit()">Vorschau</button>
   <button class="btn" (click)="abbrechen.emit()">
     @if (bearbeitetesAngebot()) { Abbrechen } @else { Zurücksetzen }
   </button>

@@ -1,12 +1,35 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class BrowserService {
+  private readonly http = inject(HttpClient);
+
   openUrl(url: string, target = '_blank'): void {
     window.open(url, target);
   }
 
   async copyToClipboard(text: string): Promise<void> {
     await navigator.clipboard.writeText(text);
+  }
+
+  /** Lädt eine geschützte URL per HttpClient (JWT wird automatisch mitgeschickt)
+   *  und öffnet den Blob in einem neuen Tab. Für PDFs, CSV und Excel-Downloads. */
+  async blobOeffnen(url: string): Promise<void> {
+    const blob = await firstValueFrom(
+      this.http.get(url, { responseType: 'blob' })
+    );
+    const objectUrl = URL.createObjectURL(blob);
+    const win = window.open(objectUrl, '_blank');
+    // Object-URL nach kurzer Zeit freigeben
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+    if (!win) {
+      // Fallback: direkter Download wenn Popup geblockt
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = url.split('/').pop() ?? 'download';
+      a.click();
+    }
   }
 }

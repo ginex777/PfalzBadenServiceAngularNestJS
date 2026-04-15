@@ -71,6 +71,81 @@ export class PdfService {
     setInterval(() => this.abgelaufeneTokensLoeschen(), 60_000);
   }
 
+  // ── Mahnung PDF ─────────────────────────────────────────────────────────────
+  async mahnungPdfErstellen(mahnungId: number): Promise<{ token: string; url: string }> {
+    const mahnung = await this.prisma.mahnungen.findUnique({ 
+      where: { id: BigInt(mahnungId) },
+      include: { rechnung: true }
+    });
+    if (!mahnung) throw new NotFoundException(`Mahnung ${mahnungId} nicht gefunden`);
+    
+    const rechnung = mahnung.rechnung;
+    const firma = await this.firmaLaden();
+
+    const positionen = (rechnung.positionen as { bez: string; stunden?: string; einzelpreis?: number; gesamtpreis: number }[]) ?? [];
+    const mwstSatz = Number(rechnung.mwst_satz ?? 19);
+    const netto = positionen.reduce((s, p) => s + (Number(p.gesamtpreis) || 0), 0);
+    const ust = netto * (mwstSatz / 100);
+    const brutto = netto + ust;
+    const gebuehr = Number(mahnung.betrag_gebuehr);
+    const gesamtbetrag = brutto + gebuehr;
+
+    const datumStr = rechnung.datum ? this.datumFormatieren(rechnung.datum.toISOString().slice(0, 10)) : '–';
+    const mahnungDatumStr = this.datumFormatieren(mahnung.datum.toISOString().slice(0, 10));
+    const zahlDatum = rechnung.datum ? this.addTage(rechnung.datum.toISOString().slice(0, 10), (rechnung.zahlungsziel ?? 14) + 14) : '–';
+
+    const mahnungTexte = {
+      1: 'Wir möchten Sie freundlich daran erinnern, dass die oben genannte Rechnung noch nicht beglichen wurde.',
+      2: 'Trotz unserer ersten Mahnung ist die Rechnung noch immer nicht bezahlt. Wir bitten Sie dringend um Begleichung.',
+      3: 'Dies ist unsere letzte Mahnung. Sollten Sie nicht innerhalb von 7 Tagen zahlen, werden wir rechtliche Schritte einleiten.'
+    };
+
+    const kontext = {
+      firma, logoBase64: this.logoBase64,
+      mahnung: {
+        ...mahnung,
+        id: Number(mahnung.id),
+        rechnung_id: Number(mahnung.rechnung_id),
+        betrag_gebuehr: gebuehr,
+        datumFormatiert: mahnungDatumStr,
+        stufeText: `${mahnung.stufe}. Mahnung`,
+        mahntext: mahnungTexte[mahnung.stufe as keyof typeof mahnungTexte] || mahnungTexte[3],
+      },
+      rechnung: {
+        ...rechnung,
+        id: Number(rechnung.id),
+        kunden_id: rechnung.kunden_id ? Number(rechnung.kunden_id) : null,
+        brutto: Number(rechnung.brutto),
+        mwst_satz: mwstSatz,
+        positionen,
+        datumFormatiert: datumStr,
+        zahlDatumFormatiert: zahlDatum,
+        mwstLabel: mwstSatz === 0 ? '0 % (steuerfrei)' : `${mwstSatz} %`,
+        nettoFormatiert: this.fmtEur(netto),
+        ustFormatiert: this.fmtEur(ust),
+        bruttoFormatiert: this.fmtEur(brutto),
+      },
+      gebuehrFormatiert: this.fmtEur(gebuehr),
+      gesamtbetragFormatiert: this.fmtEur(gesamtbetrag),
+    };
+
+    const html = this.templateRendern('mahnung.hbs', kontext);
+    const pdf = await this.pdfAusHtmlErstellen(html);
+    const filename = `Mahnung_${mahnung.stufe}_${rechnung.nr}.pdf`;
+
+    await this.prisma.pdfArchive.create({
+      data: {
+        typ: 'mahnung', referenz_nr: `${mahnung.stufe}. Mahnung zu ${rechnung.nr}`,
+        referenz_id: mahnung.id, empf: rechnung.empf,
+        titel: `${mahnung.stufe}. Mahnung`,
+        datum: mahnung.datum,
+        filename, html_body: html,
+      },
+    });
+
+    return this.tokenErstellen(pdf, filename);
+  }
+
   // ── Rechnung PDF ────────────────────────────────────────────────────────────
   async rechnungPdfErstellen(rechnungId: number): Promise<{ token: string; url: string }> {
     const rechnung = await this.prisma.rechnungen.findUnique({ where: { id: BigInt(rechnungId) } });

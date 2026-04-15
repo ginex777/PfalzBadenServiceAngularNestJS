@@ -5,6 +5,8 @@ import { ApiService } from '../../core/api/api.service';
 import { FirmaSettings } from '../../core/models';
 
 interface SmtpSettings { host: string; port: number; secure: boolean; user: string; pass: string; fromName?: string; }
+export interface UserEintrag { id: string; email: string; rolle: string; aktiv: boolean; created_at: string; }
+export interface UserAnlegenPayload { email: string; password: string; rolle: 'admin' | 'readonly' | 'mitarbeiter'; }
 
 @Injectable({ providedIn: 'root' })
 export class EinstellungenService {
@@ -27,5 +29,13 @@ export class EinstellungenService {
 
   smtpTesten(): Observable<{ success: boolean; message?: string }> {
     return this.http.post<{ success: boolean; message?: string }>('/api/email/test', {});
+  }
+
+  userListeLaden(): Observable<UserEintrag[]> {
+    return this.http.get<UserEintrag[]>('/api/auth/users');
+  }
+
+  userAnlegen(payload: UserAnlegenPayload): Observable<UserEintrag> {
+    return this.http.post<UserEintrag>('/api/auth/users', payload);
   }
 }

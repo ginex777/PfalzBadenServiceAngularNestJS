@@ -6,6 +6,16 @@ import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-mod
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { StundenFormularDaten } from './mitarbeiter.models';
 
+interface Stempel {
+  id: number;
+  mitarbeiter_id: number;
+  start: string;
+  stop?: string | null;
+  dauer_minuten?: number | null;
+  notiz?: string | null;
+  created_at?: string;
+}
+
 @Component({
   selector: 'app-mitarbeiter',
   standalone: true,
@@ -39,5 +49,17 @@ export class MitarbeiterComponent implements OnInit {
   }
   protected stundenFeldGeaendert(event: { feld: keyof StundenFormularDaten; wert: string | number }): void {
     this.facade.stundenFormularFeldAktualisieren(event.feld, event.wert as never);
+  }
+
+  protected stempelZuStundenKonvertieren(stempel: Stempel): void {
+    if (!stempel.stop || !stempel.dauer_minuten) return;
+    
+    const stunden = Math.round(stempel.dauer_minuten / 60 * 100) / 100;
+    const datum = stempel.start.split('T')[0];
+    
+    // Pre-fill the form with stempel data
+    this.facade.stundenFormularFeldAktualisieren('datum', datum);
+    this.facade.stundenFormularFeldAktualisieren('stunden', stunden);
+    this.facade.stundenFormularFeldAktualisieren('beschreibung', stempel.notiz || 'Aus Stempeluhr übernommen');
   }
 }

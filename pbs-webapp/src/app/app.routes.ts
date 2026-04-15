@@ -112,5 +112,10 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./features/vertraege/vertraege.component').then(m => m.VertraegeComponent),
   },
+  {
+    path: 'benutzerverwaltung',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/benutzerverwaltung/benutzerverwaltung.component').then(m => m.BenutzerverwaltungComponent),
+  },
   { path: '**', redirectTo: 'login' },
 ];

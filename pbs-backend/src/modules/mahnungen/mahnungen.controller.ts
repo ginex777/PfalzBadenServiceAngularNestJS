@@ -1,10 +1,14 @@
 import { Controller, Get, Post, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
+import { PdfService } from '../pdf/pdf.service';
 import { Prisma } from '@prisma/client';
 
 @Controller('api/mahnungen')
 export class MahnungenController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pdfService: PdfService,
+  ) {}
 
   @Get('all')
   async alleGruppiert() {
@@ -38,5 +42,10 @@ export class MahnungenController {
   async mahnungLoeschen(@Param('id', ParseIntPipe) id: number) {
     await this.prisma.mahnungen.delete({ where: { id: BigInt(id) } });
     return { ok: true };
+  }
+
+  @Post(':id/pdf')
+  async mahnungPdfErstellen(@Param('id', ParseIntPipe) id: number) {
+    return this.pdfService.mahnungPdfErstellen(id);
   }
 }

@@ -1,3 +1,4 @@
+<div class="page-wrap">
 <app-page-title titel="Mitarbeiter" untertitel="Mitarbeiterverwaltung und Stundenerfassung" />
 
 @if (facade.fehler()) {
@@ -75,6 +76,8 @@
     [mitarbeiter]="facade.aktiverMitarbeiter()!"
     [stunden]="facade.stunden()"
     [stundenLaedt]="facade.stundenLaedt()"
+    [stempelEintraege]="facade.stempelEintraege()"
+    [stempelLaedt]="facade.stempelLaedt()"
     [formularDaten]="facade.stundenFormular()"
     [lohnVorschau]="facade.lohnVorschau()"
     [statistik]="facade.statistik()"
@@ -83,6 +86,8 @@
     (bezahltToggle)="facade.bezahltToggle($event.id, $event.bezahlt)"
     (loeschen)="facade.stundenLoeschenBestaetigen($event)"
     (feldGeaendert)="stundenFeldGeaendert($event)"
+    (pdfGenerieren)="facade.abrechnungPdfGenerieren()"
+    (stempelZuStundenKonvertieren)="stempelZuStundenKonvertieren($event)"
   />
 }
 
@@ -101,3 +106,5 @@
     (abgebrochen)="facade.stundenLoeschenAbbrechen()"
   />
 }
+
+</div>
