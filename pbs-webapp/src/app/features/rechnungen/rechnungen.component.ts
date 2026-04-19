@@ -59,6 +59,11 @@ export class RechnungenComponent {
     this.facade.ladeDaten();
   }
 
+  protected onNeueRechnung(): void {
+    this.facade.bearbeitungAbbrechen();
+    this.facade.drawerOeffnen();
+  }
+
   protected onBearbeiten(rechnung: Rechnung): void {
     this.facade.bearbeitungStarten(rechnung);
   }

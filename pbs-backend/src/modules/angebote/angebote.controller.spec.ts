@@ -27,8 +27,8 @@ describe('AngeboteController', () => {
   });
 
   it('alleAngeboteLaden() delegiert an Service', async () => {
-    mockService.alleAngeboteLaden.mockResolvedValue([]);
-    await controller.alleAngeboteLaden();
+    mockService.alleAngeboteLaden.mockResolvedValue({ data: [], total: 0, page: 1, limit: 100, totalPages: 0 });
+    await controller.alleAngeboteLaden({ page: 1, limit: 100 });
     expect(mockService.alleAngeboteLaden).toHaveBeenCalledTimes(1);
   });
 });

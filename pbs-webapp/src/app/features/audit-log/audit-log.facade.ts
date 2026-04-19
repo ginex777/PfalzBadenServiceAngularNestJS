@@ -1,14 +1,15 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { AuditLogService } from './audit-log.service';
+import { ToastService } from '../../core/services/toast.service';
 import { AuditLogEntry } from '../../core/models';
 import { AuditAktion } from './audit-log.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuditLogFacade {
   private readonly service = inject(AuditLogService);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly eintraege = signal<AuditLogEntry[]>([]);
   readonly suchbegriff = signal('');
   readonly aktiverAktionFilter = signal<AuditAktion>('alle');
@@ -46,7 +47,7 @@ export class AuditLogFacade {
     this.laedt.set(true);
     this.service.alleLaden().subscribe({
       next: e => { this.eintraege.set(e); this.aktuelleSeite.set(1); this.laedt.set(false); },
-      error: () => { this.fehler.set('Audit-Log konnte nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('Audit-Log konnte nicht geladen werden.'); this.laedt.set(false); },
     });
   }
 

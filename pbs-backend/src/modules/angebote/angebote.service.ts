@@ -1,24 +1,40 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { AuditService } from '../../modules/audit/audit.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, Angebote } from '@prisma/client';
+import { CreateAngebotDto, UpdateAngebotDto } from './dto/angebot.dto';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class AngeboteService {
+  private readonly logger = new Logger(AngeboteService.name);
+
   constructor(private readonly prisma: PrismaService, private readonly audit: AuditService) {}
 
-  async alleAngeboteLaden() {
-    const rows = await this.prisma.angebote.findMany({ orderBy: [{ datum: 'desc' }, { id: 'desc' }] });
-    return rows.map(r => this.mapAngebot(r));
+  async alleAngeboteLaden(pagination: PaginationDto): Promise<PaginatedResponse<ReturnType<AngeboteService['mapAngebot']>>> {
+    const { page, limit } = pagination;
+    const skip = (page - 1) * limit;
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.angebote.findMany({ orderBy: [{ datum: 'desc' }, { id: 'desc' }], skip, take: limit }),
+      this.prisma.angebote.count(),
+    ]);
+    return {
+      data: rows.map(r => this.mapAngebot(r)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
-  async angebotErstellen(daten: Record<string, unknown>, nutzer?: string) {
+  async angebotErstellen(daten: CreateAngebotDto, nutzer?: string) {
     const angebot = await this.prisma.angebote.create({ data: this.angebotDatenMappen(daten) });
     await this.audit.protokollieren('angebote', angebot.id, 'CREATE', null, angebot, nutzer);
     return this.mapAngebot(angebot);
   }
 
-  async angebotAktualisieren(id: number, daten: Record<string, unknown>, nutzer?: string) {
+  async angebotAktualisieren(id: number, daten: UpdateAngebotDto, nutzer?: string) {
     const alt = await this.prisma.angebote.findUnique({ where: { id: BigInt(id) } });
     if (!alt) throw new NotFoundException(`Angebot ${id} nicht gefunden`);
     const neu = await this.prisma.angebote.update({ where: { id: BigInt(id) }, data: this.angebotDatenMappen(daten) });
@@ -34,34 +50,34 @@ export class AngeboteService {
     return { ok: true };
   }
 
-  private angebotDatenMappen(d: Record<string, unknown>): Prisma.AngeboteCreateInput {
+  private angebotDatenMappen(d: CreateAngebotDto): Prisma.AngeboteCreateInput {
     return {
-      nr: String(d['nr'] ?? ''),
-      empf: String(d['empf'] ?? ''),
-      str: d['str'] ? String(d['str']) : null,
-      ort: d['ort'] ? String(d['ort']) : null,
-      titel: d['titel'] ? String(d['titel']) : null,
-      datum: d['datum'] ? new Date(String(d['datum'])) : null,
-      brutto: new Prisma.Decimal(Number(d['brutto'] ?? 0)),
-      gueltig_bis: d['gueltig_bis'] ? new Date(String(d['gueltig_bis'])) : null,
-      angenommen: Boolean(d['angenommen']),
-      abgelehnt: Boolean(d['abgelehnt']),
-      gesendet: Boolean(d['gesendet']),
-      zusatz: d['zusatz'] ? String(d['zusatz']) : null,
-      positionen: (d['positionen'] as Prisma.InputJsonValue) ?? Prisma.JsonNull,
-      kunden: d['kunden_id'] ? { connect: { id: BigInt(Number(d['kunden_id'])) } } : undefined,
+      nr: d.nr,
+      empf: d.empf,
+      str: d.str ?? null,
+      ort: d.ort ?? null,
+      titel: d.titel ?? null,
+      datum: d.datum ? new Date(d.datum) : null,
+      brutto: new Prisma.Decimal(d.brutto),
+      gueltig_bis: d.gueltig_bis ? new Date(d.gueltig_bis) : null,
+      angenommen: d.angenommen ?? false,
+      abgelehnt: d.abgelehnt ?? false,
+      gesendet: d.gesendet ?? false,
+      zusatz: d.zusatz ?? null,
+      positionen: (d.positionen as unknown as Prisma.InputJsonValue) ?? Prisma.JsonNull,
+      kunden: d.kunden_id ? { connect: { id: BigInt(d.kunden_id) } } : undefined,
     };
   }
 
-  private mapAngebot(r: Record<string, unknown>) {
+  private mapAngebot(r: Angebote) {
     return {
       ...r,
-      id: Number(r['id']),
-      kunden_id: r['kunden_id'] ? Number(r['kunden_id']) : null,
-      brutto: Number(r['brutto']),
-      angenommen: Boolean(r['angenommen']),
-      abgelehnt: Boolean(r['abgelehnt']),
-      gesendet: Boolean(r['gesendet']),
+      id: Number(r.id),
+      kunden_id: r.kunden_id ? Number(r.kunden_id) : null,
+      brutto: Number(r.brutto),
+      angenommen: Boolean(r.angenommen),
+      abgelehnt: Boolean(r.abgelehnt),
+      gesendet: Boolean(r.gesendet),
     };
   }
 }

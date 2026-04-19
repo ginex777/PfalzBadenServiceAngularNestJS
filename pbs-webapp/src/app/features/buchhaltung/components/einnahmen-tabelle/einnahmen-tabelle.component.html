@@ -2,7 +2,7 @@
   <div class="tabelle-kopf">
     <span class="badge badge--gruen">Einnahmen</span>
     <span class="anzahl">{{ zeilen().length }} Eintr{{ zeilen().length !== 1 ? 'äge' : 'ag' }}</span>
-    <input type="search" class="eingabe" placeholder="Einnahmen durchsuchen…" style="width:200px;font-size:12px"
+    <input type="search" class="eingabe eingabe--suche" placeholder="Einnahmen durchsuchen…"
       [value]="suchbegriff"
       (input)="suchbegriff = $any($event.target).value" />
   </div>

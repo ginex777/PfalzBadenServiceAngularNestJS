@@ -1,9 +1,12 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, Buchhaltung } from '@prisma/client';
+import { BuchhaltungEintragDto, VstDto } from './dto/buchhaltung.dto';
 
 @Injectable()
 export class BuchhaltungService {
+  private readonly logger = new Logger(BuchhaltungService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async jahresDateLaden(jahr: number): Promise<Record<number, { inc: unknown[]; exp: unknown[] }>> {
@@ -22,36 +25,36 @@ export class BuchhaltungService {
     return ergebnis;
   }
 
-  async eintragErstellen(daten: Record<string, unknown>) {
-    await this.gesperrtenMonatPruefen(Number(daten['jahr']), Number(daten['monat']));
+  async eintragErstellen(daten: BuchhaltungEintragDto) {
+    await this.gesperrtenMonatPruefen(daten.jahr, daten.monat);
     const row = await this.prisma.buchhaltung.create({ data: this.buchungDatenMappen(daten) });
     return this.mapBuchung(row);
   }
 
-  async batchSpeichern(jahr: number, monat: number, zeilen: Record<string, unknown>[]) {
+  async batchSpeichern(jahr: number, monat: number, zeilen: BuchhaltungEintragDto[]) {
     await this.gesperrtenMonatPruefen(jahr, monat);
     return this.prisma.$transaction(async (tx) => {
       const gespeichert: unknown[] = [];
       for (const z of zeilen) {
-        if (z['id']) {
+        if (z.id) {
           const updated = await tx.buchhaltung.update({
-            where: { id: BigInt(Number(z['id'])) },
+            where: { id: BigInt(z.id) },
             data: {
-              name: z['name'] ? String(z['name']) : null,
-              datum: z['datum'] ? new Date(String(z['datum'])) : null,
-              brutto: new Prisma.Decimal(Number(z['brutto'] ?? 0)),
-              mwst: new Prisma.Decimal(Number(z['mwst'] ?? 19)),
-              abzug: new Prisma.Decimal(Number(z['abzug'] ?? 100)),
-              kategorie: z['kategorie'] ? String(z['kategorie']) : null,
-              renr: z['renr'] ? String(z['renr']) : null,
-              belegnr: z['belegnr'] ? String(z['belegnr']) : null,
-              beleg_id: z['beleg_id'] ? BigInt(Number(z['beleg_id'])) : null,
+              name: z.name ?? null,
+              datum: z.datum ? new Date(z.datum) : null,
+              brutto: new Prisma.Decimal(z.brutto),
+              mwst: new Prisma.Decimal(z.mwst ?? 19),
+              abzug: new Prisma.Decimal(z.abzug ?? 100),
+              kategorie: z.kategorie ?? null,
+              renr: z.renr ?? null,
+              belegnr: z.belegnr ?? null,
+              beleg_id: z.beleg_id ? BigInt(z.beleg_id) : null,
             },
           });
           gespeichert.push(this.mapBuchung(updated));
         } else {
           const created = await tx.buchhaltung.create({
-            data: { ...this.buchungDatenMappen({ ...z, jahr, monat }) },
+            data: this.buchungDatenMappen({ ...z, jahr, monat }),
           });
           gespeichert.push(this.mapBuchung(created));
         }
@@ -60,21 +63,21 @@ export class BuchhaltungService {
     });
   }
 
-  async eintragAktualisieren(id: number, daten: Record<string, unknown>) {
+  async eintragAktualisieren(id: number, daten: BuchhaltungEintragDto) {
     const alt = await this.prisma.buchhaltung.findUnique({ where: { id: BigInt(id) } });
     if (!alt) throw new NotFoundException(`Eintrag ${id} nicht gefunden`);
     await this.gesperrtenMonatPruefen(alt.jahr, alt.monat);
     const neu = await this.prisma.buchhaltung.update({
       where: { id: BigInt(id) },
       data: {
-        name: daten['name'] ? String(daten['name']) : null,
-        datum: daten['datum'] ? new Date(String(daten['datum'])) : null,
-        brutto: new Prisma.Decimal(Number(daten['brutto'] ?? 0)),
-        mwst: new Prisma.Decimal(Number(daten['mwst'] ?? 19)),
-        abzug: new Prisma.Decimal(Number(daten['abzug'] ?? 100)),
-        kategorie: daten['kategorie'] ? String(daten['kategorie']) : null,
-        renr: daten['renr'] ? String(daten['renr']) : null,
-        belegnr: daten['belegnr'] ? String(daten['belegnr']) : null,
+        name: daten.name ?? null,
+        datum: daten.datum ? new Date(daten.datum) : null,
+        brutto: new Prisma.Decimal(daten.brutto),
+        mwst: new Prisma.Decimal(daten.mwst ?? 19),
+        abzug: new Prisma.Decimal(daten.abzug ?? 100),
+        kategorie: daten.kategorie ?? null,
+        renr: daten.renr ?? null,
+        belegnr: daten.belegnr ?? null,
       },
     });
     return this.mapBuchung(neu);
@@ -93,11 +96,11 @@ export class BuchhaltungService {
     return rows.map(r => ({ ...r, id: Number(r.id) }));
   }
 
-  async vstSpeichern(daten: Record<string, unknown>) {
+  async vstSpeichern(daten: VstDto) {
     const r = await this.prisma.vstPaid.upsert({
-      where: { jahr_quartal: { jahr: Number(daten['jahr']), quartal: String(daten['quartal']) } },
-      create: { jahr: Number(daten['jahr']), quartal: String(daten['quartal']), paid: Boolean(daten['paid']), datum: daten['datum'] ? new Date(String(daten['datum'])) : null },
-      update: { paid: Boolean(daten['paid']), datum: daten['datum'] ? new Date(String(daten['datum'])) : null },
+      where: { jahr_quartal: { jahr: daten.jahr, quartal: daten.quartal } },
+      create: { jahr: daten.jahr, quartal: daten.quartal, paid: daten.paid ?? false, datum: daten.datum ? new Date(daten.datum) : null },
+      update: { paid: daten.paid ?? false, datum: daten.datum ? new Date(daten.datum) : null },
     });
     return { ...r, id: Number(r.id) };
   }
@@ -126,24 +129,24 @@ export class BuchhaltungService {
     if (gesperrt) throw new BadRequestException('Dieser Monat ist gesperrt (GoBD §146 AO). Keine Änderungen möglich.');
   }
 
-  private buchungDatenMappen(d: Record<string, unknown>): Prisma.BuchhaltungCreateInput {
+  private buchungDatenMappen(d: BuchhaltungEintragDto): Prisma.BuchhaltungCreateInput {
     return {
-      jahr: Number(d['jahr']),
-      monat: Number(d['monat']),
-      typ: String(d['typ'] ?? 'exp'),
-      name: d['name'] ? String(d['name']) : null,
-      datum: d['datum'] ? new Date(String(d['datum'])) : null,
-      brutto: new Prisma.Decimal(Number(d['brutto'] ?? 0)),
-      mwst: new Prisma.Decimal(Number(d['mwst'] ?? 19)),
-      abzug: new Prisma.Decimal(Number(d['abzug'] ?? 100)),
-      kategorie: d['kategorie'] ? String(d['kategorie']) : null,
-      renr: d['renr'] ? String(d['renr']) : null,
-      belegnr: d['belegnr'] ? String(d['belegnr']) : null,
-      beleg_id: d['beleg_id'] ? BigInt(Number(d['beleg_id'])) : null,
+      jahr: d.jahr,
+      monat: d.monat,
+      typ: d.typ,
+      name: d.name ?? null,
+      datum: d.datum ? new Date(d.datum) : null,
+      brutto: new Prisma.Decimal(d.brutto),
+      mwst: new Prisma.Decimal(d.mwst ?? 19),
+      abzug: new Prisma.Decimal(d.abzug ?? 100),
+      kategorie: d.kategorie ?? null,
+      renr: d.renr ?? null,
+      belegnr: d.belegnr ?? null,
+      beleg_id: d.beleg_id ? BigInt(d.beleg_id) : null,
     };
   }
 
-  private mapBuchung(r: Record<string, unknown>) {
-    return { ...r, id: Number(r['id']), brutto: Number(r['brutto']), mwst: Number(r['mwst']), abzug: Number(r['abzug']), beleg_id: r['beleg_id'] ? Number(r['beleg_id']) : null };
+  private mapBuchung(r: Buchhaltung) {
+    return { ...r, id: Number(r.id), brutto: Number(r.brutto), mwst: Number(r.mwst), abzug: Number(r.abzug), beleg_id: r.beleg_id ? Number(r.beleg_id) : null };
   }
 }

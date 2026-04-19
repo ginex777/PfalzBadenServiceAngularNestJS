@@ -207,7 +207,7 @@
                   <td class="col-datum hint-sm">{{ aktivitaetDatumFormatieren(akt.datum) }}</td>
                   <td class="col-typ hint-sm text-muted">{{ akt.typ }}</td>
                   <td class="col-name">{{ akt.nr }} – {{ akt.name }}</td>
-                  <td class="col-betrag" [class]="akt.statusKlasse">{{ waehrungFormatieren(akt.betrag) }}</td>
+                  <td class="col-betrag" [class]="akt.statusKlasse">{{ akt.betrag != null ? waehrungFormatieren(akt.betrag) : '–' }}</td>
                   <td class="col-action">
                     <button class="btn-action hint-sm" [routerLink]="akt.routerLink">Öffnen</button>
                   </td>
@@ -269,7 +269,7 @@
       } @else {
         <p class="hint">Kein Backup vorhanden</p>
       }
-      <div style="margin-top:12px;display:flex;gap:8px">
+      <div class="card-actions">
         <button class="btn btn-sm btn-primary" [disabled]="facade.backupLaedt()" (click)="facade.backupErstellen()">
           {{ facade.backupLaedt() ? 'Sichert…' : 'Jetzt sichern' }}
         </button>
@@ -290,7 +290,7 @@
             <tbody>
               @for (e of facade.naechsteEinsaetze(); track e.id) {
                 <tr>
-                  <td style="font-weight:500">{{ e.mitarbeiter_name }}</td>
+                  <td class="fw-medium">{{ e.mitarbeiter_name }}</td>
                   <td class="hint-sm text-muted">{{ e.kunden_name || '' }}</td>
                   <td>
                     <span class="badge" [class]="einsatzDatumBadge(e.datum) === 'Heute' ? 'badge-danger' : einsatzDatumBadge(e.datum) === 'Morgen' ? 'badge-warning' : 'badge-neutral'">
@@ -306,14 +306,14 @@
           </table>
         </div>
       }
-      <div style="margin-top:8px">
+      <div class="card-actions--sm">
         <a class="btn btn-sm btn-primary" routerLink="/hausmeister">+ Neuer Einsatz</a>
       </div>
     </div>
 
     <div class="card">
       <h3 class="section-title">Schnellzugriff</h3>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+      <div class="btn-row">
         <a class="btn btn-sm" routerLink="/buchhaltung">Buchhaltung</a>
         <a class="btn btn-sm" routerLink="/belege">Belege</a>
         <a class="btn btn-sm" routerLink="/pdf-archiv">PDF-Archiv</a>

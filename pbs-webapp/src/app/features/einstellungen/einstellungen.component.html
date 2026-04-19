@@ -5,7 +5,7 @@
   [firma]="facade.firma()"
   [speichert]="facade.speichert()"
   [erfolg]="facade.erfolg()"
-  [fehler]="facade.fehler()"
+  [fehler]="null"
   (speichern)="facade.firmaSpeichern()"
   (feldAktualisieren)="feldAktualisieren($event)"
 />
@@ -36,10 +36,30 @@
 <!-- Benutzerverwaltung -->
 <div class="card">
   <h3 class="section-title">Benutzerverwaltung</h3>
-  <p class="hint" style="margin-bottom:0.75rem">Benutzer anlegen, bearbeiten und löschen.</p>
-  <a routerLink="/benutzerverwaltung" class="btn btn-primary" style="display:inline-block;text-decoration:none">
+  <p class="hint hint--mb">Benutzer anlegen, bearbeiten und löschen.</p>
+  <a routerLink="/benutzerverwaltung" class="btn btn-primary link-btn">
     Zur Benutzerverwaltung →
   </a>
+</div>
+
+<!-- Erscheinungsbild -->
+<div class="card">
+  <h3 class="section-title">Erscheinungsbild</h3>
+  <div class="theme-row">
+    <div>
+      <div class="theme-label">Dark Mode</div>
+      <div class="hint">Wird in diesem Browser gespeichert.</div>
+    </div>
+    <button
+      class="theme-toggle"
+      [class.theme-toggle--aktiv]="theme.isDark()"
+      (click)="theme.toggle()"
+      [attr.aria-label]="theme.isDark() ? 'Dark Mode deaktivieren' : 'Dark Mode aktivieren'"
+      type="button"
+    >
+      <span class="theme-toggle__thumb"></span>
+    </button>
+  </div>
 </div>
 
 <!-- Datenbank Info -->
@@ -51,7 +71,7 @@
 <!-- SMTP Einstellungen -->
 <div class="card">
   <h3 class="section-title">E-Mail / SMTP</h3>
-  <p class="hint" style="margin-bottom:0.75rem">Für den E-Mail-Versand aus der App (Marketing, Rechnungen).</p>
+  <p class="hint hint--mb">Für den E-Mail-Versand aus der App (Marketing, Rechnungen).</p>
   @if (facade.smtpErfolg()) {
     <div class="success-banner">{{ facade.smtpErfolg() }}</div>
   }
@@ -62,15 +82,15 @@
         [value]="facade.smtp().host"
         (input)="smtpFeldAktualisieren('host', $event)" />
     </div>
-    <div class="form-field" style="max-width:120px">
+    <div class="form-field form-field--narrow-120">
       <label class="form-label">Port</label>
       <input class="form-input" type="number" placeholder="587"
         [value]="facade.smtp().port"
         (input)="smtpPortGeaendert($event)" />
     </div>
-    <div class="form-field" style="max-width:140px">
+    <div class="form-field form-field--narrow-140">
       <label class="form-label">SSL/TLS</label>
-      <label style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer">
+      <label class="checkbox-label">
         <input type="checkbox"
           [checked]="facade.smtp().secure"
           (change)="smtpSecureGeaendert($event)" />
@@ -98,7 +118,7 @@
         (input)="smtpFeldAktualisieren('fromName', $event)" />
     </div>
   </div>
-  <div style="display:flex;gap:8px;margin-top:4px">
+  <div class="form-actions">
     <button class="btn btn-primary"
       [disabled]="facade.smtpSpeichert()"
       (click)="facade.smtpSpeichernAusfuehren()">

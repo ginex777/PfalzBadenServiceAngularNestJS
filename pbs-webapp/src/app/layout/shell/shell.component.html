@@ -1,85 +1,67 @@
-<div class="shell">
-  <!-- Mobile Overlay -->
-  @if (mobileSidebarOffen()) {
-    <div
-      class="shell__overlay"
-      (click)="mobileSidebarSchliessen()"
-      aria-hidden="true"
-    ></div>
-  }
+<div class="shell" [class.shell--no-sidebar]="!authService.isLoggedIn()">
+  @if (authService.isLoggedIn()) {
+    <!-- Mobile Overlay -->
+    @if (mobileSidebarOffen()) {
+      <div
+        class="shell__overlay"
+        (click)="mobileSidebarSchliessen()"
+        aria-hidden="true"
+      ></div>
+    }
 
-  <!-- Sidebar -->
-  <aside
-    class="shell__sidebar"
-    [class.shell__sidebar--offen]="mobileSidebarOffen()"
-    aria-label="Seitennavigation"
-  >
-    <app-sidebar
-      (geschlossen)="mobileSidebarSchliessen()"
-      [notifAnzahl]="ungeleseneNotifs().length"
-      [darkMode]="darkMode()"
-      (darkModeGeaendert)="darkModeUmschalten()"
-      (nutzerWechselnGeklickt)="nutzerWechselnOeffnen()"
-    />
-  </aside>
+    <!-- Sidebar -->
+    <aside
+      class="shell__sidebar"
+      [class.shell__sidebar--offen]="mobileSidebarOffen()"
+      aria-label="Seitennavigation"
+    >
+      <app-sidebar
+        (geschlossen)="mobileSidebarSchliessen()"
+        [notifAnzahl]="ungeleseneNotifs().length"
+        [darkMode]="darkMode()"
+        (darkModeGeaendert)="darkModeUmschalten()"
+      />
+    </aside>
+  }
 
   <!-- Hauptbereich -->
   <div class="shell__main">
-    <!-- Benachrichtigungs-Banner -->
-    @if (notifBannerSichtbar()) {
-      <div class="notif-banner" role="alert">
-        <div class="notif-banner__content">
-          <strong>{{ ungeleseneNotifs().length }} Benachrichtigung(en)</strong>
-          @for (n of ungeleseneNotifs().slice(0, 5); track n.id) {
-            <span class="notif-item">{{ n.titel }}</span>
-          }
+    @if (authService.isLoggedIn()) {
+      <!-- Benachrichtigungs-Banner -->
+      @if (notifBannerSichtbar()) {
+        <div class="notif-banner" role="alert">
+          <div class="notif-banner__content">
+            <strong>{{ ungeleseneNotifs().length }} Benachrichtigung(en)</strong>
+            @for (n of ungeleseneNotifs().slice(0, 5); track n.id) {
+              <span class="notif-item">{{ n.titel }}</span>
+            }
+          </div>
+          <button class="btn btn-sm" (click)="alleGelesenMarkieren()">OK, verstanden</button>
         </div>
-        <button class="btn btn-sm" (click)="alleGelesenMarkieren()">OK, verstanden</button>
-      </div>
-    }
+      }
 
-    <!-- Mobile Header -->
-    <header class="shell__mobile-header">
-      <button
-        class="shell__menu-btn btn btn--ghost btn--icon"
-        (click)="mobileSidebarUmschalten()"
-        [attr.aria-expanded]="mobileSidebarOffen()"
-        aria-label="Navigation öffnen"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <line x1="3" y1="12" x2="21" y2="12"/>
-          <line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-      </button>
-      <span class="shell__mobile-title">PBS Buchhaltung</span>
-      <button class="nutzer-btn" (click)="nutzerWechselnOeffnen()" type="button" title="Aktiver Nutzer wechseln">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-        </svg>
-        {{ nutzerService.aktiverNutzer() || 'Nutzer wählen' }}
-      </button>
-    </header>
-
-    @if (nutzerEingabeOffen()) {
-      <div class="nutzer-modal-backdrop" (click)="nutzerAbbrechen()" aria-hidden="true"></div>
-      <div class="nutzer-modal" role="dialog" aria-label="Nutzer auswählen">
-        <p style="font-size:13px;font-weight:600;margin-bottom:10px">Wer arbeitet gerade?</p>
-        <input
-          class="nutzer-input"
-          type="text"
-          placeholder="Dein Name..."
-          [(ngModel)]="nutzerEingabe"
-          (keydown.enter)="nutzerSpeichern()"
-          (keydown.escape)="nutzerAbbrechen()"
-          maxlength="100"
-          autofocus
-        />
-        <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
-          <button class="btn btn--ghost btn--sm" (click)="nutzerAbbrechen()" type="button">Abbrechen</button>
-          <button class="btn btn--primary btn--sm" (click)="nutzerSpeichern()" type="button">Speichern</button>
-        </div>
-      </div>
+      <!-- Mobile Header -->
+      <header class="shell__mobile-header">
+        <button
+          class="shell__menu-btn btn btn--ghost btn--icon"
+          (click)="mobileSidebarUmschalten()"
+          [attr.aria-expanded]="mobileSidebarOffen()"
+          aria-label="Navigation öffnen"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <span class="shell__mobile-title">PBS Buchhaltung</span>
+        <span class="nutzer-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+          {{ nutzerAnzeige() }}
+        </span>
+      </header>
     }
 
     <!-- Router-Outlet -->

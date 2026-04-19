@@ -52,6 +52,11 @@ export class AngeboteComponent implements OnInit {
     this.facade.ladeDaten();
   }
 
+  protected onNeuesAngebot(): void {
+    this.facade.bearbeitungAbbrechen();
+    this.facade.drawerOeffnen();
+  }
+
   protected onBearbeiten(angebot: Angebot): void {
     this.facade.bearbeitungStarten(angebot);
   }

@@ -1,74 +1,35 @@
-.stat-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.page-tabs {
+.send-step {
   display: flex;
-  gap: 0;
-  border-bottom: 2px solid var(--border);
-  margin-bottom: 1.25rem;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.page-tab {
-  padding: 0.6rem 1.25rem;
-  border: none;
-  background: none;
-  font-size: 14px;
-  font-weight: 500;
+.send-info {
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  font-size: 12px;
+}
+
+.send-label {
+  font-size: 12px;
   color: var(--gray-500);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  transition: all 0.15s;
-
-  &:hover { color: var(--gray-700); }
-
-  &.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
-  }
 }
 
-.error-banner {
-  background: var(--danger-light);
-  color: var(--danger);
-  border: 1px solid var(--danger);
-  border-radius: var(--radius-sm);
-  padding: 0.6rem 0.75rem;
-  font-size: 13px;
-  margin-bottom: 1rem;
+.send-textarea {
+  font-size: 12px;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-}
-
-.card-header {
+.send-actions {
   display: flex;
+  gap: 8px;
   justify-content: flex-end;
-  margin-bottom: 1rem;
 }
 
-.btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover { background: var(--gray-100); }
-  &-sm { padding: 0.35rem 0.75rem; font-size: 12px; }
-}
-
+/* Aktivitäten log in drawer */
 .aktivitaeten-section {
   margin-top: 1.5rem;
   border-top: 1px solid var(--border);
@@ -123,8 +84,84 @@
     border-radius: 3px;
     font-size: 10px;
     background: var(--primary-light);
-    color: var(--primary);
+    color: var(--primary-solid);
     flex-shrink: 0;
   }
   &__text { color: var(--gray-600); font-size: 11px; overflow: hidden; text-overflow: ellipsis; }
+}
+
+/* Mahnungen modal */
+.mahnung-modal {
+  max-width: 640px;
+}
+
+.mahnung-modal-title {
+  margin-bottom: 0.25rem;
+}
+
+.mahnung-modal-subtitle {
+  font-size: 12px;
+  color: var(--gray-500);
+  margin-bottom: 1rem;
+}
+
+.mahnung-laedt {
+  padding: 1rem;
+  text-align: center;
+  color: var(--gray-400);
+}
+
+.mahnung-leer {
+  font-size: 13px;
+  color: var(--gray-400);
+  margin-bottom: 1rem;
+}
+
+.mahnung-table {
+  margin-bottom: 1rem;
+}
+
+.mahnung-notiz-cell {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.mahnung-form-section {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+}
+
+.mahnung-form-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.mahnung-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mahnung-form-field {
+  margin-bottom: 8px;
+}
+
+.mahnung-label {
+  display: block;
+  font-size: 11px;
+  color: var(--gray-500);
+  margin-bottom: 2px;
+}
+
+.mahnung-input {
+  font-size: 12px;
+}
+
+.mahnung-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
 }

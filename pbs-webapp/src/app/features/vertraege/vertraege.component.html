@@ -17,10 +17,6 @@
   @if (erfolg()) {
     <div class="toast toast-ok">{{ erfolg() }}</div>
   }
-  @if (fehler() && ansicht() === 'liste') {
-    <div class="toast toast-err">{{ fehler() }}</div>
-  }
-
   <!-- ══════════════════════ LISTE ════════════════════════════════ -->
   @if (ansicht() === 'liste') {
 
@@ -90,10 +86,6 @@
   @if (ansicht() === 'neu' || ansicht() === 'bearbeiten') {
     <div class="form-wrap">
       <h2>{{ ansicht() === 'neu' ? 'Neuer Vertrag' : 'Vertrag bearbeiten' }}</h2>
-
-      @if (fehler()) {
-        <p class="form-fehler">{{ fehler() }}</p>
-      }
 
       <div class="form-section">
         <h3>Auftraggeber</h3>

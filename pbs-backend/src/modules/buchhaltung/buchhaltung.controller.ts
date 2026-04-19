@@ -14,15 +14,15 @@ export class BuchhaltungController {
 
   @Post('buchhaltung/batch')
   @ApiOperation({ summary: 'Batch-Speichern (ganzer Monat)' })
-  batchSpeichern(@Body() dto: BatchSpeichernDto) { return this.service.batchSpeichern(dto.jahr, dto.monat, dto.rows as unknown as Record<string, unknown>[]); }
+  batchSpeichern(@Body() dto: BatchSpeichernDto) { return this.service.batchSpeichern(dto.jahr, dto.monat, dto.rows); }
 
   @Post('buchhaltung')
   @ApiOperation({ summary: 'Einzelnen Eintrag erstellen' })
-  eintragErstellen(@Body() dto: BuchhaltungEintragDto) { return this.service.eintragErstellen(dto as unknown as Record<string, unknown>); }
+  eintragErstellen(@Body() dto: BuchhaltungEintragDto) { return this.service.eintragErstellen(dto); }
 
   @Put('buchhaltung/:id')
   @ApiOperation({ summary: 'Eintrag aktualisieren' })
-  eintragAktualisieren(@Param('id', ParseIntPipe) id: number, @Body() dto: BuchhaltungEintragDto) { return this.service.eintragAktualisieren(id, dto as unknown as Record<string, unknown>); }
+  eintragAktualisieren(@Param('id', ParseIntPipe) id: number, @Body() dto: BuchhaltungEintragDto) { return this.service.eintragAktualisieren(id, dto); }
 
   @Delete('buchhaltung/:id')
   @ApiOperation({ summary: 'Eintrag löschen' })
@@ -32,7 +32,7 @@ export class BuchhaltungController {
   vstLaden(@Param('jahr', ParseIntPipe) j: number) { return this.service.vstLaden(j); }
 
   @Post('vst')
-  vstSpeichern(@Body() dto: VstDto) { return this.service.vstSpeichern(dto as unknown as Record<string, unknown>); }
+  vstSpeichern(@Body() dto: VstDto) { return this.service.vstSpeichern(dto); }
 
   @Get('gesperrte-monate/:jahr')
   gesperrteMonateLaden(@Param('jahr', ParseIntPipe) j: number) { return this.service.gesperrteMonateLaden(j); }

@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Headers, Query } from '@nestjs/common';
 import { ApiTags, ApiSecurity, ApiOperation } from '@nestjs/swagger';
 import { RechnungenService } from './rechnungen.service';
 import { CreateRechnungDto, UpdateRechnungDto } from './dto/rechnung.dto';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('Rechnungen')
 @ApiSecurity('x-nutzer')
@@ -11,14 +12,14 @@ export class RechnungenController {
 
   @Get()
   @ApiOperation({ summary: 'Alle Rechnungen laden' })
-  alleRechnungenLaden() { return this.service.alleRechnungenLaden(); }
+  alleRechnungenLaden(@Query() pagination: PaginationDto) { return this.service.alleRechnungenLaden(pagination); }
 
   @Post()
   @ApiOperation({ summary: 'Rechnung erstellen' })
   rechnungErstellen(
     @Body() dto: CreateRechnungDto,
     @Headers('x-nutzer') nutzer?: string,
-  ) { return this.service.rechnungErstellen(dto as unknown as Record<string, unknown>, nutzer); }
+  ) { return this.service.rechnungErstellen(dto, nutzer); }
 
   @Put(':id')
   @ApiOperation({ summary: 'Rechnung aktualisieren' })
@@ -26,7 +27,7 @@ export class RechnungenController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateRechnungDto,
     @Headers('x-nutzer') nutzer?: string,
-  ) { return this.service.rechnungAktualisieren(id, dto as unknown as Record<string, unknown>, nutzer); }
+  ) { return this.service.rechnungAktualisieren(id, dto, nutzer); }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Rechnung löschen' })

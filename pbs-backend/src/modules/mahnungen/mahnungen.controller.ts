@@ -1,51 +1,30 @@
 import { Controller, Get, Post, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
-import { PdfService } from '../pdf/pdf.service';
-import { Prisma } from '@prisma/client';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { MahnungenService } from './mahnungen.service';
+import { CreateMahnungDto } from './dto/mahnung.dto';
 
+@ApiTags('Mahnungen')
 @Controller('api/mahnungen')
 export class MahnungenController {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly pdfService: PdfService,
-  ) {}
+  constructor(private readonly service: MahnungenService) {}
 
   @Get('all')
-  async alleGruppiert() {
-    const rows = await this.prisma.mahnungen.groupBy({ by: ['rechnung_id'], _count: { id: true } });
-    const map: Record<number, number> = {};
-    rows.forEach(r => { map[Number(r.rechnung_id)] = r._count.id; });
-    return map;
-  }
+  @ApiOperation({ summary: 'Alle Mahnungen gruppiert nach Rechnung' })
+  alleGruppiert() { return this.service.alleGruppiert(); }
 
   @Get(':rechnungId')
-  async mahnungenLaden(@Param('rechnungId', ParseIntPipe) id: number) {
-    const rows = await this.prisma.mahnungen.findMany({ where: { rechnung_id: BigInt(id) }, orderBy: { stufe: 'asc' } });
-    return rows.map(m => ({ ...m, id: Number(m.id), rechnung_id: Number(m.rechnung_id), betrag_gebuehr: Number(m.betrag_gebuehr) }));
-  }
+  @ApiOperation({ summary: 'Mahnungen für eine Rechnung laden' })
+  mahnungenLaden(@Param('rechnungId', ParseIntPipe) id: number) { return this.service.mahnungenLaden(id); }
 
   @Post()
-  async mahnungErstellen(@Body() b: Record<string, unknown>) {
-    const m = await this.prisma.mahnungen.create({
-      data: {
-        rechnung: { connect: { id: BigInt(Number(b['rechnung_id'])) } },
-        stufe: Number(b['stufe'] ?? 1),
-        datum: new Date(String(b['datum'])),
-        betrag_gebuehr: new Prisma.Decimal(Number(b['betrag_gebuehr'] ?? 0)),
-        notiz: b['notiz'] ? String(b['notiz']) : null,
-      },
-    });
-    return { ...m, id: Number(m.id), rechnung_id: Number(m.rechnung_id), betrag_gebuehr: Number(m.betrag_gebuehr) };
-  }
+  @ApiOperation({ summary: 'Mahnung erstellen' })
+  mahnungErstellen(@Body() dto: CreateMahnungDto) { return this.service.mahnungErstellen(dto); }
 
   @Delete(':id')
-  async mahnungLoeschen(@Param('id', ParseIntPipe) id: number) {
-    await this.prisma.mahnungen.delete({ where: { id: BigInt(id) } });
-    return { ok: true };
-  }
+  @ApiOperation({ summary: 'Mahnung löschen' })
+  mahnungLoeschen(@Param('id', ParseIntPipe) id: number) { return this.service.mahnungLoeschen(id); }
 
   @Post(':id/pdf')
-  async mahnungPdfErstellen(@Param('id', ParseIntPipe) id: number) {
-    return this.pdfService.mahnungPdfErstellen(id);
-  }
+  @ApiOperation({ summary: 'Mahnung-PDF erstellen' })
+  mahnungPdfErstellen(@Param('id', ParseIntPipe) id: number) { return this.service.mahnungPdfErstellen(id); }
 }

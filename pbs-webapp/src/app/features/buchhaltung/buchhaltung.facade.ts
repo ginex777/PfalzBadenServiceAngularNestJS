@@ -32,7 +32,6 @@ export class BuchhaltungFacade {
 
   // ── State ────────────────────────────────────────────────────────────────
   readonly ladelaeuft = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly aktuellesJahr = signal(new Date().getFullYear());
   readonly aktuellerMonat = signal(new Date().getMonth()); // 0-11
   readonly ansichtsModus = signal<AnsichtsModus>('monat');
@@ -127,7 +126,6 @@ export class BuchhaltungFacade {
   // ── Lade-Aktionen ────────────────────────────────────────────────────────
   ladeDaten(): void {
     this.ladelaeuft.set(true);
-    this.fehler.set(null);
     const jahr = this.aktuellesJahr();
 
     forkJoin({
@@ -142,7 +140,7 @@ export class BuchhaltungFacade {
         this.ladelaeuft.set(false);
       },
       error: (err: Error) => {
-        this.fehler.set('Daten konnten nicht geladen werden: ' + err.message);
+        this.toast.error('Daten konnten nicht geladen werden: ' + err.message);
         this.ladelaeuft.set(false);
       },
     });
@@ -314,8 +312,7 @@ export class BuchhaltungFacade {
         },
         error: (err: Error) => {
           this.speicherStatus.set({ dirty: true, speichernLaeuft: false });
-          this.fehler.set('Speichern fehlgeschlagen: ' + err.message);
-          this.toast.error('Speichern fehlgeschlagen.');
+          this.toast.error('Speichern fehlgeschlagen: ' + err.message);
           reject(err);
         },
       });
@@ -337,7 +334,7 @@ export class BuchhaltungFacade {
               this.gesperrteMonateSet.update((s) => new Set([...s, monat]));
               this.bestaetigenDialog.set(null);
             },
-            error: (err: Error) => this.fehler.set('Sperren fehlgeschlagen: ' + err.message),
+            error: (err: Error) => this.toast.error('Sperren fehlgeschlagen: ' + err.message),
           });
         };
         if (this.speicherStatus().dirty) {
@@ -366,7 +363,7 @@ export class BuchhaltungFacade {
             });
             this.bestaetigenDialog.set(null);
           },
-          error: (err: Error) => this.fehler.set('Entsperren fehlgeschlagen: ' + err.message),
+          error: (err: Error) => this.toast.error('Entsperren fehlgeschlagen: ' + err.message),
         });
       },
     });
@@ -383,7 +380,7 @@ export class BuchhaltungFacade {
       next: (liste) => {
         const aktive = liste.filter((w) => w.aktiv);
         if (!aktive.length) {
-          this.fehler.set('Keine aktiven wiederkehrenden Kosten definiert.');
+          this.toast.error('Keine aktiven wiederkehrenden Kosten definiert.');
           return;
         }
         const vorhandeneNamen = this.aktuelleAusgaben().map((z) => z.name);
@@ -412,7 +409,7 @@ export class BuchhaltungFacade {
         this._alsDirtyMarkieren();
         this.batchSpeichern();
       },
-      error: (err: Error) => this.fehler.set('Wiederkehrende Kosten konnten nicht geladen werden: ' + err.message),
+      error: (err: Error) => this.toast.error('Wiederkehrende Kosten konnten nicht geladen werden: ' + err.message),
     });
   }
 

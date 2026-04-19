@@ -1,9 +1,9 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { AuditService } from '../audit/audit.service';
 
 @Injectable()
-export class WiederkehrendScheduler implements OnModuleInit {
+export class WiederkehrendScheduler implements OnApplicationBootstrap {
   private readonly logger = new Logger(WiederkehrendScheduler.name);
 
   constructor(
@@ -11,9 +11,9 @@ export class WiederkehrendScheduler implements OnModuleInit {
     private readonly auditService: AuditService,
   ) {}
 
-  onModuleInit(): void {
-    // Beim Start sofort ausführen, dann täglich um 6:00 Uhr
-    void this.wiederkehrendeRechnungenErstellen();
+  onApplicationBootstrap(): void {
+    // 5s delay to ensure DB connection is established before first run
+    setTimeout(() => void this.wiederkehrendeRechnungenErstellen(), 5000);
     
     // Täglich um 6:00 Uhr ausführen
     const now = new Date();

@@ -9,22 +9,22 @@
 
 <div class="card">
   <div class="toolbar">
-    <select (change)="mitarbeiterFilterGeaendert($event)" style="width:auto;font-size:12px">
+    <select class="select-sm" (change)="mitarbeiterFilterGeaendert($event)">
       <option value="">Alle Mitarbeiter</option>
       @for (ma of facade.eindeutigeMitarbeiter(); track ma) {
         <option [value]="ma">{{ ma }}</option>
       }
     </select>
-    <select (change)="monatFilterGeaendert($event)" style="width:auto;font-size:12px">
+    <select class="select-sm" (change)="monatFilterGeaendert($event)">
       <option value="">Alle Monate</option>
       @for (monat of facade.eindeutigeMonate(); track monat) {
         <option [value]="monat">{{ monatLabel(monat) }}</option>
       }
     </select>
-    <input type="text" placeholder="Suchen…" (input)="suchbegriffGeaendert($event)" style="width:160px;font-size:12px">
+    <input class="input-search-sm" type="text" placeholder="Suchen…" (input)="suchbegriffGeaendert($event)">
     <span class="anzahl-hinweis">{{ facade.gefilterteEinsaetze().length }} Einträge</span>
     <button class="btn btn-sm" (click)="facade.monatsnachweisPdfGenerieren()">Monatsnachweis PDF</button>
-    <div class="ansicht-toggle" style="margin-left:auto;display:flex;gap:4px">
+    <div class="ansicht-toggle">
       <button class="btn btn-sm" [class.btn-primary]="!wochenAnsicht()" (click)="wochenAnsicht.set(false)" title="Listenansicht">☰ Liste</button>
       <button class="btn btn-sm" [class.btn-primary]="wochenAnsicht()" (click)="wochenAnsicht.set(true)" title="Wochenansicht">▦ Woche</button>
     </div>

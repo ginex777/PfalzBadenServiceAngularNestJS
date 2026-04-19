@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, linkedSignal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, linkedSignal, computed, signal } from '@angular/core';
 import { form, required, applyEach, SchemaPathTree } from '@angular/forms/signals';
 import { Angebot, Kunde, RechnungPosition } from '../../../../core/models';
 import { AngebotFormularDaten } from '../../angebote.models';
@@ -37,6 +37,7 @@ export class AngeboteFormularComponent {
   readonly alsKundeSpeichern = output<void>();
 
   protected readonly formModell = linkedSignal(() => this.formularDaten());
+  protected readonly beruehrt = signal<Record<string, boolean>>({});
 
   protected readonly angebotForm = form(this.formModell, (schema) => {
     required(schema.empf, { message: 'Empfänger erforderlich' });
@@ -50,32 +51,11 @@ export class AngeboteFormularComponent {
              daten.positionen.every(p => p.bez?.trim() && p.gesamtpreis > 0));
   });
 
-  protected readonly validierungsFehler = computed(() => {
-    const daten = this.formularDaten();
-    const errors: string[] = [];
-    
-    if (!daten.empf?.trim()) errors.push('Empfänger ist erforderlich');
-    if (!daten.nr?.trim()) errors.push('Angebots-Nr. ist erforderlich');
-    
-    // Email validation
-    if (daten.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(daten.email)) {
-      errors.push('E-Mail-Adresse ist ungültig');
-    }
-    
-    // Position validation
-    daten.positionen.forEach((pos, index) => {
-      if (!pos.bez?.trim()) {
-        errors.push(`Position ${index + 1}: Bezeichnung fehlt`);
-      }
-      if (pos.gesamtpreis <= 0) {
-        errors.push(`Position ${index + 1}: Gesamtpreis muss größer als 0 sein`);
-      }
-    });
-    
-    return errors;
-  });
-
   protected readonly waehrungFormatieren = waehrungFormatieren;
+
+  protected beruehren(feld: string): void {
+    this.beruehrt.update(b => ({ ...b, [feld]: true }));
+  }
 
   protected onFeldChange(feld: keyof AngebotFormularDaten, event: Event): void {
     const wert = (event.target as HTMLInputElement | HTMLTextAreaElement).value;

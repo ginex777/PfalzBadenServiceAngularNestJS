@@ -48,8 +48,10 @@
 
 // ── Card ──────────────────────────────────────────────────────────────────
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--surface-glass);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border: 1px solid var(--border-glass);
   border-radius: var(--radius);
   padding: 1rem 1.25rem;
 }
@@ -150,7 +152,7 @@ table {
   tr:hover td { background: var(--gray-50); }
 }
 
-.row-danger td { background: #fff5f5; }
+.row-danger td { background: var(--danger-light); }
 
 .col-nr     { font-weight: 600; white-space: nowrap; min-width: 80px; }
 .col-name   { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -249,3 +251,7 @@ table {
 .text-muted   { color: var(--gray-400); }
 .hint         { font-size: 13px; color: var(--gray-400); }
 .hint-sm      { font-size: 11px; color: var(--gray-500); }
+.fw-medium    { font-weight: 500; }
+.card-actions { margin-top: 12px; display: flex; gap: 8px; }
+.card-actions--sm { margin-top: 8px; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }

@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy, Component, inject, input, output, signal, computed,
 } from '@angular/core';
-import { NutzerService } from '../../core/services/nutzer.service';
 import { AuthService } from '../../core/services/auth.service';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 
@@ -89,29 +88,19 @@ export class SidebarComponent {
   readonly notifAnzahl = input(0);
   readonly darkMode = input(false);
   readonly darkModeGeaendert = output<void>();
-  readonly nutzerWechselnGeklickt = output<void>();
 
   protected readonly navGruppen = NAV_GRUPPEN;
-  protected readonly nutzerService = inject(NutzerService);
   protected readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
   /** Which groups are currently open (multi-expand) */
   protected readonly offeneGruppen = signal<Set<string>>(new Set([this._initialGroup()]));
 
-  /** Computed user display name */
   protected readonly nutzerAnzeige = computed(() => {
     const user = this.authService.currentUser();
-    if (user) {
-      if (user.vorname && user.nachname) {
-        return `${user.vorname} ${user.nachname}`;
-      }
-      if (user.vorname || user.nachname) {
-        return user.vorname || user.nachname;
-      }
-      return user.email;
-    }
-    return this.nutzerService.aktiverNutzer() || 'Nutzer wählen';
+    if (!user) return '';
+    if (user.vorname && user.nachname) return `${user.vorname} ${user.nachname}`;
+    return user.vorname || user.nachname || user.email;
   });
 
   protected toggleGruppe(id: string): void {

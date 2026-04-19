@@ -5,7 +5,6 @@
   </div>
 
   @if (erfolg()) { <div class="banner banner--ok">{{ erfolg() }}</div> }
-  @if (fehler()) { <div class="banner banner--err">{{ fehler() }}</div> }
 
   <!-- Neuen Benutzer anlegen -->
   <div class="card">
@@ -46,7 +45,7 @@
         </select>
       </label>
     </div>
-    <button class="btn btn-primary" style="margin-top:0.75rem"
+    <button class="btn btn-primary btn-mt"
       [disabled]="anlegenLaedt()" (click)="anlegen()">
       {{ anlegenLaedt() ? 'Anlegen…' : 'Benutzer anlegen' }}
     </button>

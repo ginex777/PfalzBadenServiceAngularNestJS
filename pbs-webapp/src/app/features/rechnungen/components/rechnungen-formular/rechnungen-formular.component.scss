@@ -1,3 +1,25 @@
+.eingabe-modus-toggle {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.toggle-btn {
+  padding: 0.2rem 0.65rem;
+  font-size: 11px;
+  font-weight: 500;
+  border: none;
+  background: var(--surface);
+  color: var(--gray-500);
+  cursor: pointer;
+
+  &.active {
+    background: var(--primary);
+    color: #fff;
+  }
+}
+
 .editing-banner {
   background: var(--warning-light);
   color: var(--warning);
@@ -20,30 +42,6 @@
   margin-bottom: 1rem;
 }
 
-.validation-errors {
-  background: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeaa7;
-  border-radius: var(--radius-sm);
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  font-size: 12px;
-}
-
-.validation-title {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.validation-errors ul {
-  margin: 0;
-  padding-left: 1.2rem;
-  list-style-type: disc;
-}
-
-.validation-errors li {
-  margin-bottom: 0.25rem;
-}
 
 .form-section {
   display: flex;
@@ -92,7 +90,7 @@
 
     &.error {
       border-color: var(--danger);
-      background: #fff5f5;
+      background: var(--danger-muted);
     }
   }
 
@@ -105,6 +103,12 @@
   font-weight: 400;
 }
 
+.form-fehler {
+  font-size: 11px;
+  color: var(--danger);
+  display: block;
+}
+
 .section-title {
   font-size: 14px;
   font-weight: 600;
@@ -112,6 +116,12 @@
   margin: 1.25rem 0 0.5rem;
   padding-bottom: 0.4rem;
   border-bottom: 1px solid var(--border);
+
+  &--row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
   &--collapsible {
     cursor: pointer;
@@ -169,7 +179,8 @@
   .pos-nr { width: 40px; text-align: center; color: var(--gray-400); }
   .pos-stunden { width: 90px; }
   .pos-preis { width: 130px; }
-  .pos-action { width: 36px; }
+  .pos-action { width: 80px; }
+  .pos-actions { white-space: nowrap; display: flex; gap: 4px; align-items: center; vertical-align: middle; }
 
   input, textarea {
     width: 100%;
@@ -188,22 +199,6 @@
   textarea { resize: vertical; min-height: 48px; }
 }
 
-.btn-remove {
-  width: 24px;
-  height: 24px;
-  border: 1px solid var(--danger);
-  border-radius: 50%;
-  background: var(--surface);
-  color: var(--danger);
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover { background: var(--danger-light); }
-}
 
 .btn {
   padding: 0.5rem 1rem;
@@ -220,10 +215,10 @@
 
   &-primary {
     background: var(--primary);
-    color: #fff;
+    color: var(--gray-0);
     border-color: var(--primary);
 
-    &:hover:not(:disabled) { background: var(--primary-hover); border-color: var(--primary-hover); color: #fff; }
+    &:hover:not(:disabled) { background: var(--primary-hover); border-color: var(--primary-hover); color: var(--gray-0); }
     &:disabled { opacity: 0.6; cursor: not-allowed; }
   }
 }
@@ -251,6 +246,16 @@
     font-size: 14px;
     background: var(--gray-50);
   }
+}
+
+.wiederkehrend-checkbox {
+  width: auto;
+  margin: 0;
+}
+
+.wiederkehrend-select {
+  width: auto;
+  font-size: 12px;
 }
 
 .form-actions {

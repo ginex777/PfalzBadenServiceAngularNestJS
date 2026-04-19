@@ -13,6 +13,9 @@
   display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;
 }
 .anzahl-hinweis { font-size: 12px; color: var(--gray-500); }
+.select-sm { width: auto; font-size: 12px; }
+.input-search-sm { width: 160px; font-size: 12px; }
+.ansicht-toggle { margin-left: auto; display: flex; gap: 4px; }
 
 // ── Wochenansicht ──────────────────────────────────────────────────────────
 .wochen-nav {
@@ -70,7 +73,7 @@
   &--heute {
     color: var(--primary);
     background: var(--primary);
-    color: #fff;
+    color: var(--gray-0);
     border-radius: 50%;
     width: 24px;
     height: 24px;
@@ -89,7 +92,7 @@
 }
 .wochen-karte {
   background: var(--primary);
-  color: #fff;
+  color: var(--gray-0);
   border-radius: 4px;
   padding: 5px 7px;
   cursor: pointer;

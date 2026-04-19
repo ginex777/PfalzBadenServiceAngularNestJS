@@ -3,15 +3,18 @@ import { NotFoundException } from '@nestjs/common';
 import { AngeboteService } from './angebote.service';
 import { PrismaService } from '../../core/database/prisma.service';
 import { AuditService } from '../../modules/audit/audit.service';
+import { UpdateAngebotDto } from './dto/angebot.dto';
 
 const mockPrisma = {
   angebote: {
     findMany: jest.fn(),
+    count: jest.fn(),
     findUnique: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
   },
+  $transaction: jest.fn(),
 };
 
 const mockAudit = { protokollieren: jest.fn() };
@@ -35,12 +38,12 @@ describe('AngeboteService', () => {
   describe('alleAngeboteLaden()', () => {
     it('gibt gemappte Angebote zurück (BigInt → Number)', async () => {
       const row = { id: 5n, nr: 'A-2026-001', empf: 'Firma X', brutto: 200, angenommen: false, abgelehnt: false, gesendet: false, kunden_id: null };
-      mockPrisma.angebote.findMany.mockResolvedValue([row]);
+      mockPrisma.$transaction.mockResolvedValue([[row], 1]);
 
-      const result = await service.alleAngeboteLaden();
+      const result = await service.alleAngeboteLaden({ page: 1, limit: 100 });
 
-      expect(result[0].id).toBe(5);
-      expect(result[0].brutto).toBe(200);
+      expect(result.data[0].id).toBe(5);
+      expect(result.data[0].brutto).toBe(200);
     });
   });
 
@@ -62,7 +65,7 @@ describe('AngeboteService', () => {
   describe('angebotAktualisieren()', () => {
     it('wirft NotFoundException wenn Angebot nicht gefunden', async () => {
       mockPrisma.angebote.findUnique.mockResolvedValue(null);
-      await expect(service.angebotAktualisieren(999, { nr: 'X', empf: 'Y' })).rejects.toThrow(NotFoundException);
+      await expect(service.angebotAktualisieren(999, { nr: 'X', empf: 'Y' } as UpdateAngebotDto)).rejects.toThrow(NotFoundException);
     });
 
     it('aktualisiert Angebot und protokolliert', async () => {
@@ -72,7 +75,7 @@ describe('AngeboteService', () => {
       mockPrisma.angebote.update.mockResolvedValue(updated);
       mockAudit.protokollieren.mockResolvedValue(undefined);
 
-      const result = await service.angebotAktualisieren(1, { nr: 'A-001', empf: 'Neu', angenommen: true });
+      const result = await service.angebotAktualisieren(1, { nr: 'A-001', empf: 'Neu', angenommen: true } as UpdateAngebotDto);
 
       expect(result.angenommen).toBe(true);
       expect(mockAudit.protokollieren).toHaveBeenCalledWith('angebote', 1n, 'UPDATE', alt, updated, undefined);

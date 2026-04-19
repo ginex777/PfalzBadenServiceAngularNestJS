@@ -5,6 +5,7 @@ import { EinstellungenFacade } from './einstellungen.facade';
 import { FirmaFormularComponent } from './components/firma-formular/firma-formular.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { FirmaSettings } from '../../core/models';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-einstellungen',
@@ -16,6 +17,7 @@ import { FirmaSettings } from '../../core/models';
 })
 export class EinstellungenComponent implements OnInit {
   protected readonly facade = inject(EinstellungenFacade);
+  protected readonly theme = inject(ThemeService);
 
   ngOnInit(): void { this.facade.ladeDaten(); }
 

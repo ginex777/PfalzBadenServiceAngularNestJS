@@ -1,14 +1,15 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { KanbanService } from './kanban.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Task } from '../../core/models';
 import { KanbanFilter, KanbanSpalte, TaskFormularDaten, LEERES_TASK_FORMULAR } from './kanban.models';
 
 @Injectable({ providedIn: 'root' })
 export class KanbanFacade {
   private readonly service = inject(KanbanService);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly tasks = signal<Task[]>([]);
   readonly filter = signal<KanbanFilter>({ suchbegriff: '', kategorie: '', bearbeiter: '', prioritaet: '' });
   readonly formularSichtbar = signal(false);
@@ -43,7 +44,7 @@ export class KanbanFacade {
     this.laedt.set(true);
     this.service.alleLaden().subscribe({
       next: tasks => { this.tasks.set(tasks); this.laedt.set(false); },
-      error: () => { this.fehler.set('Tasks konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('Tasks konnten nicht geladen werden.'); this.laedt.set(false); },
     });
   }
 
@@ -61,7 +62,7 @@ export class KanbanFacade {
 
   speichern(): void {
     const daten = this.formularDaten();
-    if (!daten.titel) { this.fehler.set('Bitte Titel eingeben.'); return; }
+    if (!daten.titel) { this.toast.error('Bitte Titel eingeben.'); return; }
     const editId = this.bearbeiteterTask()?.id;
     const anfrage = editId
       ? this.service.aktualisieren(editId, { ...this.bearbeiteterTask()!, ...daten })
@@ -72,7 +73,7 @@ export class KanbanFacade {
         else this.tasks.update(list => [...list, gespeichert]);
         this.formularSchliessen();
       },
-      error: () => this.fehler.set('Task konnte nicht gespeichert werden.'),
+      error: () => this.toast.error('Task konnte nicht gespeichert werden.'),
     });
   }
 
@@ -80,7 +81,7 @@ export class KanbanFacade {
     if (!titel.trim()) return;
     this.service.erstellen({ titel, status, prioritaet: 'mittel', kategorie: 'Sonstiges' }).subscribe({
       next: t => this.tasks.update(list => [...list, t]),
-      error: () => this.fehler.set('Task konnte nicht erstellt werden.'),
+      error: () => this.toast.error('Task konnte nicht erstellt werden.'),
     });
   }
 
@@ -92,7 +93,7 @@ export class KanbanFacade {
     if (id === null) return;
     this.service.loeschen(id).subscribe({
       next: () => { this.tasks.update(list => list.filter(t => t.id !== id)); this.loeschKandidat.set(null); },
-      error: () => { this.fehler.set('Task konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
+      error: () => { this.toast.error('Task konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
     });
   }
 
@@ -107,7 +108,7 @@ export class KanbanFacade {
     const neuePosition = this.tasks().filter(t => t.status === neuerStatus && t.id !== id).length;
     this.tasks.update(list => list.map(t => t.id === id ? { ...t, status: neuerStatus, position: neuePosition } : t));
     this.service.aktualisieren(id, { ...task, status: neuerStatus, position: neuePosition }).subscribe({
-      error: () => this.fehler.set('Status konnte nicht gespeichert werden.'),
+      error: () => this.toast.error('Status konnte nicht gespeichert werden.'),
     });
     this.dragTaskId.set(null);
   }

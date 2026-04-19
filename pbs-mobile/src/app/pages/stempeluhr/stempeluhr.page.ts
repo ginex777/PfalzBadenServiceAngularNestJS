@@ -21,8 +21,7 @@ export class StempeluhrPage implements OnInit, OnDestroy {
   meldung = signal('');
 
   private _timer?: ReturnType<typeof setInterval>;
-  // Hardcoded for demo — in production read from Mitarbeiter linked to user
-  private mitarbeiterId = 1;
+  private get mitarbeiterId(): number { return this.auth.currentUser()?.mitarbeiterId ?? 0; }
 
   ngOnInit() {
     this._timer = setInterval(() => this._updateLaufzeit(), 1000);

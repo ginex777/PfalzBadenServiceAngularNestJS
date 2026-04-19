@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { BelegeService } from './belege.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Beleg } from '../../core/models';
 import { BelegeFilter } from './belege.models';
 import { dateigroesseFormatieren, datumFormatieren } from '../../core/utils/format.utils';
@@ -7,9 +8,9 @@ import { dateigroesseFormatieren, datumFormatieren } from '../../core/utils/form
 @Injectable({ providedIn: 'root' })
 export class BelegeFacade {
   private readonly service = inject(BelegeService);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly belege = signal<Beleg[]>([]);
   readonly suchbegriff = signal('');
   readonly aktiverFilter = signal<BelegeFilter>('alle');
@@ -61,7 +62,7 @@ export class BelegeFacade {
     this.laedt.set(true);
     this.service.alleLaden(this.aktivesJahr()).subscribe({
       next: b => { this.belege.set(b); this.laedt.set(false); },
-      error: () => { this.fehler.set('Belege konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('Belege konnten nicht geladen werden.'); this.laedt.set(false); },
     });
   }
 
@@ -72,7 +73,7 @@ export class BelegeFacade {
     formData.append('notiz', notiz);
     this.service.hochladen(formData).subscribe({
       next: b => this.belege.update(list => [b, ...list]),
-      error: () => this.fehler.set('Beleg konnte nicht hochgeladen werden.'),
+      error: () => this.toast.error('Beleg konnte nicht hochgeladen werden.'),
     });
   }
 
@@ -82,7 +83,7 @@ export class BelegeFacade {
         this.belege.update(list => list.map(b => b.id === id ? aktualisiert : b));
         this.notizBearbeitungId.set(null);
       },
-      error: () => this.fehler.set('Notiz konnte nicht gespeichert werden.'),
+      error: () => this.toast.error('Notiz konnte nicht gespeichert werden.'),
     });
   }
 
@@ -94,7 +95,7 @@ export class BelegeFacade {
     if (id === null) return;
     this.service.loeschen(id).subscribe({
       next: () => { this.belege.update(list => list.filter(b => b.id !== id)); this.loeschKandidat.set(null); },
-      error: () => { this.fehler.set('Beleg konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
+      error: () => { this.toast.error('Beleg konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
     });
   }
 

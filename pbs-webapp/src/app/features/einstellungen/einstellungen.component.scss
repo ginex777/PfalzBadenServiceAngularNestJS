@@ -14,12 +14,54 @@
   font-size: 11px; background: var(--gray-100); padding: 2px 8px; border-radius: 10px; color: var(--gray-600);
 }
 
+.theme-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.theme-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-800);
+  margin-bottom: 2px;
+}
+
+.theme-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 9999px;
+  background: var(--gray-200);
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--transition);
+
+  &--aktiv { background: var(--primary); }
+
+  &__thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--gray-0);
+    box-shadow: var(--shadow-xs);
+    transition: transform var(--transition);
+  }
+
+  &--aktiv &__thumb { transform: translateX(20px); }
+}
+
 .error-banner {
-  background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;
+  background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger-muted);
   border-radius: var(--radius-sm); padding: 0.6rem 0.9rem; font-size: 13px; margin-bottom: 0.75rem;
 }
 .success-banner {
-  background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;
+  background: var(--success-light); color: var(--success); border: 1px solid var(--success-muted);
   border-radius: var(--radius-sm); padding: 0.6rem 0.9rem; font-size: 13px; margin-bottom: 0.75rem;
 }
 
@@ -33,6 +75,18 @@
 .rolle-badge {
   display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500;
   &.rolle-admin { background: #ede9fe; color: #7c3aed; }
-  &.rolle-mitarbeiter { background: #dbeafe; color: #1d4ed8; }
+  &.rolle-mitarbeiter { background: var(--primary-muted); color: var(--primary-solid); }
   &.rolle-readonly { background: var(--gray-100); color: var(--gray-600); }
 }
+
+.hint--mb { margin-bottom: 0.75rem; }
+.link-btn { display: inline-block; text-decoration: none; }
+.form-field--narrow-120 { max-width: 120px; }
+.form-field--narrow-140 { max-width: 140px; }
+.checkbox-label { display: flex; align-items: center; gap: 8px; margin-top: 8px; cursor: pointer; }
+.form-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+.form-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.form-field { flex: 1; display: flex; flex-direction: column; gap: 0.25rem; }
+.form-label { font-size: 13px; font-weight: 500; color: var(--gray-700); }
+.hint { font-size: 13px; color: var(--gray-500); }

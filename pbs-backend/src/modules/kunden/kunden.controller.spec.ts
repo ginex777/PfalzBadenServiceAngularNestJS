@@ -29,9 +29,9 @@ describe('KundenController', () => {
 
   describe('alleKundenLaden()', () => {
     it('delegiert an Service', async () => {
-      const kunden = [{ id: 1, name: 'Test' }];
+      const kunden = { data: [{ id: 1, name: 'Test' }], total: 1, page: 1, limit: 100, totalPages: 1 };
       mockService.alleKundenLaden.mockResolvedValue(kunden);
-      const result = await controller.alleKundenLaden();
+      const result = await controller.alleKundenLaden({ page: 1, limit: 100 });
       expect(result).toBe(kunden);
     });
   });

@@ -54,12 +54,12 @@
 
   <!-- Footer -->
   <div class="sidebar__footer">
-    <button class="sidebar__nutzer-btn" (click)="nutzerWechselnGeklickt.emit()" type="button">
+    <div class="sidebar__nutzer-btn">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
       </svg>
       {{ nutzerAnzeige() }}
-    </button>
+    </div>
     <button class="sidebar__theme-btn" (click)="darkModeGeaendert.emit()" [title]="darkMode() ? 'Light Mode' : 'Dark Mode'">
       {{ darkMode() ? '☀ Light' : '◑ Dark' }}
     </button>

@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Delete, Body, Param, ParseIntPipe, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { PdfService } from './pdf.service';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('api/pdf')
 export class PdfController {
@@ -38,6 +39,7 @@ export class PdfController {
   }
 
   // ── Token-basierter Download ─────────────────────────────────────────────────
+  @Public()
   @Get('view/:token/:filename')
   pdfAnzeigen(@Param('token') token: string, @Param('filename') filename: string, @Res() res: Response) {
     const entry = this.service.tokenAbrufen(token);

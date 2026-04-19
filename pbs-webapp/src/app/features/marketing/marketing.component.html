@@ -1,10 +1,6 @@
 <div class="page-wrap">
 <app-page-title titel="Marketing" untertitel="Kontakte, Leads und Akquise verwalten" />
 
-@if (facade.fehler()) {
-  <div class="alert alert--danger">{{ facade.fehler() }}</div>
-}
-
 <!-- Statistik -->
 <div class="stat-grid">
   <div class="stat-chip stat-chip--gray">Neu: {{ facade.statistik().neu }}</div>
@@ -38,11 +34,11 @@
     </select>
   </div>
   <div class="toolbar__right">
-    <label class="btn btn--secondary">
+    <label class="btn btn-ghost">
       CSV Import
-      <input type="file" accept=".csv" style="display:none" (change)="csvDateiEinlesen($event)" />
+      <input type="file" accept=".csv" class="hidden-file-input" (change)="csvDateiEinlesen($event)" />
     </label>
-    <button class="btn btn--secondary" (click)="facade.vorlageModalOeffnen()">E-Mail Vorlage</button>
+    <button class="btn btn-ghost" (click)="facade.vorlageModalOeffnen()">E-Mail Vorlage</button>
     <button class="btn btn--primary" (click)="formularOeffnen()">+ Neuer Kontakt</button>
   </div>
 </div>
@@ -80,15 +76,15 @@
 <!-- Send Modal -->
 @if (sendModalKontakt()) {
   <div class="modal-overlay" (click)="sendModalSchliessen()">
-    <div class="modal" style="max-width:600px" (click)="$event.stopPropagation()">
-      <h3 style="margin-bottom:0.75rem">E-Mail an {{ sendModalKontakt()!.name }}</h3>
-      <div style="background:var(--gray-50);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:0.75rem;font-size:12px">
+    <div class="modal modal--send" (click)="$event.stopPropagation()">
+      <h3 class="modal-heading">E-Mail an {{ sendModalKontakt()!.name }}</h3>
+      <div class="send-preview">
         <div><strong>An:</strong> {{ sendModalKontakt()!.email }}</div>
-        <div style="margin-top:4px"><strong>Betreff:</strong> {{ sendModalBetreff() }}</div>
+        <div class="send-preview__row"><strong>Betreff:</strong> {{ sendModalBetreff() }}</div>
       </div>
       <label class="form-label">E-Mail Text:</label>
-      <textarea class="form-input" rows="10" [value]="sendModalText()" readonly style="font-size:12px;font-family:inherit"></textarea>
-      <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <textarea class="form-input send-textarea" rows="10" [value]="sendModalText()" readonly></textarea>
+      <div class="modal__aktionen">
         <button class="btn btn-primary" (click)="outlookOeffnen()">Outlook öffnen</button>
         <button class="btn" (click)="textKopieren()">Kopieren</button>
         <button class="btn" (click)="sendModalSchliessen()">Schließen</button>
@@ -178,10 +174,10 @@
 <!-- E-Mail Vorlage Modal -->
 @if (facade.vorlageModalSichtbar()) {
   <div class="modal-overlay" (click)="facade.vorlageModalSchliessen()">
-    <div class="modal" style="max-width:620px" (click)="$event.stopPropagation()">
+    <div class="modal modal--vorlage" (click)="$event.stopPropagation()">
       <h3>E-Mail Vorlage</h3>
-      <p class="hint" style="margin-bottom:0.75rem">Platzhalter: {{ '{name}' }}, {{ '{person}' }}</p>
-      <div class="form-field" style="margin-bottom:0.75rem">
+      <p class="hint hint--mb">Platzhalter: {{ '{name}' }}, {{ '{person}' }}</p>
+      <div class="form-field form-field--mb">
         <label>Betreff</label>
         <input class="form-input" type="text" [value]="facade.vorlageBetreff()" (input)="vorlageBetrefGeaendert($event)" />
       </div>
@@ -189,7 +185,7 @@
         <label>Text</label>
         <textarea class="form-input" rows="10" [value]="facade.vorlageText()" (input)="vorlageTextGeaendert($event)"></textarea>
       </div>
-      <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <div class="modal__aktionen">
         <button class="btn" (click)="facade.vorlageZuruecksetzen()">Standard</button>
         <button class="btn" (click)="facade.vorlageModalSchliessen()">Abbrechen</button>
         <button class="btn btn-primary" (click)="vorlageSpeichern()">Speichern</button>

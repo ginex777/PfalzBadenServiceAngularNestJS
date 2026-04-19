@@ -51,13 +51,14 @@ export class AuditLogComponent implements OnInit {
     return this.tabellenLabels[tabelle] ?? tabelle;
   }
 
-  protected wertKuerzen(wert: string | undefined): string {
-    if (!wert) return '–';
+  protected wertKuerzen(wert: unknown): string {
+    if (wert == null) return '–';
+    const s = typeof wert === 'string' ? wert : JSON.stringify(wert);
     try {
-      const obj = JSON.parse(wert);
-      return JSON.stringify(obj, null, 0).slice(0, 120) + (wert.length > 120 ? '…' : '');
+      const obj = JSON.parse(s);
+      return JSON.stringify(obj, null, 0).slice(0, 120) + (s.length > 120 ? '…' : '');
     } catch {
-      return wert.slice(0, 120);
+      return s.slice(0, 120);
     }
   }
 }

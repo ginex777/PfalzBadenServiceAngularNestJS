@@ -10,7 +10,7 @@
     <span class="form-fehler">{{ sucheForm.suchbegriff().errors()[0]?.message }}</span>
   }
   @if (facade.suchbegriff().length > 0) {
-    <button class="btn btn-sm" (click)="leeren()" style="margin-top:4px">Leeren</button>
+    <button class="btn btn-sm btn-mt-sm" (click)="leeren()">Leeren</button>
   }
 </div>
 

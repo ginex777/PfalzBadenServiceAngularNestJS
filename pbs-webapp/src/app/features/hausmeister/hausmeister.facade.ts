@@ -1,14 +1,15 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HausmeisterService } from './hausmeister.service';
+import { ToastService } from '../../core/services/toast.service';
 import { HausmeisterEinsatz, Mitarbeiter, Kunde, Taetigkeit } from '../../core/models';
 import { HausmeisterFormularDaten, HausmeisterFilter, LEERES_EINSATZ_FORMULAR } from './hausmeister.models';
 
 @Injectable({ providedIn: 'root' })
 export class HausmeisterFacade {
   private readonly service = inject(HausmeisterService);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly einsaetze = signal<HausmeisterEinsatz[]>([]);
   readonly mitarbeiter = signal<Mitarbeiter[]>([]);
   readonly kunden = signal<Kunde[]>([]);
@@ -64,7 +65,7 @@ export class HausmeisterFacade {
         this.kunden.set(kunden);
         this.laedt.set(false);
       },
-      error: () => { this.fehler.set('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
     });
   }
 
@@ -86,9 +87,9 @@ export class HausmeisterFacade {
 
   speichern(withPdf = true, syncStunden = false): void {
     const daten = this.formularDaten();
-    if (!daten.mitarbeiter_name || !daten.datum) { this.fehler.set('Mitarbeiter und Datum sind Pflichtfelder.'); return; }
+    if (!daten.mitarbeiter_name || !daten.datum) { this.toast.error('Mitarbeiter und Datum sind Pflichtfelder.'); return; }
     const taetigkeiten = daten.taetigkeiten.filter(t => t.beschreibung || t.stunden > 0);
-    if (!taetigkeiten.length) { this.fehler.set('Bitte mindestens eine Tätigkeit eintragen.'); return; }
+    if (!taetigkeiten.length) { this.toast.error('Bitte mindestens eine Tätigkeit eintragen.'); return; }
     const stunden_gesamt = taetigkeiten.reduce((s, t) => s + t.stunden, 0);
     const payload: Partial<HausmeisterEinsatz> = {
       ...daten,
@@ -105,7 +106,6 @@ export class HausmeisterFacade {
         if (editId) this.einsaetze.update(list => list.map(e => e.id === editId ? gespeichert : e));
         else this.einsaetze.update(list => [gespeichert, ...list]);
 
-        // Sync Stunden to Mitarbeiter if requested
         if (syncStunden && daten.mitarbeiter_id) {
           const beschreibung = taetigkeiten.map(t => t.beschreibung).filter(Boolean).join(', ');
           this.service.mitarbeiterStundenEintragen(daten.mitarbeiter_id, {
@@ -113,17 +113,16 @@ export class HausmeisterFacade {
             stunden: stunden_gesamt,
             beschreibung,
             ort: daten.kunden_name || '',
-          }).subscribe({ error: () => this.fehler.set('Stunden konnten nicht synchronisiert werden.') });
+          }).subscribe({ error: () => this.toast.error('Stunden konnten nicht synchronisiert werden.') });
         }
 
-        // Generate PDF if requested
         if (withPdf) {
-          this.service.einsatzPdfOeffnen(gespeichert.id).catch(() => this.fehler.set('PDF konnte nicht erstellt werden.'));
+          this.service.einsatzPdfOeffnen(gespeichert.id).catch(() => this.toast.error('PDF konnte nicht erstellt werden.'));
         }
 
         this.formularSchliessen();
       },
-      error: () => this.fehler.set('Einsatz konnte nicht gespeichert werden.'),
+      error: () => this.toast.error('Einsatz konnte nicht gespeichert werden.'),
     });
   }
 
@@ -135,7 +134,7 @@ export class HausmeisterFacade {
     if (id === null) return;
     this.service.einsatzLoeschen(id).subscribe({
       next: () => { this.einsaetze.update(list => list.filter(e => e.id !== id)); this.loeschKandidat.set(null); },
-      error: () => { this.fehler.set('Einsatz konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
+      error: () => { this.toast.error('Einsatz konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
     });
   }
 
@@ -176,13 +175,13 @@ export class HausmeisterFacade {
 
   // ── PDF ───────────────────────────────────────────────────────────────────
   einsatzPdfGenerieren(einsatz: HausmeisterEinsatz): void {
-    this.service.einsatzPdfOeffnen(einsatz.id).catch(() => this.fehler.set('PDF konnte nicht erstellt werden.'));
+    this.service.einsatzPdfOeffnen(einsatz.id).catch(() => this.toast.error('PDF konnte nicht erstellt werden.'));
   }
 
   monatsnachweisPdfGenerieren(): void {
     const monat = this.filterMonat();
-    if (!monat) { this.fehler.set('Bitte zuerst einen Monat filtern.'); return; }
+    if (!monat) { this.toast.error('Bitte zuerst einen Monat filtern.'); return; }
     const ma = this.filterMitarbeiter() || undefined;
-    this.service.monatsnachweisPdfOeffnen(monat, ma).catch(() => this.fehler.set('PDF konnte nicht erstellt werden.'));
+    this.service.monatsnachweisPdfOeffnen(monat, ma).catch(() => this.toast.error('PDF konnte nicht erstellt werden.'));
   }
 }

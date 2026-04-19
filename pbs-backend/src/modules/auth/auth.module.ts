@@ -16,14 +16,16 @@ import { AuditModule } from '../audit/audit.module';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret:
-          config.get<string>('JWT_SECRET') ?? 'pbs-dev-secret-change-in-prod',
-        signOptions: {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          expiresIn: (config.get<string>('JWT_EXPIRES_IN') ?? '15m') as any,
-        },
-      }),
+      useFactory: (config: ConfigService) => {
+        const secret = config.get<string>('JWT_SECRET');
+        if (!secret) throw new Error('JWT_SECRET environment variable is not set');
+        return {
+          secret,
+          signOptions: {
+            expiresIn: (config.get<string>('JWT_EXPIRES_IN') ?? '15m') as `${number}m`,
+          },
+        };
+      },
     }),
   ],
   controllers: [AuthController],

@@ -26,6 +26,7 @@ import { BelegeModule } from './modules/belege/belege.module';
 import { DatevModule } from './modules/datev/datev.module';
 import { BackupModule } from './modules/backup/backup.module';
 import { EmailModule } from './modules/email/email.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -43,7 +44,7 @@ import { HealthController } from './health.controller';
     SettingsModule, AuditModule, BenachrichtigungenModule,
     WiederkehrendModule, MahnungenModule, PdfModule,
     BelegeModule, DatevModule, BackupModule, EmailModule,
-    AuthModule, VertraegeModule,
+    DashboardModule, AuthModule, VertraegeModule,
   ],
   controllers: [HealthController],
   providers: [

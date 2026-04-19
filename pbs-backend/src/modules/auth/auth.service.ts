@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   UnauthorizedException,
   ConflictException,
   BadRequestException,
@@ -16,6 +17,8 @@ const BCRYPT_ROUNDS = 12;
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
@@ -92,15 +95,15 @@ export class AuthService {
     const payload = { sub: userId.toString(), email, rolle };
     const accessToken = this.jwt.sign(payload);
 
-    const refreshSecret = this.config.get<string>('JWT_SECRET') ?? 'pbs-dev-secret';
+    const refreshSecret = this.config.getOrThrow<string>('JWT_SECRET');
+    const refreshExpiresInSec = parseInt(this.config.get<string>('JWT_REFRESH_EXPIRES_IN') ?? '604800', 10);
     const refreshRaw = this.jwt.sign(payload, {
       secret: refreshSecret + '-refresh',
-      expiresIn: (this.config.get<string>('JWT_REFRESH_EXPIRES_IN') ?? '7d') as `${number}d`,
+      expiresIn: refreshExpiresInSec,
     });
 
     const hash = await bcrypt.hash(refreshRaw, 10);
-    const expiresIn = parseInt(this.config.get<string>('JWT_REFRESH_EXPIRES_IN') ?? '604800');
-    const expiresAt = new Date(Date.now() + expiresIn * 1000);
+    const expiresAt = new Date(Date.now() + refreshExpiresInSec * 1000);
 
     await this.prisma.refreshTokens.create({
       data: { user_id: userId, token_hash: hash, expires_at: expiresAt },

@@ -39,6 +39,8 @@ export class RechnungenFormularComponent {
   protected readonly formModell = linkedSignal(() => this.formularDaten());
   protected readonly wiederkehrendAktiv = signal(false);
   protected readonly wiederkehrendIntervall = signal('monatlich');
+  protected readonly eingabeModus = signal<'netto' | 'brutto'>('netto');
+  protected readonly beruehrt = signal<Record<string, boolean>>({});
 
   protected readonly rechnungForm = form(this.formModell, (schema) => {
     required(schema.empf, { message: 'Empfänger erforderlich' });
@@ -52,37 +54,16 @@ export class RechnungenFormularComponent {
              daten.positionen.every(p => p.bez?.trim() && p.gesamtpreis > 0));
   });
 
-  protected readonly validierungsFehler = computed(() => {
-    const daten = this.formularDaten();
-    const errors: string[] = [];
-    
-    if (!daten.empf?.trim()) errors.push('Empfänger ist erforderlich');
-    if (!daten.nr?.trim()) errors.push('Rechnungs-Nr. ist erforderlich');
-    
-    // Email validation
-    if (daten.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(daten.email)) {
-      errors.push('E-Mail-Adresse ist ungültig');
-    }
-    
-    // Position validation
-    daten.positionen.forEach((pos, index) => {
-      if (!pos.bez?.trim()) {
-        errors.push(`Position ${index + 1}: Bezeichnung fehlt`);
-      }
-      if (pos.gesamtpreis <= 0) {
-        errors.push(`Position ${index + 1}: Gesamtpreis muss größer als 0 sein`);
-      }
-    });
-    
-    return errors;
-  });
-
   readonly istGesperrt = computed(() => {
     const rechnung = this.bearbeiteteRechnung();
     return rechnung?.bezahlt === true;
   });
 
   protected readonly waehrungFormatieren = waehrungFormatieren;
+
+  protected beruehren(feld: string): void {
+    this.beruehrt.update(b => ({ ...b, [feld]: true }));
+  }
 
   protected onFeldChange(feld: keyof RechnungFormularDaten, event: Event): void {
     const wert = (event.target as HTMLInputElement).value;
@@ -120,8 +101,22 @@ export class RechnungenFormularComponent {
 
   protected onPositionGesamtpreisChange(index: number, event: Event): void {
     const pos = { ...this.formularDaten().positionen[index] };
-    pos.gesamtpreis = parseFloat((event.target as HTMLInputElement).value) || 0;
+    const eingabe = parseFloat((event.target as HTMLInputElement).value) || 0;
+    if (this.eingabeModus() === 'brutto') {
+      const mwst = this.formularDaten().mwst_satz ?? 19;
+      pos.gesamtpreis = Math.round((eingabe / (1 + mwst / 100)) * 100) / 100;
+    } else {
+      pos.gesamtpreis = eingabe;
+    }
     this.positionAktualisieren.emit({ index, position: pos });
+  }
+
+  protected gesamtpreisAnzeige(gesamtpreis: number): number {
+    if (this.eingabeModus() === 'brutto') {
+      const mwst = this.formularDaten().mwst_satz ?? 19;
+      return Math.round(gesamtpreis * (1 + mwst / 100) * 100) / 100;
+    }
+    return gesamtpreis;
   }
 
   // Auto-calc: stunden * einzelpreis → gesamtpreis

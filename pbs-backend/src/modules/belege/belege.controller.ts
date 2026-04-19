@@ -2,12 +2,13 @@ import { Controller, Get, Post, Delete, Patch, Body, Param, ParseIntPipe, Query,
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { BelegeService } from './belege.service';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('api/belege')
 export class BelegeController {
   constructor(private readonly service: BelegeService) {}
 
-  @Get() belegeLaden(@Query('jahr') jahr?: string) { return this.service.belegeLaden(jahr ? parseInt(jahr) : undefined); }
+  @Get() belegeLaden(@Query() pagination: PaginationDto, @Query('jahr') jahr?: string) { return this.service.belegeLaden(pagination, jahr ? parseInt(jahr) : undefined); }
   @Get('buchhaltung/:buchId') belegeFuerBuchung(@Param('buchId', ParseIntPipe) id: number) { return this.service.belegeFuerBuchung(id); }
   @Get(':id') belegLaden(@Param('id', ParseIntPipe) id: number) { return this.service.belegLaden(id); }
 

@@ -15,8 +15,29 @@
   <span class="count-hint">{{ sortierteListe().length }} Einträge</span>
 </div>
 
+@if (pendingDeleteId() !== null) {
+  <app-confirm-modal
+    titel="Rechnung löschen"
+    nachricht="Diese Rechnung wird unwiderruflich gelöscht. Fortfahren?"
+    bestaetigenLabel="Löschen"
+    (bestaetigt)="loeschenBestaetigt()"
+    (abgebrochen)="pendingDeleteId.set(null)"
+  />
+}
+@if (pendingBulkDelete().length > 0) {
+  <app-confirm-modal
+    titel="Rechnungen löschen"
+    [nachricht]="pendingBulkDelete().length + ' Rechnungen werden unwiderruflich gelöscht. Fortfahren?'"
+    bestaetigenLabel="Alle löschen"
+    (bestaetigt)="bulkLoeschenBestaetigt()"
+    (abgebrochen)="pendingBulkDelete.set([])"
+  />
+}
+
 @if (laedt()) {
-  <div class="loading-state">Lade Rechnungen…</div>
+  <div class="skeleton-liste" aria-label="Lade Rechnungen" role="status">
+    @for (i of [1,2,3,4,5,6]; track i) { <div class="skeleton-zeile"></div> }
+  </div>
 } @else if (rechnungen().length === 0) {
   <app-empty-state
     titel="Keine Rechnungen gefunden"
@@ -28,7 +49,7 @@
       <span class="bulk-aktionen__info">{{ ausgewaehlt().size }} ausgewählt</span>
       <button class="btn btn-sm btn-action--success" (click)="onBulkAlsGezahlt()">Als bezahlt markieren</button>
       <button class="btn btn-sm" (click)="onBulkCsvExport()">CSV Export</button>
-      <button class="btn btn-sm btn-action--danger" (click)="onBulkLoeschen()">Löschen</button>
+      <button class="btn btn-sm btn-action--danger" (click)="onBulkLoeschen()">{{ ausgewaehlt().size }} löschen</button>
       <button class="btn btn-sm" (click)="auswahlLeeren()">Abbrechen</button>
     </div>
   }
@@ -91,7 +112,7 @@
               @if (!rechnung.bezahlt) {
                 <button class="btn-action btn-action--success" (click)="alsGezahlt.emit(rechnung)">Bezahlt</button>
                 <button class="btn-action" (click)="bearbeiten.emit(rechnung)">Bearbeiten</button>
-                <button class="btn-action btn-action--danger" (click)="loeschen.emit(rechnung.id)">Löschen</button>
+                <button class="btn-action btn-action--danger" (click)="loeschenBestaetigen(rechnung.id!)">Löschen</button>
               }
               @if (rechnung.bezahlt) {
                 <span class="gobd-hint">Gesperrt</span>

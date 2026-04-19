@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"C:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\.claude\\\\agents\\\\\\\\\")",
+      "Bash(find '/c/Users/Schuh/Desktop/Entwicklung/PBS Angular NESTJS/pbs-backend/src/modules' -name \"*.controller.ts\" -type f -exec grep -l \"pdfView\\\\|pdf.*View\\\\|/pdf\" {} \\\\;)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Schuh\\Desktop\\Entwicklung\\PBS Angular NESTJS\\.claude\\agents",
+      "C:\\Users\\Schuh\\Desktop\\Entwicklung\\PBS Angular NESTJS\\pbs-backend\\src\\common"
+    ]
+  }
+}

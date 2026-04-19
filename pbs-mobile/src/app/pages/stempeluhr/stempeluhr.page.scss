@@ -38,15 +38,20 @@
 
 .uhr-card {
   margin: 1.5rem 1.25rem;
-  background: var(--surface);
+  background: var(--surface-glass);
+  backdrop-filter: var(--glass-blur-lg);
+  -webkit-backdrop-filter: var(--glass-blur-lg);
   border-radius: var(--radius-xl);
   padding: 2rem 1.5rem;
   text-align: center;
-  box-shadow: var(--shadow-md);
-  border: 2px solid var(--border);
-  transition: border-color var(--transition);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  border: 2px solid var(--border-glass);
+  transition: border-color var(--transition), box-shadow var(--transition);
 
-  &.aktiv { border-color: var(--success); }
+  &.aktiv {
+    border-color: var(--success);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(56, 161, 105, 0.15) inset, 0 0 32px var(--success-glow);
+  }
 }
 
 .uhr-status {
@@ -85,8 +90,11 @@
 .meldung {
   text-align: center;
   font-size: .875rem;
-  color: var(--primary);
-  background: var(--primary-light);
+  color: var(--primary-solid);
+  background: var(--primary-glass);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border: 1px solid rgba(255, 107, 53, 0.2);
   margin: 0 1.25rem;
   padding: .75rem;
   border-radius: var(--radius-md);
@@ -98,8 +106,12 @@
   left: 0;
   right: 0;
   display: flex;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
+  background: var(--surface-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--border-glass);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.06);
 
   .nav-item {
     flex: 1;
@@ -113,7 +125,7 @@
     font-weight: 500;
     transition: color var(--transition);
 
-    &.active { color: var(--primary); font-weight: 600; }
+    &.active { color: var(--primary-solid); font-weight: 600; }
     &:hover  { color: var(--gray-700); }
   }
 }

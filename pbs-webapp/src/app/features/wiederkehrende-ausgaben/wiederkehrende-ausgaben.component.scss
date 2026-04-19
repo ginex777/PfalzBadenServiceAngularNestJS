@@ -22,9 +22,16 @@
 .success-text { color: var(--success); }
 .inaktiv { opacity: 0.5; }
 .aktionen { white-space: nowrap; }
+.section-title { margin: 0; }
+.hint-inline { margin: 0; margin-left: 0.5rem; }
+.toolbar-end { display: flex; gap: 0.5rem; align-items: center; }
+.input-search { width: 180px; font-size: 12px; }
+
 .btn-action { background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 2px 8px; font-size: 11px; cursor: pointer; margin-right: 2px;
   &:hover { background: var(--gray-100); }
   &-danger { color: var(--danger); border-color: var(--danger-light);
     &:hover { background: var(--danger-light); }
   }
 }
+
+.btn-group { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }

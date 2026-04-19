@@ -7,6 +7,7 @@ import { AuditService } from '../../modules/audit/audit.service';
 const mockPrisma = {
   kunden: {
     findMany: jest.fn(),
+    count: jest.fn(),
     findUnique: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -14,6 +15,7 @@ const mockPrisma = {
   },
   rechnungen: { count: jest.fn() },
   angebote: { count: jest.fn() },
+  $transaction: jest.fn(),
 };
 
 const mockAudit = { protokollieren: jest.fn() };
@@ -37,12 +39,12 @@ describe('KundenService', () => {
   describe('alleKundenLaden()', () => {
     it('gibt gemappte Kunden zurück (BigInt → Number)', async () => {
       const row = { id: 3n, name: 'Müller GmbH', email: 'mueller@test.de', strasse: null, ort: null, tel: null, notiz: null };
-      mockPrisma.kunden.findMany.mockResolvedValue([row]);
+      mockPrisma.$transaction.mockResolvedValue([[row], 1]);
 
-      const result = await service.alleKundenLaden();
+      const result = await service.alleKundenLaden({ page: 1, limit: 100 });
 
-      expect(result[0].id).toBe(3);
-      expect(result[0].name).toBe('Müller GmbH');
+      expect(result.data[0].id).toBe(3);
+      expect(result.data[0].name).toBe('Müller GmbH');
     });
   });
 

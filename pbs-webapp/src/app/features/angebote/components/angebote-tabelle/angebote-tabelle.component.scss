@@ -1,3 +1,5 @@
+.select-xs { width: auto; font-size: 11px; padding: 2px 6px; }
+
 .filter-bar {
   display: flex;
   gap: 0.5rem;
@@ -18,14 +20,37 @@
 
   &:hover { background: var(--gray-100); }
 
-  &.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  &.active { background: var(--primary); color: var(--gray-0); border-color: var(--primary); }
   &--warning.active { background: var(--warning); border-color: var(--warning); }
   &--success.active { background: var(--success); border-color: var(--success); }
   &--danger.active { background: var(--danger); border-color: var(--danger); }
 }
 
 .count-hint { margin-left: auto; font-size: 12px; color: var(--gray-400); }
-.loading-state { padding: 2rem; text-align: center; color: var(--gray-400); font-size: 14px; }
+
+.skeleton-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.skeleton-zeile {
+  height: 44px;
+  background: var(--gray-100);
+  border-radius: var(--radius-sm);
+  animation: skel-puls 1.5s ease-in-out infinite;
+  &:nth-child(2) { animation-delay: 0.1s; }
+  &:nth-child(3) { animation-delay: 0.2s; }
+  &:nth-child(4) { animation-delay: 0.3s; }
+  &:nth-child(5) { animation-delay: 0.4s; }
+  &:nth-child(6) { animation-delay: 0.5s; }
+}
+
+@keyframes skel-puls {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
 
 .table-wrapper { overflow-x: auto; }
 

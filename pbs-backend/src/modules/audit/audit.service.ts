@@ -1,28 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()
 export class AuditService {
+  private readonly logger = new Logger(AuditService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
-  async protokollieren(
-    tabelle: string,
-    datensatzId: bigint | number,
-    aktion: 'CREATE' | 'UPDATE' | 'DELETE',
-    altWert?: unknown,
-    neuWert?: unknown,
-    nutzer?: string,
-    nutzerName?: string,
+  async log(
+    table: string,
+    recordId: bigint | number,
+    action: 'CREATE' | 'UPDATE' | 'DELETE',
+    oldValue?: unknown,
+    newValue?: unknown,
+    user?: string,
+    userName?: string,
   ): Promise<void> {
     await this.prisma.auditLog.create({
       data: {
-        tabelle,
-        datensatz_id: BigInt(datensatzId),
-        aktion,
-        alt_wert: altWert ? (altWert as object) : undefined,
-        neu_wert: neuWert ? (neuWert as object) : undefined,
-        nutzer: nutzer ?? null,
-        nutzer_name: nutzerName ?? null,
+        tabelle: table,
+        datensatz_id: BigInt(recordId),
+        aktion: action,
+        alt_wert: oldValue ? (oldValue as object) : undefined,
+        neu_wert: newValue ? (newValue as object) : undefined,
+        nutzer: user ?? null,
+        nutzer_name: userName ?? null,
       },
     });
   }

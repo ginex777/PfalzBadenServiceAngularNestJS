@@ -1,8 +1,9 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   z-index: 200;
   animation: fadeIn 0.15s ease;
 }
@@ -13,12 +14,14 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 201;
-  background: var(--surface);
+  background: var(--surface-glass);
+  backdrop-filter: var(--glass-blur-lg);
+  -webkit-backdrop-filter: var(--glass-blur-lg);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-xl), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
   width: calc(100% - 32px);
   max-width: 420px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-glass);
   animation: slideUp 0.2s ease;
 
   &__header {
@@ -47,8 +50,8 @@
     justify-content: flex-end;
     gap: 8px;
     padding: 14px 20px;
-    border-top: 1px solid var(--border);
-    background: var(--gray-50);
+    border-top: 1px solid var(--border-glass);
+    background: rgba(255, 255, 255, 0.04);
     border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   }
 }

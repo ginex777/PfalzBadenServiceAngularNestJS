@@ -1,14 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class HausmeisterService {
+  private readonly logger = new Logger(HausmeisterService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
-  async alleEinsaetzeLaden() {
-    const rows = await this.prisma.hausmeisterEinsaetze.findMany({ orderBy: { datum: 'desc' } });
-    return rows.map(e => this.mapEinsatz(e));
+  async alleEinsaetzeLaden(pagination: PaginationDto): Promise<PaginatedResponse<Record<string, unknown>>> {
+    const { page, limit } = pagination;
+    const skip = (page - 1) * limit;
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.hausmeisterEinsaetze.findMany({ orderBy: { datum: 'desc' }, skip, take: limit }),
+      this.prisma.hausmeisterEinsaetze.count(),
+    ]);
+    return {
+      data: rows.map(e => this.mapEinsatz(e)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async einsaetzeFuerMitarbeiterLaden(mitarbeiterId: number) {

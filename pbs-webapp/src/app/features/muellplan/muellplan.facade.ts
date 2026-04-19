@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { MuellplanService } from './muellplan.service';
 import { BrowserService } from '../../core/services/browser.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Objekt, MuellplanTermin, MuellplanVorlage, Kunde } from '../../core/models';
 import { MuellplanFormularDaten, TerminFormularDaten, VorlageFormularDaten, LEERES_OBJEKT_FORMULAR, LEERER_TERMIN, LEERE_VORLAGE } from './muellplan.models';
 import { parseVorlageText } from './muellplan.utils';
@@ -9,9 +10,9 @@ import { parseVorlageText } from './muellplan.utils';
 export class MuellplanFacade {
   private readonly service = inject(MuellplanService);
   private readonly browser = inject(BrowserService);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly objekte = signal<Objekt[]>([]);
   readonly vorlagen = signal<MuellplanVorlage[]>([]);
   readonly kunden = signal<Kunde[]>([]);
@@ -71,7 +72,7 @@ export class MuellplanFacade {
         this.kunden.set(kunden);
         this.laedt.set(false);
       },
-      error: () => { this.fehler.set('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
     });
     this.service.anstehendeTermineLaden().subscribe({
       next: t => this.anstehendeTermine.set(t),
@@ -100,7 +101,7 @@ export class MuellplanFacade {
 
   objektSpeichern(): void {
     const daten = this.objektFormularDaten();
-    if (!daten.name) { this.fehler.set('Bitte Name eingeben.'); return; }
+    if (!daten.name) { this.toast.error('Bitte Name eingeben.'); return; }
     const editId = this.bearbeitetesObjekt()?.id;
     const payload: Partial<Objekt> = { ...daten, kunden_id: daten.kunden_id ?? undefined };
     const anfrage = editId ? this.service.objektAktualisieren(editId, payload) : this.service.objektErstellen(payload);
@@ -110,7 +111,7 @@ export class MuellplanFacade {
         else this.objekte.update(list => [...list, gespeichert]);
         this.objektFormularSchliessen();
       },
-      error: () => this.fehler.set('Objekt konnte nicht gespeichert werden.'),
+      error: () => this.toast.error('Objekt konnte nicht gespeichert werden.'),
     });
   }
 
@@ -126,7 +127,7 @@ export class MuellplanFacade {
         if (this.aktuellesObjekt()?.id === id) { this.aktuellesObjekt.set(null); this.termine.set([]); }
         this.loeschKandidat.set(null);
       },
-      error: () => { this.fehler.set('Objekt konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
+      error: () => { this.toast.error('Objekt konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
     });
   }
 
@@ -143,7 +144,7 @@ export class MuellplanFacade {
   terminSpeichern(): void {
     const daten = this.terminFormularDaten();
     const objekt = this.aktuellesObjekt();
-    if (!objekt || !daten.muellart || !daten.abholung) { this.fehler.set('Müllart und Datum sind Pflichtfelder.'); return; }
+    if (!objekt || !daten.muellart || !daten.abholung) { this.toast.error('Müllart und Datum sind Pflichtfelder.'); return; }
     const editId = this.bearbeiteterTermin()?.id;
     const payload: Partial<MuellplanTermin> = { ...daten, objekt_id: objekt.id, erledigt: false };
     const anfrage = editId ? this.service.terminAktualisieren(editId, payload) : this.service.terminErstellen(payload);
@@ -153,14 +154,14 @@ export class MuellplanFacade {
         else this.termine.update(list => [...list, gespeichert]);
         this.terminFormularSchliessen();
       },
-      error: () => this.fehler.set('Termin konnte nicht gespeichert werden.'),
+      error: () => this.toast.error('Termin konnte nicht gespeichert werden.'),
     });
   }
 
   terminLoeschen(id: number): void {
     this.service.terminLoeschen(id).subscribe({
       next: () => this.termine.update(list => list.filter(t => t.id !== id)),
-      error: () => this.fehler.set('Termin konnte nicht gelöscht werden.'),
+      error: () => this.toast.error('Termin konnte nicht gelöscht werden.'),
     });
   }
 
@@ -191,26 +192,26 @@ export class MuellplanFacade {
 
   vorlageSpeichern(): void {
     const daten = this.vorlageFormularDaten();
-    if (!daten.name || !daten.text) { this.fehler.set('Name und Abfuhrplan-Text sind Pflichtfelder.'); return; }
+    if (!daten.name || !daten.text) { this.toast.error('Name und Abfuhrplan-Text sind Pflichtfelder.'); return; }
     const payload: Partial<MuellplanVorlage> = { name: daten.name, inhalt: daten.text };
     this.service.vorlageErstellen(payload).subscribe({
       next: gespeichert => {
         this.vorlagen.update(list => [...list, gespeichert]);
         this.vorlageFormularSchliessen();
       },
-      error: () => this.fehler.set('Vorlage konnte nicht gespeichert werden.'),
+      error: () => this.toast.error('Vorlage konnte nicht gespeichert werden.'),
     });
   }
 
   vorlageLoeschen(id: number): void {
     this.service.vorlageLoeschen(id).subscribe({
       next: () => this.vorlagen.update(list => list.filter(v => v.id !== id)),
-      error: () => this.fehler.set('Vorlage konnte nicht gelöscht werden.'),
+      error: () => this.toast.error('Vorlage konnte nicht gelöscht werden.'),
     });
   }
 
   vorlageAnwendenOeffnen(): void {
-    if (!this.aktuellesObjekt()) { this.fehler.set('Bitte zuerst ein Objekt auswählen.'); return; }
+    if (!this.aktuellesObjekt()) { this.toast.error('Bitte zuerst ein Objekt auswählen.'); return; }
     this.vorlageAnwendenId.set(this.aktuellesObjekt()?.vorlage_id ?? null);
     this.vorlageAnwendenSichtbar.set(true);
   }
@@ -220,17 +221,15 @@ export class MuellplanFacade {
   vorlageAnwenden(): void {
     const vorlageId = this.vorlageAnwendenId();
     const objekt = this.aktuellesObjekt();
-    if (!objekt || !vorlageId) { this.fehler.set('Bitte eine Vorlage auswählen.'); return; }
+    if (!objekt || !vorlageId) { this.toast.error('Bitte eine Vorlage auswählen.'); return; }
     const vorlage = this.vorlagen().find(v => v.id === vorlageId);
-    if (!vorlage?.inhalt) { this.fehler.set('Vorlage hat keinen Inhalt.'); return; }
+    if (!vorlage?.inhalt) { this.toast.error('Vorlage hat keinen Inhalt.'); return; }
 
-    // Parse vorlage text and create termine
     const parsed = parseVorlageText(vorlage.inhalt, new Date().getFullYear());
     const requests = parsed.map(t =>
       this.service.terminErstellen({ objekt_id: objekt.id, muellart: t.muellart, farbe: t.farbe, abholung: t.datum, erledigt: false })
     );
 
-    // Update objekt with vorlage_id
     this.service.objektAktualisieren(objekt.id, { ...objekt, vorlage_id: vorlageId }).subscribe({
       next: aktualisiert => {
         this.aktuellesObjekt.set(aktualisiert);
@@ -238,7 +237,6 @@ export class MuellplanFacade {
       },
     });
 
-    // Create all termine
     let created = 0;
     const newTermine: MuellplanTermin[] = [];
     if (!requests.length) { this.vorlageAnwendenSchliessen(); return; }
@@ -252,7 +250,7 @@ export class MuellplanFacade {
             this.vorlageAnwendenSchliessen();
           }
         },
-        error: () => this.fehler.set('Einige Termine konnten nicht erstellt werden.'),
+        error: () => this.toast.error('Einige Termine konnten nicht erstellt werden.'),
       });
     });
   }
@@ -271,7 +269,7 @@ export class MuellplanFacade {
 
   // ── Termine kopieren ──────────────────────────────────────────────────────
   kopierenModalOeffnen(): void {
-    if (!this.aktuellesObjekt()) { this.fehler.set('Bitte zuerst ein Objekt auswählen.'); return; }
+    if (!this.aktuellesObjekt()) { this.toast.error('Bitte zuerst ein Objekt auswählen.'); return; }
     this.kopierenVonObjektId.set(null);
     this.kopierenModalSichtbar.set(true);
   }
@@ -281,7 +279,7 @@ export class MuellplanFacade {
   termineKopierenAusfuehren(): void {
     const vonId = this.kopierenVonObjektId();
     const zielObjekt = this.aktuellesObjekt();
-    if (!vonId || !zielObjekt) { this.fehler.set('Bitte ein Quell-Objekt auswählen.'); return; }
+    if (!vonId || !zielObjekt) { this.toast.error('Bitte ein Quell-Objekt auswählen.'); return; }
     this.service.termineKopieren(vonId, zielObjekt.id).subscribe({
       next: () => {
         this.service.termineLaden(zielObjekt.id).subscribe({
@@ -290,14 +288,14 @@ export class MuellplanFacade {
         });
         this.kopierenModalSchliessen();
       },
-      error: () => this.fehler.set('Termine konnten nicht kopiert werden.'),
+      error: () => this.toast.error('Termine konnten nicht kopiert werden.'),
     });
   }
 
   monatsabschlussPdfGenerieren(): void {
     const objekt = this.aktuellesObjekt();
-    if (!objekt) { this.fehler.set('Bitte zuerst ein Objekt auswählen.'); return; }
-    this.service.monatsabschlussPdfOeffnen(objekt.id).catch(() => this.fehler.set('PDF konnte nicht erstellt werden.'));
+    if (!objekt) { this.toast.error('Bitte zuerst ein Objekt auswählen.'); return; }
+    this.service.monatsabschlussPdfOeffnen(objekt.id).catch(() => this.toast.error('PDF konnte nicht erstellt werden.'));
   }
 
   // ── Vorlage PDF ───────────────────────────────────────────────────────────
@@ -306,7 +304,7 @@ export class MuellplanFacade {
       next: res => {
         this.vorlagen.update(list => list.map(v => v.id === vorlageId ? { ...v, pdf_name: res.pdf_name } : v));
       },
-      error: () => this.fehler.set('PDF konnte nicht hochgeladen werden.'),
+      error: () => this.toast.error('PDF konnte nicht hochgeladen werden.'),
     });
   }
 

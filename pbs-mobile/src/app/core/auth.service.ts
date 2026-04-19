@@ -2,10 +2,9 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Preferences } from '@capacitor/preferences';
 import { tap } from 'rxjs/operators';
-import { from, switchMap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
-// Change to your production API URL before building
-export const API_BASE = 'http://localhost:3000';
+export const API_BASE = environment.apiBase;
 
 export interface AuthUser {
   email: string;
@@ -13,36 +12,47 @@ export interface AuthUser {
   mitarbeiterId?: number;
 }
 
+function decodeJwtSub(token: string): number | null {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return payload.sub ? Number(payload.sub) : null;
+  } catch { return null; }
+}
+
 @Injectable({ providedIn: 'root' })
 export class MobileAuthService {
-  private readonly http = new HttpClient(null as any); // injected via DI
-
   readonly accessToken = signal<string | null>(null);
   readonly currentUser = signal<AuthUser | null>(null);
   readonly isLoggedIn = computed(() => !!this.accessToken());
 
-  constructor(private _http: HttpClient) {
-    this._restoreSession();
-  }
+  constructor(private readonly http: HttpClient) {}
 
-  private async _restoreSession() {
+  async restoreSession(): Promise<void> {
     const { value: token } = await Preferences.get({ key: 'access_token' });
     const { value: userRaw } = await Preferences.get({ key: 'auth_user' });
     if (token) this.accessToken.set(token);
     if (userRaw) {
-      try { this.currentUser.set(JSON.parse(userRaw)); } catch { /**/ }
+      try {
+        const user = JSON.parse(userRaw) as AuthUser;
+        if (!user.mitarbeiterId && token) user.mitarbeiterId = decodeJwtSub(token) ?? undefined;
+        this.currentUser.set(user);
+      } catch { /**/ }
     }
   }
 
   login(email: string, password: string) {
-    return this._http.post<{ accessToken: string; refreshToken: string; email: string; rolle: string }>(
+    return this.http.post<{ accessToken: string; refreshToken: string; email: string; rolle: string }>(
       `${API_BASE}/api/auth/login`,
       { email, password },
     ).pipe(
       tap(async res => {
         await Preferences.set({ key: 'access_token', value: res.accessToken });
         await Preferences.set({ key: 'refresh_token', value: res.refreshToken });
-        const user: AuthUser = { email: res.email, rolle: res.rolle };
+        const user: AuthUser = {
+          email: res.email,
+          rolle: res.rolle,
+          mitarbeiterId: decodeJwtSub(res.accessToken) ?? undefined,
+        };
         await Preferences.set({ key: 'auth_user', value: JSON.stringify(user) });
         this.accessToken.set(res.accessToken);
         this.currentUser.set(user);
@@ -53,7 +63,7 @@ export class MobileAuthService {
   async logout() {
     const { value: refresh } = await Preferences.get({ key: 'refresh_token' });
     if (refresh) {
-      this._http.post(`${API_BASE}/api/auth/logout`, { refreshToken: refresh }).subscribe();
+      this.http.post(`${API_BASE}/api/auth/logout`, { refreshToken: refresh }).subscribe();
     }
     await Preferences.remove({ key: 'access_token' });
     await Preferences.remove({ key: 'refresh_token' });

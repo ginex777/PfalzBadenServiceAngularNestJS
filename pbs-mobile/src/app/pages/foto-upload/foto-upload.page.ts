@@ -2,7 +2,16 @@ import { Component, signal, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { API_BASE } from '../../core/auth.service';
+import { environment } from '../../../environments/environment';
+
+
+function base64ToBlob(dataUrl: string, mimeType = 'image/jpeg'): Blob {
+  const byteString = atob(dataUrl.split(',')[1]);
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+  return new Blob([ab], { type: mimeType });
+}
 
 @Component({
   selector: 'app-foto-upload',
@@ -57,29 +66,22 @@ export class FotoUploadPage {
     this.laedt.set(true);
     this.fehler.set('');
 
-    // Convert base64 to Blob and send as FormData
-    fetch(b64)
-      .then(r => r.blob())
-      .then(blob => {
-        const form = new FormData();
-        form.append('file', blob, `beleg_${Date.now()}.jpg`);
-        return fetch(`${API_BASE}/api/belege/upload`, {
-          method: 'POST',
-          body: form,
-          headers: { Authorization: `Bearer ${sessionStorage.getItem('pbs-access-token') ?? ''}` },
-        });
-      })
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = base64ToBlob(b64);
+    const form = new FormData();
+    form.append('file', blob, `beleg_${Date.now()}.jpg`);
+
+    this.http.post(`${environment.apiBase}/api/belege/upload`, form).subscribe({
+      next: () => {
         this.laedt.set(false);
         this.vorschau.set(null);
         this.meldung.set('Beleg erfolgreich hochgeladen!');
         setTimeout(() => this.meldung.set(''), 4000);
-      })
-      .catch(() => {
+      },
+      error: () => {
         this.laedt.set(false);
         this.fehler.set('Upload fehlgeschlagen. Bitte erneut versuchen.');
-      });
+      },
+    });
   }
 
   verwerfen() {

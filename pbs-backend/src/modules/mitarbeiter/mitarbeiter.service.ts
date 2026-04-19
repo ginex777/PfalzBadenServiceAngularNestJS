@@ -1,14 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class MitarbeiterService {
+  private readonly logger = new Logger(MitarbeiterService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
-  async alleMitarbeiterLaden() {
-    const rows = await this.prisma.mitarbeiter.findMany({ orderBy: { name: 'asc' } });
-    return rows.map(m => ({ ...m, id: Number(m.id), stundenlohn: Number(m.stundenlohn) }));
+  async alleMitarbeiterLaden(pagination: PaginationDto): Promise<PaginatedResponse<Record<string, unknown>>> {
+    const { page, limit } = pagination;
+    const skip = (page - 1) * limit;
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.mitarbeiter.findMany({ orderBy: { name: 'asc' }, skip, take: limit }),
+      this.prisma.mitarbeiter.count(),
+    ]);
+    return {
+      data: rows.map(m => ({ ...m, id: Number(m.id), stundenlohn: Number(m.stundenlohn) })),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async mitarbeiterErstellen(d: Record<string, unknown>) {

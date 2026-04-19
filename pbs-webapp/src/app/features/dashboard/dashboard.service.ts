@@ -1,10 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { forkJoin, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../../core/api/api.service';
 import {
   Rechnung, Angebot, MuellplanTermin,
   Benachrichtigung, BackupInfo, BuchhaltungJahr, HausmeisterEinsatz,
 } from '../../core/models';
+import { DashboardAktivitaet } from './dashboard.models';
 
 export interface DashboardRohdaten {
   rechnungen: Rechnung[];
@@ -18,6 +20,11 @@ export interface DashboardRohdaten {
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   private readonly api = inject(ApiService);
+  private readonly http = inject(HttpClient);
+
+  aktivitaetenLaden(): Observable<DashboardAktivitaet[]> {
+    return this.http.get<DashboardAktivitaet[]>('/api/dashboard/activity');
+  }
 
   rohdatenLaden(jahr: number): Observable<DashboardRohdaten> {
     return new Observable(observer => {

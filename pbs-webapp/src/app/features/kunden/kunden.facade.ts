@@ -16,7 +16,6 @@ export class KundenFacade {
   private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly kunden = signal<Kunde[]>([]);
   readonly umsaetze = signal<KundeUmsatz[]>([]);
   readonly suchbegriff = signal('');
@@ -68,7 +67,6 @@ export class KundenFacade {
 
   ladeDaten(): void {
     this.laedt.set(true);
-    this.fehler.set(null);
     this.service.allesDatenLaden().subscribe({
       next: ({ kunden, umsaetze, rechnungen }) => {
         this.kunden.set(kunden);
@@ -77,7 +75,7 @@ export class KundenFacade {
         this.laedt.set(false);
       },
       error: () => {
-        this.fehler.set('Kunden konnten nicht geladen werden.');
+        this.toast.error('Kunden konnten nicht geladen werden.');
         this.laedt.set(false);
       },
     });
@@ -103,7 +101,6 @@ export class KundenFacade {
         this.bearbeitungAbbrechen();
       },
       error: () => {
-        this.fehler.set('Kunde konnte nicht gespeichert werden.');
         this.toast.error('Kunde konnte nicht gespeichert werden.');
       },
     });
@@ -137,7 +134,6 @@ export class KundenFacade {
         this.toast.success('Kunde gelöscht.');
       },
       error: () => {
-        this.fehler.set('Kunde konnte nicht gelöscht werden.');
         this.toast.error('Kunde konnte nicht gelöscht werden.');
         this.loeschKandidat.set(null);
       },

@@ -18,6 +18,7 @@
 }
 .formular-titel { font-size: 15px; font-weight: 600; margin-bottom: 1rem; }
 .form-field--checkbox { display: flex; flex-direction: column; justify-content: flex-end; }
+.form-aktionen { display: flex; gap: 0.5rem; margin-top: 1rem; align-items: center; }
 .alert { padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem; font-size: 13px;
   &--danger { background: var(--danger-light); color: #991b1b; border: 1px solid #fca5a5; }
 }

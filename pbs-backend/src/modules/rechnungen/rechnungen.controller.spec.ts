@@ -28,10 +28,10 @@ describe('RechnungenController', () => {
 
   describe('alleRechnungenLaden()', () => {
     it('delegiert an Service und gibt Ergebnis zurück', async () => {
-      const rechnungen = [{ id: 1, nr: 'R-001', empf: 'Test', bezahlt: false, brutto: 100 }];
+      const rechnungen = { data: [{ id: 1, nr: 'R-001', empf: 'Test', bezahlt: false, brutto: 100 }], total: 1, page: 1, limit: 100, totalPages: 1 };
       mockService.alleRechnungenLaden.mockResolvedValue(rechnungen);
 
-      const result = await controller.alleRechnungenLaden();
+      const result = await controller.alleRechnungenLaden({ page: 1, limit: 100 });
 
       expect(result).toBe(rechnungen);
       expect(mockService.alleRechnungenLaden).toHaveBeenCalledTimes(1);

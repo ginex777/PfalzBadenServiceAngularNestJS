@@ -1,10 +1,6 @@
 <div class="page-wrap">
 <app-page-title titel="Mitarbeiter" untertitel="Mitarbeiterverwaltung und Stundenerfassung" />
 
-@if (facade.fehler()) {
-  <div class="alert alert--danger">{{ facade.fehler() }}</div>
-}
-
 @if (!facade.aktiverMitarbeiter()) {
   <div class="toolbar">
     <span class="toolbar__info">{{ facade.mitarbeiter().length }} Mitarbeiter</span>

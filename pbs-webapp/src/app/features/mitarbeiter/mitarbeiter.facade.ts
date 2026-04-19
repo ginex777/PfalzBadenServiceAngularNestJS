@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { MitarbeiterService } from './mitarbeiter.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Mitarbeiter, MitarbeiterStunden } from '../../core/models';
 import {
   MitarbeiterFormularDaten, StundenFormularDaten, StundenStatistik,
@@ -19,9 +20,9 @@ interface Stempel {
 @Injectable({ providedIn: 'root' })
 export class MitarbeiterFacade {
   private readonly service = inject(MitarbeiterService);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly mitarbeiter = signal<Mitarbeiter[]>([]);
   readonly aktiverMitarbeiter = signal<Mitarbeiter | null>(null);
   readonly stunden = signal<MitarbeiterStunden[]>([]);
@@ -60,7 +61,7 @@ export class MitarbeiterFacade {
     this.laedt.set(true);
     this.service.alleLaden().subscribe({
       next: ma => { this.mitarbeiter.set(ma); this.laedt.set(false); },
-      error: () => { this.fehler.set('Mitarbeiter konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('Mitarbeiter konnten nicht geladen werden.'); this.laedt.set(false); },
     });
   }
 
@@ -77,7 +78,7 @@ export class MitarbeiterFacade {
 
   speichern(): void {
     const daten = this.formularDaten();
-    if (!daten.name) { this.fehler.set('Bitte Name eingeben.'); return; }
+    if (!daten.name) { this.toast.error('Bitte Name eingeben.'); return; }
     const editId = this.bearbeiteterMitarbeiter()?.id;
     const anfrage = editId ? this.service.aktualisieren(editId, daten) : this.service.erstellen(daten);
     anfrage.subscribe({
@@ -86,7 +87,7 @@ export class MitarbeiterFacade {
         else this.mitarbeiter.update(list => [...list, gespeichert]);
         this.formularSchliessen();
       },
-      error: () => this.fehler.set('Mitarbeiter konnte nicht gespeichert werden.'),
+      error: () => this.toast.error('Mitarbeiter konnte nicht gespeichert werden.'),
     });
   }
 
@@ -110,7 +111,7 @@ export class MitarbeiterFacade {
         if (this.aktiverMitarbeiter()?.id === id) this.stundenSchliessen();
         this.loeschKandidat.set(null);
       },
-      error: () => { this.fehler.set('Mitarbeiter konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
+      error: () => { this.toast.error('Mitarbeiter konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
     });
   }
 
@@ -121,30 +122,29 @@ export class MitarbeiterFacade {
     this.stundenLaedt.set(true);
     this.stempelLaedt.set(true);
     this.stundenFormular.set({ ...LEERES_STUNDEN_FORMULAR, datum: new Date().toISOString().slice(0, 10) });
-    
-    // Load both stunden and stempel data
+
     this.service.stundenLaden(id).subscribe({
       next: s => { this.stunden.set(s); this.stundenLaedt.set(false); },
       error: () => { this.stunden.set([]); this.stundenLaedt.set(false); },
     });
-    
+
     this.service.zeiterfassungLaden(id).subscribe({
       next: s => { this.stempelEintraege.set(s); this.stempelLaedt.set(false); },
       error: () => { this.stempelEintraege.set([]); this.stempelLaedt.set(false); },
     });
   }
 
-  stundenSchliessen(): void { 
-    this.aktiverMitarbeiter.set(null); 
-    this.stunden.set([]); 
-    this.stempelEintraege.set([]); 
+  stundenSchliessen(): void {
+    this.aktiverMitarbeiter.set(null);
+    this.stunden.set([]);
+    this.stempelEintraege.set([]);
   }
 
   stundenEintragen(): void {
     const ma = this.aktiverMitarbeiter();
     if (!ma) return;
     const f = this.stundenFormular();
-    if (!f.datum || !f.stunden) { this.fehler.set('Datum und Stunden sind Pflichtfelder.'); return; }
+    if (!f.datum || !f.stunden) { this.toast.error('Datum und Stunden sind Pflichtfelder.'); return; }
     const rate = f.lohnSatz || ma.stundenlohn;
     const grundlohn = Math.round(f.stunden * rate * 100) / 100;
     const zuschlag = Math.round(grundlohn * f.zuschlagProzent / 100 * 100) / 100;
@@ -157,7 +157,7 @@ export class MitarbeiterFacade {
         this.stunden.update(list => [s, ...list]);
         this.stundenFormular.set({ ...LEERES_STUNDEN_FORMULAR, datum: f.datum });
       },
-      error: () => this.fehler.set('Stunden konnten nicht eingetragen werden.'),
+      error: () => this.toast.error('Stunden konnten nicht eingetragen werden.'),
     });
   }
 
@@ -177,7 +177,7 @@ export class MitarbeiterFacade {
     if (id === null) return;
     this.service.stundenLoeschen(id).subscribe({
       next: () => { this.stunden.update(list => list.filter(s => s.id !== id)); this.loeschStundenKandidat.set(null); },
-      error: () => { this.fehler.set('Stunden konnten nicht gelöscht werden.'); this.loeschStundenKandidat.set(null); },
+      error: () => { this.toast.error('Stunden konnten nicht gelöscht werden.'); this.loeschStundenKandidat.set(null); },
     });
   }
 
@@ -192,35 +192,33 @@ export class MitarbeiterFacade {
   // ── PDF Stundenabrechnung ─────────────────────────────────────────────────
   abrechnungPdfGenerieren(): void {
     const ma = this.aktiverMitarbeiter();
-    if (!ma) { this.fehler.set('Kein Mitarbeiter ausgewählt.'); return; }
-    if (!this.stunden().length) { this.fehler.set('Keine Stunden vorhanden.'); return; }
-    this.service.abrechnungPdfOeffnen(ma.id).catch(() => this.fehler.set('PDF konnte nicht erstellt werden.'));
+    if (!ma) { this.toast.error('Kein Mitarbeiter ausgewählt.'); return; }
+    if (!this.stunden().length) { this.toast.error('Keine Stunden vorhanden.'); return; }
+    this.service.abrechnungPdfOeffnen(ma.id).catch(() => this.toast.error('PDF konnte nicht erstellt werden.'));
   }
 
   // ── Mobile Stempeluhr Integration ─────────────────────────────────────────
   stempelStart(notiz?: string): void {
     const ma = this.aktiverMitarbeiter();
-    if (!ma) { this.fehler.set('Kein Mitarbeiter ausgewählt.'); return; }
-    
+    if (!ma) { this.toast.error('Kein Mitarbeiter ausgewählt.'); return; }
+
     this.service.stempelStart(ma.id, notiz).subscribe({
       next: stempel => {
         this.stempelEintraege.update(list => [stempel, ...list]);
-        this.fehler.set(null);
       },
-      error: () => this.fehler.set('Stempel konnte nicht gestartet werden.'),
+      error: () => this.toast.error('Stempel konnte nicht gestartet werden.'),
     });
   }
 
   stempelStop(): void {
     const ma = this.aktiverMitarbeiter();
-    if (!ma) { this.fehler.set('Kein Mitarbeiter ausgewählt.'); return; }
-    
+    if (!ma) { this.toast.error('Kein Mitarbeiter ausgewählt.'); return; }
+
     this.service.stempelStop(ma.id).subscribe({
       next: stempel => {
         this.stempelEintraege.update(list => list.map(s => s.id === stempel.id ? stempel : s));
-        this.fehler.set(null);
       },
-      error: () => this.fehler.set('Stempel konnte nicht gestoppt werden.'),
+      error: () => this.toast.error('Stempel konnte nicht gestoppt werden.'),
     });
   }
 
@@ -233,7 +231,7 @@ export class MitarbeiterFacade {
     const heute = new Date().toISOString().slice(0, 10);
     const heuteEintraege = eintraege.filter(s => s.start.slice(0, 10) === heute);
     const heuteMinuten = heuteEintraege.reduce((sum, s) => sum + (s.dauer_minuten || 0), 0);
-    
+
     return {
       heuteStunden: Math.round(heuteMinuten / 60 * 100) / 100,
       heuteEintraege: heuteEintraege.length,

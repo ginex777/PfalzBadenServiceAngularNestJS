@@ -8,11 +8,6 @@
     />
   </div>
 
-  <!-- Fehler -->
-  @if (facade.fehler()) {
-    <div class="fehler-banner">{{ facade.fehler() }}</div>
-  }
-
   <!-- Formular -->
   <app-kunden-formular
     [bearbeiteterKunde]="facade.bearbeiteterKunde()"
@@ -78,13 +73,12 @@
   <!-- Sammel-Mahnung Modal -->
   @if (facade.sammelMahnungSichtbar()) {
     <div class="modal-overlay" (click)="facade.sammelMahnungSchliessen()">
-      <div class="modal" style="max-width:580px" (click)="$event.stopPropagation()">
-        <h3 style="margin-bottom:0.75rem;color:var(--danger)">Sammel-Mahnung</h3>
-        <textarea class="form-input" rows="12" [value]="facade.sammelMahnungText()" readonly
-          style="font-size:12px;font-family:monospace;resize:vertical"></textarea>
-        <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h3 class="modal-heading">Sammel-Mahnung</h3>
+        <textarea class="form-input mahnung-textarea" rows="12" [value]="facade.sammelMahnungText()" readonly></textarea>
+        <div class="modal-footer">
           @if (facade.sammelMahnungEmail()) {
-            <a class="btn btn-danger" style="text-decoration:none"
+            <a class="btn btn-danger link-btn"
               [href]="'https://outlook.office365.com/mail/deeplink/compose?to=' + facade.sammelMahnungEmail() + '&subject=' + facade.sammelMahnungBetreff() + '&body=' + facade.sammelMahnungText()"
               target="_blank">Outlook öffnen</a>
           }

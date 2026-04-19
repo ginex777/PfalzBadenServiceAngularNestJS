@@ -55,12 +55,13 @@ export class AuthService {
       )
       .pipe(
         tap(res => {
-          sessionStorage.setItem(ACCESS_KEY, res.accessToken);
+          localStorage.setItem(ACCESS_KEY, res.accessToken);
           localStorage.setItem(REFRESH_KEY, res.refreshToken);
           this.accessToken.set(res.accessToken);
         }),
         catchError(err => {
           this._clearSession();
+          this.router.navigate(['/login']);
           return throwError(() => err);
         }),
         // Complete the shared observable so the next 401 starts a fresh refresh
@@ -94,29 +95,29 @@ export class AuthService {
   }
 
   private _storeSession(accessToken: string, refreshToken: string, email: string, rolle: string, vorname?: string | null, nachname?: string | null) {
-    sessionStorage.setItem(ACCESS_KEY, accessToken);
+    localStorage.setItem(ACCESS_KEY, accessToken);
     localStorage.setItem(REFRESH_KEY, refreshToken);
     const user: AuthUser = { email, rolle: rolle as AuthUser['rolle'], vorname, nachname };
-    sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
     this.accessToken.set(accessToken);
     this.currentUser.set(user);
   }
 
   private _clearSession() {
-    sessionStorage.removeItem(ACCESS_KEY);
-    sessionStorage.removeItem(USER_KEY);
+    localStorage.removeItem(ACCESS_KEY);
     localStorage.removeItem(REFRESH_KEY);
+    localStorage.removeItem(USER_KEY);
     this.accessToken.set(null);
     this.currentUser.set(null);
   }
 
   private _load(key: string): string | null {
-    try { return sessionStorage.getItem(key); } catch { return null; }
+    try { return localStorage.getItem(key); } catch { return null; }
   }
 
   private _loadUser(): AuthUser | null {
     try {
-      const raw = sessionStorage.getItem(USER_KEY);
+      const raw = localStorage.getItem(USER_KEY);
       return raw ? JSON.parse(raw) : null;
     } catch { return null; }
   }

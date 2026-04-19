@@ -6,35 +6,31 @@
   </div>
 
   <div class="filter-toolbar">
-    <input type="text" placeholder="Suchen…" [value]="facade.filter().suchbegriff"
-      (input)="filterSuchbegriffGeaendert($event)"
-      style="width:160px;font-size:12px">
-    <select [value]="facade.filter().kategorie"
-      (change)="filterKategorieGeaendert($event)"
-      style="width:auto;font-size:12px">
+    <input class="input-search-sm" type="text" placeholder="Suchen…" [value]="facade.filter().suchbegriff"
+      (input)="filterSuchbegriffGeaendert($event)">
+    <select class="select-sm" [value]="facade.filter().kategorie"
+      (change)="filterKategorieGeaendert($event)">
       <option value="">Alle Kategorien</option>
       <option value="Operativ">Operativ</option>
       <option value="Marketing">Marketing</option>
       <option value="Buchhaltung">Buchhaltung</option>
       <option value="Sonstiges">Sonstiges</option>
     </select>
-    <select [value]="facade.filter().bearbeiter"
-      (change)="filterBearbeiterGeaendert($event)"
-      style="width:auto;font-size:12px">
+    <select class="select-sm" [value]="facade.filter().bearbeiter"
+      (change)="filterBearbeiterGeaendert($event)">
       <option value="">Alle Bearbeiter</option>
       @for (b of facade.eindeutigeBearbeiter(); track b) {
         <option [value]="b">{{ b }}</option>
       }
     </select>
-    <select [value]="facade.filter().prioritaet"
-      (change)="filterPrioritaetGeaendert($event)"
-      style="width:auto;font-size:12px">
+    <select class="select-sm" [value]="facade.filter().prioritaet"
+      (change)="filterPrioritaetGeaendert($event)">
       <option value="">Alle Prioritäten</option>
       <option value="hoch">Hoch</option>
       <option value="mittel">Mittel</option>
       <option value="niedrig">Niedrig</option>
     </select>
-    <button class="btn btn-sm" (click)="facade.filterLeeren()" style="font-size:12px">Filter leeren</button>
+    <button class="btn btn-sm" (click)="facade.filterLeeren()">Filter leeren</button>
     <span class="anzahl-hinweis">{{ facade.tasks().length }} Aufgaben</span>
   </div>
 
@@ -59,14 +55,14 @@
 @if (facade.formularSichtbar()) {
   <div class="modal-overlay" (click)="facade.formularSchliessen()">
     <div class="modal" (click)="$event.stopPropagation()">
-      <h3 style="margin-bottom:1rem">{{ facade.bearbeiteterTask() ? 'Aufgabe bearbeiten' : 'Neue Aufgabe' }}</h3>
-      <div class="form-field" style="margin-bottom:0.6rem">
+      <h3 class="modal-heading">{{ facade.bearbeiteterTask() ? 'Aufgabe bearbeiten' : 'Neue Aufgabe' }}</h3>
+      <div class="form-field form-field--mb">
         <label>Titel *</label>
         <input type="text" [value]="facade.formularDaten().titel"
           (input)="titelGeaendert($event)"
           placeholder="Aufgabe beschreiben…">
       </div>
-      <div class="form-field" style="margin-bottom:0.6rem">
+      <div class="form-field form-field--mb">
         <label>Beschreibung</label>
         <textarea rows="3" [value]="facade.formularDaten().beschreibung"
           (input)="beschreibungGeaendert($event)"

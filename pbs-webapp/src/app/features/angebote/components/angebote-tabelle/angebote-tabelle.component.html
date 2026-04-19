@@ -16,8 +16,20 @@
   <span class="count-hint">{{ gefilterteAngebote().length }} Einträge</span>
 </div>
 
+@if (pendingDeleteId() !== null) {
+  <app-confirm-modal
+    titel="Angebot löschen"
+    nachricht="Dieses Angebot wird unwiderruflich gelöscht. Fortfahren?"
+    bestaetigenLabel="Löschen"
+    (bestaetigt)="loeschenBestaetigt()"
+    (abgebrochen)="pendingDeleteId.set(null)"
+  />
+}
+
 @if (laedt()) {
-  <div class="loading-state">Lade Angebote…</div>
+  <div class="skeleton-liste" aria-label="Lade Angebote" role="status">
+    @for (i of [1,2,3,4,5,6]; track i) { <div class="skeleton-zeile"></div> }
+  </div>
 } @else if (angebote().length === 0) {
   <app-empty-state
     titel="Keine Angebote gefunden"
@@ -61,7 +73,7 @@
               <button class="btn-action" title="Kopieren" (click)="kopieren.emit(angebot)">Kopie</button>
 
               @if (!angebot.angenommen) {
-                <select class="filter-select" style="font-size:11px;padding:2px 6px;width:auto"
+                <select class="filter-select select-xs"
                   (change)="onStatusChange(angebot, $event)">
                   <option value="">Status…</option>
                   <option value="offen">Offen</option>
@@ -80,7 +92,7 @@
               @if (!angebot.angenommen) {
                 <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(angebot)">Bearbeiten</button>
               }
-              <button class="btn-action btn-action--danger" title="Löschen" (click)="loeschen.emit(angebot.id)">Löschen</button>
+              <button class="btn-action btn-action--danger" title="Löschen" (click)="loeschenBestaetigen(angebot.id)">Löschen</button>
             </td>
           </tr>
         }

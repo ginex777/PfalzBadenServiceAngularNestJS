@@ -6,7 +6,7 @@
   <div class="zeitraum-zeile">
     <div>
       <label class="feld-label">Jahr</label>
-      <select [value]="facade.aktuellesJahr()" (change)="jahrGeaendert($event)" style="font-size:13px;padding:0.35rem 0.6rem;width:auto">
+      <select class="select-sm" [value]="facade.aktuellesJahr()" (change)="jahrGeaendert($event)">
         @for (j of facade.verfuegbareJahre(); track j) {
           <option [value]="j">{{ j }}</option>
         }
@@ -23,7 +23,7 @@
     @if (facade.zeitraumTyp() === 'month') {
       <div>
         <label class="feld-label">Monat</label>
-        <select [value]="facade.aktiverMonat()" (change)="monatGeaendert($event)" style="font-size:13px;padding:0.35rem 0.6rem;width:auto">
+        <select class="select-sm" [value]="facade.aktiverMonat()" (change)="monatGeaendert($event)">
           @for (m of monate; track $index) {
             <option [value]="$index">{{ m }}</option>
           }
@@ -39,7 +39,7 @@
 <!-- Validierung + Vorschau -->
 <div class="card datev-export-card">
   <div class="export-kopf">
-    <h3 class="section-title" style="margin:0">
+    <h3 class="section-title">
       @if (facade.laedt()) { Prüfung läuft… } @else { Vorschau: {{ facade.zeitraumLabel() }} }
     </h3>
     <button class="btn btn-sm" (click)="facade.ladeDaten()">Neu prüfen</button>
@@ -61,8 +61,8 @@
   <!-- Statistik -->
   @if (facade.stats() && facade.vorschauZeilen().length > 0) {
     <div class="statistik-zeile">
-      <span><strong style="color:#16a34a">{{ facade.stats()!.totalInc }}</strong> Einnahmen · Netto: <strong style="color:#16a34a">{{ fmt(facade.stats()!.sumIncNetto) }} €</strong></span>
-      <span><strong style="color:#dc2626">{{ facade.stats()!.totalExp }}</strong> Ausgaben · Netto: <strong style="color:#dc2626">{{ fmt(facade.stats()!.sumExpNetto) }} €</strong></span>
+      <span><strong class="text-success">{{ facade.stats()!.totalInc }}</strong> Einnahmen · Netto: <strong class="text-success">{{ fmt(facade.stats()!.sumIncNetto) }} €</strong></span>
+      <span><strong class="text-danger">{{ facade.stats()!.totalExp }}</strong> Ausgaben · Netto: <strong class="text-danger">{{ fmt(facade.stats()!.sumExpNetto) }} €</strong></span>
       <span>Zahllast: <strong [style.color]="facade.stats()!.zahllast >= 0 ? 'var(--danger)' : 'var(--success)'">{{ fmt(facade.stats()!.zahllast) }} €</strong></span>
       <span class="grau-text">{{ facade.vorschauZeilen().length }} Buchungen gesamt</span>
     </div>
@@ -110,7 +110,7 @@
     <button class="btn btn-primary" [disabled]="!facade.exportBereit()" (click)="facade.csvExportieren()">DATEV CSV herunterladen</button>
     <button class="btn" [disabled]="!facade.exportBereit()" (click)="facade.excelExportieren()">DATEV Excel herunterladen</button>
   </div>
-  <div class="hint" style="margin-top:0.5rem">CSV = EXTF-Format für direkten DATEV-Import &bull; Excel = 3 Sheets: Buchungen, Zusammenfassung, USt-Voranmeldung</div>
+  <div class="hint hint-mt">CSV = EXTF-Format für direkten DATEV-Import &bull; Excel = 3 Sheets: Buchungen, Zusammenfassung, USt-Voranmeldung</div>
 
   <!-- DATEV-Nummern -->
   @if (facade.firma().datev_beraternr || facade.firma().datev_mandantennr) {

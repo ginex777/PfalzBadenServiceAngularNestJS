@@ -1,17 +1,13 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../core/api/api.service';
+import { ApiService, SmtpSettings, UserEintrag, UserAnlegenPayload, UserAktualisierenPayload } from '../../core/api/api.service';
 import { FirmaSettings } from '../../core/models';
 
-interface SmtpSettings { host: string; port: number; secure: boolean; user: string; pass: string; fromName?: string; }
-export interface UserEintrag { id: string; email: string; rolle: string; aktiv: boolean; created_at: string; }
-export interface UserAnlegenPayload { email: string; password: string; rolle: 'admin' | 'readonly' | 'mitarbeiter'; }
+export type { SmtpSettings, UserEintrag, UserAnlegenPayload, UserAktualisierenPayload };
 
 @Injectable({ providedIn: 'root' })
 export class EinstellungenService {
   private readonly api = inject(ApiService);
-  private readonly http = inject(HttpClient);
 
   firmaLaden(): Observable<FirmaSettings> { return this.api.einstellungenLaden('firma'); }
   firmaSpeichern(daten: FirmaSettings): Observable<FirmaSettings> { return this.api.einstellungenSpeichern('firma', daten); }
@@ -19,23 +15,12 @@ export class EinstellungenService {
   letztesBackupLaden(): Observable<unknown> { return this.api.letztesBackupLaden(); }
   backupDateienLaden(): Observable<unknown> { return this.api.backupDateienLaden(); }
 
-  smtpLaden(): Observable<SmtpSettings> {
-    return this.http.get<SmtpSettings>('/api/settings/smtp');
-  }
+  smtpLaden(): Observable<SmtpSettings> { return this.api.smtpLaden(); }
+  smtpSpeichern(daten: SmtpSettings): Observable<SmtpSettings> { return this.api.smtpSpeichern(daten); }
+  smtpTesten(): Observable<{ success: boolean; message?: string }> { return this.api.emailTesten(); }
 
-  smtpSpeichern(daten: SmtpSettings): Observable<SmtpSettings> {
-    return this.http.post<SmtpSettings>('/api/settings/smtp', daten);
-  }
-
-  smtpTesten(): Observable<{ success: boolean; message?: string }> {
-    return this.http.post<{ success: boolean; message?: string }>('/api/email/test', {});
-  }
-
-  userListeLaden(): Observable<UserEintrag[]> {
-    return this.http.get<UserEintrag[]>('/api/auth/users');
-  }
-
-  userAnlegen(payload: UserAnlegenPayload): Observable<UserEintrag> {
-    return this.http.post<UserEintrag>('/api/auth/users', payload);
-  }
+  userListeLaden(): Observable<UserEintrag[]> { return this.api.usersLaden(); }
+  userAnlegen(payload: UserAnlegenPayload): Observable<UserEintrag> { return this.api.userAnlegen(payload); }
+  userAktualisieren(id: string, daten: UserAktualisierenPayload): Observable<UserEintrag> { return this.api.userAktualisieren(id, daten); }
+  userLoeschen(id: string): Observable<void> { return this.api.userLoeschen(id); }
 }

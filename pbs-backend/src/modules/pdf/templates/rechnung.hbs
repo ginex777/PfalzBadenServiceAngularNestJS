@@ -11,55 +11,7 @@
     line-height: 1.45;
   }
 
-  /*
-   * @page creates reserved margins for the fixed header/footer bands.
-   * Puppeteer uses format:'A4' so these margins create the white space
-   * that the fixed elements expand into. Content flows in the middle.
-   */
-  @page { margin: 34mm 0 30mm 0; size: A4; }
-
-  /* ── Fixed header — every page ─────────────────────────────────── */
-  .doc-header {
-    position: fixed;
-    top: -34mm;
-    left: 0; right: 0;
-    height: 34mm;
-    padding: 8mm 20mm 6mm;
-    background: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-  .firma-info .firma-name { font-size: 14px; font-weight: 700; color: #111; }
-  .firma-info .firma-sub  { font-size: 9.5px; color: #444; margin-top: 2px; }
-  .logo { max-height: 52px; max-width: 140px; object-fit: contain; }
-
-  .header-rule {
-    position: fixed;
-    top: -2mm;
-    left: 20mm; right: 20mm;
-    border: none;
-    border-top: 1px solid #555;
-    margin: 0;
-  }
-
-  /* ── Fixed footer — every page ─────────────────────────────────── */
-  .doc-footer {
-    position: fixed;
-    bottom: -30mm;
-    left: 0; right: 0;
-    height: 30mm;
-    padding: 3mm 20mm 6mm;
-    border-top: 0.75px solid #999;
-    font-size: 8.5px;
-    color: #444;
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    background: #fff;
-  }
-  .doc-footer > div { flex: 1; line-height: 1.65; }
-  .footer-section-label { font-weight: 700; margin-bottom: 1px; }
+  @page { size: A4; }
 
   /* ── Main content ──────────────────────────────────────────────── */
   .content { padding: 0 20mm; }
@@ -156,8 +108,6 @@
 </head>
 <body>
 
-{{> header}}
-
 <div class="content">
 
   <div class="empf-row">
@@ -223,8 +173,6 @@
   </div>
 
 </div>
-
-{{> footer}}
 
 </body>
 </html>

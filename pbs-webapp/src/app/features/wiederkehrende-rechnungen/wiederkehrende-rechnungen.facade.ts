@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { WiederkehrendeRechnungenService } from './wiederkehrende-rechnungen.service';
+import { ToastService } from '../../core/services/toast.service';
 import { WiederkehrendeRechnung, Kunde, RechnungPosition } from '../../core/models';
 import { WrFormularDaten, LEERES_WR_FORMULAR } from './wiederkehrende-rechnungen.models';
 
@@ -8,9 +9,9 @@ import { WrFormularDaten, LEERES_WR_FORMULAR } from './wiederkehrende-rechnungen
 export class WiederkehrendeRechnungenFacade {
   private readonly service = inject(WiederkehrendeRechnungenService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly rechnungen = signal<WiederkehrendeRechnung[]>([]);
   readonly kunden = signal<Kunde[]>([]);
   readonly formularSichtbar = signal(false);
@@ -30,7 +31,7 @@ export class WiederkehrendeRechnungenFacade {
         this.kunden.set(kunden);
         this.laedt.set(false);
       },
-      error: () => { this.fehler.set('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
     });
   }
 
@@ -54,7 +55,7 @@ export class WiederkehrendeRechnungenFacade {
 
   speichern(): void {
     const daten = this.formularDaten();
-    if (!daten.titel) { this.fehler.set('Titel ist ein Pflichtfeld.'); return; }
+    if (!daten.titel) { this.toast.error('Titel ist ein Pflichtfeld.'); return; }
     const kunde = daten.kunden_id ? this.kunden().find(k => k.id === daten.kunden_id) : null;
     const payload: Partial<WiederkehrendeRechnung> = {
       kunden_id: daten.kunden_id ?? undefined,
@@ -72,7 +73,7 @@ export class WiederkehrendeRechnungenFacade {
         else this.rechnungen.update(list => [gespeichert, ...list]);
         this.formularSchliessen();
       },
-      error: () => this.fehler.set('Konnte nicht gespeichert werden.'),
+      error: () => this.toast.error('Konnte nicht gespeichert werden.'),
     });
   }
 
@@ -92,7 +93,7 @@ export class WiederkehrendeRechnungenFacade {
     if (id === null) return;
     this.service.loeschen(id).subscribe({
       next: () => { this.rechnungen.update(list => list.filter(r => r.id !== id)); this.loeschKandidat.set(null); },
-      error: () => { this.fehler.set('Konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
+      error: () => { this.toast.error('Konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
     });
   }
 

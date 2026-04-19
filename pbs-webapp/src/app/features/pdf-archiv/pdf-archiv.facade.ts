@@ -1,14 +1,15 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { PdfArchivService } from './pdf-archiv.service';
+import { ToastService } from '../../core/services/toast.service';
 import { PdfArchiveEntry } from '../../core/models';
 import { PdfArchivFilter } from './pdf-archiv.models';
 
 @Injectable({ providedIn: 'root' })
 export class PdfArchivFacade {
   private readonly service = inject(PdfArchivService);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly eintraege = signal<PdfArchiveEntry[]>([]);
   readonly suchbegriff = signal('');
   readonly aktiverFilter = signal<PdfArchivFilter>('alle');
@@ -40,18 +41,18 @@ export class PdfArchivFacade {
     this.laedt.set(true);
     this.service.alleLaden().subscribe({
       next: e => { this.eintraege.set(e); this.laedt.set(false); },
-      error: () => { this.fehler.set('PDF-Archiv konnte nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('PDF-Archiv konnte nicht geladen werden.'); this.laedt.set(false); },
     });
   }
 
   pdfOeffnen(id: number): void {
-    this.service.pdfOeffnen(id).catch(() => this.fehler.set('PDF konnte nicht geöffnet werden.'));
+    this.service.pdfOeffnen(id).catch(() => this.toast.error('PDF konnte nicht geöffnet werden.'));
   }
 
   eintragLoeschen(id: number): void {
     this.service.eintragLoeschen(id).subscribe({
       next: () => this.eintraege.update(list => list.filter(e => e.id !== id)),
-      error: () => this.fehler.set('Löschen fehlgeschlagen'),
+      error: () => this.toast.error('Löschen fehlgeschlagen'),
     });
   }
 
@@ -60,7 +61,7 @@ export class PdfArchivFacade {
     this.loeschenLaedt.set(true);
     this.service.alleLoeschen().subscribe({
       next: () => { this.eintraege.set([]); this.loeschenLaedt.set(false); },
-      error: () => { this.fehler.set('Protokoll konnte nicht geleert werden.'); this.loeschenLaedt.set(false); },
+      error: () => { this.toast.error('Protokoll konnte nicht geleert werden.'); this.loeschenLaedt.set(false); },
     });
   }
 

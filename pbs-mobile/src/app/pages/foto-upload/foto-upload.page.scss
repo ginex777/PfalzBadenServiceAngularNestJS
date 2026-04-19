@@ -79,7 +79,10 @@
 .success-banner {
   margin: 0 1.25rem;
   padding: .75rem 1rem;
-  background: var(--success-light);
+  background: color-mix(in srgb, var(--success-light) 85%, transparent);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border: 1px solid rgba(56, 161, 105, 0.25);
   color: #065f46;
   border-radius: var(--radius-md);
   font-size: .875rem;
@@ -88,7 +91,10 @@
 .fehler-banner {
   margin: 0 1.25rem;
   padding: .75rem 1rem;
-  background: var(--danger-light);
+  background: color-mix(in srgb, var(--danger-light) 85%, transparent);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border: 1px solid rgba(229, 62, 62, 0.25);
   color: #991b1b;
   border-radius: var(--radius-md);
   font-size: .875rem;
@@ -100,8 +106,12 @@
   left: 0;
   right: 0;
   display: flex;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
+  background: var(--surface-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--border-glass);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.06);
 
   .nav-item {
     flex: 1;
@@ -115,7 +125,7 @@
     font-weight: 500;
     transition: color var(--transition);
 
-    &.active { color: var(--primary); font-weight: 600; }
+    &.active { color: var(--primary-solid); font-weight: 600; }
     &:hover  { color: var(--gray-700); }
   }
 }

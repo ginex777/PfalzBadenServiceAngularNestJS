@@ -4,6 +4,7 @@ import { Rechnung } from '../../../../core/models';
 import { RechnungFilter } from '../../rechnungen.models';
 import { StatusBadgeComponent, StatusBadgeTyp } from '../../../../shared/ui/status-badge/status-badge.component';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
+import { ConfirmModalComponent } from '../../../../shared/ui/confirm-modal/confirm-modal.component';
 import { waehrungFormatieren, datumFormatieren, MONATE } from '../../../../core/utils/format.utils';
 import { MS_PER_DAY } from '../../../../core/constants';
 
@@ -11,7 +12,7 @@ import { MS_PER_DAY } from '../../../../core/constants';
   selector: 'app-rechnungen-tabelle',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [StatusBadgeComponent, EmptyStateComponent],
+  imports: [StatusBadgeComponent, EmptyStateComponent, ConfirmModalComponent],
   templateUrl: './rechnungen-tabelle.component.html',
   styleUrl: './rechnungen-tabelle.component.scss',
 })
@@ -40,6 +41,8 @@ export class RechnungenTabelleComponent {
   protected readonly sortSpalte = signal<keyof Rechnung>('datum');
   protected readonly sortAufsteigend = signal(false);
   protected readonly ausgewaehlt = signal<Set<number>>(new Set());
+  protected readonly pendingDeleteId = signal<number | null>(null);
+  protected readonly pendingBulkDelete = signal<number[]>([]);
 
   protected readonly alleAusgewaehlt = computed(() => {
     const liste = this.sortierteListe();
@@ -105,10 +108,25 @@ export class RechnungenTabelleComponent {
     }
   }
 
+  protected loeschenBestaetigen(id: number): void {
+    this.pendingDeleteId.set(id);
+  }
+
+  protected loeschenBestaetigt(): void {
+    const id = this.pendingDeleteId();
+    if (id !== null) { this.loeschen.emit(id); }
+    this.pendingDeleteId.set(null);
+  }
+
   protected onBulkLoeschen(): void {
     const ids = [...this.ausgewaehlt()];
     if (ids.length === 0) return;
-    this.bulkLoeschen.emit(ids);
+    this.pendingBulkDelete.set(ids);
+  }
+
+  protected bulkLoeschenBestaetigt(): void {
+    this.bulkLoeschen.emit(this.pendingBulkDelete());
+    this.pendingBulkDelete.set([]);
     this.ausgewaehlt.set(new Set());
   }
 

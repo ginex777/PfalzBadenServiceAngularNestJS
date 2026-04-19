@@ -56,16 +56,16 @@
 <div class="card">
   <div class="card-header">
     <div>
-      <h3 class="section-title" style="margin:0">
+      <h3 class="section-title">
         Definierte Kosten
-        <span class="hint" style="margin:0;margin-left:0.5rem">{{ facade.ausgaben().length }} Einträge</span>
+        <span class="hint hint-inline">{{ facade.ausgaben().length }} Einträge</span>
       </h3>
       @if (facade.aktiveSumme().brutto > 0) {
         <div class="aktive-summe">Aktive Fixkosten: Netto {{ fmt(facade.aktiveSumme().netto) }} · Vorsteuer {{ fmt(facade.aktiveSumme().vst) }}</div>
       }
     </div>
-    <div style="display:flex;gap:0.5rem;align-items:center">
-      <input type="text" placeholder="Suchen…" (input)="suchbegriffGeaendert($event)" style="width:180px;font-size:12px">
+    <div class="toolbar-end">
+      <input class="input-search" type="text" placeholder="Suchen…" (input)="suchbegriffGeaendert($event)">
       <button class="btn btn-sm btn-primary" (click)="formularOeffnen()">+ Neu</button>
     </div>
   </div>

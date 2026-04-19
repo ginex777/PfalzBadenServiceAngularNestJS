@@ -2,7 +2,7 @@
   <div class="tabelle-kopf">
     <span class="badge badge--rot">Ausgaben</span>
     <span class="anzahl">{{ zeilen().length }} Eintr{{ zeilen().length !== 1 ? 'äge' : 'ag' }}</span>
-    <input type="search" class="eingabe" placeholder="Ausgaben durchsuchen…" style="width:200px;font-size:12px"
+    <input type="search" class="eingabe eingabe--suche" placeholder="Ausgaben durchsuchen…"
       [value]="suchbegriff"
       (input)="suchbegriff = $any($event.target).value" />
     @if (!istGesperrt()) {
@@ -80,7 +80,7 @@
                 [class.eingabe--fehlt]="kategorieFehlend(zeile)"
               >
                 @if (kategorieFehlend(zeile)) {
-                  <option value="" selected style="color: #999">-- Kategorie wählen --</option>
+                  <option value="" selected>-- Kategorie wählen --</option>
                 }
                 @for (kat of kategorienListe; track kat) {
                   <option [value]="kat" [selected]="zeile.kategorie === kat">{{ kat }}</option>

@@ -36,14 +36,26 @@ export interface DashboardAngebotZeile {
 }
 
 export interface AktivitaetZeile {
-  typ: 'Rechnung' | 'Angebot';
+  typ: string;
   nr: string;
   name: string;
-  betrag: number;
+  betrag: number | undefined;
   datum: string | undefined;
   status: string;
   statusKlasse: 'text-success' | 'text-danger' | 'text-warning';
   routerLink: string;
+}
+
+export interface DashboardAktivitaet {
+  id: number;
+  tabelle: string;
+  aktion: string;
+  zeitstempel: string;
+  nutzer: string;
+  datensatzId: number;
+  nr?: string;
+  empf?: string;
+  brutto?: number;
 }
 
 export interface MonatsvergleichZeile {

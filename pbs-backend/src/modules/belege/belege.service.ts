@@ -1,29 +1,63 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import * as crypto from 'crypto';
+
+export interface BelegListItem {
+  id: number;
+  buchhaltung_id: number | null;
+  filename: string;
+  mimetype: string;
+  filesize: number;
+  sha256: string;
+  typ: string | null;
+  notiz: string | null;
+  aufbewahrung_bis: string | undefined;
+  erstellt_am: Date;
+  buchung_name: string | null;
+  buchung_brutto: number | null;
+  buchung_kategorie: string | null;
+}
 
 @Injectable()
 export class BelegeService {
+  private readonly logger = new Logger(BelegeService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
-  async belegeLaden(jahr?: number) {
-    const rows = await this.prisma.belege.findMany({
-      where: jahr ? { buchhaltung: { jahr } } : undefined,
-      include: { buchhaltung: { select: { name: true, brutto: true, kategorie: true } } },
-      orderBy: { erstellt_am: 'desc' },
-      take: 500,
-    });
-    return rows.map(b => ({
-      id: Number(b.id),
-      buchhaltung_id: b.buchhaltung_id ? Number(b.buchhaltung_id) : null,
-      filename: b.filename, mimetype: b.mimetype, filesize: b.filesize,
-      sha256: b.sha256, typ: b.typ, notiz: b.notiz,
-      aufbewahrung_bis: b.aufbewahrung_bis?.toISOString().slice(0, 10),
-      erstellt_am: b.erstellt_am,
-      buchung_name: b.buchhaltung?.name ?? null,
-      buchung_brutto: b.buchhaltung?.brutto ? Number(b.buchhaltung.brutto) : null,
-      buchung_kategorie: b.buchhaltung?.kategorie ?? null,
-    }));
+  async belegeLaden(pagination: PaginationDto, jahr?: number): Promise<PaginatedResponse<BelegListItem>> {
+    const { page, limit } = pagination;
+    const skip = (page - 1) * limit;
+    const where = jahr ? { buchhaltung: { jahr } } : undefined;
+    const include = { buchhaltung: { select: { name: true, brutto: true, kategorie: true } } } as const;
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.belege.findMany({
+        where,
+        include,
+        orderBy: { erstellt_am: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.belege.count({ where }),
+    ]);
+    return {
+      data: rows.map(b => ({
+        id: Number(b.id),
+        buchhaltung_id: b.buchhaltung_id ? Number(b.buchhaltung_id) : null,
+        filename: b.filename, mimetype: b.mimetype, filesize: b.filesize,
+        sha256: b.sha256, typ: b.typ, notiz: b.notiz,
+        aufbewahrung_bis: b.aufbewahrung_bis?.toISOString().slice(0, 10),
+        erstellt_am: b.erstellt_am,
+        buchung_name: b.buchhaltung?.name ?? null,
+        buchung_brutto: b.buchhaltung?.brutto ? Number(b.buchhaltung.brutto) : null,
+        buchung_kategorie: b.buchhaltung?.kategorie ?? null,
+      })),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async belegLaden(id: number) {

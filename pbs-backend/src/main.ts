@@ -14,8 +14,11 @@ async function bootstrap() {
   app.use(helmet());
 
   // ── CORS ────────────────────────────────────────────────────────────────────
-  const allowedOrigin = process.env['FRONTEND_URL'] ?? '*';
-  app.enableCors({ origin: allowedOrigin, credentials: true });
+  const frontendUrl = process.env['FRONTEND_URL'];
+  if (!frontendUrl && process.env['NODE_ENV'] === 'production') {
+    throw new Error('FRONTEND_URL environment variable is not set in production');
+  }
+  app.enableCors({ origin: frontendUrl ?? '*', credentials: true });
 
   // ── Body size (base64 PDF/image uploads) ────────────────────────────────────
   app.use(require('express').json({ limit: '25mb' }));

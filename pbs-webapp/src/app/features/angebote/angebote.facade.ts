@@ -20,13 +20,13 @@ export class AngeboteFacade {
 
   readonly laedt = signal(false);
   readonly speichert = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly angebote = signal<Angebot[]>([]);
   readonly kunden = signal<Kunde[]>([]);
   readonly firma = signal<FirmaSettings>({});
   readonly suchbegriff = signal('');
   readonly aktiverFilter = signal<AngebotFilter>('alle');
-  readonly aktiverTab = signal<'formular' | 'tracker'>('formular');
+  readonly drawerOffen = signal(false);
+  readonly drawerSchritt = signal<'formular' | 'senden'>('formular');
   readonly bearbeitetesAngebot = signal<Angebot | null>(null);
   readonly loeschKandidat = signal<number | null>(null);
   readonly formularDaten = signal<AngebotFormularDaten>({ ...LEERES_ANGEBOTS_FORMULAR });
@@ -44,6 +44,7 @@ export class AngeboteFacade {
     } | undefined;
     if (state?.prefill) {
       this.prefillAusRouterState(state.prefill);
+      this.drawerOffen.set(true);
     }
     if (state?.openId) {
       this._openId.set(state.openId);
@@ -99,7 +100,6 @@ export class AngeboteFacade {
 
   ladeDaten(): void {
     this.laedt.set(true);
-    this.fehler.set(null);
     this.service.angeboteUndKundenLaden().subscribe({
       next: ({ angebote, kunden }) => {
         this.angebote.set(angebote);
@@ -120,7 +120,7 @@ export class AngeboteFacade {
           this._openId.set(null);
         }
       },
-      error: () => { this.fehler.set('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
     });
     this.service.firmaEinstellungenLaden().subscribe({ next: f => this.firma.set(f), error: () => {} });
   }
@@ -137,7 +137,7 @@ export class AngeboteFacade {
   speichern(): void {
     const daten = this.formularDaten();
     if (!daten.empf || !daten.nr) {
-      this.fehler.set('Bitte Angebots-Nr. und Empfänger ausfüllen.');
+      this.toast.error('Bitte Angebots-Nr. und Empfänger ausfüllen.');
       return;
     }
     this.speichert.set(true);
@@ -167,13 +167,14 @@ export class AngeboteFacade {
         }
         this.speichert.set(false);
         this.bearbeitungAbbrechen();
-        this.aktiverTab.set('tracker');
         if (emailSnapshot) {
           this.sendModal.set({ angebot: gespeichert, email: emailSnapshot });
+          this.drawerSchritt.set('senden');
+        } else {
+          this.drawerSchliessen();
         }
       },
       error: () => {
-        this.fehler.set('Angebot konnte nicht gespeichert werden.');
         this.toast.error('Angebot konnte nicht gespeichert werden.');
         this.speichert.set(false);
       },
@@ -182,6 +183,7 @@ export class AngeboteFacade {
 
   sendModalSchliessen(): void {
     this.sendModal.set(null);
+    this.drawerSchliessen();
   }
 
   bearbeitungStarten(angebot: Angebot): void {
@@ -197,7 +199,7 @@ export class AngeboteFacade {
       zusatz: angebot.zusatz ?? '',
       kunden_id: angebot.kunden_id,
     });
-    this.aktiverTab.set('formular');
+    this.drawerOeffnen();
   }
 
   bearbeitungAbbrechen(): void {
@@ -207,7 +209,6 @@ export class AngeboteFacade {
       nr: this._naechsteAngebotNr(this.angebote()),
       datum: new Date().toISOString().split('T')[0],
     });
-    this.fehler.set(null);
   }
 
   loeschenBestaetigen(id: number): void {
@@ -228,7 +229,6 @@ export class AngeboteFacade {
         this.toast.success('Angebot gelöscht.');
       },
       error: () => {
-        this.fehler.set('Angebot konnte nicht gelöscht werden.');
         this.toast.error('Angebot konnte nicht gelöscht werden.');
         this.loeschKandidat.set(null);
       },
@@ -250,24 +250,23 @@ export class AngeboteFacade {
         this.angebote.update(list => list.map(a => a.id === id ? aktualisiert : a));
       },
       error: () => {
-        this.fehler.set('Status konnte nicht aktualisiert werden.');
+        this.toast.error('Status konnte nicht aktualisiert werden.');
       },
     });
   }
 
   pdfGenerieren(angebot: Angebot): void {
     this.service.pdfOeffnen(angebot, this.firma()).catch(() => {
-      this.fehler.set('PDF konnte nicht generiert werden.');
+      this.toast.error('PDF konnte nicht generiert werden.');
     });
   }
 
   vorschauGenerieren(): void {
     const daten = this.formularDaten();
     if (!daten.nr?.trim() || !daten.empf?.trim()) {
-      this.fehler.set('Bitte Angebots-Nr. und Empfänger ausfüllen für Vorschau.');
+      this.toast.error('Bitte Angebots-Nr. und Empfänger ausfüllen für Vorschau.');
       return;
     }
-    this.fehler.set(null);
     this.speichert.set(true);
     const brutto = this.brutto();
     const payload: Partial<Angebot> = {
@@ -286,9 +285,9 @@ export class AngeboteFacade {
         if (editId) this.angebote.update(list => list.map(a => a.id === editId ? gespeichert : a));
         else { this.angebote.update(list => [gespeichert, ...list]); this.bearbeitetesAngebot.set(gespeichert); }
         this.speichert.set(false);
-        this.service.pdfOeffnen(gespeichert, this.firma()).catch(() => this.fehler.set('PDF konnte nicht generiert werden.'));
+        this.service.pdfOeffnen(gespeichert, this.firma()).catch(() => this.toast.error('PDF konnte nicht generiert werden.'));
       },
-      error: () => { this.fehler.set('Angebot konnte nicht gespeichert werden.'); this.speichert.set(false); },
+      error: () => { this.toast.error('Angebot konnte nicht gespeichert werden.'); this.speichert.set(false); },
     });
   }
 
@@ -303,19 +302,18 @@ export class AngeboteFacade {
       zusatz: angebot.zusatz ?? '', kunden_id: angebot.kunden_id,
     });
     this.bearbeitetesAngebot.set(null);
-    this.aktiverTab.set('formular');
+    this.drawerOeffnen();
   }
 
   empfaengerAlsKundeSpeichern(): void {
     const daten = this.formularDaten();
-    if (!daten.empf?.trim()) { this.fehler.set('Bitte Empfänger eingeben.'); return; }
+    if (!daten.empf?.trim()) { this.toast.error('Bitte Empfänger eingeben.'); return; }
     this.service.kundeErstellen({ name: daten.empf, strasse: daten.str, ort: daten.ort, email: daten.email }).subscribe({
       next: kunde => {
         this.kunden.update(list => [...list, kunde]);
         this.formularDaten.update(d => ({ ...d, kunden_id: kunde.id }));
-        this.fehler.set(null);
       },
-      error: () => this.fehler.set('Kunde konnte nicht angelegt werden.'),
+      error: () => this.toast.error('Kunde konnte nicht angelegt werden.'),
     });
   }
 
@@ -385,8 +383,14 @@ export class AngeboteFacade {
     }));
   }
 
-  tabWechseln(tab: 'formular' | 'tracker'): void {
-    this.aktiverTab.set(tab);
+  drawerOeffnen(): void {
+    this.drawerOffen.set(true);
+    this.drawerSchritt.set('formular');
+  }
+
+  drawerSchliessen(): void {
+    this.drawerOffen.set(false);
+    this.drawerSchritt.set('formular');
   }
 
   filterSetzen(filter: AngebotFilter): void {

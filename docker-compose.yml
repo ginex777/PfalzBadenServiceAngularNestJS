@@ -24,10 +24,11 @@ services:
     container_name: pbs-backend
     restart: unless-stopped
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3000
       DATABASE_URL: postgresql://pbs:${POSTGRES_PASSWORD:-pbs_secret}@postgres:5432/pbs
       BACKUP_DIR: /data/backups
+      JWT_SECRET: ${JWT_SECRET}
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
       PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
     volumes:

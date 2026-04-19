@@ -1,8 +1,11 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Query, Req, Res } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { VertraegeService } from './vertraege.service';
 import { PdfService } from '../pdf/pdf.service';
+import { Public } from '../auth/decorators/public.decorator';
+import { CreateVertragDto, UpdateVertragDto } from './dto/vertrag.dto';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('Vertraege')
 @Controller('api/vertraege')
@@ -13,8 +16,8 @@ export class VertraegeController {
   ) {}
 
   @Get()
-  alleLaden(@Query('kunden_id') kundenId?: string) {
-    return this.service.alleLaden(kundenId ? Number(kundenId) : undefined);
+  alleLaden(@Query() pagination: PaginationDto, @Query('kunden_id') kundenId?: string) {
+    return this.service.alleLaden(pagination, kundenId ? Number(kundenId) : undefined);
   }
 
   @Get(':id')
@@ -23,13 +26,15 @@ export class VertraegeController {
   }
 
   @Post()
-  erstellen(@Body() b: Record<string, unknown>, @Req() req: Request) {
-    return this.service.erstellen(b, req.headers['x-nutzer'] as string);
+  @ApiOperation({ summary: 'Vertrag erstellen' })
+  erstellen(@Body() dto: CreateVertragDto, @Req() req: Request) {
+    return this.service.erstellen(dto, req.headers['x-nutzer'] as string);
   }
 
   @Put(':id')
-  aktualisieren(@Param('id', ParseIntPipe) id: number, @Body() b: Record<string, unknown>, @Req() req: Request) {
-    return this.service.aktualisieren(id, b, req.headers['x-nutzer'] as string);
+  @ApiOperation({ summary: 'Vertrag aktualisieren' })
+  aktualisieren(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateVertragDto, @Req() req: Request) {
+    return this.service.aktualisieren(id, dto, req.headers['x-nutzer'] as string);
   }
 
   @Delete(':id')
@@ -44,6 +49,7 @@ export class VertraegeController {
   }
 
   /** Preview the PDF inline in browser */
+  @Public()
   @Get('pdf/view/:token/:filename')
   pdfView(@Param('token') token: string, @Res() res: Response) {
     const entry = this.pdf.tokenAbrufen(token);

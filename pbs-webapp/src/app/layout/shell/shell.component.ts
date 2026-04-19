@@ -1,32 +1,36 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, HostListener } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed, HostListener } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { ToastComponent } from '../../shared/ui/toast/toast.component';
 import { OnboardingComponent } from '../../features/onboarding/onboarding.component';
-import { NutzerService } from '../../core/services/nutzer.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Benachrichtigung } from '../../core/models';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, SidebarComponent, ToastComponent, OnboardingComponent, FormsModule],
+  imports: [RouterOutlet, SidebarComponent, ToastComponent, OnboardingComponent],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
 })
 export class ShellComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  protected readonly nutzerService = inject(NutzerService);
+  protected readonly authService = inject(AuthService);
 
   protected readonly mobileSidebarOffen = signal(false);
   protected readonly ungeleseneNotifs = signal<Benachrichtigung[]>([]);
   protected readonly notifBannerSichtbar = signal(false);
   protected readonly darkMode = signal(false);
-  protected readonly nutzerEingabeOffen = signal(false);
-  protected nutzerEingabe = '';
+
+  protected readonly nutzerAnzeige = computed(() => {
+    const user = this.authService.currentUser();
+    if (!user) return '';
+    if (user.vorname && user.nachname) return `${user.vorname} ${user.nachname}`;
+    return user.vorname || user.nachname || user.email;
+  });
 
   ngOnInit(): void {
     this.notifenLaden();
@@ -59,20 +63,6 @@ export class ShellComponent implements OnInit {
 
   protected mobileSidebarUmschalten(): void {
     this.mobileSidebarOffen.update(offen => !offen);
-  }
-
-  protected nutzerWechselnOeffnen(): void {
-    this.nutzerEingabe = this.nutzerService.aktiverNutzer();
-    this.nutzerEingabeOffen.set(true);
-  }
-
-  protected nutzerSpeichern(): void {
-    this.nutzerService.setzen(this.nutzerEingabe);
-    this.nutzerEingabeOffen.set(false);
-  }
-
-  protected nutzerAbbrechen(): void {
-    this.nutzerEingabeOffen.set(false);
   }
 
   protected mobileSidebarSchliessen(): void {

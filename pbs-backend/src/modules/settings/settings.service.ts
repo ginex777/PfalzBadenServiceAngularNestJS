@@ -1,13 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()
 export class SettingsService {
+  private readonly logger = new Logger(SettingsService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async einstellungenLaden(schluessel: string) {
     const row = await this.prisma.settings.findUnique({ where: { key: schluessel } });
-    try { return row ? JSON.parse(row.value) : {}; } catch { return {}; }
+    try { return row ? JSON.parse(row.value) : {}; } catch (e) {
+      this.logger.error(e instanceof Error ? e.message : String(e), e instanceof Error ? e.stack : undefined);
+      return {};
+    }
   }
 
   async einstellungenSpeichern(schluessel: string, daten: unknown) {

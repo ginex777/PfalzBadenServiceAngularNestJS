@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, APP_INITIALIZER, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { HttpInterceptorFn } from '@angular/common/http';
@@ -17,5 +17,11 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withFetch(), withInterceptors([jwtInterceptor])),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (auth: MobileAuthService) => () => auth.restoreSession(),
+      deps: [MobileAuthService],
+      multi: true,
+    },
   ]
 };

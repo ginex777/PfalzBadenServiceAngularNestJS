@@ -1,15 +1,16 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { Angebot } from '../../../../core/models';
 import { AngebotFilter } from '../../angebote.models';
 import { StatusBadgeComponent, StatusBadgeTyp } from '../../../../shared/ui/status-badge/status-badge.component';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
+import { ConfirmModalComponent } from '../../../../shared/ui/confirm-modal/confirm-modal.component';
 import { waehrungFormatieren, datumFormatieren } from '../../../../core/utils/format.utils';
 
 @Component({
   selector: 'app-angebote-tabelle',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [StatusBadgeComponent, EmptyStateComponent],
+  imports: [StatusBadgeComponent, EmptyStateComponent, ConfirmModalComponent],
   templateUrl: './angebote-tabelle.component.html',
   styleUrl: './angebote-tabelle.component.scss',
 })
@@ -30,6 +31,7 @@ export class AngeboteTabelleComponent {
   protected readonly datumFormatieren = datumFormatieren;
   protected readonly MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
   protected monatFilter = '';
+  protected readonly pendingDeleteId = signal<number | null>(null);
 
   protected gefilterteAngebote(): Angebot[] {
     if (this.monatFilter === '') return this.angebote();
@@ -60,6 +62,16 @@ export class AngeboteTabelleComponent {
       return;
     }
     this.statusSetzen.emit({ id: angebot.id, status: status as 'angenommen' | 'abgelehnt' | 'gesendet' });
+  }
+
+  protected loeschenBestaetigen(id: number): void {
+    this.pendingDeleteId.set(id);
+  }
+
+  protected loeschenBestaetigt(): void {
+    const id = this.pendingDeleteId();
+    if (id !== null) this.loeschen.emit(id);
+    this.pendingDeleteId.set(null);
   }
 
   protected istAbgelaufen(angebot: Angebot): boolean {

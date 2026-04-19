@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { DatevService } from './datev.service';
 import { BrowserService } from '../../core/services/browser.service';
+import { ToastService } from '../../core/services/toast.service';
 import { FirmaSettings } from '../../core/models';
 import { DatevZeitraumTyp, DatevVorschauZeile, DatevValidierungsMeldung, QUARTAL_MONATE, QUARTAL_LABELS } from './datev.models';
 import { MONATE } from '../../core/utils/format.utils';
@@ -9,9 +10,9 @@ import { MONATE } from '../../core/utils/format.utils';
 export class DatevFacade {
   private readonly service = inject(DatevService);
   private readonly browser = inject(BrowserService);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly aktuellesJahr = signal(new Date().getFullYear());
   readonly zeitraumTyp = signal<DatevZeitraumTyp>('year');
   readonly aktiverMonat = signal(new Date().getMonth());
@@ -58,7 +59,7 @@ export class DatevFacade {
         this.exportBereit.set(zeilen.length > 0);
         this.laedt.set(false);
       },
-      error: () => { this.fehler.set('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
     });
     this.service.firmaLaden().subscribe({ next: f => this.firma.set(f), error: () => {} });
   }
@@ -73,11 +74,11 @@ export class DatevFacade {
 
   csvExportieren(): void {
     const { jahr, monat } = this.apiParameter();
-    this.browser.blobOeffnen(this.service.exportUrl(jahr, monat)).catch(() => this.fehler.set('CSV-Export fehlgeschlagen.'));
+    this.browser.blobOeffnen(this.service.exportUrl(jahr, monat)).catch(() => this.toast.error('CSV-Export fehlgeschlagen.'));
   }
 
   excelExportieren(): void {
     const { jahr, monat } = this.apiParameter();
-    this.browser.blobOeffnen(this.service.excelUrl(jahr, monat)).catch(() => this.fehler.set('Excel-Export fehlgeschlagen.'));
+    this.browser.blobOeffnen(this.service.excelUrl(jahr, monat)).catch(() => this.toast.error('Excel-Export fehlgeschlagen.'));
   }
 }

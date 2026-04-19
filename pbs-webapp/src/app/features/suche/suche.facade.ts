@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { SucheService } from './suche.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Rechnung, Angebot, Kunde, MarketingKontakt } from '../../core/models';
 import { SucheErgebnis } from './suche.models';
 
@@ -8,9 +9,9 @@ import { SucheErgebnis } from './suche.models';
 export class SucheFacade {
   private readonly service = inject(SucheService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly suchbegriff = signal('');
   readonly daten = signal<SucheErgebnis>({ rechnungen: [], angebote: [], kunden: [], marketing: [], hausmeister: [] });
 
@@ -42,7 +43,7 @@ export class SucheFacade {
     this.laedt.set(true);
     this.service.alleLaden().subscribe({
       next: d => { this.daten.set(d); this.laedt.set(false); },
-      error: () => { this.fehler.set('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
     });
   }
 

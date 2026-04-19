@@ -1,21 +1,63 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { DashboardService } from './dashboard.service';
+import { ToastService } from '../../core/services/toast.service';
 import {
   DashboardStats, DashboardRechnungZeile, DashboardAngebotZeile,
-  AktivitaetZeile, MonatsvergleichZeile,
+  AktivitaetZeile, MonatsvergleichZeile, DashboardAktivitaet,
 } from './dashboard.models';
 import { Benachrichtigung, BackupInfo, MuellplanTermin, HausmeisterEinsatz } from '../../core/models';
 import { nettoBerechnen, MONATE } from '../../core/utils/format.utils';
 import { MS_PER_DAY } from '../../core/constants';
 
+const TABELLE_LABEL: Record<string, string> = {
+  rechnungen: 'Rechnung',
+  angebote: 'Angebot',
+  kunden: 'Kunde',
+  mitarbeiter: 'Mitarbeiter',
+  hausmeister_einsaetze: 'Einsatz',
+  aufgaben: 'Aufgabe',
+  belege: 'Beleg',
+  vertraege: 'Vertrag',
+};
+
+const TABELLE_ROUTE: Record<string, string> = {
+  rechnungen: '/rechnungen',
+  angebote: '/angebote',
+  kunden: '/kunden',
+  mitarbeiter: '/mitarbeiter',
+  hausmeister_einsaetze: '/hausmeister',
+  aufgaben: '/aufgaben',
+  belege: '/belege',
+  vertraege: '/vertraege',
+};
+
+function mapAuditAktivitaet(e: DashboardAktivitaet): AktivitaetZeile {
+  const statusKlasse: AktivitaetZeile['statusKlasse'] =
+    e.aktion === 'CREATE' ? 'text-success' :
+    e.aktion === 'DELETE' ? 'text-danger' : 'text-warning';
+  const status =
+    e.aktion === 'CREATE' ? 'erstellt' :
+    e.aktion === 'DELETE' ? 'gelöscht' : 'geändert';
+  return {
+    typ: TABELLE_LABEL[e.tabelle] ?? e.tabelle,
+    nr: e.nr ?? `#${e.datensatzId}`,
+    name: e.empf ?? e.nutzer,
+    betrag: e.brutto,
+    datum: e.zeitstempel,
+    status,
+    statusKlasse,
+    routerLink: TABELLE_ROUTE[e.tabelle] ?? '/audit-log',
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class DashboardFacade {
   private readonly service = inject(DashboardService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly backupLaedt = signal(false);
   readonly stats = signal<DashboardStats | null>(null);
   readonly ueberfaelligeRechnungen = signal<DashboardRechnungZeile[]>([]);
@@ -39,7 +81,6 @@ export class DashboardFacade {
 
   ladeDaten(): void {
     this.laedt.set(true);
-    this.fehler.set(null);
     const jahr = this.aktuellesJahr();
 
     this.service.rohdatenLaden(jahr).subscribe({
@@ -98,25 +139,6 @@ export class DashboardFacade {
           offeneAngeboteSumme: angOffen.reduce((s, a) => s + (a.brutto ?? 0), 0),
         });
 
-        // ── Letzte Aktivitäten ────────────────────────────────────────
-        const aktivitaeten: AktivitaetZeile[] = [
-          ...rechnungen.map(r => ({
-            typ: 'Rechnung' as const, nr: r.nr, name: r.empf, betrag: r.brutto,
-            datum: r.updated_at ?? r.datum,
-            status: r.bezahlt ? 'bezahlt' : (r.frist && new Date(r.frist) < heute ? 'überfällig' : 'offen'),
-            statusKlasse: (r.bezahlt ? 'text-success' : (r.frist && new Date(r.frist) < heute ? 'text-danger' : 'text-warning')) as AktivitaetZeile['statusKlasse'],
-            routerLink: '/rechnungen',
-          })),
-          ...angebote.map(a => ({
-            typ: 'Angebot' as const, nr: a.nr, name: a.empf, betrag: a.brutto,
-            datum: a.updated_at ?? a.datum,
-            status: a.angenommen ? 'angenommen' : (a.abgelehnt ? 'abgelehnt' : 'offen'),
-            statusKlasse: (a.angenommen ? 'text-success' : (a.abgelehnt ? 'text-danger' : 'text-warning')) as AktivitaetZeile['statusKlasse'],
-            routerLink: '/angebote',
-          })),
-        ].sort((a, b) => new Date(b.datum ?? 0).getTime() - new Date(a.datum ?? 0).getTime()).slice(0, 5);
-        this.letzteAktivitaeten.set(aktivitaeten);
-
         // ── Monatsvergleich ───────────────────────────────────────────
         const aktMonat = new Date().getMonth();
         const zeilen: MonatsvergleichZeile[] = [];
@@ -138,7 +160,11 @@ export class DashboardFacade {
         this.backupInfo.set(daten.backupInfo);
         this.laedt.set(false);
 
-        // Load upcoming Hausmeister Einsätze
+        this.service.aktivitaetenLaden().subscribe({
+          next: entries => this.letzteAktivitaeten.set(entries.map(mapAuditAktivitaet)),
+          error: () => {},
+        });
+
         this.service.hausmeisterEinsaetzeLaden().subscribe({
           next: einsaetze => {
             const heute = new Date(); heute.setHours(0, 0, 0, 0);
@@ -152,7 +178,7 @@ export class DashboardFacade {
         });
       },
       error: () => {
-        this.fehler.set('Daten konnten nicht geladen werden.');
+        this.toast.error('Daten konnten nicht geladen werden.');
         this.laedt.set(false);
       },
     });
@@ -166,7 +192,7 @@ export class DashboardFacade {
         this.backupLaedt.set(false);
       },
       error: () => {
-        this.fehler.set('Backup fehlgeschlagen.');
+        this.toast.error('Backup fehlgeschlagen.');
         this.backupLaedt.set(false);
       },
     });

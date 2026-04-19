@@ -93,9 +93,10 @@
     text-align: right;
   }
 
+  &--suche { width: 200px; font-size: 12px; }
   &--fehlt {
     border-color: var(--danger) !important;
-    background: #fff5f5 !important;
+    background: var(--danger-light) !important;
   }
 }
 

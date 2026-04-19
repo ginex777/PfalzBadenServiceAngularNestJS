@@ -60,13 +60,6 @@
     <a [routerLink]="['/datev']" class="btn btn-sm">DATEV Export</a>
   </div>
 
-  <!-- Fehler-Banner -->
-  @if (facade.fehler()) {
-    <div class="fehler-banner">
-      {{ facade.fehler() }}
-    </div>
-  }
-
   <!-- Ladeindikator -->
   @if (facade.ladelaeuft()) {
     <div class="lade-indikator">Daten werden geladen…</div>
@@ -142,13 +135,13 @@
 <!-- Belegnummer-Warnung Modal (GoBD) -->
 @if (belegnummerWarnungSichtbar()) {
   <div class="modal-overlay" (click)="belegnummerWarnungAbbrechen()">
-    <div class="modal" style="max-width:480px" (click)="$event.stopPropagation()">
-      <h3 style="margin-bottom:0.75rem">Belegnummer fehlt</h3>
-      <p style="color:var(--gray-600);font-size:13px;margin-bottom:0.75rem">
+    <div class="modal modal--sm" (click)="$event.stopPropagation()">
+      <h3 class="modal-heading">Belegnummer fehlt</h3>
+      <p class="modal-text">
         Einige Ausgaben haben keine Belegnummer. Laut GoBD (§146 AO) muss jede Buchung
         einer Belegnummer zugeordnet sein, um die Nachvollziehbarkeit zu gewährleisten.
       </p>
-      <p style="color:var(--gray-600);font-size:13px;margin-bottom:1rem">
+      <p class="modal-text--mb-lg">
         Möchten Sie trotzdem speichern?
       </p>
       <div class="modal-footer">

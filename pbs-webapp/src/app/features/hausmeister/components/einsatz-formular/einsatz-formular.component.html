@@ -67,8 +67,8 @@
 
     <div class="modal-footer">
       <button class="btn" (click)="abbrechen.emit()">Abbrechen</button>
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-right:auto">
-        <input type="checkbox" [checked]="syncStunden()" (change)="syncStundenGeaendert($event)" style="width:auto;margin:0">
+      <label class="checkbox-label">
+        <input type="checkbox" class="checkbox-inline" [checked]="syncStunden()" (change)="syncStundenGeaendert($event)">
         Stunden auch bei Mitarbeiter eintragen
       </label>
       <button class="btn btn-primary" [disabled]="einsatzForm().invalid()" (click)="speichern.emit({withPdf: true, syncStunden: syncStunden()})">Speichern & PDF</button>

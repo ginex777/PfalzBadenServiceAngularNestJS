@@ -1,15 +1,11 @@
 <div class="page-wrap">
 <app-page-title titel="Beleg-Archiv" untertitel="Digitale Belegverwaltung (GoBD-konform)" />
 
-@if (facade.fehler()) {
-  <div class="alert alert--danger">{{ facade.fehler() }}</div>
-}
-
 <!-- Upload -->
 <div class="card upload-card">
   <h3 class="section-title">Beleg hochladen</h3>
   <div class="upload-zeile">
-    <select class="form-select" style="width:auto"
+    <select class="form-select select-auto"
       [value]="uploadTyp"
       (change)="uploadTypAendern($event)">
       <option value="beleg">Beleg</option>
@@ -17,11 +13,11 @@
       <option value="quittung">Quittung</option>
       <option value="sonstiges">Sonstiges</option>
     </select>
-    <input class="form-input" type="text" placeholder="Notiz (optional, max. 500 Zeichen)"
-      [formField]="notizForm.notiz" style="flex:1" />
+    <input class="form-input flex-grow" type="text" placeholder="Notiz (optional, max. 500 Zeichen)"
+      [formField]="notizForm.notiz" />
     <label class="btn btn-primary">
       Datei wählen
-      <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" style="display:none" (change)="dateiHochladen($event)" />
+      <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" class="hidden-file-input" (change)="dateiHochladen($event)" />
     </label>
   </div>
   @if (notizForm.notiz().touched() && notizForm.notiz().invalid()) {
@@ -31,7 +27,7 @@
 </div>
 
 <!-- Stats -->
-<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1rem">
+<div class="stats-grid stats-3-col">
   <app-stat-card titel="Belege gesamt" [wert]="facade.belege().length.toString()" variante="primary" />
   <app-stat-card titel="Gespeichertes Volumen" [wert]="facade.gesamtGroesse()" variante="primary" />
   <app-stat-card titel="Aufbewahrung bis" [wert]="facade.spaetesteAufbewahrung()" variante="primary" />
@@ -90,7 +86,7 @@
                 <span class="typ-badge">{{ typLabels[b.typ] }}</span>
               </td>
               <td class="td-datei">
-                <a class="link" style="cursor:pointer" (click)="facade.viewerOeffnen(b)">{{ b.filename }}</a>
+                <a class="link" (click)="facade.viewerOeffnen(b)">{{ b.filename }}</a>
               </td>
               <td>
                 @if (b.buchung_name) {
@@ -103,7 +99,7 @@
               <td class="td-notiz">
                 @if (facade.notizBearbeitungId() === b.id) {
                   <div class="notiz-edit">
-                    <input class="form-input" type="text" [formField]="notizForm.notiz" style="font-size:12px" />
+                    <input class="form-input input-sm" type="text" [formField]="notizForm.notiz" />
                     <button class="btn btn-sm btn-primary" (click)="notizSpeichern(b.id)">Speichern</button>
                     <button class="btn btn-sm" (click)="facade.notizBearbeitungAbbrechen()">✕</button>
                   </div>
@@ -139,22 +135,19 @@
 <!-- Inline-Viewer Modal -->
 @if (facade.viewerBeleg()) {
   <div class="modal-overlay" (click)="facade.viewerSchliessen()">
-    <div class="modal modal--lg" style="max-width:860px;max-height:90vh;display:flex;flex-direction:column" (click)="$event.stopPropagation()">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
-        <span style="font-weight:600;font-size:14px">{{ facade.viewerBeleg()!.filename }}</span>
-        <div style="display:flex;gap:0.5rem">
+    <div class="modal modal--xl viewer-modal" (click)="$event.stopPropagation()">
+      <div class="viewer-header">
+        <span class="viewer-title">{{ facade.viewerBeleg()!.filename }}</span>
+        <div class="viewer-actions">
           <a [href]="facade.downloadUrl(facade.viewerBeleg()!.id)" class="btn btn-sm">Download</a>
           <button class="btn btn-sm" (click)="facade.viewerSchliessen()">Schließen</button>
         </div>
       </div>
-      <div style="flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;min-height:300px;background:var(--gray-50);border-radius:8px;padding:8px">
+      <div class="viewer-body">
         @if (facade.istBild(facade.viewerBeleg()!)) {
-          <img [src]="viewerSafeUrl()" alt="{{ facade.viewerBeleg()!.filename }}"
-            style="max-width:100%;max-height:70vh;object-fit:contain;border-radius:4px" />
+          <img [src]="viewerSafeUrl()" class="viewer-img" alt="{{ facade.viewerBeleg()!.filename }}" />
         } @else {
-          <iframe [src]="viewerSafeUrl()"
-            style="width:100%;height:70vh;border:none;border-radius:4px" title="{{ facade.viewerBeleg()!.filename }}">
-          </iframe>
+          <iframe [src]="viewerSafeUrl()" class="viewer-frame" title="{{ facade.viewerBeleg()!.filename }}"></iframe>
         }
       </div>
     </div>

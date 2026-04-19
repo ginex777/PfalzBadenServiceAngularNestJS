@@ -40,83 +40,45 @@
   cursor: pointer;
 }
 
-// ── Buttons ───────────────────────────────────────────────────────────────────
-.btn {
-  padding: 0.3rem 0.7rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  font-size: 0.8rem;
-  cursor: pointer;
-  color: var(--gray-700);
-  transition: all 0.15s;
-  white-space: nowrap;
+// ── Button modifiers (combine with global .btn) ───────────────────────────────
+.btn--speichern {
+  border-color: var(--primary-solid);
+  background: var(--primary-light);
+  color: var(--primary-solid);
+  &:hover:not(:disabled) { background: var(--primary-solid); color: #fff; border-color: var(--primary-solid); }
+}
 
-  &:hover {
-    background: var(--gray-100);
-  }
+.btn--dirty {
+  background: var(--warning);
+  border-color: var(--warning);
+  color: #fff;
+  &:hover:not(:disabled) { background: #d97706; border-color: #d97706; color: #fff; }
+}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+.btn--sperren {
+  color: var(--danger);
+  border-color: var(--danger-light);
+  &:hover:not(:disabled) { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
+}
 
-  &--speichern {
-    color: var(--primary-dark);
-    border-color: var(--primary);
-    background: var(--primary-light);
+.btn--entsperren {
+  color: var(--success);
+  border-color: var(--success-muted);
+  &:hover:not(:disabled) { background: var(--success-light); color: var(--success); }
+}
 
-    &:hover {
-      background: var(--primary);
-      color: #fff;
-    }
-  }
+.btn--gefaehrlich-klein {
+  font-size: 11px;
+  padding: 3px 8px;
+  color: var(--danger);
+  border-color: var(--danger-light);
+  &:hover:not(:disabled) { background: var(--danger-light); color: var(--danger); }
+}
 
-  &--dirty {
-    background: var(--warning);
-    border-color: var(--warning);
-    color: #fff;
-
-    &:hover {
-      background: #d97706;
-    }
-  }
-
-  &--sperren {
-    color: var(--danger);
-    border-color: var(--danger-light);
-
-    &:hover {
-      background: var(--danger-light);
-    }
-  }
-
-  &--entsperren {
-    color: var(--success);
-    border-color: var(--success-light);
-
-    &:hover {
-      background: var(--success-light);
-    }
-  }
-
-  &--gefaehrlich-klein {
-    font-size: 0.72rem;
-    padding: 0.2rem 0.5rem;
-    color: var(--danger);
-    border-color: var(--danger-light);
-
-    &:hover {
-      background: var(--danger-light);
-    }
-  }
-
-  &--klein {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.5rem;
-    text-decoration: none;
-    display: inline-block;
-  }
+.btn--klein {
+  font-size: 11px;
+  padding: 3px 8px;
+  text-decoration: none;
 }
 
 // ── Fehler / Lade ─────────────────────────────────────────────────────────────
@@ -212,7 +174,13 @@
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+
+  &--sm { max-width: 480px; }
 }
+
+.modal-heading { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
+.modal-text { color: var(--gray-600); font-size: 13px; margin-bottom: 0.75rem; }
+.modal-text--mb-lg { color: var(--gray-600); font-size: 13px; margin-bottom: 1rem; }
 
 .modal-titel {
   font-size: 1rem;

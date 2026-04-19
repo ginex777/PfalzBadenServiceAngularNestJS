@@ -4,7 +4,7 @@
 <!-- Jahr-Auswahl -->
 <div class="jahr-toolbar">
   <label class="jahr-label">Wirtschaftsjahr:</label>
-  <select [value]="facade.aktuellesJahr()" (change)="jahrGeaendert($event)" style="width:auto;font-size:13px">
+  <select class="select-sm" [value]="facade.aktuellesJahr()" (change)="jahrGeaendert($event)">
     @for (j of facade.verfuegbareJahre(); track j) {
       <option [value]="j">{{ j }}</option>
     }

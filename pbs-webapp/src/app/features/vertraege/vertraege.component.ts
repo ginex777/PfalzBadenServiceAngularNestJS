@@ -1,8 +1,10 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, CurrencyPipe } from '@angular/common';
-import { ApiService } from '../../core/api/api.service';
+import { VertraegeService } from './vertraege.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Kunde, Vertrag, VertragVorlage } from '../../core/models';
+import { BrowserService } from '../../core/services/browser.service';
 
 const VORLAGEN: { id: VertragVorlage; label: string; beschreibung: string }[] = [
   { id: 'Wartungsvertrag',       label: 'Wartungsvertrag',       beschreibung: 'Regelmäßige Wartung und Instandhaltung' },
@@ -20,7 +22,9 @@ type Ansicht = 'liste' | 'neu' | 'bearbeiten';
   styleUrl: './vertraege.component.scss',
 })
 export class VertraegeComponent implements OnInit {
-  private readonly api = inject(ApiService);
+  private readonly service = inject(VertraegeService);
+  private readonly browser = inject(BrowserService);
+  private readonly toast = inject(ToastService);
 
   readonly vorlagen = VORLAGEN;
 
@@ -29,7 +33,6 @@ export class VertraegeComponent implements OnInit {
   ansicht = signal<Ansicht>('liste');
   laedt = signal(false);
   pdfLaedt = signal(false);
-  fehler = signal('');
   erfolg = signal('');
 
   // Form state
@@ -61,8 +64,8 @@ export class VertraegeComponent implements OnInit {
 
   private _datenLaden() {
     this.laedt.set(true);
-    this.api.kundenLaden().subscribe({ next: k => this.kunden.set(k), error: () => {} });
-    this.api.vertraegeLaden().subscribe({
+    this.service.kundenLaden().subscribe({ next: k => this.kunden.set(k), error: () => {} });
+    this.service.vertraegeLaden().subscribe({
       next: v => { this.vertraege.set(v); this.laedt.set(false); },
       error: () => this.laedt.set(false),
     });
@@ -78,14 +81,12 @@ export class VertraegeComponent implements OnInit {
       vertragsbeginn: new Date().toISOString().slice(0, 10),
       status: 'aktiv',
     });
-    this.fehler.set('');
     this.ansicht.set('neu');
   }
 
   bearbeiten(v: Vertrag) {
     this.bearbeiteteId.set(v.id);
     this.formVertrag.set({ ...v });
-    this.fehler.set('');
     this.ansicht.set('bearbeiten');
   }
 
@@ -109,15 +110,14 @@ export class VertraegeComponent implements OnInit {
   speichern() {
     const f = this.formVertrag();
     if (!f.kunden_name || !f.vertragsbeginn || !f.vorlage) {
-      this.fehler.set('Bitte alle Pflichtfelder ausfüllen.');
+      this.toast.error('Bitte alle Pflichtfelder ausfüllen.');
       return;
     }
     this.laedt.set(true);
-    this.fehler.set('');
 
     const action$ = this.bearbeiteteId()
-      ? this.api.vertragAktualisieren(this.bearbeiteteId()!, f)
-      : this.api.vertragErstellen(f);
+      ? this.service.vertragAktualisieren(this.bearbeiteteId()!, f)
+      : this.service.vertragErstellen(f);
 
     action$.subscribe({
       next: (saved) => {
@@ -132,14 +132,14 @@ export class VertraegeComponent implements OnInit {
       },
       error: (err) => {
         this.laedt.set(false);
-        this.fehler.set(err?.error?.message ?? 'Fehler beim Speichern.');
+        this.toast.error(err?.error?.message ?? 'Fehler beim Speichern.');
       },
     });
   }
 
   loeschen(v: Vertrag) {
     if (!confirm(`Vertrag "${v.titel}" wirklich löschen?`)) return;
-    this.api.vertragLoeschen(v.id).subscribe({
+    this.service.vertragLoeschen(v.id).subscribe({
       next: () => {
         this.vertraege.update(list => list.filter(x => x.id !== v.id));
         this._toast('Vertrag gelöscht.');
@@ -149,26 +149,25 @@ export class VertraegeComponent implements OnInit {
 
   pdfErstellen(v: Vertrag) {
     this.pdfLaedt.set(true);
-    this.api.vertragPdfErstellen(v.id).subscribe({
+    this.service.vertragPdfErstellen(v.id).subscribe({
       next: (res) => {
         this.pdfLaedt.set(false);
-        window.open(res.url, '_blank');
+        this.browser.blobOeffnen(res.url);
       },
-      error: () => { this.pdfLaedt.set(false); this._toast('PDF-Erstellung fehlgeschlagen.', true); },
+      error: () => { this.pdfLaedt.set(false); this.toast.error('PDF-Erstellung fehlgeschlagen.'); },
     });
   }
 
   abbrechen() {
     this.ansicht.set('liste');
-    this.fehler.set('');
   }
 
   statusBadge(status: string): string {
     return status === 'aktiv' ? 'badge-aktiv' : status === 'beendet' ? 'badge-beendet' : 'badge-gekuendigt';
   }
 
-  private _toast(msg: string, istFehler = false) {
-    if (istFehler) { this.fehler.set(msg); setTimeout(() => this.fehler.set(''), 4000); }
-    else { this.erfolg.set(msg); setTimeout(() => this.erfolg.set(''), 3000); }
+  private _toast(msg: string) {
+    this.erfolg.set(msg);
+    setTimeout(() => this.erfolg.set(''), 3000);
   }
 }

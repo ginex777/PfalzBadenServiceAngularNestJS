@@ -1,7 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { MarketingService } from './marketing.service';
+import { ToastService } from '../../core/services/toast.service';
+import { ApiService } from '../../core/api/api.service';
 import { MarketingKontakt, Kunde } from '../../core/models';
 import {
   MarketingStatusFilter, MarketingStatistik, CsvImportZeile,
@@ -12,10 +13,10 @@ import {
 export class MarketingFacade {
   private readonly service = inject(MarketingService);
   private readonly router = inject(Router);
-  private readonly http = inject(HttpClient);
+  private readonly api = inject(ApiService);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly kontakte = signal<MarketingKontakt[]>([]);
   readonly kunden = signal<Kunde[]>([]);
   readonly suchbegriff = signal('');
@@ -46,9 +47,9 @@ export class MarketingFacade {
     this.vorlageText.set(this.DEFAULT_TEXT);
   }
   vorlageSpeichern(): void {
-    this.http.post('/api/settings/marketing_template', { betreff: this.vorlageBetreff(), text: this.vorlageText() }).subscribe({
+    this.api.marketingVorlageSpeichern({ betreff: this.vorlageBetreff(), text: this.vorlageText() }).subscribe({
       next: () => this.vorlageModalSchliessen(),
-      error: () => this.fehler.set('Vorlage konnte nicht gespeichert werden.'),
+      error: () => this.toast.error('Vorlage konnte nicht gespeichert werden.'),
     });
   }
 
@@ -93,10 +94,9 @@ export class MarketingFacade {
         this.kunden.set(kunden);
         this.laedt.set(false);
       },
-      error: () => { this.fehler.set('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
     });
-    // Load email template
-    this.http.get<{ betreff?: string; text?: string }>('/api/settings/marketing_template').subscribe({
+    this.api.marketingVorlageLaden().subscribe({
       next: t => {
         if (t?.betreff) this.vorlageBetreff.set(t.betreff);
         if (t?.text) this.vorlageText.set(t.text);
@@ -124,7 +124,7 @@ export class MarketingFacade {
 
   speichern(): void {
     const daten = this.formularDaten();
-    if (!daten.name || !daten.email) { this.fehler.set('Name und E-Mail sind Pflichtfelder.'); return; }
+    if (!daten.name || !daten.email) { this.toast.error('Name und E-Mail sind Pflichtfelder.'); return; }
     const editId = this.bearbeiteterKontakt()?.id;
     const anfrage = editId
       ? this.service.kontaktAktualisieren(editId, daten)
@@ -135,7 +135,7 @@ export class MarketingFacade {
         else this.kontakte.update(list => [gespeichert, ...list]);
         this.formularSchliessen();
       },
-      error: () => this.fehler.set('Kontakt konnte nicht gespeichert werden.'),
+      error: () => this.toast.error('Kontakt konnte nicht gespeichert werden.'),
     });
   }
 
@@ -150,7 +150,7 @@ export class MarketingFacade {
         this.kontakte.update(list => list.map(x => x.id === k.id ? aktualisiert : x));
         this.statusModalSchliessen();
       },
-      error: () => this.fehler.set('Status konnte nicht gespeichert werden.'),
+      error: () => this.toast.error('Status konnte nicht gespeichert werden.'),
     });
   }
 
@@ -162,7 +162,7 @@ export class MarketingFacade {
     if (id === null) return;
     this.service.kontaktLoeschen(id).subscribe({
       next: () => { this.kontakte.update(list => list.filter(k => k.id !== id)); this.loeschKandidat.set(null); },
-      error: () => { this.fehler.set('Kontakt konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
+      error: () => { this.toast.error('Kontakt konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
     });
   }
 
@@ -202,7 +202,7 @@ export class MarketingFacade {
           state: { prefill: { empf: kunde.name, str: kunde.strasse, ort: kunde.ort, email: kunde.email, kunden_id: kunde.id } },
         });
       },
-      error: () => this.fehler.set('Kunde konnte nicht erstellt werden.'),
+      error: () => this.toast.error('Kunde konnte nicht erstellt werden.'),
     });
   }
 

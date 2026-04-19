@@ -1,15 +1,30 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 const VALID_STATUS = ['neu', 'gesendet', 'interesse', 'kein-interesse', 'angebot'];
 
 @Injectable()
 export class MarketingService {
+  private readonly logger = new Logger(MarketingService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
-  async alleKontakteLaden() {
-    const rows = await this.prisma.marketing.findMany({ orderBy: [{ datum: 'desc' }, { id: 'desc' }] });
-    return rows.map(r => ({ ...r, id: Number(r.id) }));
+  async alleKontakteLaden(pagination: PaginationDto): Promise<PaginatedResponse<Record<string, unknown>>> {
+    const { page, limit } = pagination;
+    const skip = (page - 1) * limit;
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.marketing.findMany({ orderBy: [{ datum: 'desc' }, { id: 'desc' }], skip, take: limit }),
+      this.prisma.marketing.count(),
+    ]);
+    return {
+      data: rows.map(r => ({ ...r, id: Number(r.id) })),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async kontaktErstellen(d: Record<string, unknown>) {

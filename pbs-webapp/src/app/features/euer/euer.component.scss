@@ -1,6 +1,7 @@
 .jahr-toolbar {
   display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;
 }
+.select-sm { width: auto; font-size: 13px; }
 .jahr-label { font-size: 13px; font-weight: 500; }
 .laedt-hinweis { font-size: 12px; color: var(--gray-500); }
 .ergebnis-banner {

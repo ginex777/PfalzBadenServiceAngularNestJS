@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()
 export class MuellplanService {
+  private readonly logger = new Logger(MuellplanService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async objekteLaden() {

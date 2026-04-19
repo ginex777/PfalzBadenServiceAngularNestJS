@@ -1,15 +1,33 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {
   Kunde, Rechnung, Angebot, BuchhaltungEintrag, BuchhaltungJahr,
   VstPaid, GesperrterMonat, MarketingKontakt, Mitarbeiter, MitarbeiterStunden,
   Objekt, MuellplanTermin, MuellplanVorlage, HausmeisterEinsatz, Task,
   TaskReorderUpdate, Beleg, AuditLogEntry, Benachrichtigung,
   WiederkehrendeAusgabe, WiederkehrendeRechnung, FirmaSettings,
-  PdfArchiveEntry, Mahnung, DatevValidation, DatevPreviewRow,
+  PdfArchiveEntry, Mahnung,
   BackupInfo, SettingsKey, Vertrag,
 } from '../models';
+
+export interface DatevValidierungsMeldung { typ: 'error' | 'warning'; msg: string; }
+export interface DatevVorschauZeile { datum: string; typ: 'inc' | 'exp'; name: string; belegnr?: string; brutto: number; mwst: number; netto: number; ust: number; konto: string; shKz: string; }
+export interface DatevVorschauAntwort { rows: DatevVorschauZeile[]; stats?: { totalInc: number; totalExp: number; sumIncNetto: number; sumExpNetto: number; zahllast: number; }; warnings?: DatevValidierungsMeldung[]; }
+
+interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface SmtpSettings { host: string; port: number; secure: boolean; user: string; pass: string; fromName?: string; }
+export interface UserEintrag { id: string; email: string; rolle: string; vorname: string | null; nachname: string | null; aktiv: boolean; created_at: string; }
+export interface UserAnlegenPayload { email: string; password: string; rolle: 'admin' | 'readonly' | 'mitarbeiter'; vorname?: string; nachname?: string; }
+export interface UserAktualisierenPayload { vorname?: string; nachname?: string; rolle?: string; }
 
 interface Stempel {
   id: number;
@@ -28,7 +46,8 @@ export class ApiService {
 
   // ── Kunden ──────────────────────────────────────────────────────────────
   kundenLaden(): Observable<Kunde[]> {
-    return this.http.get<Kunde[]>(`${this.basis}/kunden`);
+    const params = new HttpParams().set('limit', '1000');
+    return this.http.get<PaginatedResponse<Kunde>>(`${this.basis}/kunden`, { params }).pipe(map(r => r.data));
   }
   kundeErstellen(daten: Partial<Kunde>): Observable<Kunde> {
     return this.http.post<Kunde>(`${this.basis}/kunden`, daten);
@@ -42,7 +61,8 @@ export class ApiService {
 
   // ── Rechnungen ──────────────────────────────────────────────────────────
   rechnungenLaden(): Observable<Rechnung[]> {
-    return this.http.get<Rechnung[]>(`${this.basis}/rechnungen`);
+    const params = new HttpParams().set('limit', '1000');
+    return this.http.get<PaginatedResponse<Rechnung>>(`${this.basis}/rechnungen`, { params }).pipe(map(r => r.data));
   }
   rechnungErstellen(daten: Partial<Rechnung>): Observable<Rechnung> {
     return this.http.post<Rechnung>(`${this.basis}/rechnungen`, daten);
@@ -56,7 +76,8 @@ export class ApiService {
 
   // ── Angebote ────────────────────────────────────────────────────────────
   angeboteLaden(): Observable<Angebot[]> {
-    return this.http.get<Angebot[]>(`${this.basis}/angebote`);
+    const params = new HttpParams().set('limit', '1000');
+    return this.http.get<PaginatedResponse<Angebot>>(`${this.basis}/angebote`, { params }).pipe(map(r => r.data));
   }
   angebotErstellen(daten: Partial<Angebot>): Observable<Angebot> {
     return this.http.post<Angebot>(`${this.basis}/angebote`, daten);
@@ -106,7 +127,8 @@ export class ApiService {
 
   // ── Marketing ───────────────────────────────────────────────────────────
   marketingKontakteLaden(): Observable<MarketingKontakt[]> {
-    return this.http.get<MarketingKontakt[]>(`${this.basis}/marketing`);
+    const params = new HttpParams().set('limit', '1000');
+    return this.http.get<PaginatedResponse<MarketingKontakt>>(`${this.basis}/marketing`, { params }).pipe(map(r => r.data));
   }
   marketingKontaktErstellen(daten: Partial<MarketingKontakt>): Observable<MarketingKontakt> {
     return this.http.post<MarketingKontakt>(`${this.basis}/marketing`, daten);
@@ -120,7 +142,8 @@ export class ApiService {
 
   // ── Mitarbeiter ─────────────────────────────────────────────────────────
   mitarbeiterLaden(): Observable<Mitarbeiter[]> {
-    return this.http.get<Mitarbeiter[]>(`${this.basis}/mitarbeiter`);
+    const params = new HttpParams().set('limit', '1000');
+    return this.http.get<PaginatedResponse<Mitarbeiter>>(`${this.basis}/mitarbeiter`, { params }).pipe(map(r => r.data));
   }
   mitarbeiterErstellen(daten: Partial<Mitarbeiter>): Observable<Mitarbeiter> {
     return this.http.post<Mitarbeiter>(`${this.basis}/mitarbeiter`, daten);
@@ -223,7 +246,8 @@ export class ApiService {
 
   // ── Hausmeister ─────────────────────────────────────────────────────────
   hausmeisterEinsaetzeLaden(): Observable<HausmeisterEinsatz[]> {
-    return this.http.get<HausmeisterEinsatz[]>(`${this.basis}/hausmeister`);
+    const params = new HttpParams().set('limit', '1000');
+    return this.http.get<PaginatedResponse<HausmeisterEinsatz>>(`${this.basis}/hausmeister`, { params }).pipe(map(r => r.data));
   }
   hausmeisterEinsatzErstellen(daten: Partial<HausmeisterEinsatz>): Observable<HausmeisterEinsatz> {
     return this.http.post<HausmeisterEinsatz>(`${this.basis}/hausmeister`, daten);
@@ -237,7 +261,8 @@ export class ApiService {
 
   // ── Tasks (Kanban) ──────────────────────────────────────────────────────
   tasksLaden(): Observable<Task[]> {
-    return this.http.get<Task[]>(`${this.basis}/tasks`);
+    const params = new HttpParams().set('limit', '1000');
+    return this.http.get<PaginatedResponse<Task>>(`${this.basis}/tasks`, { params }).pipe(map(r => r.data));
   }
   taskErstellen(daten: Partial<Task>): Observable<Task> {
     return this.http.post<Task>(`${this.basis}/tasks`, daten);
@@ -254,8 +279,9 @@ export class ApiService {
 
   // ── Belege ──────────────────────────────────────────────────────────────
   belegeLaden(jahr?: number): Observable<Beleg[]> {
-    const params = jahr ? new HttpParams().set('jahr', jahr) : undefined;
-    return this.http.get<Beleg[]>(`${this.basis}/belege`, { params });
+    let params = new HttpParams().set('limit', '1000');
+    if (jahr) params = params.set('jahr', jahr);
+    return this.http.get<PaginatedResponse<Beleg>>(`${this.basis}/belege`, { params }).pipe(map(r => r.data));
   }
   belegLaden(id: number): Observable<Beleg> {
     return this.http.get<Beleg>(`${this.basis}/belege/${id}`);
@@ -297,23 +323,25 @@ export class ApiService {
 
   // ── Audit-Log ───────────────────────────────────────────────────────────
   auditLogAllesLaden(): Observable<AuditLogEntry[]> {
-    return this.http.get<AuditLogEntry[]>(`${this.basis}/audit/all`);
+    const params = new HttpParams().set('limit', '1000');
+    return this.http.get<PaginatedResponse<AuditLogEntry>>(`${this.basis}/audit/all`, { params }).pipe(map(r => r.data));
   }
   auditLogFuerTabelleLaden(tabelle: string): Observable<AuditLogEntry[]> {
-    return this.http.get<AuditLogEntry[]>(`${this.basis}/audit/${tabelle}/all`);
+    const params = new HttpParams().set('limit', '1000');
+    return this.http.get<PaginatedResponse<AuditLogEntry>>(`${this.basis}/audit/${tabelle}/all`, { params }).pipe(map(r => r.data));
   }
   auditLogFuerDatensatzLaden(tabelle: string, id: number): Observable<AuditLogEntry[]> {
     return this.http.get<AuditLogEntry[]>(`${this.basis}/audit/${tabelle}/${id}`);
   }
 
   // ── DATEV ────────────────────────────────────────────────────────────────
-  datevValidieren(jahr: number, monat: number): Observable<DatevValidation> {
+  datevValidieren(jahr: number, monat: number): Observable<DatevVorschauAntwort> {
     const params = new HttpParams().set('jahr', jahr).set('monat', monat);
-    return this.http.get<DatevValidation>(`${this.basis}/datev/validate`, { params });
+    return this.http.get<DatevVorschauAntwort>(`${this.basis}/datev/validate`, { params });
   }
-  datevVorschauLaden(jahr: number, monat: number): Observable<DatevPreviewRow[]> {
+  datevVorschauLaden(jahr: number, monat: number): Observable<DatevVorschauAntwort> {
     const params = new HttpParams().set('jahr', jahr).set('monat', monat);
-    return this.http.get<DatevPreviewRow[]>(`${this.basis}/datev/preview`, { params });
+    return this.http.get<DatevVorschauAntwort>(`${this.basis}/datev/preview`, { params });
   }
   datevExportUrl(jahr: number, monat: number): string {
     return `${this.basis}/datev/export?jahr=${jahr}&monat=${monat}`;
@@ -386,8 +414,9 @@ export class ApiService {
 
   // ── Verträge ────────────────────────────────────────────────────────────
   vertraegeLaden(kundenId?: number): Observable<Vertrag[]> {
-    const params = kundenId ? new HttpParams().set('kunden_id', kundenId) : undefined;
-    return this.http.get<Vertrag[]>(`${this.basis}/vertraege`, { params });
+    let params = new HttpParams().set('limit', '1000');
+    if (kundenId) params = params.set('kunden_id', kundenId);
+    return this.http.get<PaginatedResponse<Vertrag>>(`${this.basis}/vertraege`, { params }).pipe(map(r => r.data));
   }
   vertragErstellen(daten: Partial<Vertrag>): Observable<Vertrag> {
     return this.http.post<Vertrag>(`${this.basis}/vertraege`, daten);
@@ -400,6 +429,45 @@ export class ApiService {
   }
   vertragPdfErstellen(id: number): Observable<{ token: string; url: string }> {
     return this.http.post<{ token: string; url: string }>(`${this.basis}/vertraege/${id}/pdf`, {});
+  }
+
+  // ── SMTP & Benutzerverwaltung ────────────────────────────────────────────
+  smtpLaden(): Observable<SmtpSettings> {
+    return this.http.get<SmtpSettings>(`${this.basis}/settings/smtp`);
+  }
+  smtpSpeichern(daten: SmtpSettings): Observable<SmtpSettings> {
+    return this.http.post<SmtpSettings>(`${this.basis}/settings/smtp`, daten);
+  }
+  emailTesten(): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ success: boolean; message?: string }>(`${this.basis}/email/test`, {});
+  }
+  usersLaden(): Observable<UserEintrag[]> {
+    return this.http.get<UserEintrag[]>(`${this.basis}/auth/users`);
+  }
+  userAnlegen(payload: UserAnlegenPayload): Observable<UserEintrag> {
+    return this.http.post<UserEintrag>(`${this.basis}/auth/users`, payload);
+  }
+  userAktualisieren(id: string, daten: UserAktualisierenPayload): Observable<UserEintrag> {
+    return this.http.patch<UserEintrag>(`${this.basis}/auth/users/${id}`, daten);
+  }
+  userLoeschen(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.basis}/auth/users/${id}`);
+  }
+
+  // ── Marketing Vorlage ───────────────────────────────────────────────────
+  marketingVorlageLaden(): Observable<{ betreff?: string; text?: string }> {
+    return this.http.get<{ betreff?: string; text?: string }>(`${this.basis}/settings/marketing_template`);
+  }
+  marketingVorlageSpeichern(daten: { betreff: string; text: string }): Observable<void> {
+    return this.http.post<void>(`${this.basis}/settings/marketing_template`, daten);
+  }
+
+  // ── PDF-Archiv (Delete) ─────────────────────────────────────────────────
+  pdfArchivEintragLoeschen(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.basis}/pdf/archiv/${id}`);
+  }
+  pdfArchivAllesLoeschen(): Observable<{ ok: boolean; deleted: number }> {
+    return this.http.delete<{ ok: boolean; deleted: number }>(`${this.basis}/pdf/archiv/cleanup`);
   }
 
   // ── Backup ──────────────────────────────────────────────────────────────

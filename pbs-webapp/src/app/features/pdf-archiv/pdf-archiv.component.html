@@ -1,10 +1,6 @@
 <div class="page-wrap">
 <app-page-title titel="PDF-Archiv" untertitel="Alle generierten Dokumente" />
 
-@if (facade.fehler()) {
-  <div class="alert alert--danger">{{ facade.fehler() }}</div>
-}
-
 <div class="toolbar">
   <input class="form-input toolbar__search" type="search" placeholder="Suchen…"
     [value]="facade.suchbegriff()"
@@ -62,7 +58,7 @@
                 <button class="btn btn-sm" (click)="facade.pdfOeffnen(e.id)">
                   Öffnen
                 </button>
-                <button class="btn btn-sm btn-danger" style="margin-left:4px" (click)="facade.eintragLoeschen(e.id)">Löschen</button>
+                <button class="btn btn-sm btn-danger btn-ml" (click)="facade.eintragLoeschen(e.id)">Löschen</button>
               </td>
             </tr>
           }

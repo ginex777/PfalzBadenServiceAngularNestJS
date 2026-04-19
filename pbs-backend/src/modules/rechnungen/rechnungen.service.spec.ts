@@ -3,16 +3,19 @@ import { NotFoundException, ConflictException, ForbiddenException } from '@nestj
 import { RechnungenService } from './rechnungen.service';
 import { PrismaService } from '../../core/database/prisma.service';
 import { AuditService } from '../../modules/audit/audit.service';
+import { UpdateRechnungDto } from './dto/rechnung.dto';
 
 const mockPrisma = {
   rechnungen: {
     findMany: jest.fn(),
+    count: jest.fn(),
     findUnique: jest.fn(),
     findFirst: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
   },
+  $transaction: jest.fn(),
 };
 
 const mockAudit = { protokollieren: jest.fn() };
@@ -36,20 +39,21 @@ describe('RechnungenService', () => {
   describe('alleRechnungenLaden()', () => {
     it('gibt gemappte Rechnungen zurück', async () => {
       const row = { id: 1n, nr: 'R-001', empf: 'Test', brutto: 100, mwst_satz: 19, bezahlt: false, kunden_id: null };
-      mockPrisma.rechnungen.findMany.mockResolvedValue([row]);
+      mockPrisma.$transaction.mockResolvedValue([[row], 1]);
 
-      const result = await service.alleRechnungenLaden();
+      const result = await service.alleRechnungenLaden({ page: 1, limit: 100 });
 
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe(1); // BigInt → Number
-      expect(result[0].brutto).toBe(100);
-      expect(mockPrisma.rechnungen.findMany).toHaveBeenCalledTimes(1);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].id).toBe(1); // BigInt → Number
+      expect(result.data[0].brutto).toBe(100);
+      expect(result.total).toBe(1);
     });
 
     it('gibt leere Liste zurück wenn keine Rechnungen', async () => {
-      mockPrisma.rechnungen.findMany.mockResolvedValue([]);
-      const result = await service.alleRechnungenLaden();
-      expect(result).toEqual([]);
+      mockPrisma.$transaction.mockResolvedValue([[], 0]);
+      const result = await service.alleRechnungenLaden({ page: 1, limit: 100 });
+      expect(result.data).toEqual([]);
+      expect(result.total).toBe(0);
     });
   });
 
@@ -81,13 +85,13 @@ describe('RechnungenService', () => {
     it('wirft NotFoundException wenn Rechnung nicht gefunden', async () => {
       mockPrisma.rechnungen.findUnique.mockResolvedValue(null);
 
-      await expect(service.rechnungAktualisieren(999, { nr: 'X', empf: 'Y' })).rejects.toThrow(NotFoundException);
+      await expect(service.rechnungAktualisieren(999, { nr: 'X', empf: 'Y' } as UpdateRechnungDto)).rejects.toThrow(NotFoundException);
     });
 
     it('wirft ForbiddenException wenn bezahlte Rechnung inhaltlich geändert wird', async () => {
       mockPrisma.rechnungen.findUnique.mockResolvedValue({ id: 1n, nr: 'R-001', bezahlt: true });
 
-      await expect(service.rechnungAktualisieren(1, { nr: 'R-001', empf: 'Geändert', bezahlt: true }))
+      await expect(service.rechnungAktualisieren(1, { nr: 'R-001', empf: 'Geändert', bezahlt: true } as UpdateRechnungDto))
         .rejects.toThrow(ForbiddenException);
     });
 
@@ -99,7 +103,7 @@ describe('RechnungenService', () => {
       mockPrisma.rechnungen.update.mockResolvedValue(updated);
       mockAudit.protokollieren.mockResolvedValue(undefined);
 
-      const result = await service.rechnungAktualisieren(1, { nr: 'R-001', empf: 'Test', bezahlt: false });
+      const result = await service.rechnungAktualisieren(1, { nr: 'R-001', empf: 'Test', bezahlt: false } as UpdateRechnungDto);
 
       expect(result.bezahlt).toBe(false);
       expect(mockAudit.protokollieren).toHaveBeenCalledWith('rechnungen', 1n, 'UPDATE', alt, updated, undefined);

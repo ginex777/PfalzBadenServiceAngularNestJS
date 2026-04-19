@@ -18,31 +18,33 @@
   border-radius: var(--radius);
   font-size: 13px;
   font-weight: 500;
-  box-shadow: var(--shadow-md);
-  border: 1px solid transparent;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   animation: toast-in 0.2s ease;
   pointer-events: all;
 
   &--success {
-    background: var(--success-light);
-    color: #065f46;
-    border-color: #6ee7b7;
+    background: color-mix(in srgb, var(--success-light) 85%, transparent);
+    color: var(--success);
+    border-color: var(--success-muted);
   }
 
   &--error {
-    background: var(--danger-light);
-    color: #991b1b;
-    border-color: #fca5a5;
+    background: color-mix(in srgb, var(--danger-light) 85%, transparent);
+    color: var(--danger);
+    border-color: var(--danger-muted);
   }
 
   &--warning {
-    background: var(--warning-light);
-    color: #92400e;
-    border-color: #fcd34d;
+    background: color-mix(in srgb, var(--warning-light) 85%, transparent);
+    color: var(--warning);
+    border-color: var(--warning-muted);
   }
 
   &--info {
-    background: var(--primary-light);
+    background: color-mix(in srgb, var(--primary-light) 85%, transparent);
     color: var(--primary);
     border-color: rgba(99, 102, 241, 0.3);
   }

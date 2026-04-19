@@ -7,6 +7,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class BuchhaltungEintragDto {
   @ApiProperty({ enum: ['inc', 'exp'] }) @IsIn(['inc', 'exp']) typ!: 'inc' | 'exp';
+  @ApiProperty() @IsInt() @Min(2000) @Max(2100) jahr!: number;
+  @ApiProperty() @IsInt() @Min(0) @Max(11) monat!: number;
   @ApiPropertyOptional() @IsOptional() @IsString() name?: string;
   @ApiPropertyOptional() @IsOptional() @IsDateString() datum?: string;
   @ApiProperty() @IsNumber() @Min(0) brutto!: number;

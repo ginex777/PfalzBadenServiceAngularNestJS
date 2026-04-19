@@ -2,13 +2,16 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { EuerService } from './euer.service';
 import { BuchhaltungJahr, FirmaSettings } from '../../core/models';
 import { EuerErgebnis, EUER_AUSGABEN_ZEILEN } from './euer.models';
+import { BrowserService } from '../../core/services/browser.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class EuerFacade {
   private readonly service = inject(EuerService);
+  private readonly browser = inject(BrowserService);
+  private readonly toast = inject(ToastService);
 
   readonly laedt = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly aktuellesJahr = signal(new Date().getFullYear());
   readonly buchhaltungDaten = signal<BuchhaltungJahr>({});
   readonly firma = signal<FirmaSettings>({});
@@ -75,7 +78,7 @@ export class EuerFacade {
     this.laedt.set(true);
     this.service.buchhaltungLaden(this.aktuellesJahr()).subscribe({
       next: daten => { this.buchhaltungDaten.set(daten); this.laedt.set(false); },
-      error: () => { this.fehler.set('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => { this.toast.error('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
     });
     this.service.firmaLaden().subscribe({ next: f => this.firma.set(f), error: () => {} });
   }
@@ -88,8 +91,8 @@ export class EuerFacade {
   pdfExportieren(): void {
     const e = this.ergebnis();
     this.service.pdfErstellen(this.aktuellesJahr(), e).subscribe({
-      next: r => { if (r.url) window.open(r.url, '_blank'); },
-      error: () => this.fehler.set('PDF konnte nicht erstellt werden.'),
+      next: r => { if (r.url) this.browser.blobOeffnen(r.url); },
+      error: () => this.toast.error('PDF konnte nicht erstellt werden.'),
     });
   }
 }

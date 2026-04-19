@@ -1,6 +1,6 @@
 <div class="card">
   <h3 class="section-title">Firmen-Stammdaten</h3>
-  <p class="hint" style="margin-bottom:0.75rem">Diese Daten erscheinen auf allen Rechnungen und Angeboten als Absender und im Footer.</p>
+  <p class="hint hint--mb">Diese Daten erscheinen auf allen Rechnungen und Angeboten als Absender und im Footer.</p>
 
   <div class="form-row">
     <div class="form-field">
@@ -71,7 +71,7 @@
     </div>
   </div>
 
-  <div class="btn-group" style="margin-top:0.5rem">
+  <div class="btn-group btn-group-mt">
     <button class="btn btn-primary" [disabled]="speichert()" (click)="speichern.emit()">
       {{ speichert() ? 'Wird gespeichert…' : 'Speichern' }}
     </button>

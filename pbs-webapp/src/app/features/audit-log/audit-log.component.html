@@ -1,22 +1,18 @@
 <div class="page-wrap">
 <app-page-title titel="Audit-Log" untertitel="Alle Datenänderungen nachvollziehen" />
 
-@if (facade.fehler()) {
-  <div class="alert alert--danger">{{ facade.fehler() }}</div>
-}
-
 <div class="toolbar">
   <input class="form-input toolbar__search" type="search" placeholder="Suchen…"
     [value]="facade.suchbegriff()"
     (input)="suchbegriffGeaendert($event)" />
-  <select class="form-select" style="width:auto"
+  <select class="form-select" class="select-auto"
     [value]="facade.aktiverAktionFilter()"
     (change)="aktionFilterGeaendert($event)">
     @for (opt of aktionOptionen; track opt.id) {
       <option [value]="opt.id">{{ opt.label }}</option>
     }
   </select>
-  <select class="form-select" style="width:auto"
+  <select class="form-select" class="select-auto"
     [value]="facade.aktiveTabelleFilter()"
     (change)="tabelleFilterGeaendert($event)">
     <option value="">Alle Tabellen</option>

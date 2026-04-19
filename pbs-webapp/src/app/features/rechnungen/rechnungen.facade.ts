@@ -22,13 +22,13 @@ export class RechnungenFacade {
 
   readonly laedt = signal(false);
   readonly speichert = signal(false);
-  readonly fehler = signal<string | null>(null);
   readonly rechnungen = signal<Rechnung[]>([]);
   readonly kunden = signal<Kunde[]>([]);
   readonly firma = signal<FirmaSettings>({});
   readonly suchbegriff = signal('');
   readonly aktiverFilter = signal<RechnungFilter>('alle');
-  readonly aktiverTab = signal<'formular' | 'tracker'>('formular');
+  readonly drawerOffen = signal(false);
+  readonly drawerSchritt = signal<'formular' | 'senden'>('formular');
   readonly bearbeiteteRechnung = signal<Rechnung | null>(null);
   readonly loeschKandidat = signal<number | null>(null);
   readonly bezahltKandidat = signal<Rechnung | null>(null);
@@ -63,12 +63,15 @@ export class RechnungenFacade {
     if (state?.prefill) {
       this.prefill.set(state.prefill);
       this.prefillAusRouterState(state.prefill);
+      this.drawerOffen.set(true);
     }
     if (state?.convertFrom === 'angebot') {
       this.prefillAusAngebot(state.data as AngebotKonvertierungsDaten);
+      this.drawerOffen.set(true);
     }
     if (state?.convertFrom === 'wiederkehrend') {
       this.prefillAusWiederkehrend(state.data as WiederkehrendPrefill);
+      this.drawerOffen.set(true);
     }
     if (state?.openId) {
       this._openId.set(state.openId);
@@ -134,18 +137,17 @@ export class RechnungenFacade {
   });
 
   readonly netto = computed(() =>
-    this.service.nettoBerechnen(this.formularDaten().positionen, this.formularDaten().mwst_satz)
+    this.service.nettoSummeBerechnen(this.formularDaten().positionen)
   );
 
   readonly brutto = computed(() =>
-    this.service.bruttoBerechnen(this.formularDaten().positionen)
+    this.service.bruttoBerechnen(this.formularDaten().positionen, this.formularDaten().mwst_satz)
   );
 
   readonly mwstBetrag = computed(() => this.brutto() - this.netto());
 
   ladeDaten(): void {
     this.laedt.set(true);
-    this.fehler.set(null);
     this.service.rechnungenUndKundenLaden().subscribe({
       next: ({ rechnungen, kunden }) => {
         this.rechnungen.set(rechnungen);
@@ -169,7 +171,6 @@ export class RechnungenFacade {
         this.toast.success(`${rechnungen.length} Rechnungen geladen.`);
       },
       error: () => {
-        this.fehler.set('Daten konnten nicht geladen werden.');
         this.laedt.set(false);
         this.toast.error('Daten konnten nicht geladen werden.');
       },
@@ -195,10 +196,9 @@ export class RechnungenFacade {
     if (!daten.nr?.trim()) fehler.push('Rechnungs-Nr.');
     if (!daten.empf?.trim()) fehler.push('Empfänger');
     if (fehler.length) {
-      this.fehler.set(`Pflichtfelder fehlen: ${fehler.join(', ')}`);
+      this.toast.error(`Pflichtfelder fehlen: ${fehler.join(', ')}`);
       return;
     }
-    this.fehler.set(null);
     this.speichert.set(true);
     const brutto = this.brutto();
     const frist = this._fristBerechnen(daten.datum, daten.zahlungsziel);
@@ -226,13 +226,14 @@ export class RechnungenFacade {
         }
         this.speichert.set(false);
         this.bearbeitungAbbrechen();
-        this.aktiverTab.set('tracker');
         if (gespeichert.email) {
           this.sendModalRechnung.set(gespeichert);
+          this.drawerSchritt.set('senden');
+        } else {
+          this.drawerSchliessen();
         }
       },
       error: () => {
-        this.fehler.set('Rechnung konnte nicht gespeichert werden.');
         this.toast.error('Rechnung konnte nicht gespeichert werden.');
         this.speichert.set(false);
       },
@@ -253,7 +254,7 @@ export class RechnungenFacade {
       mwst_satz: rechnung.mwst_satz ?? 19,
       kunden_id: rechnung.kunden_id,
     });
-    this.aktiverTab.set('formular');
+    this.drawerOeffnen();
     if (rechnung.id) {
       this.aktivitaetenLaden(rechnung.id);
     }
@@ -278,7 +279,6 @@ export class RechnungenFacade {
       nr: neueNr,
       datum: new Date().toISOString().split('T')[0],
     });
-    this.fehler.set(null);
   }
 
   loeschenBestaetigen(id: number): void {
@@ -301,7 +301,6 @@ export class RechnungenFacade {
         this.toast.success('Rechnung gelöscht.');
       },
       error: () => {
-        this.fehler.set('Rechnung konnte nicht gelöscht werden.');
         this.toast.error('Rechnung konnte nicht gelöscht werden.');
         this.loeschKandidat.set(null);
       },
@@ -311,7 +310,7 @@ export class RechnungenFacade {
   loeschenSofort(id: number): void {
     this.service.rechnungLoeschen(id).subscribe({
       next: () => this.rechnungen.update(list => list.filter(r => r.id !== id)),
-      error: () => this.fehler.set(`Rechnung #${id} konnte nicht gelöscht werden.`),
+      error: () => this.toast.error(`Rechnung #${id} konnte nicht gelöscht werden.`),
     });
   }
 
@@ -338,7 +337,6 @@ export class RechnungenFacade {
         this.toast.success(`Rechnung ${r.nr} als bezahlt markiert.`);
       },
       error: () => {
-        this.fehler.set('Status konnte nicht aktualisiert werden.');
         this.toast.error('Status konnte nicht aktualisiert werden.');
       },
     });
@@ -360,10 +358,9 @@ export class RechnungenFacade {
   vorschauGenerieren(): void {
     const daten = this.formularDaten();
     if (!daten.nr?.trim() || !daten.empf?.trim()) {
-      this.fehler.set('Bitte Rechnungs-Nr. und Empfänger ausfüllen für Vorschau.');
+      this.toast.error('Bitte Rechnungs-Nr. und Empfänger ausfüllen für Vorschau.');
       return;
     }
-    this.fehler.set(null);
     this.speichert.set(true);
     const brutto = this.brutto();
     const frist = this._fristBerechnen(daten.datum, daten.zahlungsziel);
@@ -390,11 +387,11 @@ export class RechnungenFacade {
         this.speichert.set(false);
         // Open PDF after save
         this.service.pdfOeffnen(gespeichert, this.firma()).catch(() => {
-          this.fehler.set('PDF konnte nicht generiert werden.');
+          this.toast.error('PDF konnte nicht generiert werden.');
         });
       },
       error: () => {
-        this.fehler.set('Rechnung konnte nicht gespeichert werden.');
+        this.toast.error('Rechnung konnte nicht gespeichert werden.');
         this.speichert.set(false);
       },
     });
@@ -424,13 +421,12 @@ export class RechnungenFacade {
       kunden_id: rechnung.kunden_id,
     });
     this.bearbeiteteRechnung.set(null);
-    this.aktiverTab.set('formular');
+    this.drawerOeffnen();
     this.toast.info(`Rechnung ${rechnung.nr} als Vorlage kopiert.`);
   }
 
   pdfGenerieren(rechnung: Rechnung): void {
     this.service.pdfOeffnen(rechnung, this.firma()).catch(() => {
-      this.fehler.set('PDF konnte nicht generiert werden.');
       this.toast.error('PDF konnte nicht generiert werden.');
     });
   }
@@ -476,8 +472,14 @@ export class RechnungenFacade {
     }));
   }
 
-  tabWechseln(tab: 'formular' | 'tracker'): void {
-    this.aktiverTab.set(tab);
+  drawerOeffnen(): void {
+    this.drawerOffen.set(true);
+    this.drawerSchritt.set('formular');
+  }
+
+  drawerSchliessen(): void {
+    this.drawerOffen.set(false);
+    this.drawerSchritt.set('formular');
   }
 
   filterSetzen(filter: RechnungFilter): void {
@@ -551,7 +553,6 @@ export class RechnungenFacade {
         this.toast.success(`${d.stufe}. Mahnung erstellt.`);
       },
       error: () => {
-        this.fehler.set('Mahnung konnte nicht erstellt werden.');
         this.toast.error('Mahnung konnte nicht erstellt werden.');
       },
     });
@@ -564,7 +565,6 @@ export class RechnungenFacade {
         this.toast.success('Mahnung gelöscht.');
       },
       error: () => {
-        this.fehler.set('Mahnung konnte nicht gelöscht werden.');
         this.toast.error('Mahnung konnte nicht gelöscht werden.');
       },
     });
@@ -596,6 +596,7 @@ export class RechnungenFacade {
 
   sendModalSchliessen(): void {
     this.sendModalRechnung.set(null);
+    this.drawerSchliessen();
   }
 
   private _fristBerechnen(datum: string, tage: number): string {

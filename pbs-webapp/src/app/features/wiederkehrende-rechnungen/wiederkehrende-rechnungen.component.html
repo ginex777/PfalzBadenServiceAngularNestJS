@@ -1,9 +1,5 @@
 <app-page-title titel="Wiederkehrende Rechnungen" untertitel="Vorlagen für regelmäßige Rechnungen" />
 
-@if (facade.fehler()) {
-  <div class="alert alert--danger">{{ facade.fehler() }}</div>
-}
-
 <!-- Formular -->
 @if (facade.formularSichtbar()) {
   <div class="card">
