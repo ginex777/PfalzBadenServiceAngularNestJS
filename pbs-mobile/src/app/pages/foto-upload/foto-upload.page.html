@@ -1,35 +1,39 @@
-<div class="page-foto">
-  <header class="topbar">
-    <span class="topbar-title">Beleg / Foto</span>
-  </header>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Foto</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-  @if (!vorschau()) {
-    <div class="btn-group">
-      <button class="btn-action btn-kamera" (click)="fotoAufnehmen()">Foto aufnehmen</button>
-      <button class="btn-action btn-galerie" (click)="fotoAusGalerie()">Aus Galerie wählen</button>
-    </div>
-  } @else {
-    <div class="preview-wrap">
-      <img [src]="vorschau()!" class="preview-img" alt="Vorschau" />
-      <div class="preview-actions">
-        <button class="btn-upload" [disabled]="laedt()" (click)="hochladen()">
-          {{ laedt() ? 'Hochladen…' : 'Hochladen' }}
-        </button>
-        <button class="btn-verwerfen" (click)="verwerfen()">Verwerfen</button>
+<ion-content [fullscreen]="true">
+  <div class="page-foto">
+    @if (!preview()) {
+      <div class="btn-group">
+        <ion-button expand="block" (click)="takePhoto()">Foto aufnehmen</ion-button>
+        <ion-button expand="block" fill="outline" (click)="pickFromGallery()">
+          Aus Galerie waehlen
+        </ion-button>
       </div>
-    </div>
-  }
+    } @else {
+      <ion-card>
+        <ion-card-content>
+          <img [src]="preview()!" class="preview-img" alt="Vorschau" />
+          <div class="preview-actions">
+            <ion-button expand="block" color="success" [disabled]="isLoading()" (click)="upload()">
+              {{ isLoading() ? 'Hochladen...' : 'Hochladen' }}
+            </ion-button>
+            <ion-button expand="block" fill="outline" color="danger" (click)="discard()">
+              Verwerfen
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    }
 
-  @if (meldung()) {
-    <p class="success-banner">{{ meldung() }}</p>
-  }
-  @if (fehler()) {
-    <p class="fehler-banner">{{ fehler() }}</p>
-  }
-
-  <nav class="bottom-nav">
-    <a routerLink="/stempeluhr" class="nav-item">Stempel</a>
-    <a routerLink="/tagesuebersicht" class="nav-item">Übersicht</a>
-    <a routerLink="/foto-upload" class="nav-item active">Foto</a>
-  </nav>
-</div>
+    @if (successMessage()) {
+      <p class="success-banner">{{ successMessage() }}</p>
+    }
+    @if (errorMessage()) {
+      <p class="fehler-banner">{{ errorMessage() }}</p>
+    }
+  </div>
+</ion-content>

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PBS Mobile</string>
+    <string name="title_activity_main">PBS Mobile</string>
+    <string name="package_name">de.pbs.mobile</string>
+    <string name="custom_url_scheme">de.pbs.mobile</string>
+</resources>

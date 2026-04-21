@@ -1,6 +1,14 @@
 import { Component, signal, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { environment } from '../../../environments/environment';
 
@@ -8,26 +16,28 @@ function base64ToBlob(dataUrl: string, mimeType = 'image/jpeg'): Blob {
   const byteString = atob(dataUrl.split(',')[1]);
   const ab = new ArrayBuffer(byteString.length);
   const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+  for (let i = 0; i < byteString.length; i += 1) {
+    ia[i] = byteString.charCodeAt(i);
+  }
   return new Blob([ab], { type: mimeType });
 }
 
 @Component({
   selector: 'app-foto-upload',
   standalone: true,
-  imports: [RouterLink],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, IonButton],
   templateUrl: './foto-upload.page.html',
   styleUrl: './foto-upload.page.scss',
 })
 export class FotoUploadPage {
   private readonly http = inject(HttpClient);
 
-  vorschau = signal<string | null>(null);
-  laedt = signal(false);
-  meldung = signal('');
-  fehler = signal('');
+  preview = signal<string | null>(null);
+  isLoading = signal(false);
+  successMessage = signal('');
+  errorMessage = signal('');
 
-  async fotoAufnehmen() {
+  async takePhoto() {
     try {
       const image = await Camera.getPhoto({
         quality: 80,
@@ -35,15 +45,15 @@ export class FotoUploadPage {
         resultType: CameraResultType.Base64,
         source: CameraSource.Camera,
       });
-      this.vorschau.set(`data:image/jpeg;base64,${image.base64String}`);
-      this.meldung.set('');
-      this.fehler.set('');
+      this.preview.set(`data:image/jpeg;base64,${image.base64String}`);
+      this.successMessage.set('');
+      this.errorMessage.set('');
     } catch {
-      this.fehler.set('Kamera-Zugriff verweigert oder abgebrochen.');
+      this.errorMessage.set('Kamera-Zugriff verweigert oder abgebrochen.');
     }
   }
 
-  async fotoAusGalerie() {
+  async pickFromGallery() {
     try {
       const image = await Camera.getPhoto({
         quality: 80,
@@ -51,19 +61,20 @@ export class FotoUploadPage {
         resultType: CameraResultType.Base64,
         source: CameraSource.Photos,
       });
-      this.vorschau.set(`data:image/jpeg;base64,${image.base64String}`);
-      this.meldung.set('');
-      this.fehler.set('');
+      this.preview.set(`data:image/jpeg;base64,${image.base64String}`);
+      this.successMessage.set('');
+      this.errorMessage.set('');
     } catch {
-      this.fehler.set('Galerie-Zugriff verweigert oder abgebrochen.');
+      this.errorMessage.set('Galerie-Zugriff verweigert oder abgebrochen.');
     }
   }
 
-  hochladen() {
-    const b64 = this.vorschau();
+  upload() {
+    const b64 = this.preview();
     if (!b64) return;
-    this.laedt.set(true);
-    this.fehler.set('');
+
+    this.isLoading.set(true);
+    this.errorMessage.set('');
 
     const blob = base64ToBlob(b64);
     const form = new FormData();
@@ -71,21 +82,21 @@ export class FotoUploadPage {
 
     this.http.post(`${environment.apiBase}/api/belege/upload`, form).subscribe({
       next: () => {
-        this.laedt.set(false);
-        this.vorschau.set(null);
-        this.meldung.set('Beleg erfolgreich hochgeladen!');
-        setTimeout(() => this.meldung.set(''), 4000);
+        this.isLoading.set(false);
+        this.preview.set(null);
+        this.successMessage.set('Beleg erfolgreich hochgeladen!');
+        setTimeout(() => this.successMessage.set(''), 4000);
       },
       error: () => {
-        this.laedt.set(false);
-        this.fehler.set('Upload fehlgeschlagen. Bitte erneut versuchen.');
+        this.isLoading.set(false);
+        this.errorMessage.set('Upload fehlgeschlagen. Bitte erneut versuchen.');
       },
     });
   }
 
-  verwerfen() {
-    this.vorschau.set(null);
-    this.meldung.set('');
-    this.fehler.set('');
+  discard() {
+    this.preview.set(null);
+    this.successMessage.set('');
+    this.errorMessage.set('');
   }
 }

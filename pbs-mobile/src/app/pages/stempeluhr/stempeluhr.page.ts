@@ -1,91 +1,108 @@
 import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
 import { MobileAuthService } from '../../core/auth.service';
 import { StempelService } from '../../core/stempel.service';
 
 @Component({
   selector: 'app-stempeluhr',
   standalone: true,
-  imports: [RouterLink],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, IonButton],
   templateUrl: './stempeluhr.page.html',
   styleUrl: './stempeluhr.page.scss',
 })
 export class StempeluhrPage implements OnInit, OnDestroy {
   private readonly auth = inject(MobileAuthService);
-  private readonly stempel = inject(StempelService);
+  private readonly stampService = inject(StempelService);
+  private readonly router = inject(Router);
 
   readonly user = this.auth.currentUser;
-  offenerStempel = signal<{ id: number; start: Date } | null>(null);
-  laufzeit = signal('00:00:00');
-  laedt = signal(false);
-  meldung = signal('');
+  openStamp = signal<{ id: number; start: Date } | null>(null);
+  runtime = signal('00:00:00');
+  isLoading = signal(false);
+  message = signal('');
 
-  private _timer?: ReturnType<typeof setInterval>;
-  private get mitarbeiterId(): number {
+  private timer?: ReturnType<typeof setInterval>;
+
+  private get employeeId(): number {
     return this.auth.currentUser()?.mitarbeiterId ?? 0;
   }
 
   ngOnInit() {
-    this._timer = setInterval(() => this._updateLaufzeit(), 1000);
+    this.timer = setInterval(() => this.updateRuntime(), 1000);
   }
 
   ngOnDestroy() {
-    if (this._timer) clearInterval(this._timer);
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   }
 
-  get istAktiv(): boolean {
-    return !!this.offenerStempel();
+  get isActive(): boolean {
+    return !!this.openStamp();
   }
 
   start() {
-    if (!this.mitarbeiterId) {
-      this.meldung.set('Kein Mitarbeiterprofil mit dem Benutzer verknuepft');
+    if (!this.employeeId) {
+      this.message.set('Kein Mitarbeiterprofil mit dem Benutzer verknuepft');
       return;
     }
-    this.laedt.set(true);
-    this.stempel.start(this.mitarbeiterId).subscribe({
+
+    this.isLoading.set(true);
+    this.stampService.start(this.employeeId).subscribe({
       next: (s) => {
-        this.offenerStempel.set({ id: s.id, start: new Date(s.start) });
-        this.meldung.set('Stempel gestartet');
-        this.laedt.set(false);
-        setTimeout(() => this.meldung.set(''), 3000);
+        this.openStamp.set({ id: s.id, start: new Date(s.start) });
+        this.message.set('Stempel gestartet');
+        this.isLoading.set(false);
+        setTimeout(() => this.message.set(''), 3000);
       },
       error: () => {
-        this.laedt.set(false);
-        this.meldung.set('Fehler beim Starten');
+        this.isLoading.set(false);
+        this.message.set('Fehler beim Starten');
       },
     });
   }
 
   stop() {
-    if (!this.mitarbeiterId) {
-      this.meldung.set('Kein Mitarbeiterprofil mit dem Benutzer verknuepft');
+    if (!this.employeeId) {
+      this.message.set('Kein Mitarbeiterprofil mit dem Benutzer verknuepft');
       return;
     }
-    this.laedt.set(true);
-    this.stempel.stop(this.mitarbeiterId).subscribe({
+
+    this.isLoading.set(true);
+    this.stampService.stop(this.employeeId).subscribe({
       next: (s) => {
         const min = s.dauer_minuten ?? 0;
-        this.offenerStempel.set(null);
-        this.laufzeit.set('00:00:00');
-        this.meldung.set(`Gestoppt — ${min} Minuten erfasst`);
-        this.laedt.set(false);
-        setTimeout(() => this.meldung.set(''), 4000);
+        this.openStamp.set(null);
+        this.runtime.set('00:00:00');
+        this.message.set(`Gestoppt - ${min} Minuten erfasst`);
+        this.isLoading.set(false);
+        setTimeout(() => this.message.set(''), 4000);
       },
       error: () => {
-        this.laedt.set(false);
-        this.meldung.set('Fehler beim Stoppen');
+        this.isLoading.set(false);
+        this.message.set('Fehler beim Stoppen');
       },
     });
   }
 
-  async abmelden() {
+  async logout() {
     await this.auth.logout();
+    await this.router.navigate(['/login']);
   }
 
-  private _updateLaufzeit() {
-    const start = this.offenerStempel()?.start;
+  private updateRuntime() {
+    const start = this.openStamp()?.start;
     if (!start) return;
+
     const diff = Math.floor((Date.now() - start.getTime()) / 1000);
     const h = Math.floor(diff / 3600)
       .toString()
@@ -94,6 +111,6 @@ export class StempeluhrPage implements OnInit, OnDestroy {
       .toString()
       .padStart(2, '0');
     const s = (diff % 60).toString().padStart(2, '0');
-    this.laufzeit.set(`${h}:${m}:${s}`);
+    this.runtime.set(`${h}:${m}:${s}`);
   }
 }

@@ -15,23 +15,23 @@ export interface StempelEintrag {
 export class StempelService {
   private readonly http = inject(HttpClient);
 
-  start(mitarbeiterId: number, notiz?: string) {
+  start(employeeId: number, note?: string) {
     return this.http.post<StempelEintrag>(
-      `${API_BASE}/api/mitarbeiter/${mitarbeiterId}/stempel/start`,
-      { notiz: notiz ?? null },
+      `${API_BASE}/api/mitarbeiter/${employeeId}/stempel/start`,
+      { notiz: note ?? null },
     );
   }
 
-  stop(mitarbeiterId: number) {
+  stop(employeeId: number) {
     return this.http.post<StempelEintrag>(
-      `${API_BASE}/api/mitarbeiter/${mitarbeiterId}/stempel/stop`,
+      `${API_BASE}/api/mitarbeiter/${employeeId}/stempel/stop`,
       {},
     );
   }
 
-  zeiterfassung(mitarbeiterId: number) {
+  getTimeEntries(employeeId: number) {
     return this.http.get<StempelEintrag[]>(
-      `${API_BASE}/api/mitarbeiter/${mitarbeiterId}/zeiterfassung`,
+      `${API_BASE}/api/mitarbeiter/${employeeId}/zeiterfassung`,
     );
   }
 }
