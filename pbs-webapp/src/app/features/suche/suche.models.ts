@@ -1,6 +1,12 @@
 import { Rechnung, Angebot, Kunde, MarketingKontakt, HausmeisterEinsatz } from '../../core/models';
 
-export type SucheKategorie = 'alle' | 'rechnungen' | 'angebote' | 'kunden' | 'marketing' | 'hausmeister';
+export type SucheKategorie =
+  | 'alle'
+  | 'rechnungen'
+  | 'angebote'
+  | 'kunden'
+  | 'marketing'
+  | 'hausmeister';
 
 export interface SucheErgebnis {
   rechnungen: Rechnung[];

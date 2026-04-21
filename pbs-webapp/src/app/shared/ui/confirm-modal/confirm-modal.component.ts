@@ -1,6 +1,16 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 
-const FOCUSABLE = 'button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+const FOCUSABLE =
+  'button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 @Component({
   selector: 'app-confirm-modal',
@@ -22,11 +32,11 @@ export class ConfirmModalComponent implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => {
-const first = this.el.nativeElement.querySelector(FOCUSABLE) as HTMLElement | null;
+      const first = this.el.nativeElement.querySelector(FOCUSABLE) as HTMLElement | null;
 
-if (first) {
-  first.focus();
-}
+      if (first) {
+        first.focus();
+      }
     });
   }
 
@@ -43,9 +53,15 @@ if (first) {
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
     if (event.shiftKey) {
-      if (document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      }
     } else {
-      if (document.activeElement === last) { event.preventDefault(); first.focus(); }
+      if (document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
   }
 

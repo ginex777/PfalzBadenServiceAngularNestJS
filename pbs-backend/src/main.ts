@@ -1,7 +1,12 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { ValidationPipe, ClassSerializerInterceptor, Logger } from '@nestjs/common';
+import {
+  ValidationPipe,
+  ClassSerializerInterceptor,
+  Logger,
+} from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './core/http-exception.filter';
 import { LoggingInterceptor } from './core/logging.interceptor';
@@ -16,20 +21,22 @@ async function bootstrap() {
   // ── CORS ────────────────────────────────────────────────────────────────────
   const frontendUrl = process.env['FRONTEND_URL'];
   if (!frontendUrl && process.env['NODE_ENV'] === 'production') {
-    throw new Error('FRONTEND_URL environment variable is not set in production');
+    throw new Error(
+      'FRONTEND_URL environment variable is not set in production',
+    );
   }
   app.enableCors({ origin: frontendUrl ?? '*', credentials: true });
 
   // ── Body size (base64 PDF/image uploads) ────────────────────────────────────
-  app.use(require('express').json({ limit: '25mb' }));
-  app.use(require('express').urlencoded({ limit: '25mb', extended: true }));
+  app.use(json({ limit: '25mb' }));
+  app.use(urlencoded({ limit: '25mb', extended: true }));
 
   // ── Global pipes ────────────────────────────────────────────────────────────
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,          // strip unknown fields
+      whitelist: true, // strip unknown fields
       forbidNonWhitelisted: false, // don't throw on unknown — services cast internally
-      transform: true,          // auto-transform primitives (string → number etc.)
+      transform: true, // auto-transform primitives (string → number etc.)
       transformOptions: { enableImplicitConversion: true },
     }),
   );
@@ -59,4 +66,4 @@ async function bootstrap() {
   await app.listen(port);
   logger.log(`PBS Backend läuft auf http://localhost:${port}`);
 }
-bootstrap();
+void bootstrap();

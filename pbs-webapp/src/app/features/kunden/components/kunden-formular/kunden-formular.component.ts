@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, input, output, OnChanges, SimpleChanges, signal, linkedSignal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+  OnChanges,
+  SimpleChanges,
+  signal,
+  computed,
+} from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { Kunde } from '../../../../core/models';
 import { KundenFormularDaten, LEERES_FORMULAR } from '../../kunden.models';
@@ -31,27 +40,31 @@ export class KundenFormularComponent implements OnChanges {
   protected readonly validierungsFehler = computed(() => {
     const daten = this.formModell();
     const errors: string[] = [];
-    
+
     if (!daten.name?.trim()) errors.push('Name ist erforderlich');
-    
+
     if (daten.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(daten.email)) {
       errors.push('E-Mail-Adresse ist ungültig');
     }
-    
+
     return errors;
   });
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['bearbeiteterKunde']) {
       const kunde = this.bearbeiteterKunde();
-      this.formModell.set(kunde ? {
-        name: kunde.name,
-        strasse: kunde.strasse ?? '',
-        ort: kunde.ort ?? '',
-        tel: kunde.tel ?? '',
-        email: kunde.email ?? '',
-        notiz: kunde.notiz ?? '',
-      } : { ...LEERES_FORMULAR });
+      this.formModell.set(
+        kunde
+          ? {
+              name: kunde.name,
+              strasse: kunde.strasse ?? '',
+              ort: kunde.ort ?? '',
+              tel: kunde.tel ?? '',
+              email: kunde.email ?? '',
+              notiz: kunde.notiz ?? '',
+            }
+          : { ...LEERES_FORMULAR },
+      );
     }
   }
 
@@ -68,7 +81,9 @@ export class KundenFormularComponent implements OnChanges {
   }
 
   protected get titelText(): string {
-    return this.bearbeiteterKunde() ? `Kunde bearbeiten: ${this.bearbeiteterKunde()!.name}` : 'Neuer Kunde';
+    return this.bearbeiteterKunde()
+      ? `Kunde bearbeiten: ${this.bearbeiteterKunde()!.name}`
+      : 'Neuer Kunde';
   }
 
   protected get submitLabel(): string {

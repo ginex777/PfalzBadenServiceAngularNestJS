@@ -7,7 +7,7 @@ describe('StundenErfassungComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [StundenErfassungComponent]
+      declarations: [StundenErfassungComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StundenErfassungComponent);

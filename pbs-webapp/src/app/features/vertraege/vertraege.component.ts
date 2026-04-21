@@ -7,9 +7,21 @@ import { Kunde, Vertrag, VertragVorlage } from '../../core/models';
 import { BrowserService } from '../../core/services/browser.service';
 
 const VORLAGEN: { id: VertragVorlage; label: string; beschreibung: string }[] = [
-  { id: 'Wartungsvertrag',       label: 'Wartungsvertrag',       beschreibung: 'Regelmäßige Wartung und Instandhaltung' },
-  { id: 'Hausmeistervertrag',    label: 'Hausmeistervertrag',    beschreibung: 'Hausmeisterdienste und Objektbetreuung' },
-  { id: 'Dienstleistungsvertrag',label: 'Dienstleistungsvertrag',beschreibung: 'Allgemeiner Dienstleistungsvertrag' },
+  {
+    id: 'Wartungsvertrag',
+    label: 'Wartungsvertrag',
+    beschreibung: 'Regelmäßige Wartung und Instandhaltung',
+  },
+  {
+    id: 'Hausmeistervertrag',
+    label: 'Hausmeistervertrag',
+    beschreibung: 'Hausmeisterdienste und Objektbetreuung',
+  },
+  {
+    id: 'Dienstleistungsvertrag',
+    label: 'Dienstleistungsvertrag',
+    beschreibung: 'Allgemeiner Dienstleistungsvertrag',
+  },
 ];
 
 type Ansicht = 'liste' | 'neu' | 'bearbeiten';
@@ -53,8 +65,11 @@ export class VertraegeComponent implements OnInit {
   readonly gefilterteVertraege = computed(() => {
     let v = this.vertraege();
     const s = this.suchbegriff().toLowerCase();
-    if (s) v = v.filter(x => x.kunden_name.toLowerCase().includes(s) || x.titel.toLowerCase().includes(s));
-    if (this.statusFilter() !== 'alle') v = v.filter(x => x.status === this.statusFilter());
+    if (s)
+      v = v.filter(
+        (x) => x.kunden_name.toLowerCase().includes(s) || x.titel.toLowerCase().includes(s),
+      );
+    if (this.statusFilter() !== 'alle') v = v.filter((x) => x.status === this.statusFilter());
     return v;
   });
 
@@ -64,9 +79,12 @@ export class VertraegeComponent implements OnInit {
 
   private _datenLaden() {
     this.laedt.set(true);
-    this.service.kundenLaden().subscribe({ next: k => this.kunden.set(k), error: () => {} });
-    this.service.vertraegeLaden().subscribe({
-      next: v => { this.vertraege.set(v); this.laedt.set(false); },
+    this.service.loadCustomers().subscribe({ next: (k) => this.kunden.set(k), error: () => {} });
+    this.service.loadContracts().subscribe({
+      next: (v) => {
+        this.vertraege.set(v);
+        this.laedt.set(false);
+      },
       error: () => this.laedt.set(false),
     });
   }
@@ -91,9 +109,9 @@ export class VertraegeComponent implements OnInit {
   }
 
   kundeGewaehlt(kundenId: string) {
-    const kd = this.kunden().find(k => k.id === Number(kundenId));
+    const kd = this.kunden().find((k) => k.id === Number(kundenId));
     if (!kd) return;
-    this.formVertrag.update(f => ({
+    this.formVertrag.update((f) => ({
       ...f,
       kunden_id: kd.id,
       kunden_name: kd.name,
@@ -104,7 +122,7 @@ export class VertraegeComponent implements OnInit {
 
   titelAktualisieren(vorlage: string) {
     const kunde = this.formVertrag().kunden_name ?? 'Kunde';
-    this.formVertrag.update(f => ({ ...f, titel: `${vorlage} – ${kunde}`, vorlage }));
+    this.formVertrag.update((f) => ({ ...f, titel: `${vorlage} – ${kunde}`, vorlage }));
   }
 
   speichern() {
@@ -116,15 +134,15 @@ export class VertraegeComponent implements OnInit {
     this.laedt.set(true);
 
     const action$ = this.bearbeiteteId()
-      ? this.service.vertragAktualisieren(this.bearbeiteteId()!, f)
-      : this.service.vertragErstellen(f);
+      ? this.service.updateContract(this.bearbeiteteId()!, f)
+      : this.service.createContract(f);
 
     action$.subscribe({
       next: (saved) => {
         if (this.bearbeiteteId()) {
-          this.vertraege.update(list => list.map(v => v.id === saved.id ? saved : v));
+          this.vertraege.update((list) => list.map((v) => (v.id === saved.id ? saved : v)));
         } else {
-          this.vertraege.update(list => [saved, ...list]);
+          this.vertraege.update((list) => [saved, ...list]);
         }
         this.laedt.set(false);
         this.ansicht.set('liste');
@@ -139,9 +157,9 @@ export class VertraegeComponent implements OnInit {
 
   loeschen(v: Vertrag) {
     if (!confirm(`Vertrag "${v.titel}" wirklich löschen?`)) return;
-    this.service.vertragLoeschen(v.id).subscribe({
+    this.service.deleteContract(v.id).subscribe({
       next: () => {
-        this.vertraege.update(list => list.filter(x => x.id !== v.id));
+        this.vertraege.update((list) => list.filter((x) => x.id !== v.id));
         this._toast('Vertrag gelöscht.');
       },
     });
@@ -149,12 +167,15 @@ export class VertraegeComponent implements OnInit {
 
   pdfErstellen(v: Vertrag) {
     this.pdfLaedt.set(true);
-    this.service.vertragPdfErstellen(v.id).subscribe({
+    this.service.createContractPdf(v.id).subscribe({
       next: (res) => {
         this.pdfLaedt.set(false);
         this.browser.blobOeffnen(res.url);
       },
-      error: () => { this.pdfLaedt.set(false); this.toast.error('PDF-Erstellung fehlgeschlagen.'); },
+      error: () => {
+        this.pdfLaedt.set(false);
+        this.toast.error('PDF-Erstellung fehlgeschlagen.');
+      },
     });
   }
 
@@ -163,7 +184,11 @@ export class VertraegeComponent implements OnInit {
   }
 
   statusBadge(status: string): string {
-    return status === 'aktiv' ? 'badge-aktiv' : status === 'beendet' ? 'badge-beendet' : 'badge-gekuendigt';
+    return status === 'aktiv'
+      ? 'badge-aktiv'
+      : status === 'beendet'
+        ? 'badge-beendet'
+        : 'badge-gekuendigt';
   }
 
   private _toast(msg: string) {

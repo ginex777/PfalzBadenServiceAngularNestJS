@@ -5,7 +5,9 @@
   <div class="ergebnis-abschnitt">
     <div class="ergebnis-zeile">
       <span class="ergebnis-label">Einnahmen Brutto</span>
-      <span class="ergebnis-wert">{{ formatieren(ergebnis().einnahmenNetto + ergebnis().einnahmenUst) }}</span>
+      <span class="ergebnis-wert">{{
+        formatieren(ergebnis().einnahmenNetto + ergebnis().einnahmenUst)
+      }}</span>
     </div>
     <div class="ergebnis-zeile">
       <span class="ergebnis-label">Einnahmen Netto</span>
@@ -22,7 +24,9 @@
   <div class="ergebnis-abschnitt">
     <div class="ergebnis-zeile">
       <span class="ergebnis-label">Ausgaben Brutto</span>
-      <span class="ergebnis-wert">{{ formatieren(ergebnis().ausgabenNetto + ergebnis().vorsteuer) }}</span>
+      <span class="ergebnis-wert">{{
+        formatieren(ergebnis().ausgabenNetto + ergebnis().vorsteuer)
+      }}</span>
     </div>
     <div class="ergebnis-zeile">
       <span class="ergebnis-label">Ausgaben Netto (abzugsf.)</span>

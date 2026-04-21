@@ -6,7 +6,7 @@ describe('KanbanService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [KanbanService]
+      providers: [KanbanService],
     });
 
     service = TestBed.inject(KanbanService);

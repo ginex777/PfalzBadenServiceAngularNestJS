@@ -1,7 +1,27 @@
-.tabelle-scroll { overflow-x: auto; }
-.td-name strong { display: block; font-weight: 600; }
-.td-notiz { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
-.td-aktionen { white-space: nowrap; }
-.laedt-hinweis { padding: 2rem; text-align: center; color: var(--gray-500); }
-.link { color: var(--primary); text-decoration: none; }
-.link:hover { text-decoration: underline; }
+.tabelle-scroll {
+  overflow-x: auto;
+}
+.td-name strong {
+  display: block;
+  font-weight: 600;
+}
+.td-notiz {
+  font-size: 11px;
+  color: var(--gray-500);
+  margin-top: 2px;
+}
+.td-aktionen {
+  white-space: nowrap;
+}
+.laedt-hinweis {
+  padding: 2rem;
+  text-align: center;
+  color: var(--gray-500);
+}
+.link {
+  color: var(--primary);
+  text-decoration: none;
+}
+.link:hover {
+  text-decoration: underline;
+}

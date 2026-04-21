@@ -1,24 +1,41 @@
 <div class="formular-card">
   <h3 class="formular-titel">
-    {{ bearbeiteterKontakt() ? 'Kontakt bearbeiten: ' + bearbeiteterKontakt()!.name : 'Neuer Kontakt' }}
+    {{
+      bearbeiteterKontakt() ? 'Kontakt bearbeiten: ' + bearbeiteterKontakt()!.name : 'Neuer Kontakt'
+    }}
   </h3>
 
   <div class="form-row">
     <div class="form-field">
       <label class="form-label">Firma / Name *</label>
-      <input class="form-input" type="text" placeholder="Musterfirma GmbH" [formField]="marketingForm.name" />
+      <input
+        class="form-input"
+        type="text"
+        placeholder="Musterfirma GmbH"
+        [formField]="marketingForm.name"
+      />
       @if (marketingForm.name().touched() && marketingForm.name().invalid()) {
         <span class="form-fehler">{{ marketingForm.name().errors()[0]?.message }}</span>
       }
     </div>
     <div class="form-field">
       <label class="form-label">Ansprechpartner</label>
-      <input class="form-input" type="text" placeholder="Max Mustermann"
-        [value]="formularDaten().person" (input)="onFeld('person', $event)" />
+      <input
+        class="form-input"
+        type="text"
+        placeholder="Max Mustermann"
+        [value]="formularDaten().person"
+        (input)="onFeld('person', $event)"
+      />
     </div>
     <div class="form-field">
       <label class="form-label">E-Mail</label>
-      <input class="form-input" type="email" placeholder="info@firma.de" [formField]="marketingForm.email" />
+      <input
+        class="form-input"
+        type="email"
+        placeholder="info@firma.de"
+        [formField]="marketingForm.email"
+      />
       @if (marketingForm.email().touched() && marketingForm.email().invalid()) {
         <span class="form-fehler">{{ marketingForm.email().errors()[0]?.message }}</span>
       }
@@ -28,25 +45,44 @@
   <div class="form-row">
     <div class="form-field">
       <label class="form-label">Telefon</label>
-      <input class="form-input" type="text" placeholder="0621 123456"
-        [value]="formularDaten().tel" (input)="onFeld('tel', $event)" />
+      <input
+        class="form-input"
+        type="text"
+        placeholder="0621 123456"
+        [value]="formularDaten().tel"
+        (input)="onFeld('tel', $event)"
+      />
     </div>
     <div class="form-field">
       <label class="form-label">Straße</label>
-      <input class="form-input" type="text" placeholder="Musterstraße 1"
-        [value]="formularDaten().strasse" (input)="onFeld('strasse', $event)" />
+      <input
+        class="form-input"
+        type="text"
+        placeholder="Musterstraße 1"
+        [value]="formularDaten().strasse"
+        (input)="onFeld('strasse', $event)"
+      />
     </div>
     <div class="form-field">
       <label class="form-label">PLZ Ort</label>
-      <input class="form-input" type="text" placeholder="67346 Speyer"
-        [value]="formularDaten().ort" (input)="onFeld('ort', $event)" />
+      <input
+        class="form-input"
+        type="text"
+        placeholder="67346 Speyer"
+        [value]="formularDaten().ort"
+        (input)="onFeld('ort', $event)"
+      />
     </div>
   </div>
 
   <div class="form-row">
     <div class="form-field">
       <label class="form-label">Status</label>
-      <select class="form-select" [value]="formularDaten().status" (change)="onFeld('status', $event)">
+      <select
+        class="form-select"
+        [value]="formularDaten().status"
+        (change)="onFeld('status', $event)"
+      >
         <option value="neu">Neu</option>
         <option value="gesendet">Gesendet</option>
         <option value="interesse">Interesse</option>
@@ -56,24 +92,43 @@
     </div>
     <div class="form-field">
       <label class="form-label">Datum</label>
-      <input class="form-input" type="date" [value]="formularDaten().datum" (change)="onFeld('datum', $event)" />
+      <input
+        class="form-input"
+        type="date"
+        [value]="formularDaten().datum"
+        (change)="onFeld('datum', $event)"
+      />
     </div>
   </div>
 
   <div class="form-field">
     <label class="form-label">Status-Notiz</label>
-    <input class="form-input" type="text" placeholder="Optionale Notiz zum Status"
-      [value]="formularDaten().status_notiz" (input)="onFeld('status_notiz', $event)" />
+    <input
+      class="form-input"
+      type="text"
+      placeholder="Optionale Notiz zum Status"
+      [value]="formularDaten().status_notiz"
+      (input)="onFeld('status_notiz', $event)"
+    />
   </div>
 
   <div class="form-field">
     <label class="form-label">Notiz</label>
-    <textarea class="form-input" rows="2" placeholder="Interne Notizen…"
-      [value]="formularDaten().notiz" (input)="onFeld('notiz', $event)"></textarea>
+    <textarea
+      class="form-input"
+      rows="2"
+      placeholder="Interne Notizen…"
+      [value]="formularDaten().notiz"
+      (input)="onFeld('notiz', $event)"
+    ></textarea>
   </div>
 
   <div class="form-aktionen">
-    <button class="btn btn-primary" [disabled]="marketingForm().invalid()" (click)="gespeichert.emit()">
+    <button
+      class="btn btn-primary"
+      [disabled]="marketingForm().invalid()"
+      (click)="gespeichert.emit()"
+    >
       {{ bearbeiteterKontakt() ? 'Änderungen speichern' : 'Kontakt anlegen' }}
     </button>
     <button class="btn" (click)="abgebrochen.emit()">Abbrechen</button>

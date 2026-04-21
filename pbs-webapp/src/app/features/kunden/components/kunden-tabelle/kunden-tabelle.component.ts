@@ -44,7 +44,7 @@ export class KundenTabelleComponent {
 
   protected toggleSort(col: keyof Kunde): void {
     if (this.sortSpalte() === col) {
-      this.sortAufsteigend.update(v => !v);
+      this.sortAufsteigend.update((v) => !v);
     } else {
       this.sortSpalte.set(col);
       this.sortAufsteigend.set(true);
@@ -52,11 +52,11 @@ export class KundenTabelleComponent {
   }
 
   protected umsatzFuerKunde(kundeId: number): KundeUmsatz | undefined {
-    return this.umsaetze().find(u => u.kundeId === kundeId);
+    return this.umsaetze().find((u) => u.kundeId === kundeId);
   }
 
   protected hatVerknuepfteDokumente(kundeId: number): boolean {
     const u = this.umsatzFuerKunde(kundeId);
-    return u ? (u.rechnungenAnzahl + u.angeboteAnzahl) > 0 : false;
+    return u ? u.rechnungenAnzahl + u.angeboteAnzahl > 0 : false;
   }
 }

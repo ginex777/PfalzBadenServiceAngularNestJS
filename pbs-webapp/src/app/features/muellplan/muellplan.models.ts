@@ -1,4 +1,4 @@
-import { Objekt, MuellplanTermin } from '../../core/models';
+import { MuellplanTermin } from '../../core/models';
 
 export interface TerminAnzeige extends MuellplanTermin {
   diffTage: number;
@@ -29,34 +29,43 @@ export interface VorlageFormularDaten {
 }
 
 export const LEERES_OBJEKT_FORMULAR: MuellplanFormularDaten = {
-  name: '', strasse: '', plz: '', ort: '', notiz: '', kunden_id: null,
+  name: '',
+  strasse: '',
+  plz: '',
+  ort: '',
+  notiz: '',
+  kunden_id: null,
 };
 
 export const LEERER_TERMIN: TerminFormularDaten = {
-  muellart: '', farbe: '#6366f1', abholung: '',
+  muellart: '',
+  farbe: '#6366f1',
+  abholung: '',
 };
 
 export const LEERE_VORLAGE: VorlageFormularDaten = {
-  name: '', jahr: new Date().getFullYear(), text: '',
+  name: '',
+  jahr: new Date().getFullYear(),
+  text: '',
 };
 
 export const MUELL_FARBEN: Record<string, { name: string; farbe: string }> = {
-  'biotonne': { name: 'Bioabfall', farbe: '#16a34a' },
-  'bioabfall': { name: 'Bioabfall', farbe: '#16a34a' },
-  'bio': { name: 'Bioabfall', farbe: '#16a34a' },
-  'restmüll': { name: 'Restmüll', farbe: '#6b7280' },
-  'resttonne': { name: 'Restmüll', farbe: '#6b7280' },
-  'rest': { name: 'Restmüll', farbe: '#6b7280' },
+  biotonne: { name: 'Bioabfall', farbe: '#16a34a' },
+  bioabfall: { name: 'Bioabfall', farbe: '#16a34a' },
+  bio: { name: 'Bioabfall', farbe: '#16a34a' },
+  restmüll: { name: 'Restmüll', farbe: '#6b7280' },
+  resttonne: { name: 'Restmüll', farbe: '#6b7280' },
+  rest: { name: 'Restmüll', farbe: '#6b7280' },
   'gelber sack': { name: 'Gelber Sack', farbe: '#d97706' },
-  'gelb': { name: 'Gelber Sack', farbe: '#d97706' },
-  'papier': { name: 'Papier', farbe: '#2563eb' },
-  'papiertonne': { name: 'Papier', farbe: '#2563eb' },
-  'grünschnitt': { name: 'Grünschnitt', farbe: '#65a30d' },
-  'grünabfall': { name: 'Grünschnitt', farbe: '#65a30d' },
-  'grün': { name: 'Grünschnitt', farbe: '#65a30d' },
-  'sperrabfall': { name: 'Sperrabfall', farbe: '#7c3aed' },
-  'sperrmüll': { name: 'Sperrabfall', farbe: '#7c3aed' },
-  'sperr': { name: 'Sperrabfall', farbe: '#7c3aed' },
-  'tannenbaum': { name: 'Tannenbaum', farbe: '#16a34a' },
-  'sonderabfall': { name: 'Sonderabfall', farbe: '#7c3aed' },
+  gelb: { name: 'Gelber Sack', farbe: '#d97706' },
+  papier: { name: 'Papier', farbe: '#2563eb' },
+  papiertonne: { name: 'Papier', farbe: '#2563eb' },
+  grünschnitt: { name: 'Grünschnitt', farbe: '#65a30d' },
+  grünabfall: { name: 'Grünschnitt', farbe: '#65a30d' },
+  grün: { name: 'Grünschnitt', farbe: '#65a30d' },
+  sperrabfall: { name: 'Sperrabfall', farbe: '#7c3aed' },
+  sperrmüll: { name: 'Sperrabfall', farbe: '#7c3aed' },
+  sperr: { name: 'Sperrabfall', farbe: '#7c3aed' },
+  tannenbaum: { name: 'Tannenbaum', farbe: '#16a34a' },
+  sonderabfall: { name: 'Sonderabfall', farbe: '#7c3aed' },
 };

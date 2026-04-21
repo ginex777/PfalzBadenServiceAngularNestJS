@@ -11,7 +11,12 @@ import { MarketingFormularDaten, MarketingStatusFilter, CsvImportZeile } from '.
   selector: 'app-marketing',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MarketingTabelleComponent, MarketingFormularComponent, ConfirmModalComponent, PageTitleComponent],
+  imports: [
+    MarketingTabelleComponent,
+    MarketingFormularComponent,
+    ConfirmModalComponent,
+    PageTitleComponent,
+  ],
   templateUrl: './marketing.component.html',
   styleUrl: './marketing.component.scss',
 })
@@ -41,11 +46,19 @@ Gerne erstellen wir Ihnen ein unverbindliches Angebot.
 Mit freundlichen Grüßen
 Pfalz-Baden Service GbR`;
 
-  ngOnInit(): void { this.facade.ladeDaten(); }
+  ngOnInit(): void {
+    this.facade.ladeDaten();
+  }
 
-  protected formularOeffnen(kontakt?: MarketingKontakt): void { this.facade.formularOeffnen(kontakt); }
-  protected formularSchliessen(): void { this.facade.formularSchliessen(); }
-  protected speichern(): void { this.facade.speichern(); }
+  protected formularOeffnen(kontakt?: MarketingKontakt): void {
+    this.facade.formularOeffnen(kontakt);
+  }
+  protected formularSchliessen(): void {
+    this.facade.formularSchliessen();
+  }
+  protected speichern(): void {
+    this.facade.speichern();
+  }
 
   protected feldAktualisieren(event: { feld: keyof MarketingFormularDaten; wert: string }): void {
     this.facade.formularFeldAktualisieren(event.feld, event.wert as never);
@@ -70,7 +83,9 @@ Pfalz-Baden Service GbR`;
   }
 
   protected statusModalStatusGeaendert(event: Event): void {
-    this.statusModalStatus.set((event.target as HTMLSelectElement).value as MarketingKontakt['status']);
+    this.statusModalStatus.set(
+      (event.target as HTMLSelectElement).value as MarketingKontakt['status'],
+    );
   }
 
   protected statusModalNotizGeaendert(event: Event): void {
@@ -134,9 +149,10 @@ Pfalz-Baden Service GbR`;
     reader.onload = (e) => {
       const text = (e.target as FileReader).result as string;
       const zeilen = this.csvParsen(text);
-      const vorhandeneEmails = new Set(this.facade.kontakte().map(k => k.email.toLowerCase()));
-      const vorschau: CsvImportZeile[] = zeilen.map(z => ({
-        ...z, istDuplikat: !!z.email && vorhandeneEmails.has(z.email.toLowerCase()),
+      const vorhandeneEmails = new Set(this.facade.kontakte().map((k) => k.email.toLowerCase()));
+      const vorschau: CsvImportZeile[] = zeilen.map((z) => ({
+        ...z,
+        istDuplikat: !!z.email && vorhandeneEmails.has(z.email.toLowerCase()),
       }));
       this.facade.csvImportVorschauZeigen(vorschau);
     };
@@ -145,36 +161,62 @@ Pfalz-Baden Service GbR`;
   }
 
   private csvParsen(text: string): Omit<CsvImportZeile, 'istDuplikat'>[] {
-    const zeilen = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(l => l.trim());
+    const zeilen = text
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .split('\n')
+      .filter((l) => l.trim());
     if (zeilen.length < 2) return [];
     const trennzeichen = zeilen[0].includes(';') ? ';' : ',';
-    const kopfzeile = this.csvZeileSpalten(zeilen[0], trennzeichen).map(h =>
-      h.toLowerCase().trim()
+    const kopfzeile = this.csvZeileSpalten(zeilen[0], trennzeichen).map((h) =>
+      h
+        .toLowerCase()
+        .trim()
         .replace(/firma|company|unternehmen/, 'name')
         .replace(/ansprechpartner|kontakt|contact/, 'person')
         .replace(/telefon|phone|tel\./, 'tel')
         .replace(/e-?mail/, 'email')
         .replace(/stra[s]e|street|adresse/, 'strasse')
         .replace(/plz.*ort|ort|city|stadt/, 'ort')
-        .replace(/branche|notiz|note|bemerkung/, 'notiz')
+        .replace(/branche|notiz|note|bemerkung/, 'notiz'),
     );
-    return zeilen.slice(1).filter(l => l.trim()).map(l => {
-      const werte = this.csvZeileSpalten(l, trennzeichen);
-      const obj: Record<string, string> = {};
-      kopfzeile.forEach((h, i) => { obj[h] = (werte[i] ?? '').trim(); });
-      return { name: obj['name'] ?? '', email: obj['email'] ?? '', person: obj['person'] ?? '',
-        tel: obj['tel'] ?? '', strasse: obj['strasse'] ?? '', ort: obj['ort'] ?? '', notiz: obj['notiz'] ?? '' };
-    }).filter(z => z.name);
+    return zeilen
+      .slice(1)
+      .filter((l) => l.trim())
+      .map((l) => {
+        const werte = this.csvZeileSpalten(l, trennzeichen);
+        const obj: Record<string, string> = {};
+        kopfzeile.forEach((h, i) => {
+          obj[h] = (werte[i] ?? '').trim();
+        });
+        return {
+          name: obj['name'] ?? '',
+          email: obj['email'] ?? '',
+          person: obj['person'] ?? '',
+          tel: obj['tel'] ?? '',
+          strasse: obj['strasse'] ?? '',
+          ort: obj['ort'] ?? '',
+          notiz: obj['notiz'] ?? '',
+        };
+      })
+      .filter((z) => z.name);
   }
 
   private csvZeileSpalten(zeile: string, trennzeichen: string): string[] {
     const ergebnis: string[] = [];
-    let aktuell = '', inAnfuehrung = false;
+    let aktuell = '',
+      inAnfuehrung = false;
     for (let i = 0; i < zeile.length; i++) {
       const z = zeile[i];
-      if (z === '"') { if (inAnfuehrung && zeile[i + 1] === '"') { aktuell += '"'; i++; } else inAnfuehrung = !inAnfuehrung; }
-      else if (z === trennzeichen && !inAnfuehrung) { ergebnis.push(aktuell); aktuell = ''; }
-      else aktuell += z;
+      if (z === '"') {
+        if (inAnfuehrung && zeile[i + 1] === '"') {
+          aktuell += '"';
+          i++;
+        } else inAnfuehrung = !inAnfuehrung;
+      } else if (z === trennzeichen && !inAnfuehrung) {
+        ergebnis.push(aktuell);
+        aktuell = '';
+      } else aktuell += z;
     }
     ergebnis.push(aktuell);
     return ergebnis;

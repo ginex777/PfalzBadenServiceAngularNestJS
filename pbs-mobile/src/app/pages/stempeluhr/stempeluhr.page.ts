@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MobileAuthService } from '../../core/auth.service';
 import { StempelService } from '../../core/stempel.service';
@@ -21,7 +21,9 @@ export class StempeluhrPage implements OnInit, OnDestroy {
   meldung = signal('');
 
   private _timer?: ReturnType<typeof setInterval>;
-  private get mitarbeiterId(): number { return this.auth.currentUser()?.mitarbeiterId ?? 0; }
+  private get mitarbeiterId(): number {
+    return this.auth.currentUser()?.mitarbeiterId ?? 0;
+  }
 
   ngOnInit() {
     this._timer = setInterval(() => this._updateLaufzeit(), 1000);
@@ -44,7 +46,10 @@ export class StempeluhrPage implements OnInit, OnDestroy {
         this.laedt.set(false);
         setTimeout(() => this.meldung.set(''), 3000);
       },
-      error: () => { this.laedt.set(false); this.meldung.set('Fehler beim Starten'); },
+      error: () => {
+        this.laedt.set(false);
+        this.meldung.set('Fehler beim Starten');
+      },
     });
   }
 
@@ -59,7 +64,10 @@ export class StempeluhrPage implements OnInit, OnDestroy {
         this.laedt.set(false);
         setTimeout(() => this.meldung.set(''), 4000);
       },
-      error: () => { this.laedt.set(false); this.meldung.set('Fehler beim Stoppen'); },
+      error: () => {
+        this.laedt.set(false);
+        this.meldung.set('Fehler beim Stoppen');
+      },
     });
   }
 
@@ -71,8 +79,12 @@ export class StempeluhrPage implements OnInit, OnDestroy {
     const start = this.offenerStempel()?.start;
     if (!start) return;
     const diff = Math.floor((Date.now() - start.getTime()) / 1000);
-    const h = Math.floor(diff / 3600).toString().padStart(2, '0');
-    const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+    const h = Math.floor(diff / 3600)
+      .toString()
+      .padStart(2, '0');
+    const m = Math.floor((diff % 3600) / 60)
+      .toString()
+      .padStart(2, '0');
     const s = (diff % 60).toString().padStart(2, '0');
     this.laufzeit.set(`${h}:${m}:${s}`);
   }

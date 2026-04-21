@@ -4,10 +4,18 @@
       <div class="toast toast--{{ t.typ }}" role="alert">
         <span class="toast__icon">
           @switch (t.typ) {
-            @case ('success') { ✓ }
-            @case ('error')   { ✕ }
-            @case ('warning') { ⚠ }
-            @case ('info')    { ℹ }
+            @case ('success') {
+              ✓
+            }
+            @case ('error') {
+              ✕
+            }
+            @case ('warning') {
+              ⚠
+            }
+            @case ('info') {
+              ℹ
+            }
           }
         </span>
         <span class="toast__text">{{ t.nachricht }}</span>
@@ -16,7 +24,9 @@
           (click)="toast.entfernen(t.id)"
           aria-label="Benachrichtigung schließen"
           type="button"
-        >×</button>
+        >
+          ×
+        </button>
       </div>
     }
   </div>

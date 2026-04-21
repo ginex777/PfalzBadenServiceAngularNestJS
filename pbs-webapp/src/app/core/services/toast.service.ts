@@ -31,12 +31,12 @@ export class ToastService {
   }
 
   entfernen(id: number): void {
-    this.toasts.update(list => list.filter(t => t.id !== id));
+    this.toasts.update((list) => list.filter((t) => t.id !== id));
   }
 
   private _hinzufuegen(nachricht: string, typ: ToastTyp, dauer = 3500): void {
     const id = ++naechsteId;
-    this.toasts.update(list => [...list, { id, nachricht, typ }]);
+    this.toasts.update((list) => [...list, { id, nachricht, typ }]);
     setTimeout(() => this.entfernen(id), dauer);
   }
 }

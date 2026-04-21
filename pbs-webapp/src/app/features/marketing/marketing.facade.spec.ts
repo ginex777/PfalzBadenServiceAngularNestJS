@@ -10,9 +10,33 @@ import { API_BASE_URL } from '../../core/tokens';
 import { MarketingKontakt } from '../../core/models';
 
 const testKontakte: MarketingKontakt[] = [
-  { id: 1, name: 'Müller GmbH',  email: 'mueller@test.de', status: 'offen',      person: null, tel: null, notiz: null } as MarketingKontakt,
-  { id: 2, name: 'Schulz AG',    email: 'schulz@ag.de',    status: 'kontaktiert', person: 'Anna', tel: null, notiz: null } as MarketingKontakt,
-  { id: 3, name: 'Koch Immobil', email: null,               status: 'abgesagt',   person: null, tel: null, notiz: null } as MarketingKontakt,
+  {
+    id: 1,
+    name: 'Müller GmbH',
+    email: 'mueller@test.de',
+    status: 'offen',
+    person: null,
+    tel: null,
+    notiz: null,
+  } as MarketingKontakt,
+  {
+    id: 2,
+    name: 'Schulz AG',
+    email: 'schulz@ag.de',
+    status: 'kontaktiert',
+    person: 'Anna',
+    tel: null,
+    notiz: null,
+  } as MarketingKontakt,
+  {
+    id: 3,
+    name: 'Koch Immobil',
+    email: null,
+    status: 'abgesagt',
+    person: null,
+    tel: null,
+    notiz: null,
+  } as MarketingKontakt,
 ];
 
 const mockService = {
@@ -110,7 +134,7 @@ describe('MarketingFacade', () => {
       facade.loeschenAusfuehren();
 
       expect(facade.kontakte()).toHaveLength(2);
-      expect(facade.kontakte().find(k => k.id === 2)).toBeUndefined();
+      expect(facade.kontakte().find((k) => k.id === 2)).toBeUndefined();
       expect(mockToast.success).toHaveBeenCalled();
     });
 

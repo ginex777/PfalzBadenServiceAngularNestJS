@@ -35,21 +35,21 @@ export class OnboardingComponent {
   }
 
   private fortschrittPruefen(): void {
-    this.api.einstellungenLaden('firma').subscribe({
+    this.api.loadSettings('firma').subscribe({
       next: (f) => {
-        if (f && Object.keys(f).length > 0) this.schritte.update(s => ({ ...s, firma: true }));
+        if (f && Object.keys(f).length > 0) this.schritte.update((s) => ({ ...s, firma: true }));
       },
       error: () => {},
     });
-    this.api.kundenLaden().subscribe({
+    this.api.loadCustomers().subscribe({
       next: (k) => {
-        if (k?.length > 0) this.schritte.update(s => ({ ...s, kunde: true }));
+        if (k?.length > 0) this.schritte.update((s) => ({ ...s, kunde: true }));
       },
       error: () => {},
     });
-    this.api.rechnungenLaden().subscribe({
+    this.api.loadInvoices().subscribe({
       next: (r) => {
-        if (r?.length > 0) this.schritte.update(s => ({ ...s, rechnung: true }));
+        if (r?.length > 0) this.schritte.update((s) => ({ ...s, rechnung: true }));
       },
       error: () => {},
     });

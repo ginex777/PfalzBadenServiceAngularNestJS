@@ -20,6 +20,6 @@ export class ObjektListeComponent {
   readonly neuAnlegen = output<void>();
 
   protected adresseFormatieren(obj: Objekt): string {
-    return [obj.strasse, obj.plz, obj.ort].filter(v => !!v).join(' ');
+    return [obj.strasse, obj.plz, obj.ort].filter((v) => !!v).join(' ');
   }
 }

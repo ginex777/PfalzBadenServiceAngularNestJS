@@ -7,7 +7,7 @@ describe('SearchToolbarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SearchToolbarComponent]
+      declarations: [SearchToolbarComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SearchToolbarComponent);

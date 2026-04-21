@@ -1,109 +1,175 @@
 <div class="page-wrap">
-<app-page-title titel="EÜR" untertitel="Einnahmen-Überschuss-Rechnung nach §4 Abs. 3 EStG" />
+  <app-page-title titel="EÜR" untertitel="Einnahmen-Überschuss-Rechnung nach §4 Abs. 3 EStG" />
 
-<!-- Jahr-Auswahl -->
-<div class="jahr-toolbar">
-  <label class="jahr-label">Wirtschaftsjahr:</label>
-  <select class="select-sm" [value]="facade.aktuellesJahr()" (change)="jahrGeaendert($event)">
-    @for (j of facade.verfuegbareJahre(); track j) {
-      <option [value]="j">{{ j }}</option>
+  <!-- Jahr-Auswahl -->
+  <div class="jahr-toolbar">
+    <label class="jahr-label">Wirtschaftsjahr:</label>
+    <select class="select-sm" [value]="facade.aktuellesJahr()" (change)="jahrGeaendert($event)">
+      @for (j of facade.verfuegbareJahre(); track j) {
+        <option [value]="j">{{ j }}</option>
+      }
+    </select>
+    <button class="btn btn-sm btn-primary" (click)="facade.pdfExportieren()">
+      PDF exportieren
+    </button>
+    @if (facade.laedt()) {
+      <span class="laedt-hinweis">Wird geladen…</span>
     }
-  </select>
-  <button class="btn btn-sm btn-primary" (click)="facade.pdfExportieren()">PDF exportieren</button>
-  @if (facade.laedt()) {
-    <span class="laedt-hinweis">Wird geladen…</span>
-  }
-</div>
+  </div>
 
-<!-- Ergebnis-Banner -->
-@if (!facade.laedt()) {
-  <div class="ergebnis-banner" [class.verlust]="facade.ergebnis().gewinn < 0">
-    <div class="ergebnis-haupt">
-      <div class="ergebnis-label">{{ facade.ergebnis().gewinn < 0 ? 'Jahresverlust' : 'Jahresgewinn' }} {{ facade.aktuellesJahr() }} · Anlage EÜR Zeile 15 EStG</div>
-      <div class="ergebnis-wert">{{ fmtAbs(facade.ergebnis().gewinn) }}</div>
-    </div>
-    <div class="ergebnis-details">
-      <div class="ergebnis-detail">
-        <div class="detail-label">Einnahmen Netto</div>
-        <div class="detail-wert success">{{ fmt(facade.ergebnis().einnahmen.summe) }}</div>
+  <!-- Ergebnis-Banner -->
+  @if (!facade.laedt()) {
+    <div class="ergebnis-banner" [class.verlust]="facade.ergebnis().gewinn < 0">
+      <div class="ergebnis-haupt">
+        <div class="ergebnis-label">
+          {{ facade.ergebnis().gewinn < 0 ? 'Jahresverlust' : 'Jahresgewinn' }}
+          {{ facade.aktuellesJahr() }} · Anlage EÜR Zeile 15 EStG
+        </div>
+        <div class="ergebnis-wert">{{ fmtAbs(facade.ergebnis().gewinn) }}</div>
       </div>
-      <div class="ergebnis-detail">
-        <div class="detail-label">Ausgaben Netto</div>
-        <div class="detail-wert danger">{{ fmt(facade.ergebnis().ausgaben.summe) }}</div>
-      </div>
-      <div class="ergebnis-detail">
-        <div class="detail-label">USt-Zahllast</div>
-        <div class="detail-wert" [class.danger]="facade.ergebnis().ust.zahllast >= 0" [class.success]="facade.ergebnis().ust.zahllast < 0">
-          {{ fmtAbs(facade.ergebnis().ust.zahllast) }}
+      <div class="ergebnis-details">
+        <div class="ergebnis-detail">
+          <div class="detail-label">Einnahmen Netto</div>
+          <div class="detail-wert success">{{ fmt(facade.ergebnis().einnahmen.summe) }}</div>
+        </div>
+        <div class="ergebnis-detail">
+          <div class="detail-label">Ausgaben Netto</div>
+          <div class="detail-wert danger">{{ fmt(facade.ergebnis().ausgaben.summe) }}</div>
+        </div>
+        <div class="ergebnis-detail">
+          <div class="detail-label">USt-Zahllast</div>
+          <div
+            class="detail-wert"
+            [class.danger]="facade.ergebnis().ust.zahllast >= 0"
+            [class.success]="facade.ergebnis().ust.zahllast < 0"
+          >
+            {{ fmtAbs(facade.ergebnis().ust.zahllast) }}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-}
+  }
 
-<!-- EÜR Tabelle -->
-<div class="card">
-  <div class="card-kopf">
-    <div>
-      <div class="tabellen-titel">Einnahmen-Überschuss-Rechnung</div>
-      <div class="tabellen-untertitel">Wirtschaftsjahr {{ facade.aktuellesJahr() }} · GbR · §4 Abs. 3 EStG</div>
-    </div>
-    @if (facade.firma().firma) {
-      <div class="firma-info">
-        <strong>{{ facade.firma().firma }}</strong><br>
-        {{ facade.firma().zusatz }}<br>
-        StNr: {{ facade.firma().steuernr || '—' }}
+  <!-- EÜR Tabelle -->
+  <div class="card">
+    <div class="card-kopf">
+      <div>
+        <div class="tabellen-titel">Einnahmen-Überschuss-Rechnung</div>
+        <div class="tabellen-untertitel">
+          Wirtschaftsjahr {{ facade.aktuellesJahr() }} · GbR · §4 Abs. 3 EStG
+        </div>
       </div>
-    }
-  </div>
-
-  <table class="euer-tabelle">
-    <tbody>
-      <!-- Betriebseinnahmen -->
-      <tr class="section-head"><td colspan="3">BETRIEBSEINNAHMEN (Anlage EÜR Zeilen 14–17)</td></tr>
-      @if (facade.ergebnis().einnahmen.inc0 > 0) {
-        <tr><td class="zeile-nr">Z. 14/17</td><td class="eingerueckt">Umsätze 0 % MwSt (§19 UStG / §4 UStG — bitte in ELSTER prüfen)</td><td class="betrag">{{ fmt(facade.ergebnis().einnahmen.inc0) }}</td></tr>
+      @if (facade.firma().firma) {
+        <div class="firma-info">
+          <strong>{{ facade.firma().firma }}</strong
+          ><br />
+          {{ facade.firma().zusatz }}<br />
+          StNr: {{ facade.firma().steuernr || '—' }}
+        </div>
       }
-      @if (facade.ergebnis().einnahmen.inc7 > 0) {
-        <tr><td class="zeile-nr">Z. 15</td><td class="eingerueckt">Umsätze 7 % USt (ermäßigter Steuersatz)</td><td class="betrag">{{ fmt(facade.ergebnis().einnahmen.inc7) }}</td></tr>
-      }
-      <tr><td class="zeile-nr">Z. 16</td><td class="eingerueckt">Umsätze 19 % USt (Regelsteuersatz)</td><td class="betrag">{{ fmt(facade.ergebnis().einnahmen.inc19) }}</td></tr>
-      <tr class="total-row"><td></td><td>Summe Betriebseinnahmen (Netto)</td><td class="betrag">{{ fmt(facade.ergebnis().einnahmen.summe) }}</td></tr>
+    </div>
 
-      <!-- Betriebsausgaben -->
-      <tr class="section-head"><td colspan="3">BETRIEBSAUSGABEN</td></tr>
-      @for (z of facade.ergebnis().ausgaben.zeilen; track z.zeile) {
-        @if (z.betrag > 0 || z.zeile === '64') {
-          <tr><td class="zeile-nr">Z. {{ z.zeile }}</td><td class="eingerueckt">{{ z.label }}</td><td class="betrag">{{ z.betrag > 0 ? fmt(z.betrag) : '' }}</td></tr>
+    <table class="euer-tabelle">
+      <tbody>
+        <!-- Betriebseinnahmen -->
+        <tr class="section-head">
+          <td colspan="3">BETRIEBSEINNAHMEN (Anlage EÜR Zeilen 14–17)</td>
+        </tr>
+        @if (facade.ergebnis().einnahmen.inc0 > 0) {
+          <tr>
+            <td class="zeile-nr">Z. 14/17</td>
+            <td class="eingerueckt">
+              Umsätze 0 % MwSt (§19 UStG / §4 UStG — bitte in ELSTER prüfen)
+            </td>
+            <td class="betrag">{{ fmt(facade.ergebnis().einnahmen.inc0) }}</td>
+          </tr>
         }
-      }
-      <tr class="total-row"><td></td><td>Summe Betriebsausgaben (Netto, abzugsfähig)</td><td class="betrag">{{ fmt(facade.ergebnis().ausgaben.summe) }}</td></tr>
-    </tbody>
-  </table>
+        @if (facade.ergebnis().einnahmen.inc7 > 0) {
+          <tr>
+            <td class="zeile-nr">Z. 15</td>
+            <td class="eingerueckt">Umsätze 7 % USt (ermäßigter Steuersatz)</td>
+            <td class="betrag">{{ fmt(facade.ergebnis().einnahmen.inc7) }}</td>
+          </tr>
+        }
+        <tr>
+          <td class="zeile-nr">Z. 16</td>
+          <td class="eingerueckt">Umsätze 19 % USt (Regelsteuersatz)</td>
+          <td class="betrag">{{ fmt(facade.ergebnis().einnahmen.inc19) }}</td>
+        </tr>
+        <tr class="total-row">
+          <td></td>
+          <td>Summe Betriebseinnahmen (Netto)</td>
+          <td class="betrag">{{ fmt(facade.ergebnis().einnahmen.summe) }}</td>
+        </tr>
 
-  <div class="euer-hinweis">
-    <strong>Hinweis §14 UStG / §4 Abs. 3 EStG:</strong> Dieses Dokument dient als Arbeitsgrundlage für die amtliche EÜR-Anlage (Anlage EÜR) in ELSTER.
-    <strong>Bewirtungskosten</strong> sind gem. §4 Abs. 5 Nr. 2 EStG nur zu <strong>70 % abzugsfähig</strong>.
-    <strong>Zuflussprinzip §11 EStG:</strong> Einnahmen werden erst bei tatsächlichem Zahlungseingang erfasst.
+        <!-- Betriebsausgaben -->
+        <tr class="section-head">
+          <td colspan="3">BETRIEBSAUSGABEN</td>
+        </tr>
+        @for (z of facade.ergebnis().ausgaben.zeilen; track z.zeile) {
+          @if (z.betrag > 0 || z.zeile === '64') {
+            <tr>
+              <td class="zeile-nr">Z. {{ z.zeile }}</td>
+              <td class="eingerueckt">{{ z.label }}</td>
+              <td class="betrag">{{ z.betrag > 0 ? fmt(z.betrag) : '' }}</td>
+            </tr>
+          }
+        }
+        <tr class="total-row">
+          <td></td>
+          <td>Summe Betriebsausgaben (Netto, abzugsfähig)</td>
+          <td class="betrag">{{ fmt(facade.ergebnis().ausgaben.summe) }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="euer-hinweis">
+      <strong>Hinweis §14 UStG / §4 Abs. 3 EStG:</strong> Dieses Dokument dient als Arbeitsgrundlage
+      für die amtliche EÜR-Anlage (Anlage EÜR) in ELSTER. <strong>Bewirtungskosten</strong> sind
+      gem. §4 Abs. 5 Nr. 2 EStG nur zu <strong>70 % abzugsfähig</strong>.
+      <strong>Zuflussprinzip §11 EStG:</strong> Einnahmen werden erst bei tatsächlichem
+      Zahlungseingang erfasst.
+    </div>
   </div>
-</div>
 
-<!-- USt-Übersicht -->
-<div class="card ust-card">
-  <h3 class="section-title">USt-Übersicht (Zahllast / Erstattung)</h3>
-  <table class="euer-tabelle">
-    <tbody>
-      <tr><td class="zeile-nr">Kz. 83</td><td>Umsatzsteuer 19 % (Schuld)</td><td class="betrag">{{ fmt(facade.ergebnis().ust.ust19) }}</td></tr>
-      <tr><td class="zeile-nr">Kz. 85</td><td>Umsatzsteuer 7 % (Schuld)</td><td class="betrag">{{ fmt(facade.ergebnis().ust.ust7) }}</td></tr>
-      <tr><td class="zeile-nr">Kz. 66</td><td>Vorsteuer aus Eingangsrechnungen (Guthaben)</td><td class="betrag">{{ fmt(facade.ergebnis().ust.vstGesamt) }}</td></tr>
-      <tr class="total-row">
-        <td></td>
-        <td>{{ facade.ergebnis().ust.zahllast >= 0 ? 'Zahllast an Finanzamt' : 'Erstattung vom Finanzamt' }}</td>
-        <td class="betrag" [class.danger-text]="facade.ergebnis().ust.zahllast >= 0" [class.success-text]="facade.ergebnis().ust.zahllast < 0">
-          {{ fmtAbs(facade.ergebnis().ust.zahllast) }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+  <!-- USt-Übersicht -->
+  <div class="card ust-card">
+    <h3 class="section-title">USt-Übersicht (Zahllast / Erstattung)</h3>
+    <table class="euer-tabelle">
+      <tbody>
+        <tr>
+          <td class="zeile-nr">Kz. 83</td>
+          <td>Umsatzsteuer 19 % (Schuld)</td>
+          <td class="betrag">{{ fmt(facade.ergebnis().ust.ust19) }}</td>
+        </tr>
+        <tr>
+          <td class="zeile-nr">Kz. 85</td>
+          <td>Umsatzsteuer 7 % (Schuld)</td>
+          <td class="betrag">{{ fmt(facade.ergebnis().ust.ust7) }}</td>
+        </tr>
+        <tr>
+          <td class="zeile-nr">Kz. 66</td>
+          <td>Vorsteuer aus Eingangsrechnungen (Guthaben)</td>
+          <td class="betrag">{{ fmt(facade.ergebnis().ust.vstGesamt) }}</td>
+        </tr>
+        <tr class="total-row">
+          <td></td>
+          <td>
+            {{
+              facade.ergebnis().ust.zahllast >= 0
+                ? 'Zahllast an Finanzamt'
+                : 'Erstattung vom Finanzamt'
+            }}
+          </td>
+          <td
+            class="betrag"
+            [class.danger-text]="facade.ergebnis().ust.zahllast >= 0"
+            [class.success-text]="facade.ergebnis().ust.zahllast < 0"
+          >
+            {{ fmtAbs(facade.ergebnis().ust.zahllast) }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

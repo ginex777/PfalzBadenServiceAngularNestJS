@@ -9,23 +9,32 @@ export class WiederkehrendeRechnungenService {
   private readonly api = inject(ApiService);
 
   allesDatenLaden(): Observable<{ rechnungen: WiederkehrendeRechnung[]; kunden: Kunde[] }> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       forkJoin({
-        rechnungen: this.api.wiederkehrendeRechnungenLaden(),
-        kunden: this.api.kundenLaden(),
-      }).subscribe({ next: d => { observer.next(d); observer.complete(); }, error: e => observer.error(e) });
+        rechnungen: this.api.loadRecurringInvoices(),
+        kunden: this.api.loadCustomers(),
+      }).subscribe({
+        next: (d) => {
+          observer.next(d);
+          observer.complete();
+        },
+        error: (e) => observer.error(e),
+      });
     });
   }
 
   erstellen(daten: Partial<WiederkehrendeRechnung>): Observable<WiederkehrendeRechnung> {
-    return this.api.wiederkehrendeRechnungErstellen(daten);
+    return this.api.createRecurringInvoice(daten);
   }
 
-  aktualisieren(id: number, daten: Partial<WiederkehrendeRechnung>): Observable<WiederkehrendeRechnung> {
-    return this.api.wiederkehrendeRechnungAktualisieren(id, daten);
+  aktualisieren(
+    id: number,
+    daten: Partial<WiederkehrendeRechnung>,
+  ): Observable<WiederkehrendeRechnung> {
+    return this.api.updateRecurringInvoice(id, daten);
   }
 
   loeschen(id: number): Observable<void> {
-    return this.api.wiederkehrendeRechnungLoeschen(id);
+    return this.api.deleteRecurringInvoice(id);
   }
 }

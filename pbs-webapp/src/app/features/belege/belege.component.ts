@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+} from '@angular/core';
 import { FormField, form, maxLength } from '@angular/forms/signals';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { BelegeFacade } from './belege.facade';
@@ -15,7 +22,14 @@ import { datumFormatieren } from '../../core/utils/format.utils';
   selector: 'app-belege',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [FormField, ConfirmModalComponent, PageTitleComponent, EmptyStateComponent, StatCardComponent, SkeletonRowsComponent],
+  imports: [
+    FormField,
+    ConfirmModalComponent,
+    PageTitleComponent,
+    EmptyStateComponent,
+    StatCardComponent,
+    SkeletonRowsComponent,
+  ],
   templateUrl: './belege.component.html',
   styleUrl: './belege.component.scss',
 })
@@ -46,7 +60,9 @@ export class BelegeComponent implements OnInit {
 
   protected uploadTyp: Beleg['typ'] = 'beleg';
 
-  ngOnInit(): void { this.facade.ladeDaten(); }
+  ngOnInit(): void {
+    this.facade.ladeDaten();
+  }
 
   protected jahrFilterGeaendert(event: Event): void {
     const val = (event.target as HTMLSelectElement).value;

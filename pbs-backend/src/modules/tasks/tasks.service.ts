@@ -9,15 +9,21 @@ export class TasksService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async alleTasksLaden(pagination: PaginationDto): Promise<PaginatedResponse<Record<string, unknown>>> {
+  async alleTasksLaden(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<Record<string, unknown>>> {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
     const [rows, total] = await this.prisma.$transaction([
-      this.prisma.tasks.findMany({ orderBy: [{ status: 'asc' }, { position: 'asc' }, { id: 'asc' }], skip, take: limit }),
+      this.prisma.tasks.findMany({
+        orderBy: [{ status: 'asc' }, { position: 'asc' }, { id: 'asc' }],
+        skip,
+        take: limit,
+      }),
       this.prisma.tasks.count(),
     ]);
     return {
-      data: rows.map(t => ({ ...t, id: Number(t.id) })),
+      data: rows.map((t) => ({ ...t, id: Number(t.id) })),
       total,
       page,
       limit,
@@ -26,7 +32,10 @@ export class TasksService {
   }
 
   async taskErstellen(d: Record<string, unknown>) {
-    const maxPos = await this.prisma.tasks.aggregate({ where: { status: String(d['status'] ?? 'todo') }, _max: { position: true } });
+    const maxPos = await this.prisma.tasks.aggregate({
+      where: { status: String(d['status'] ?? 'todo') },
+      _max: { position: true },
+    });
     const t = await this.prisma.tasks.create({
       data: {
         titel: String(d['titel'] ?? ''),
@@ -43,7 +52,8 @@ export class TasksService {
   }
 
   async taskAktualisieren(id: number, d: Record<string, unknown>) {
-    if (!await this.prisma.tasks.findUnique({ where: { id: BigInt(id) } })) throw new NotFoundException();
+    if (!(await this.prisma.tasks.findUnique({ where: { id: BigInt(id) } })))
+      throw new NotFoundException();
     const t = await this.prisma.tasks.update({
       where: { id: BigInt(id) },
       data: {
@@ -61,14 +71,22 @@ export class TasksService {
   }
 
   async taskLoeschen(id: number) {
-    if (!await this.prisma.tasks.findUnique({ where: { id: BigInt(id) } })) throw new NotFoundException();
+    if (!(await this.prisma.tasks.findUnique({ where: { id: BigInt(id) } })))
+      throw new NotFoundException();
     await this.prisma.tasks.delete({ where: { id: BigInt(id) } });
     return { ok: true };
   }
 
-  async tasksNeuAnordnen(updates: { id: number; status: string; position: number }[]) {
+  async tasksNeuAnordnen(
+    updates: { id: number; status: string; position: number }[],
+  ) {
     await this.prisma.$transaction(
-      updates.map(u => this.prisma.tasks.update({ where: { id: BigInt(u.id) }, data: { status: u.status, position: u.position } }))
+      updates.map((u) =>
+        this.prisma.tasks.update({
+          where: { id: BigInt(u.id) },
+          data: { status: u.status, position: u.position },
+        }),
+      ),
     );
     return { ok: true };
   }

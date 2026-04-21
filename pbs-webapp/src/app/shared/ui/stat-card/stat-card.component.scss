@@ -9,11 +9,15 @@
   flex-direction: column;
   gap: 8px;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow var(--transition), border-color var(--transition);
+  transition:
+    box-shadow var(--transition),
+    border-color var(--transition);
   position: relative;
   overflow: hidden;
 
-  &:hover { box-shadow: var(--shadow-md); }
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
 
   &__titel {
     font-size: 11px;
@@ -48,24 +52,47 @@
   &::before {
     content: '';
     position: absolute;
-    left: 0; top: 0; bottom: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
     width: 3px;
     border-radius: 3px 0 0 3px;
     background: var(--gray-200);
   }
 
-  &--success::before { background: var(--success); }
-  &--danger::before  { background: var(--danger); }
-  &--warning::before { background: var(--warning); }
-  &--primary::before { background: var(--primary); }
+  &--success::before {
+    background: var(--success);
+  }
+  &--danger::before {
+    background: var(--danger);
+  }
+  &--warning::before {
+    background: var(--warning);
+  }
+  &--primary::before {
+    background: var(--primary);
+  }
 
-  &--success &__wert { color: var(--success); }
-  &--danger  &__wert { color: var(--danger); }
-  &--warning &__wert { color: var(--warning); }
-  &--primary &__wert { color: var(--primary); }
+  &--success &__wert {
+    color: var(--success);
+  }
+  &--danger &__wert {
+    color: var(--danger);
+  }
+  &--warning &__wert {
+    color: var(--warning);
+  }
+  &--primary &__wert {
+    color: var(--primary);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }

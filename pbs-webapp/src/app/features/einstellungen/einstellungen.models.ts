@@ -1,5 +1,3 @@
-import { FirmaSettings } from '../../core/models';
-
 export interface SmtpSettings {
   host?: string;
   port?: number;

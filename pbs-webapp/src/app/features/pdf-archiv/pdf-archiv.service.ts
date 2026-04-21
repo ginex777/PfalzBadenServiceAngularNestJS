@@ -9,14 +9,16 @@ export class PdfArchivService {
   private readonly api = inject(ApiService);
   private readonly browser = inject(BrowserService);
 
-  alleLaden(): Observable<PdfArchiveEntry[]> { return this.api.pdfArchivLaden(); }
+  alleLaden(): Observable<PdfArchiveEntry[]> {
+    return this.api.loadPdfArchive();
+  }
 
   eintragLoeschen(id: number): Observable<void> {
-    return this.api.pdfArchivEintragLoeschen(id);
+    return this.api.deletePdfArchiveEntry(id);
   }
 
   alleLoeschen(): Observable<{ ok: boolean; deleted: number }> {
-    return this.api.pdfArchivAllesLoeschen();
+    return this.api.deleteAllPdfArchive();
   }
 
   pdfOeffnen(id: number): Promise<void> {

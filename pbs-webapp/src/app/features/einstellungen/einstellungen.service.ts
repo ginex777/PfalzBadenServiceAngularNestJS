@@ -1,6 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService, SmtpSettings, UserEintrag, UserAnlegenPayload, UserAktualisierenPayload } from '../../core/api/api.service';
+import {
+  ApiService,
+  SmtpSettings,
+  UserEintrag,
+  UserAnlegenPayload,
+  UserAktualisierenPayload,
+} from '../../core/api/api.service';
 import { FirmaSettings } from '../../core/models';
 
 export type { SmtpSettings, UserEintrag, UserAnlegenPayload, UserAktualisierenPayload };
@@ -9,18 +15,42 @@ export type { SmtpSettings, UserEintrag, UserAnlegenPayload, UserAktualisierenPa
 export class EinstellungenService {
   private readonly api = inject(ApiService);
 
-  firmaLaden(): Observable<FirmaSettings> { return this.api.einstellungenLaden('firma'); }
-  firmaSpeichern(daten: FirmaSettings): Observable<FirmaSettings> { return this.api.einstellungenSpeichern('firma', daten); }
-  backupErstellen(): Observable<unknown> { return this.api.backupErstellen(); }
-  letztesBackupLaden(): Observable<unknown> { return this.api.letztesBackupLaden(); }
-  backupDateienLaden(): Observable<unknown> { return this.api.backupDateienLaden(); }
+  firmaLaden(): Observable<FirmaSettings> {
+    return this.api.loadSettings('firma');
+  }
+  firmaSpeichern(daten: FirmaSettings): Observable<FirmaSettings> {
+    return this.api.saveSettings('firma', daten);
+  }
+  createBackup(): Observable<unknown> {
+    return this.api.createBackup();
+  }
+  loadLastBackup(): Observable<unknown> {
+    return this.api.loadLastBackup();
+  }
+  loadBackupFiles(): Observable<unknown> {
+    return this.api.loadBackupFiles();
+  }
 
-  smtpLaden(): Observable<SmtpSettings> { return this.api.smtpLaden(); }
-  smtpSpeichern(daten: SmtpSettings): Observable<SmtpSettings> { return this.api.smtpSpeichern(daten); }
-  smtpTesten(): Observable<{ success: boolean; message?: string }> { return this.api.emailTesten(); }
+  loadSmtp(): Observable<SmtpSettings> {
+    return this.api.loadSmtp();
+  }
+  saveSmtp(daten: SmtpSettings): Observable<SmtpSettings> {
+    return this.api.saveSmtp(daten);
+  }
+  smtpTesten(): Observable<{ success: boolean; message?: string }> {
+    return this.api.testEmail();
+  }
 
-  userListeLaden(): Observable<UserEintrag[]> { return this.api.usersLaden(); }
-  userAnlegen(payload: UserAnlegenPayload): Observable<UserEintrag> { return this.api.userAnlegen(payload); }
-  userAktualisieren(id: string, daten: UserAktualisierenPayload): Observable<UserEintrag> { return this.api.userAktualisieren(id, daten); }
-  userLoeschen(id: string): Observable<void> { return this.api.userLoeschen(id); }
+  userListeLaden(): Observable<UserEintrag[]> {
+    return this.api.loadUsers();
+  }
+  createUser(payload: UserAnlegenPayload): Observable<UserEintrag> {
+    return this.api.createUser(payload);
+  }
+  updateUser(id: string, daten: UserAktualisierenPayload): Observable<UserEintrag> {
+    return this.api.updateUser(id, daten);
+  }
+  deleteUser(id: string): Observable<void> {
+    return this.api.deleteUser(id);
+  }
 }

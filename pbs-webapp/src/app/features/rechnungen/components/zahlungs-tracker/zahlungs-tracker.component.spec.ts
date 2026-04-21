@@ -7,7 +7,7 @@ describe('ZahlungsTrackerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZahlungsTrackerComponent]
+      declarations: [ZahlungsTrackerComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZahlungsTrackerComponent);

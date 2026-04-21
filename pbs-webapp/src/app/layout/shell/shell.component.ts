@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed, HostListener } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  HostListener,
+} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
@@ -40,8 +48,8 @@ export class ShellComponent implements OnInit {
 
   private notifenLaden(): void {
     this.http.get<Benachrichtigung[]>('/api/benachrichtigungen').subscribe({
-      next: notifs => {
-        const ungelesen = notifs.filter(n => !n.gelesen);
+      next: (notifs) => {
+        const ungelesen = notifs.filter((n) => !n.gelesen);
         if (ungelesen.length > 0) {
           this.ungeleseneNotifs.set(ungelesen);
           this.notifBannerSichtbar.set(true);
@@ -62,7 +70,7 @@ export class ShellComponent implements OnInit {
   }
 
   protected mobileSidebarUmschalten(): void {
-    this.mobileSidebarOffen.update(offen => !offen);
+    this.mobileSidebarOffen.update((offen) => !offen);
   }
 
   protected mobileSidebarSchliessen(): void {
@@ -93,13 +101,28 @@ export class ShellComponent implements OnInit {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
 
     switch (e.key) {
-      case '/': e.preventDefault(); this.router.navigate(['/suche']); break;
-      case 'n': this.router.navigate(['/rechnungen'], { state: { neueRechnung: true } }); break;
-      case 'a': this.router.navigate(['/angebote'], { state: { neuesAngebot: true } }); break;
-      case 'k': this.router.navigate(['/kunden']); break;
-      case 'b': this.router.navigate(['/buchhaltung']); break;
-      case 'h': this.router.navigate(['/hausmeister']); break;
-      case 'm': this.router.navigate(['/muellplan']); break;
+      case '/':
+        e.preventDefault();
+        this.router.navigate(['/suche']);
+        break;
+      case 'n':
+        this.router.navigate(['/rechnungen'], { state: { neueRechnung: true } });
+        break;
+      case 'a':
+        this.router.navigate(['/angebote'], { state: { neuesAngebot: true } });
+        break;
+      case 'k':
+        this.router.navigate(['/kunden']);
+        break;
+      case 'b':
+        this.router.navigate(['/buchhaltung']);
+        break;
+      case 'h':
+        this.router.navigate(['/hausmeister']);
+        break;
+      case 'm':
+        this.router.navigate(['/muellplan']);
+        break;
     }
   }
 }

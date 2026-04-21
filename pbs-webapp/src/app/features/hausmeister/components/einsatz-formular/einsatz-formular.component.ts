@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, input, output, signal, linkedSignal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+  signal,
+  linkedSignal,
+} from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { HausmeisterEinsatz, Mitarbeiter, Kunde, Taetigkeit } from '../../../../core/models';
 import { HausmeisterFormularDaten } from '../../hausmeister.models';
@@ -48,7 +55,10 @@ export class EinsatzFormularComponent {
   }
 
   protected notizGeaendert(event: Event): void {
-    this.feldAktualisieren.emit({ feld: 'notiz', wert: (event.target as HTMLTextAreaElement).value });
+    this.feldAktualisieren.emit({
+      feld: 'notiz',
+      wert: (event.target as HTMLTextAreaElement).value,
+    });
   }
 
   protected taetigkeitBeschreibungGeaendert(index: number, event: Event): void {

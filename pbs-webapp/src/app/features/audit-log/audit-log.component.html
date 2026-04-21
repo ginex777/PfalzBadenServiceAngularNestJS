@@ -1,91 +1,110 @@
 <div class="page-wrap">
-<app-page-title titel="Audit-Log" untertitel="Alle Datenänderungen nachvollziehen" />
+  <app-page-title titel="Audit-Log" untertitel="Alle Datenänderungen nachvollziehen" />
 
-<div class="toolbar">
-  <input class="form-input toolbar__search" type="search" placeholder="Suchen…"
-    [value]="facade.suchbegriff()"
-    (input)="suchbegriffGeaendert($event)" />
-  <select class="form-select" class="select-auto"
-    [value]="facade.aktiverAktionFilter()"
-    (change)="aktionFilterGeaendert($event)">
-    @for (opt of aktionOptionen; track opt.id) {
-      <option [value]="opt.id">{{ opt.label }}</option>
-    }
-  </select>
-  <select class="form-select" class="select-auto"
-    [value]="facade.aktiveTabelleFilter()"
-    (change)="tabelleFilterGeaendert($event)">
-    <option value="">Alle Tabellen</option>
-    @for (t of facade.eindeutigeTabellen(); track t) {
-      <option [value]="t">{{ tabelleLabel(t) }}</option>
-    }
-  </select>
-  <button class="btn btn-sm" (click)="facade.ladeDaten()">Aktualisieren</button>
-  <span class="anzahl">{{ facade.gefilterteEintraege().length }} Einträge</span>
-</div>
-
-@if (facade.laedt()) {
-  <app-skeleton-rows [anzahl]="8" />
-} @else if (!facade.gefilterteEintraege().length) {
-  <app-empty-state
-    titel="Keine Einträge gefunden"
-    beschreibung="Alle Datenänderungen werden hier protokolliert."
-  />
-} @else {
-  <div class="card">
-    <div class="tabelle-scroll">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Zeitstempel</th>
-            <th>Benutzer</th>
-            <th>Name</th>
-            <th>Tabelle</th>
-            <th>ID</th>
-            <th>Aktion</th>
-            <th>Vorher</th>
-            <th>Nachher</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (e of facade.seitenEintraege(); track e.id) {
-            <tr>
-              <td class="td-zeit">{{ zeitstempelFormatieren(e.zeitstempel) }}</td>
-              <td class="td-nutzer">{{ e.nutzer || '–' }}</td>
-              <td class="td-nutzer">{{ e.nutzer || '–' }}</td>
-              <td>
-                <span class="tabelle-badge">{{ tabelleLabel(e.tabelle) }}</span>
-              </td>
-              <td class="td-id">{{ e.datensatz_id }}</td>
-              <td>
-                <span class="badge" [class]="aktionKlassen[e.aktion]">
-                  {{ aktionLabels[e.aktion] }}
-                </span>
-              </td>
-              <td class="td-wert grau-text">{{ wertKuerzen(e.alt_wert) }}</td>
-              <td class="td-wert">{{ wertKuerzen(e.neu_wert) }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pagination -->
-    @if (facade.gesamtSeiten() > 1) {
-      <div class="pagination">
-        <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() <= 1" (click)="facade.seiteZurueck()">
-          Zurück
-        </button>
-        <span class="pagination-info">
-          Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }}
-          ({{ facade.seitenEintraege().length }} von {{ facade.gefilterteEintraege().length }} Einträgen)
-        </span>
-        <button class="btn btn-sm" [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()" (click)="facade.seiteVor()">
-          Weiter
-        </button>
-      </div>
-    }
+  <div class="toolbar">
+    <input
+      class="form-input toolbar__search"
+      type="search"
+      placeholder="Suchen…"
+      [value]="facade.suchbegriff()"
+      (input)="suchbegriffGeaendert($event)"
+    />
+    <select
+      class="form-select"
+      class="select-auto"
+      [value]="facade.aktiverAktionFilter()"
+      (change)="aktionFilterGeaendert($event)"
+    >
+      @for (opt of aktionOptionen; track opt.id) {
+        <option [value]="opt.id">{{ opt.label }}</option>
+      }
+    </select>
+    <select
+      class="form-select"
+      class="select-auto"
+      [value]="facade.aktiveTabelleFilter()"
+      (change)="tabelleFilterGeaendert($event)"
+    >
+      <option value="">Alle Tabellen</option>
+      @for (t of facade.eindeutigeTabellen(); track t) {
+        <option [value]="t">{{ tabelleLabel(t) }}</option>
+      }
+    </select>
+    <button class="btn btn-sm" (click)="facade.ladeDaten()">Aktualisieren</button>
+    <span class="anzahl">{{ facade.gefilterteEintraege().length }} Einträge</span>
   </div>
-}
 
+  @if (facade.laedt()) {
+    <app-skeleton-rows [anzahl]="8" />
+  } @else if (!facade.gefilterteEintraege().length) {
+    <app-empty-state
+      titel="Keine Einträge gefunden"
+      beschreibung="Alle Datenänderungen werden hier protokolliert."
+    />
+  } @else {
+    <div class="card">
+      <div class="tabelle-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Zeitstempel</th>
+              <th>Benutzer</th>
+              <th>Name</th>
+              <th>Tabelle</th>
+              <th>ID</th>
+              <th>Aktion</th>
+              <th>Vorher</th>
+              <th>Nachher</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of facade.seitenEintraege(); track e.id) {
+              <tr>
+                <td class="td-zeit">{{ zeitstempelFormatieren(e.zeitstempel) }}</td>
+                <td class="td-nutzer">{{ e.nutzer || '–' }}</td>
+                <td class="td-nutzer">{{ e.nutzer || '–' }}</td>
+                <td>
+                  <span class="tabelle-badge">{{ tabelleLabel(e.tabelle) }}</span>
+                </td>
+                <td class="td-id">{{ e.datensatz_id }}</td>
+                <td>
+                  <span class="badge" [class]="aktionKlassen[e.aktion]">
+                    {{ aktionLabels[e.aktion] }}
+                  </span>
+                </td>
+                <td class="td-wert grau-text">{{ wertKuerzen(e.alt_wert) }}</td>
+                <td class="td-wert">{{ wertKuerzen(e.neu_wert) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (facade.gesamtSeiten() > 1) {
+        <div class="pagination">
+          <button
+            class="btn btn-sm"
+            [disabled]="facade.aktuelleSeite() <= 1"
+            (click)="facade.seiteZurueck()"
+          >
+            Zurück
+          </button>
+          <span class="pagination-info">
+            Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{
+              facade.seitenEintraege().length
+            }}
+            von {{ facade.gefilterteEintraege().length }} Einträgen)
+          </span>
+          <button
+            class="btn btn-sm"
+            [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()"
+            (click)="facade.seiteVor()"
+          >
+            Weiter
+          </button>
+        </div>
+      }
+    </div>
+  }
 </div>

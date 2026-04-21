@@ -6,16 +6,33 @@
 } @else {
   <div class="termin-liste">
     @for (t of termine(); track t.id) {
-      <div class="termin-zeile" [class.erledigt]="t.erledigt" [class.ueberfaellig]="istUeberfaellig(t)">
-        <input type="checkbox" [checked]="t.erledigt" (change)="erledigtToggle.emit(t)" class="termin-check" />
+      <div
+        class="termin-zeile"
+        [class.erledigt]="t.erledigt"
+        [class.ueberfaellig]="istUeberfaellig(t)"
+      >
+        <input
+          type="checkbox"
+          [checked]="t.erledigt"
+          (change)="erledigtToggle.emit(t)"
+          class="termin-check"
+        />
         <span class="muell-badge" [style.background]="t.farbe">{{ t.muellart }}</span>
         <span class="termin-datum">{{ datumFormatieren(t.abholung) }}</span>
         @if (istUeberfaellig(t)) {
           <span class="ueberfaellig-badge">Überfällig</span>
         }
         <div class="termin-aktionen">
-          <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(t)">Bearbeiten</button>
-          <button class="btn-action btn-action--danger" title="Löschen" (click)="loeschen.emit(t.id)">Löschen</button>
+          <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(t)">
+            Bearbeiten
+          </button>
+          <button
+            class="btn-action btn-action--danger"
+            title="Löschen"
+            (click)="loeschen.emit(t.id)"
+          >
+            Löschen
+          </button>
         </div>
       </div>
     }

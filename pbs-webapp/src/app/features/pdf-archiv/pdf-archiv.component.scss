@@ -9,10 +9,18 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
 
-  &__search { flex: 1; min-width: 200px; max-width: 280px; }
+  &__search {
+    flex: 1;
+    min-width: 200px;
+    max-width: 280px;
+  }
 }
 
-.filter-btns { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.filter-btns {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
 
 .filter-btn {
   padding: 0.3rem 0.75rem;
@@ -24,18 +32,40 @@
   transition: all 0.15s;
   color: var(--gray-600);
 
-  &.aktiv { background: var(--primary); color: #fff; border-color: var(--primary); }
-  &:hover:not(.aktiv) { border-color: var(--primary); color: var(--primary); }
+  &.aktiv {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+  &:hover:not(.aktiv) {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
 }
 
-.anzahl { font-size: 12px; color: var(--gray-500); margin-left: auto; }
+.anzahl {
+  font-size: 12px;
+  color: var(--gray-500);
+  margin-left: auto;
+}
 
-.btn-ml { margin-left: 4px; }
-.tabelle-scroll { overflow-x: auto; }
+.btn-ml {
+  margin-left: 4px;
+}
+.tabelle-scroll {
+  overflow-x: auto;
+}
 
-.td-nr { font-weight: 600; font-family: monospace; font-size: 12px; }
+.td-nr {
+  font-weight: 600;
+  font-family: monospace;
+  font-size: 12px;
+}
 
-.grau-text { color: var(--gray-500); font-size: 12px; }
+.grau-text {
+  color: var(--gray-500);
+  font-size: 12px;
+}
 
 .typ-badge {
   display: inline-block;
@@ -47,14 +77,21 @@
   color: var(--primary);
 }
 
-.laedt { padding: 2rem; text-align: center; color: var(--gray-500); }
+.laedt {
+  padding: 2rem;
+  text-align: center;
+  color: var(--gray-500);
+}
 
 .alert {
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
   margin-bottom: 1rem;
   font-size: 13px;
-  &--danger { background: var(--danger-light); color: #991b1b; }
+  &--danger {
+    background: var(--danger-light);
+    color: #991b1b;
+  }
 }
 
 .data-table {
@@ -81,6 +118,10 @@
     vertical-align: middle;
   }
 
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--gray-50); }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  tr:hover td {
+    background: var(--gray-50);
+  }
 }

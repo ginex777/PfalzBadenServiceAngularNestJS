@@ -10,15 +10,25 @@ export class MitarbeiterService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async alleMitarbeiterLaden(pagination: PaginationDto): Promise<PaginatedResponse<Record<string, unknown>>> {
+  async alleMitarbeiterLaden(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<Record<string, unknown>>> {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
     const [rows, total] = await this.prisma.$transaction([
-      this.prisma.mitarbeiter.findMany({ orderBy: { name: 'asc' }, skip, take: limit }),
+      this.prisma.mitarbeiter.findMany({
+        orderBy: { name: 'asc' },
+        skip,
+        take: limit,
+      }),
       this.prisma.mitarbeiter.count(),
     ]);
     return {
-      data: rows.map(m => ({ ...m, id: Number(m.id), stundenlohn: Number(m.stundenlohn) })),
+      data: rows.map((m) => ({
+        ...m,
+        id: Number(m.id),
+        stundenlohn: Number(m.stundenlohn),
+      })),
       total,
       page,
       limit,
@@ -42,7 +52,10 @@ export class MitarbeiterService {
   }
 
   async mitarbeiterAktualisieren(id: number, d: Record<string, unknown>) {
-    if (!await this.prisma.mitarbeiter.findUnique({ where: { id: BigInt(id) } })) throw new NotFoundException();
+    if (
+      !(await this.prisma.mitarbeiter.findUnique({ where: { id: BigInt(id) } }))
+    )
+      throw new NotFoundException();
     const m = await this.prisma.mitarbeiter.update({
       where: { id: BigInt(id) },
       data: {
@@ -59,8 +72,13 @@ export class MitarbeiterService {
   }
 
   async mitarbeiterLoeschen(id: number) {
-    if (!await this.prisma.mitarbeiter.findUnique({ where: { id: BigInt(id) } })) throw new NotFoundException();
-    await this.prisma.mitarbeiterStunden.deleteMany({ where: { mitarbeiter_id: BigInt(id) } });
+    if (
+      !(await this.prisma.mitarbeiter.findUnique({ where: { id: BigInt(id) } }))
+    )
+      throw new NotFoundException();
+    await this.prisma.mitarbeiterStunden.deleteMany({
+      where: { mitarbeiter_id: BigInt(id) },
+    });
     await this.prisma.mitarbeiter.delete({ where: { id: BigInt(id) } });
     return { ok: true };
   }
@@ -70,18 +88,25 @@ export class MitarbeiterService {
       where: { mitarbeiter_id: BigInt(mitarbeiterId) },
       orderBy: { datum: 'desc' },
     });
-    return rows.map(s => ({ ...s, id: Number(s.id), mitarbeiter_id: Number(s.mitarbeiter_id), stunden: Number(s.stunden), lohn: Number(s.lohn), zuschlag: Number(s.zuschlag) }));
+    return rows.map((s) => ({
+      ...s,
+      id: Number(s.id),
+      mitarbeiter_id: Number(s.mitarbeiter_id),
+      stunden: Number(s.stunden),
+      lohn: Number(s.lohn),
+      zuschlag: Number(s.zuschlag),
+    }));
   }
 
   async stundenErstellen(mitarbeiterId: number, d: Record<string, unknown>) {
     // FIXED: Auto-calculate wage if not provided
     let lohn = Number(d['lohn'] ?? 0);
-    let zuschlag = Number(d['zuschlag'] ?? 0);
-    
+    const zuschlag = Number(d['zuschlag'] ?? 0);
+
     if (lohn === 0) {
       // Auto-calculate from employee hourly rate
-      const mitarbeiter = await this.prisma.mitarbeiter.findUnique({ 
-        where: { id: BigInt(mitarbeiterId) } 
+      const mitarbeiter = await this.prisma.mitarbeiter.findUnique({
+        where: { id: BigInt(mitarbeiterId) },
       });
       if (mitarbeiter) {
         const stunden = Number(d['stunden'] ?? 0);
@@ -102,11 +127,23 @@ export class MitarbeiterService {
         bezahlt: Boolean(d['bezahlt']),
       },
     });
-    return { ...s, id: Number(s.id), mitarbeiter_id: Number(s.mitarbeiter_id), stunden: Number(s.stunden), lohn: Number(s.lohn), zuschlag: Number(s.zuschlag) };
+    return {
+      ...s,
+      id: Number(s.id),
+      mitarbeiter_id: Number(s.mitarbeiter_id),
+      stunden: Number(s.stunden),
+      lohn: Number(s.lohn),
+      zuschlag: Number(s.zuschlag),
+    };
   }
 
   async stundenAktualisieren(stundenId: number, d: Record<string, unknown>) {
-    if (!await this.prisma.mitarbeiterStunden.findUnique({ where: { id: BigInt(stundenId) } })) throw new NotFoundException();
+    if (
+      !(await this.prisma.mitarbeiterStunden.findUnique({
+        where: { id: BigInt(stundenId) },
+      }))
+    )
+      throw new NotFoundException();
     const s = await this.prisma.mitarbeiterStunden.update({
       where: { id: BigInt(stundenId) },
       data: {
@@ -120,12 +157,26 @@ export class MitarbeiterService {
         bezahlt: Boolean(d['bezahlt']),
       },
     });
-    return { ...s, id: Number(s.id), mitarbeiter_id: Number(s.mitarbeiter_id), stunden: Number(s.stunden), lohn: Number(s.lohn), zuschlag: Number(s.zuschlag) };
+    return {
+      ...s,
+      id: Number(s.id),
+      mitarbeiter_id: Number(s.mitarbeiter_id),
+      stunden: Number(s.stunden),
+      lohn: Number(s.lohn),
+      zuschlag: Number(s.zuschlag),
+    };
   }
 
   async stundenLoeschen(stundenId: number) {
-    if (!await this.prisma.mitarbeiterStunden.findUnique({ where: { id: BigInt(stundenId) } })) throw new NotFoundException();
-    await this.prisma.mitarbeiterStunden.delete({ where: { id: BigInt(stundenId) } });
+    if (
+      !(await this.prisma.mitarbeiterStunden.findUnique({
+        where: { id: BigInt(stundenId) },
+      }))
+    )
+      throw new NotFoundException();
+    await this.prisma.mitarbeiterStunden.delete({
+      where: { id: BigInt(stundenId) },
+    });
     return { ok: true };
   }
 
@@ -144,7 +195,11 @@ export class MitarbeiterService {
         notiz: d['notiz'] ? String(d['notiz']) : null,
       },
     });
-    return { id: Number(s.id), mitarbeiter_id: Number(s.mitarbeiter_id), start: s.start };
+    return {
+      id: Number(s.id),
+      mitarbeiter_id: Number(s.mitarbeiter_id),
+      start: s.start,
+    };
   }
 
   async stempelStop(mitarbeiterId: number) {
@@ -160,7 +215,13 @@ export class MitarbeiterService {
       where: { id: open.id },
       data: { stop, dauer_minuten: dauerMinuten },
     });
-    return { id: Number(s.id), mitarbeiter_id: Number(s.mitarbeiter_id), start: s.start, stop: s.stop, dauer_minuten: s.dauer_minuten };
+    return {
+      id: Number(s.id),
+      mitarbeiter_id: Number(s.mitarbeiter_id),
+      start: s.start,
+      stop: s.stop,
+      dauer_minuten: s.dauer_minuten,
+    };
   }
 
   async zeiterfassungLaden(mitarbeiterId: number) {
@@ -169,7 +230,7 @@ export class MitarbeiterService {
       orderBy: { start: 'desc' },
       take: 100,
     });
-    return rows.map(s => ({
+    return rows.map((s) => ({
       id: Number(s.id),
       mitarbeiter_id: Number(s.mitarbeiter_id),
       start: s.start,

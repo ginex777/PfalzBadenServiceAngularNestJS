@@ -7,6 +7,10 @@ import { AuditLogEntry } from '../../core/models';
 export class AuditLogService {
   private readonly api = inject(ApiService);
 
-  alleLaden(): Observable<AuditLogEntry[]> { return this.api.auditLogAllesLaden(); }
-  fuerTabelleLaden(tabelle: string): Observable<AuditLogEntry[]> { return this.api.auditLogFuerTabelleLaden(tabelle); }
+  alleLaden(): Observable<AuditLogEntry[]> {
+    return this.api.loadAuditLogAll();
+  }
+  fuerTabelleLaden(tabelle: string): Observable<AuditLogEntry[]> {
+    return this.api.loadAuditLogForTable(tabelle);
+  }
 }

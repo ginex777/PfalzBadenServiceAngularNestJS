@@ -28,8 +28,11 @@ export class MarketingTabelleComponent {
 
   protected statusKlasse(status: MarketingKontakt['status']): string {
     const map: Record<MarketingKontakt['status'], string> = {
-      neu: 'badge--gray', gesendet: 'badge--blue',
-      interesse: 'badge--green', 'kein-interesse': 'badge--red', angebot: 'badge--purple',
+      neu: 'badge--gray',
+      gesendet: 'badge--blue',
+      interesse: 'badge--green',
+      'kein-interesse': 'badge--red',
+      angebot: 'badge--purple',
     };
     return map[status] ?? 'badge--gray';
   }

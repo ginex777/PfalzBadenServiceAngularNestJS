@@ -5,6 +5,11 @@
     "start:frontend": "npm run start --prefix pbs-webapp",
     "start:backend": "npm run start:dev --prefix pbs-backend",
     "build:frontend": "npm run build --prefix pbs-webapp",
-    "build:backend": "npm run build --prefix pbs-backend"
+    "build:backend": "npm run build --prefix pbs-backend",
+    "lint:backend": "npm run lint --prefix pbs-backend",
+    "lint:webapp": "npm run lint --prefix pbs-webapp",
+    "lint:mobile": "npm run lint --prefix pbs-mobile",
+    "format": "npm run format --prefix pbs-backend && npm run format --prefix pbs-webapp && npm run format --prefix pbs-mobile",
+    "lint": "npm run lint --prefix pbs-backend && npm run lint --prefix pbs-webapp && npm run lint --prefix pbs-mobile"
   }
 }

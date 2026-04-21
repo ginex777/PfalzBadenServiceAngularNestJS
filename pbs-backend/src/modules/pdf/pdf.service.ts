@@ -26,46 +26,87 @@ export class PdfService {
   ) {}
 
   // ── PDF Generators ──────────────────────────────────────────────────────────
-  rechnungPdfErstellen(id: number) { return this.rechnungGen.erstellen(id); }
-  angebotPdfErstellen(id: number) { return this.angebotGen.erstellen(id); }
-  mahnungPdfErstellen(id: number) { return this.mahnungGen.erstellen(id); }
-  euerPdfErstellen(jahr: number, ergebnis: Record<string, unknown>) { return this.euerGen.erstellen(jahr, ergebnis); }
-  hausmeisterEinsatzPdfErstellen(id: number) { return this.hausmeisterGen.einsatzPdfErstellen(id); }
-  hausmeisterMonatsnachweisPdfErstellen(monat: string, mitarbeiterName?: string) { return this.hausmeisterGen.monatsnachweisPdfErstellen(monat, mitarbeiterName); }
-  mitarbeiterAbrechnungPdfErstellen(id: number) { return this.mitarbeiterGen.abrechnungPdfErstellen(id); }
-  vertragPdfErstellen(id: number) { return this.vertragGen.erstellen(id); }
+  createRechnungPdf(id: number) {
+    return this.rechnungGen.create(id);
+  }
+  createAngebotPdf(id: number) {
+    return this.angebotGen.create(id);
+  }
+  createMahnungPdf(id: number) {
+    return this.mahnungGen.create(id);
+  }
+  createEuerPdf(jahr: number, ergebnis: Record<string, unknown>) {
+    return this.euerGen.create(jahr, ergebnis);
+  }
+  createHausmeisterEinsatzPdf(id: number) {
+    return this.hausmeisterGen.createEinsatzPdf(id);
+  }
+  createHausmeisterMonatsnachweisPdf(monat: string, mitarbeiterName?: string) {
+    return this.hausmeisterGen.createMonatsnachweisPdf(monat, mitarbeiterName);
+  }
+  createMitarbeiterAbrechnungPdf(id: number) {
+    return this.mitarbeiterGen.createAbrechnungPdf(id);
+  }
+  createVertragPdf(id: number) {
+    return this.vertragGen.create(id);
+  }
 
   // ── Token ───────────────────────────────────────────────────────────────────
-  tokenAbrufen(token: string) { return this.tokenService.tokenAbrufen(token); }
+  getToken(token: string) {
+    return this.tokenService.getToken(token);
+  }
 
   // ── Archiv ──────────────────────────────────────────────────────────────────
-  async archivLaden() {
+  async getArchive() {
     const rows = await this.prisma.pdfArchive.findMany({
-      select: { id: true, typ: true, referenz_nr: true, referenz_id: true, empf: true, titel: true, datum: true, filename: true, erstellt_am: true },
+      select: {
+        id: true,
+        typ: true,
+        referenz_nr: true,
+        referenz_id: true,
+        empf: true,
+        titel: true,
+        datum: true,
+        filename: true,
+        erstellt_am: true,
+      },
       orderBy: { erstellt_am: 'desc' },
       take: 200,
     });
-    return rows.map(r => ({ ...r, id: Number(r.id), referenz_id: r.referenz_id ? Number(r.referenz_id) : null }));
+    return rows.map((r) => ({
+      ...r,
+      id: Number(r.id),
+      referenz_id: r.referenz_id ? Number(r.referenz_id) : null,
+    }));
   }
 
-  async archivRegenerieren(id: number): Promise<Buffer> {
-    const row = await this.prisma.pdfArchive.findUnique({ where: { id: BigInt(id) } });
-    if (!row?.html_body) throw new NotFoundException('Kein HTML gespeichert — Regenerierung nicht möglich');
-    const firma = await this.renderService.firmaLaden();
-    return this.renderService.pdfMitHeaderFooterErstellen(row.html_body, firma);
+  async regenerateArchive(id: number): Promise<Buffer> {
+    const row = await this.prisma.pdfArchive.findUnique({
+      where: { id: BigInt(id) },
+    });
+    if (!row?.html_body)
+      throw new NotFoundException(
+        'Kein HTML gespeichert — Regenerierung nicht möglich',
+      );
+    const firma = await this.renderService.loadFirma();
+    return this.renderService.createPdfWithHeaderFooter(row.html_body, firma);
   }
 
-  async archivEintragLoeschen(id: number) {
+  async deleteArchiveEntry(id: number) {
     await this.prisma.pdfArchive.delete({ where: { id: BigInt(id) } });
     return { ok: true };
   }
 
-  async archivBereinigen() {
+  async cleanArchive() {
     const grenze = new Date();
     grenze.setMonth(grenze.getMonth() - 12);
-    const result = await this.prisma.pdfArchive.deleteMany({ where: { erstellt_am: { lt: grenze } } });
+    const result = await this.prisma.pdfArchive.deleteMany({
+      where: { erstellt_am: { lt: grenze } },
+    });
     return { ok: true, deleted: result.count };
   }
 
-  cacheLeeren() { return this.renderService.cacheLeeren(); }
+  clearCache() {
+    return this.renderService.clearCache();
+  }
 }

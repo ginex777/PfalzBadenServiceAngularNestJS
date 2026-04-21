@@ -57,7 +57,9 @@
   cursor: pointer;
   transition: all 0.15s;
 
-  &:hover { background: var(--gray-100); }
+  &:hover {
+    background: var(--gray-100);
+  }
 
   &--aktiv {
     background: var(--danger-light);
@@ -74,16 +76,38 @@
 .tabelle {
   @include shared.tabelle-basis;
 
-  .col-kategorie   { min-width: 120px; }
-  .col-belegnr     { width: 80px; }
-  .col-bezeichnung { min-width: 110px; }
-  .col-datum       { width: 115px; }
-  .col-brutto      { width: 90px; }
-  .col-mwst        { width: 65px; }
-  .col-abzug       { width: 60px; }
-  .col-netto       { width: 85px; text-align: right; }
-  .col-vorsteuer   { width: 75px; text-align: right; }
-  .col-aktionen    { width: 160px; }
+  .col-kategorie {
+    min-width: 120px;
+  }
+  .col-belegnr {
+    width: 80px;
+  }
+  .col-bezeichnung {
+    min-width: 110px;
+  }
+  .col-datum {
+    width: 115px;
+  }
+  .col-brutto {
+    width: 90px;
+  }
+  .col-mwst {
+    width: 65px;
+  }
+  .col-abzug {
+    width: 60px;
+  }
+  .col-netto {
+    width: 85px;
+    text-align: right;
+  }
+  .col-vorsteuer {
+    width: 75px;
+    text-align: right;
+  }
+  .col-aktionen {
+    width: 160px;
+  }
 }
 
 .eingabe {
@@ -93,7 +117,10 @@
     text-align: right;
   }
 
-  &--suche { width: 200px; font-size: 12px; }
+  &--suche {
+    width: 200px;
+    font-size: 12px;
+  }
   &--fehlt {
     border-color: var(--danger) !important;
     background: var(--danger-light) !important;
@@ -129,7 +156,9 @@
 .btn-loeschen {
   @include shared.btn-aktion;
   color: var(--danger);
-  &:hover { background: var(--danger-light); }
+  &:hover {
+    background: var(--danger-light);
+  }
 }
 
 .gesperrt-label {
@@ -142,7 +171,9 @@
   &--rot {
     color: var(--danger);
     border-color: var(--danger-light);
-    &:hover { background: var(--danger-light); }
+    &:hover {
+      background: var(--danger-light);
+    }
   }
 }
 

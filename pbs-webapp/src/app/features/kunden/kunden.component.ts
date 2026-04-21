@@ -72,7 +72,7 @@ export class KundenComponent implements OnInit {
   }
 
   protected offenePostenRechnungNavigieren(kundeId: number): void {
-    const kunde = this.facade.kunden().find(k => k.id === kundeId);
+    const kunde = this.facade.kunden().find((k) => k.id === kundeId);
     if (kunde) this.facade.zuRechnungNavigieren(kunde);
     this.facade.offenePostenSchliessen();
   }

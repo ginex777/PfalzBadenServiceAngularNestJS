@@ -1,13 +1,11 @@
 <div class="dashboard-page">
-
   <!-- Header -->
   <div class="dashboard-header">
-    <app-page-title
-      titel="Dashboard"
-      [untertitel]="aktuellesJahr.toString()"
-    />
+    <app-page-title titel="Dashboard" [untertitel]="aktuellesJahr.toString()" />
     <div class="header-actions">
-      <button class="btn btn-primary" (click)="facade.zuNeuerRechnungNavigieren()">+ Rechnung</button>
+      <button class="btn btn-primary" (click)="facade.zuNeuerRechnungNavigieren()">
+        + Rechnung
+      </button>
       <button class="btn btn-success" (click)="facade.zuNeuesAngebotNavigieren()">+ Angebot</button>
       <button class="btn" (click)="facade.zuKundenNavigieren()">+ Kunde</button>
       <button class="btn" (click)="facade.zuBuchhaltungNavigieren()">Buchhaltung</button>
@@ -39,14 +37,32 @@
     />
     <app-stat-card
       titel="Offene Rechnungen"
-      [wert]="facade.stats() ? (facade.stats()!.offeneRechnungenAnzahl + ' / ' + waehrungFormatieren(facade.stats()!.offeneRechnungenSumme)) : '0'"
-      [untertitel]="facade.stats() && facade.stats()!.ueberfaelligeRechnungenAnzahl > 0 ? (facade.stats()!.ueberfaelligeRechnungenAnzahl + ' überfällig') : ''"
-      [variante]="facade.stats() && facade.stats()!.ueberfaelligeRechnungenAnzahl > 0 ? 'danger' : 'warning'"
+      [wert]="
+        facade.stats()
+          ? facade.stats()!.offeneRechnungenAnzahl +
+            ' / ' +
+            waehrungFormatieren(facade.stats()!.offeneRechnungenSumme)
+          : '0'
+      "
+      [untertitel]="
+        facade.stats() && facade.stats()!.ueberfaelligeRechnungenAnzahl > 0
+          ? facade.stats()!.ueberfaelligeRechnungenAnzahl + ' überfällig'
+          : ''
+      "
+      [variante]="
+        facade.stats() && facade.stats()!.ueberfaelligeRechnungenAnzahl > 0 ? 'danger' : 'warning'
+      "
       [laedt]="facade.laedt()"
     />
     <app-stat-card
       titel="Offene Angebote"
-      [wert]="facade.stats() ? (facade.stats()!.offeneAngeboteAnzahl + ' / ' + waehrungFormatieren(facade.stats()!.offeneAngeboteSumme)) : '0'"
+      [wert]="
+        facade.stats()
+          ? facade.stats()!.offeneAngeboteAnzahl +
+            ' / ' +
+            waehrungFormatieren(facade.stats()!.offeneAngeboteSumme)
+          : '0'
+      "
       untertitel="Ausstehend"
       variante="primary"
       [laedt]="facade.laedt()"
@@ -61,9 +77,7 @@
           Benachrichtigungen
           <span class="badge badge-primary">{{ facade.ungeleseneNotifAnzahl() }} neu</span>
         </h3>
-        <button class="btn btn-sm" (click)="facade.alleBenachrichtigungenAlsGelesenMarkieren()">
-          Alle gelesen
-        </button>
+        <button class="btn btn-sm" (click)="facade.markAllNotificationsRead()">Alle gelesen</button>
       </div>
       <div class="notif-list">
         @for (notif of facade.ungeleseneNotifs(); track notif.id) {
@@ -75,7 +89,7 @@
                 <div class="notif-nachricht">{{ notif.nachricht }}</div>
               }
             </div>
-            <button class="btn-action" (click)="facade.benachrichtigungAlsGelesenMarkieren(notif.id)">
+            <button class="btn-action" (click)="facade.markNotificationRead(notif.id)">
               Gelesen
             </button>
           </div>
@@ -103,10 +117,14 @@
                   <td class="col-name">{{ re.empf }}</td>
                   <td class="col-betrag text-danger">{{ waehrungFormatieren(re.brutto) }}</td>
                   <td class="col-status">
-                    <span class="text-danger hint-sm">{{ tageText(re.tageUeberfaellig, true) }}</span>
+                    <span class="text-danger hint-sm">{{
+                      tageText(re.tageUeberfaellig, true)
+                    }}</span>
                   </td>
                   <td class="col-action">
-                    <button class="btn-action" (click)="facade.rechnungOeffnen(re.id)">Öffnen</button>
+                    <button class="btn-action" (click)="facade.rechnungOeffnen(re.id)">
+                      Öffnen
+                    </button>
                   </td>
                 </tr>
               }
@@ -126,7 +144,9 @@
       @if (facade.offeneRechnungen().length === 0) {
         <div class="empty-inline">
           <span class="hint">Keine offenen Rechnungen</span>
-          <button class="btn btn-sm btn-primary" (click)="facade.zuNeuerRechnungNavigieren()">+ Neue Rechnung</button>
+          <button class="btn btn-sm btn-primary" (click)="facade.zuNeuerRechnungNavigieren()">
+            + Neue Rechnung
+          </button>
         </div>
       } @else {
         <div class="table-wrapper">
@@ -139,13 +159,17 @@
                   <td class="col-betrag">{{ waehrungFormatieren(re.brutto) }}</td>
                   <td class="col-status">
                     @if (re.tageVerbleibend !== null) {
-                      <span class="text-warning hint-sm">{{ tageText(re.tageVerbleibend, false) }}</span>
+                      <span class="text-warning hint-sm">{{
+                        tageText(re.tageVerbleibend, false)
+                      }}</span>
                     } @else {
                       <span class="hint-sm text-muted">Kein Fälligkeitsdatum</span>
                     }
                   </td>
                   <td class="col-action">
-                    <button class="btn-action" (click)="facade.rechnungOeffnen(re.id)">Öffnen</button>
+                    <button class="btn-action" (click)="facade.rechnungOeffnen(re.id)">
+                      Öffnen
+                    </button>
                   </td>
                 </tr>
               }
@@ -163,7 +187,9 @@
       @if (facade.offeneAngebote().length === 0) {
         <div class="empty-inline">
           <span class="hint">Keine offenen Angebote</span>
-          <button class="btn btn-sm btn-success" (click)="facade.zuNeuesAngebotNavigieren()">+ Neues Angebot</button>
+          <button class="btn btn-sm btn-success" (click)="facade.zuNeuesAngebotNavigieren()">
+            + Neues Angebot
+          </button>
         </div>
       } @else {
         <div class="table-wrapper">
@@ -184,7 +210,9 @@
                     }
                   </td>
                   <td class="col-action">
-                    <button class="btn-action" (click)="facade.angebotOeffnen(ang.id)">Öffnen</button>
+                    <button class="btn-action" (click)="facade.angebotOeffnen(ang.id)">
+                      Öffnen
+                    </button>
                   </td>
                 </tr>
               }
@@ -207,7 +235,9 @@
                   <td class="col-datum hint-sm">{{ aktivitaetDatumFormatieren(akt.datum) }}</td>
                   <td class="col-typ hint-sm text-muted">{{ akt.typ }}</td>
                   <td class="col-name">{{ akt.nr }} – {{ akt.name }}</td>
-                  <td class="col-betrag" [class]="akt.statusKlasse">{{ akt.betrag != null ? waehrungFormatieren(akt.betrag) : '–' }}</td>
+                  <td class="col-betrag" [class]="akt.statusKlasse">
+                    {{ akt.betrag !== null && akt.betrag !== undefined ? waehrungFormatieren(akt.betrag) : '–' }}
+                  </td>
                   <td class="col-action">
                     <button class="btn-action hint-sm" [routerLink]="akt.routerLink">Öffnen</button>
                   </td>
@@ -259,7 +289,9 @@
         <div class="backup-info">
           <div class="backup-row">
             <span class="hint-sm text-muted">Letztes Backup</span>
-            <span class="backup-datum">{{ datumFormatieren(facade.backupInfo()!.erstellt_am) }}</span>
+            <span class="backup-datum">{{
+              datumFormatieren(facade.backupInfo()!.erstellt_am)
+            }}</span>
           </div>
           <div class="backup-row">
             <span class="hint-sm text-muted">Datei</span>
@@ -270,7 +302,11 @@
         <p class="hint">Kein Backup vorhanden</p>
       }
       <div class="card-actions">
-        <button class="btn btn-sm btn-primary" [disabled]="facade.backupLaedt()" (click)="facade.backupErstellen()">
+        <button
+          class="btn btn-sm btn-primary"
+          [disabled]="facade.backupLaedt()"
+          (click)="facade.createBackup()"
+        >
           {{ facade.backupLaedt() ? 'Sichert…' : 'Jetzt sichern' }}
         </button>
         <a class="btn btn-sm" routerLink="/einstellungen">Einstellungen</a>
@@ -293,7 +329,16 @@
                   <td class="fw-medium">{{ e.mitarbeiter_name }}</td>
                   <td class="hint-sm text-muted">{{ e.kunden_name || '' }}</td>
                   <td>
-                    <span class="badge" [class]="einsatzDatumBadge(e.datum) === 'Heute' ? 'badge-danger' : einsatzDatumBadge(e.datum) === 'Morgen' ? 'badge-warning' : 'badge-neutral'">
+                    <span
+                      class="badge"
+                      [class]="
+                        einsatzDatumBadge(e.datum) === 'Heute'
+                          ? 'badge-danger'
+                          : einsatzDatumBadge(e.datum) === 'Morgen'
+                            ? 'badge-warning'
+                            : 'badge-neutral'
+                      "
+                    >
                       {{ einsatzDatumBadge(e.datum) }}
                     </span>
                   </td>
@@ -347,13 +392,23 @@
                 <td class="col-monat">{{ zeile.monatName }}</td>
                 <td class="text-right text-success">{{ waehrungFormatieren(zeile.einnahmen) }}</td>
                 <td class="text-right text-danger">{{ waehrungFormatieren(zeile.ausgaben) }}</td>
-                <td class="text-right" [class.text-success]="zeile.gewinn >= 0" [class.text-danger]="zeile.gewinn < 0">
+                <td
+                  class="text-right"
+                  [class.text-success]="zeile.gewinn >= 0"
+                  [class.text-danger]="zeile.gewinn < 0"
+                >
                   {{ waehrungFormatieren(zeile.gewinn) }}
                 </td>
                 <td class="col-balken">
                   <div class="balken-wrap">
-                    <div class="balken balken--success" [style.width.px]="zeile.balkenEinnahmen"></div>
-                    <div class="balken balken--danger" [style.width.px]="zeile.balkenAusgaben"></div>
+                    <div
+                      class="balken balken--success"
+                      [style.width.px]="zeile.balkenEinnahmen"
+                    ></div>
+                    <div
+                      class="balken balken--danger"
+                      [style.width.px]="zeile.balkenAusgaben"
+                    ></div>
                   </div>
                 </td>
               </tr>
@@ -363,5 +418,4 @@
       </div>
     }
   </div>
-
 </div>

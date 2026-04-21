@@ -3,8 +3,11 @@ import { MitarbeiterService } from './mitarbeiter.service';
 import { ToastService } from '../../core/services/toast.service';
 import { Mitarbeiter, MitarbeiterStunden } from '../../core/models';
 import {
-  MitarbeiterFormularDaten, StundenFormularDaten, StundenStatistik,
-  LEERES_MITARBEITER_FORMULAR, LEERES_STUNDEN_FORMULAR,
+  MitarbeiterFormularDaten,
+  StundenFormularDaten,
+  StundenStatistik,
+  LEERES_MITARBEITER_FORMULAR,
+  LEERES_STUNDEN_FORMULAR,
 } from './mitarbeiter.models';
 
 interface Stempel {
@@ -41,10 +44,16 @@ export class MitarbeiterFacade {
     const grundlohn = alle.reduce((s, r) => s + r.lohn, 0);
     const zuschlaege = alle.reduce((s, r) => s + (r.zuschlag ?? 0), 0);
     const gesamtLohn = grundlohn + zuschlaege;
-    const bezahlt = alle.filter(r => r.bezahlt).reduce((s, r) => s + r.lohn + (r.zuschlag ?? 0), 0);
+    const bezahlt = alle
+      .filter((r) => r.bezahlt)
+      .reduce((s, r) => s + r.lohn + (r.zuschlag ?? 0), 0);
     return {
       gesamtStunden: alle.reduce((s, r) => s + r.stunden, 0),
-      grundlohn, zuschlaege, gesamtLohn, bezahlt, offen: gesamtLohn - bezahlt,
+      grundlohn,
+      zuschlaege,
+      gesamtLohn,
+      bezahlt,
+      offen: gesamtLohn - bezahlt,
     };
   });
 
@@ -53,38 +62,62 @@ export class MitarbeiterFacade {
     const ma = this.aktiverMitarbeiter();
     const rate = f.lohnSatz || (ma?.stundenlohn ?? 0);
     const grundlohn = Math.round(f.stunden * rate * 100) / 100;
-    const zuschlag = Math.round(grundlohn * f.zuschlagProzent / 100 * 100) / 100;
+    const zuschlag = Math.round(((grundlohn * f.zuschlagProzent) / 100) * 100) / 100;
     return { grundlohn, zuschlag, gesamt: grundlohn + zuschlag };
   });
 
   ladeDaten(): void {
     this.laedt.set(true);
     this.service.alleLaden().subscribe({
-      next: ma => { this.mitarbeiter.set(ma); this.laedt.set(false); },
-      error: () => { this.toast.error('Mitarbeiter konnten nicht geladen werden.'); this.laedt.set(false); },
+      next: (ma) => {
+        this.mitarbeiter.set(ma);
+        this.laedt.set(false);
+      },
+      error: () => {
+        this.toast.error('Mitarbeiter konnten nicht geladen werden.');
+        this.laedt.set(false);
+      },
     });
   }
 
   formularOeffnen(ma?: Mitarbeiter): void {
     this.bearbeiteterMitarbeiter.set(ma ?? null);
-    this.formularDaten.set(ma ? {
-      name: ma.name, rolle: ma.rolle ?? '', stundenlohn: ma.stundenlohn,
-      email: ma.email ?? '', tel: ma.tel ?? '', notiz: ma.notiz ?? '', aktiv: ma.aktiv,
-    } : { ...LEERES_MITARBEITER_FORMULAR });
+    this.formularDaten.set(
+      ma
+        ? {
+            name: ma.name,
+            rolle: ma.rolle ?? '',
+            stundenlohn: ma.stundenlohn,
+            email: ma.email ?? '',
+            tel: ma.tel ?? '',
+            notiz: ma.notiz ?? '',
+            aktiv: ma.aktiv,
+          }
+        : { ...LEERES_MITARBEITER_FORMULAR },
+    );
     this.formularSichtbar.set(true);
   }
 
-  formularSchliessen(): void { this.formularSichtbar.set(false); this.bearbeiteterMitarbeiter.set(null); }
+  formularSchliessen(): void {
+    this.formularSichtbar.set(false);
+    this.bearbeiteterMitarbeiter.set(null);
+  }
 
   speichern(): void {
     const daten = this.formularDaten();
-    if (!daten.name) { this.toast.error('Bitte Name eingeben.'); return; }
+    if (!daten.name) {
+      this.toast.error('Bitte Name eingeben.');
+      return;
+    }
     const editId = this.bearbeiteterMitarbeiter()?.id;
-    const anfrage = editId ? this.service.aktualisieren(editId, daten) : this.service.erstellen(daten);
+    const anfrage = editId
+      ? this.service.aktualisieren(editId, daten)
+      : this.service.erstellen(daten);
     anfrage.subscribe({
-      next: gespeichert => {
-        if (editId) this.mitarbeiter.update(list => list.map(m => m.id === editId ? gespeichert : m));
-        else this.mitarbeiter.update(list => [...list, gespeichert]);
+      next: (gespeichert) => {
+        if (editId)
+          this.mitarbeiter.update((list) => list.map((m) => (m.id === editId ? gespeichert : m)));
+        else this.mitarbeiter.update((list) => [...list, gespeichert]);
         this.formularSchliessen();
       },
       error: () => this.toast.error('Mitarbeiter konnte nicht gespeichert werden.'),
@@ -92,45 +125,68 @@ export class MitarbeiterFacade {
   }
 
   aktivToggle(id: number, aktiv: boolean): void {
-    const ma = this.mitarbeiter().find(m => m.id === id);
+    const ma = this.mitarbeiter().find((m) => m.id === id);
     if (!ma) return;
     this.service.aktualisieren(id, { ...ma, aktiv }).subscribe({
-      next: aktualisiert => this.mitarbeiter.update(list => list.map(m => m.id === id ? aktualisiert : m)),
+      next: (aktualisiert) =>
+        this.mitarbeiter.update((list) => list.map((m) => (m.id === id ? aktualisiert : m))),
     });
   }
 
-  loeschenBestaetigen(id: number): void { this.loeschKandidat.set(id); }
-  loeschenAbbrechen(): void { this.loeschKandidat.set(null); }
+  loeschenBestaetigen(id: number): void {
+    this.loeschKandidat.set(id);
+  }
+  loeschenAbbrechen(): void {
+    this.loeschKandidat.set(null);
+  }
 
   loeschenAusfuehren(): void {
     const id = this.loeschKandidat();
     if (id === null) return;
     this.service.loeschen(id).subscribe({
       next: () => {
-        this.mitarbeiter.update(list => list.filter(m => m.id !== id));
+        this.mitarbeiter.update((list) => list.filter((m) => m.id !== id));
         if (this.aktiverMitarbeiter()?.id === id) this.stundenSchliessen();
         this.loeschKandidat.set(null);
       },
-      error: () => { this.toast.error('Mitarbeiter konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
+      error: () => {
+        this.toast.error('Mitarbeiter konnte nicht gelöscht werden.');
+        this.loeschKandidat.set(null);
+      },
     });
   }
 
   stundenOeffnen(id: number): void {
-    const ma = this.mitarbeiter().find(m => m.id === id);
+    const ma = this.mitarbeiter().find((m) => m.id === id);
     if (!ma) return;
     this.aktiverMitarbeiter.set(ma);
     this.stundenLaedt.set(true);
     this.stempelLaedt.set(true);
-    this.stundenFormular.set({ ...LEERES_STUNDEN_FORMULAR, datum: new Date().toISOString().slice(0, 10) });
-
-    this.service.stundenLaden(id).subscribe({
-      next: s => { this.stunden.set(s); this.stundenLaedt.set(false); },
-      error: () => { this.stunden.set([]); this.stundenLaedt.set(false); },
+    this.stundenFormular.set({
+      ...LEERES_STUNDEN_FORMULAR,
+      datum: new Date().toISOString().slice(0, 10),
     });
 
-    this.service.zeiterfassungLaden(id).subscribe({
-      next: s => { this.stempelEintraege.set(s); this.stempelLaedt.set(false); },
-      error: () => { this.stempelEintraege.set([]); this.stempelLaedt.set(false); },
+    this.service.stundenLaden(id).subscribe({
+      next: (s) => {
+        this.stunden.set(s);
+        this.stundenLaedt.set(false);
+      },
+      error: () => {
+        this.stunden.set([]);
+        this.stundenLaedt.set(false);
+      },
+    });
+
+    this.service.loadTimeTracking(id).subscribe({
+      next: (s) => {
+        this.stempelEintraege.set(s);
+        this.stempelLaedt.set(false);
+      },
+      error: () => {
+        this.stempelEintraege.set([]);
+        this.stempelLaedt.set(false);
+      },
     });
   }
 
@@ -144,17 +200,26 @@ export class MitarbeiterFacade {
     const ma = this.aktiverMitarbeiter();
     if (!ma) return;
     const f = this.stundenFormular();
-    if (!f.datum || !f.stunden) { this.toast.error('Datum und Stunden sind Pflichtfelder.'); return; }
+    if (!f.datum || !f.stunden) {
+      this.toast.error('Datum und Stunden sind Pflichtfelder.');
+      return;
+    }
     const rate = f.lohnSatz || ma.stundenlohn;
     const grundlohn = Math.round(f.stunden * rate * 100) / 100;
-    const zuschlag = Math.round(grundlohn * f.zuschlagProzent / 100 * 100) / 100;
+    const zuschlag = Math.round(((grundlohn * f.zuschlagProzent) / 100) * 100) / 100;
     const payload: Partial<MitarbeiterStunden> = {
-      datum: f.datum, stunden: f.stunden, beschreibung: f.beschreibung, ort: f.ort,
-      lohn: grundlohn, zuschlag, zuschlag_typ: f.zuschlagProzent ? `${f.zuschlagProzent}%` : '', bezahlt: false,
+      datum: f.datum,
+      stunden: f.stunden,
+      beschreibung: f.beschreibung,
+      ort: f.ort,
+      lohn: grundlohn,
+      zuschlag,
+      zuschlag_typ: f.zuschlagProzent ? `${f.zuschlagProzent}%` : '',
+      bezahlt: false,
     };
     this.service.stundenErstellen(ma.id, payload).subscribe({
-      next: s => {
-        this.stunden.update(list => [s, ...list]);
+      next: (s) => {
+        this.stunden.update((list) => [s, ...list]);
         this.stundenFormular.set({ ...LEERES_STUNDEN_FORMULAR, datum: f.datum });
       },
       error: () => this.toast.error('Stunden konnten nicht eingetragen werden.'),
@@ -162,80 +227,113 @@ export class MitarbeiterFacade {
   }
 
   bezahltToggle(id: number, bezahlt: boolean): void {
-    const s = this.stunden().find(x => x.id === id);
+    const s = this.stunden().find((x) => x.id === id);
     if (!s) return;
     this.service.stundenAktualisieren(id, { ...s, bezahlt }).subscribe({
-      next: aktualisiert => this.stunden.update(list => list.map(x => x.id === id ? aktualisiert : x)),
+      next: (aktualisiert) =>
+        this.stunden.update((list) => list.map((x) => (x.id === id ? aktualisiert : x))),
     });
   }
 
-  stundenLoeschenBestaetigen(id: number): void { this.loeschStundenKandidat.set(id); }
-  stundenLoeschenAbbrechen(): void { this.loeschStundenKandidat.set(null); }
+  stundenLoeschenBestaetigen(id: number): void {
+    this.loeschStundenKandidat.set(id);
+  }
+  stundenLoeschenAbbrechen(): void {
+    this.loeschStundenKandidat.set(null);
+  }
 
   stundenLoeschenAusfuehren(): void {
     const id = this.loeschStundenKandidat();
     if (id === null) return;
     this.service.stundenLoeschen(id).subscribe({
-      next: () => { this.stunden.update(list => list.filter(s => s.id !== id)); this.loeschStundenKandidat.set(null); },
-      error: () => { this.toast.error('Stunden konnten nicht gelöscht werden.'); this.loeschStundenKandidat.set(null); },
+      next: () => {
+        this.stunden.update((list) => list.filter((s) => s.id !== id));
+        this.loeschStundenKandidat.set(null);
+      },
+      error: () => {
+        this.toast.error('Stunden konnten nicht gelöscht werden.');
+        this.loeschStundenKandidat.set(null);
+      },
     });
   }
 
-  stundenFormularFeldAktualisieren<K extends keyof StundenFormularDaten>(feld: K, wert: StundenFormularDaten[K]): void {
-    this.stundenFormular.update(d => ({ ...d, [feld]: wert }));
+  stundenFormularFeldAktualisieren<K extends keyof StundenFormularDaten>(
+    feld: K,
+    wert: StundenFormularDaten[K],
+  ): void {
+    this.stundenFormular.update((d) => ({ ...d, [feld]: wert }));
   }
 
-  formularFeldAktualisieren<K extends keyof MitarbeiterFormularDaten>(feld: K, wert: MitarbeiterFormularDaten[K]): void {
-    this.formularDaten.update(d => ({ ...d, [feld]: wert }));
+  formularFeldAktualisieren<K extends keyof MitarbeiterFormularDaten>(
+    feld: K,
+    wert: MitarbeiterFormularDaten[K],
+  ): void {
+    this.formularDaten.update((d) => ({ ...d, [feld]: wert }));
   }
 
   // ── PDF Stundenabrechnung ─────────────────────────────────────────────────
   abrechnungPdfGenerieren(): void {
     const ma = this.aktiverMitarbeiter();
-    if (!ma) { this.toast.error('Kein Mitarbeiter ausgewählt.'); return; }
-    if (!this.stunden().length) { this.toast.error('Keine Stunden vorhanden.'); return; }
-    this.service.abrechnungPdfOeffnen(ma.id).catch(() => this.toast.error('PDF konnte nicht erstellt werden.'));
+    if (!ma) {
+      this.toast.error('Kein Mitarbeiter ausgewählt.');
+      return;
+    }
+    if (!this.stunden().length) {
+      this.toast.error('Keine Stunden vorhanden.');
+      return;
+    }
+    this.service
+      .abrechnungPdfOeffnen(ma.id)
+      .catch(() => this.toast.error('PDF konnte nicht erstellt werden.'));
   }
 
   // ── Mobile Stempeluhr Integration ─────────────────────────────────────────
-  stempelStart(notiz?: string): void {
+  clockIn(notiz?: string): void {
     const ma = this.aktiverMitarbeiter();
-    if (!ma) { this.toast.error('Kein Mitarbeiter ausgewählt.'); return; }
+    if (!ma) {
+      this.toast.error('Kein Mitarbeiter ausgewählt.');
+      return;
+    }
 
-    this.service.stempelStart(ma.id, notiz).subscribe({
-      next: stempel => {
-        this.stempelEintraege.update(list => [stempel, ...list]);
+    this.service.clockIn(ma.id, notiz).subscribe({
+      next: (stempel) => {
+        this.stempelEintraege.update((list) => [stempel, ...list]);
       },
       error: () => this.toast.error('Stempel konnte nicht gestartet werden.'),
     });
   }
 
-  stempelStop(): void {
+  clockOut(): void {
     const ma = this.aktiverMitarbeiter();
-    if (!ma) { this.toast.error('Kein Mitarbeiter ausgewählt.'); return; }
+    if (!ma) {
+      this.toast.error('Kein Mitarbeiter ausgewählt.');
+      return;
+    }
 
-    this.service.stempelStop(ma.id).subscribe({
-      next: stempel => {
-        this.stempelEintraege.update(list => list.map(s => s.id === stempel.id ? stempel : s));
+    this.service.clockOut(ma.id).subscribe({
+      next: (stempel) => {
+        this.stempelEintraege.update((list) =>
+          list.map((s) => (s.id === stempel.id ? stempel : s)),
+        );
       },
       error: () => this.toast.error('Stempel konnte nicht gestoppt werden.'),
     });
   }
 
   readonly aktuellerStempel = computed(() => {
-    return this.stempelEintraege().find(s => !s.stop);
+    return this.stempelEintraege().find((s) => !s.stop);
   });
 
   readonly stempelStatistik = computed(() => {
     const eintraege = this.stempelEintraege();
     const heute = new Date().toISOString().slice(0, 10);
-    const heuteEintraege = eintraege.filter(s => s.start.slice(0, 10) === heute);
+    const heuteEintraege = eintraege.filter((s) => s.start.slice(0, 10) === heute);
     const heuteMinuten = heuteEintraege.reduce((sum, s) => sum + (s.dauer_minuten || 0), 0);
 
     return {
-      heuteStunden: Math.round(heuteMinuten / 60 * 100) / 100,
+      heuteStunden: Math.round((heuteMinuten / 60) * 100) / 100,
       heuteEintraege: heuteEintraege.length,
-      offenerStempel: eintraege.find(s => !s.stop),
+      offenerStempel: eintraege.find((s) => !s.stop),
     };
   });
 }

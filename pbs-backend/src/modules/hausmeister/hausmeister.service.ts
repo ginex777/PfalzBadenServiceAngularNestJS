@@ -10,15 +10,21 @@ export class HausmeisterService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async alleEinsaetzeLaden(pagination: PaginationDto): Promise<PaginatedResponse<Record<string, unknown>>> {
+  async alleEinsaetzeLaden(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<Record<string, unknown>>> {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
     const [rows, total] = await this.prisma.$transaction([
-      this.prisma.hausmeisterEinsaetze.findMany({ orderBy: { datum: 'desc' }, skip, take: limit }),
+      this.prisma.hausmeisterEinsaetze.findMany({
+        orderBy: { datum: 'desc' },
+        skip,
+        take: limit,
+      }),
       this.prisma.hausmeisterEinsaetze.count(),
     ]);
     return {
-      data: rows.map(e => this.mapEinsatz(e)),
+      data: rows.map((e) => this.mapEinsatz(e)),
       total,
       page,
       limit,
@@ -31,13 +37,15 @@ export class HausmeisterService {
       where: { mitarbeiter_id: BigInt(mitarbeiterId) },
       orderBy: { datum: 'desc' },
     });
-    return rows.map(e => this.mapEinsatz(e));
+    return rows.map((e) => this.mapEinsatz(e));
   }
 
   async einsatzErstellen(d: Record<string, unknown>) {
     const e = await this.prisma.hausmeisterEinsaetze.create({
       data: {
-        mitarbeiter_id: d['mitarbeiter_id'] ? BigInt(Number(d['mitarbeiter_id'])) : null,
+        mitarbeiter_id: d['mitarbeiter_id']
+          ? BigInt(Number(d['mitarbeiter_id']))
+          : null,
         mitarbeiter_name: String(d['mitarbeiter_name'] ?? ''),
         kunden_id: d['kunden_id'] ? BigInt(Number(d['kunden_id'])) : null,
         kunden_name: d['kunden_name'] ? String(d['kunden_name']) : null,
@@ -52,11 +60,18 @@ export class HausmeisterService {
   }
 
   async einsatzAktualisieren(id: number, d: Record<string, unknown>) {
-    if (!await this.prisma.hausmeisterEinsaetze.findUnique({ where: { id: BigInt(id) } })) throw new NotFoundException();
+    if (
+      !(await this.prisma.hausmeisterEinsaetze.findUnique({
+        where: { id: BigInt(id) },
+      }))
+    )
+      throw new NotFoundException();
     const e = await this.prisma.hausmeisterEinsaetze.update({
       where: { id: BigInt(id) },
       data: {
-        mitarbeiter_id: d['mitarbeiter_id'] ? BigInt(Number(d['mitarbeiter_id'])) : null,
+        mitarbeiter_id: d['mitarbeiter_id']
+          ? BigInt(Number(d['mitarbeiter_id']))
+          : null,
         mitarbeiter_name: String(d['mitarbeiter_name'] ?? ''),
         kunden_id: d['kunden_id'] ? BigInt(Number(d['kunden_id'])) : null,
         kunden_name: d['kunden_name'] ? String(d['kunden_name']) : null,
@@ -71,8 +86,15 @@ export class HausmeisterService {
   }
 
   async einsatzLoeschen(id: number) {
-    if (!await this.prisma.hausmeisterEinsaetze.findUnique({ where: { id: BigInt(id) } })) throw new NotFoundException();
-    await this.prisma.hausmeisterEinsaetze.delete({ where: { id: BigInt(id) } });
+    if (
+      !(await this.prisma.hausmeisterEinsaetze.findUnique({
+        where: { id: BigInt(id) },
+      }))
+    )
+      throw new NotFoundException();
+    await this.prisma.hausmeisterEinsaetze.delete({
+      where: { id: BigInt(id) },
+    });
     return { ok: true };
   }
 
@@ -83,7 +105,10 @@ export class HausmeisterService {
       mitarbeiter_id: e['mitarbeiter_id'] ? Number(e['mitarbeiter_id']) : null,
       kunden_id: e['kunden_id'] ? Number(e['kunden_id']) : null,
       stunden_gesamt: Number(e['stunden_gesamt']),
-      datum: e['datum'] instanceof Date ? e['datum'].toISOString().slice(0, 10) : e['datum'],
+      datum:
+        e['datum'] instanceof Date
+          ? e['datum'].toISOString().slice(0, 10)
+          : e['datum'],
     };
   }
 }

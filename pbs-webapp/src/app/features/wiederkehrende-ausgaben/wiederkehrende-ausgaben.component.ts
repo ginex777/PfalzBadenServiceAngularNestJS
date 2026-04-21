@@ -5,8 +5,16 @@ import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-mod
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
 import { WiederkehrendeAusgabe } from '../../core/models';
-import { WiederkehrendeAusgabeFormularDaten, LEERES_FORMULAR } from './wiederkehrende-ausgaben.models';
-import { waehrungFormatieren, nettoBerechnen, steuerBerechnen, KATEGORIEN } from '../../core/utils/format.utils';
+import {
+  WiederkehrendeAusgabeFormularDaten,
+  LEERES_FORMULAR,
+} from './wiederkehrende-ausgaben.models';
+import {
+  waehrungFormatieren,
+  nettoBerechnen,
+  steuerBerechnen,
+  KATEGORIEN,
+} from '../../core/utils/format.utils';
 
 @Component({
   selector: 'app-wiederkehrende-ausgaben',
@@ -19,7 +27,9 @@ import { waehrungFormatieren, nettoBerechnen, steuerBerechnen, KATEGORIEN } from
 export class WiederkehrendeAusgabenComponent implements OnInit {
   protected readonly facade = inject(WiederkehrendeAusgabenFacade);
 
-  protected readonly ausgabeModell = signal<WiederkehrendeAusgabeFormularDaten>({ ...LEERES_FORMULAR });
+  protected readonly ausgabeModell = signal<WiederkehrendeAusgabeFormularDaten>({
+    ...LEERES_FORMULAR,
+  });
 
   protected readonly ausgabeForm = form(this.ausgabeModell, (schema) => {
     required(schema.name, { message: 'Name erforderlich' });
@@ -29,13 +39,20 @@ export class WiederkehrendeAusgabenComponent implements OnInit {
 
   protected readonly kategorien = Object.keys(KATEGORIEN);
 
-  ngOnInit(): void { this.facade.ladeDaten(); }
+  ngOnInit(): void {
+    this.facade.ladeDaten();
+  }
 
   protected formularOeffnen(ausgabe?: WiederkehrendeAusgabe): void {
     if (ausgabe) {
       this.ausgabeModell.set({
-        name: ausgabe.name, kategorie: ausgabe.kategorie, brutto: ausgabe.brutto,
-        mwst: ausgabe.mwst, abzug: ausgabe.abzug, belegnr: ausgabe.belegnr ?? '', aktiv: ausgabe.aktiv,
+        name: ausgabe.name,
+        kategorie: ausgabe.kategorie,
+        brutto: ausgabe.brutto,
+        mwst: ausgabe.mwst,
+        abzug: ausgabe.abzug,
+        belegnr: ausgabe.belegnr ?? '',
+        aktiv: ausgabe.aktiv,
       });
     } else {
       this.ausgabeModell.set({ ...LEERES_FORMULAR });
@@ -58,13 +75,13 @@ export class WiederkehrendeAusgabenComponent implements OnInit {
   protected kategorieGeaendert(event: Event): void {
     const kategorie = (event.target as HTMLSelectElement).value;
     const abzug = KATEGORIEN[kategorie] ?? 100;
-    this.ausgabeModell.update(d => ({ ...d, kategorie, abzug }));
+    this.ausgabeModell.update((d) => ({ ...d, kategorie, abzug }));
     this.facade.kategorieGeaendert(kategorie);
   }
 
   protected mwstGeaendert(event: Event): void {
     const mwst = +(event.target as HTMLSelectElement).value;
-    this.ausgabeModell.update(d => ({ ...d, mwst }));
+    this.ausgabeModell.update((d) => ({ ...d, mwst }));
   }
 
   protected suchbegriffGeaendert(event: Event): void {
@@ -75,13 +92,15 @@ export class WiederkehrendeAusgabenComponent implements OnInit {
     this.facade.aktivToggle(id, (event.target as HTMLInputElement).checked);
   }
 
-  protected fmt(n: number): string { return waehrungFormatieren(n); }
-  
-  // FIXED: Use shared calculation functions for consistency
-  protected nettoBerechnen(a: WiederkehrendeAusgabe): number { 
-    return nettoBerechnen(a.brutto, a.mwst); 
+  protected fmt(n: number): string {
+    return waehrungFormatieren(n);
   }
-  
+
+  // FIXED: Use shared calculation functions for consistency
+  protected nettoBerechnen(a: WiederkehrendeAusgabe): number {
+    return nettoBerechnen(a.brutto, a.mwst);
+  }
+
   protected vstBerechnen(a: WiederkehrendeAusgabe): number {
     return steuerBerechnen(a.brutto, a.mwst) * (a.abzug / 100);
   }

@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException, BadRequestException, ConflictException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { AuditService } from '../../modules/audit/audit.service';
 import { Prisma, Rechnungen } from '@prisma/client';
@@ -10,17 +16,26 @@ import { PaginatedResponse } from '../../common/interfaces/paginated-response.in
 export class RechnungenService {
   private readonly logger = new Logger(RechnungenService.name);
 
-  constructor(private readonly prisma: PrismaService, private readonly audit: AuditService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
 
-  async alleRechnungenLaden(pagination: PaginationDto): Promise<PaginatedResponse<ReturnType<RechnungenService['mapRechnung']>>> {
+  async findAll(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<ReturnType<RechnungenService['mapRechnung']>>> {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
     const [rows, total] = await this.prisma.$transaction([
-      this.prisma.rechnungen.findMany({ orderBy: [{ datum: 'desc' }, { id: 'desc' }], skip, take: limit }),
+      this.prisma.rechnungen.findMany({
+        orderBy: [{ datum: 'desc' }, { id: 'desc' }],
+        skip,
+        take: limit,
+      }),
       this.prisma.rechnungen.count(),
     ]);
     return {
-      data: rows.map(r => this.mapRechnung(r)),
+      data: rows.map((r) => this.mapRechnung(r)),
       total,
       page,
       limit,
@@ -28,50 +43,76 @@ export class RechnungenService {
     };
   }
 
-  async rechnungErstellen(daten: CreateRechnungDto, nutzer?: string) {
-    const vorhanden = await this.prisma.rechnungen.findUnique({ where: { nr: daten.nr } });
-    if (vorhanden) throw new ConflictException(`Rechnungsnummer "${daten.nr}" existiert bereits.`);
+  async create(daten: CreateRechnungDto, nutzer?: string) {
+    const vorhanden = await this.prisma.rechnungen.findUnique({
+      where: { nr: daten.nr },
+    });
+    if (vorhanden)
+      throw new ConflictException(
+        `Rechnungsnummer "${daten.nr}" existiert bereits.`,
+      );
 
     const rechnung = await this.prisma.rechnungen.create({
-      data: this.rechnungDatenMappen(daten),
+      data: this.mapData(daten),
     });
-    await this.audit.protokollieren('rechnungen', rechnung.id, 'CREATE', null, rechnung, nutzer);
+    await this.audit.log(
+      'rechnungen',
+      rechnung.id,
+      'CREATE',
+      null,
+      rechnung,
+      nutzer,
+    );
     return this.mapRechnung(rechnung);
   }
 
-  async rechnungAktualisieren(id: number, daten: UpdateRechnungDto, nutzer?: string) {
-    const alt = await this.prisma.rechnungen.findUnique({ where: { id: BigInt(id) } });
+  async update(id: number, daten: UpdateRechnungDto, nutzer?: string) {
+    const alt = await this.prisma.rechnungen.findUnique({
+      where: { id: BigInt(id) },
+    });
     if (!alt) throw new NotFoundException(`Rechnung ${id} nicht gefunden`);
 
     // GoBD §146 AO: Bezahlte Rechnungen — nur Zahlungsstatus änderbar
     if (alt.bezahlt && daten.bezahlt !== false) {
-      throw new ForbiddenException('Bezahlte Rechnungen dürfen inhaltlich nicht geändert werden (GoBD §146 AO).');
+      throw new ForbiddenException(
+        'Bezahlte Rechnungen dürfen inhaltlich nicht geändert werden (GoBD §146 AO).',
+      );
     }
 
     // Duplikat-Check bei Nr-Änderung
     if (daten.nr !== alt.nr) {
-      const dup = await this.prisma.rechnungen.findFirst({ where: { nr: daten.nr, id: { not: BigInt(id) } } });
-      if (dup) throw new ConflictException(`Rechnungsnummer "${daten.nr}" existiert bereits.`);
+      const dup = await this.prisma.rechnungen.findFirst({
+        where: { nr: daten.nr, id: { not: BigInt(id) } },
+      });
+      if (dup)
+        throw new ConflictException(
+          `Rechnungsnummer "${daten.nr}" existiert bereits.`,
+        );
     }
 
     const neu = await this.prisma.rechnungen.update({
       where: { id: BigInt(id) },
-      data: this.rechnungDatenMappen(daten),
+      data: this.mapData(daten),
     });
-    await this.audit.protokollieren('rechnungen', BigInt(id), 'UPDATE', alt, neu, nutzer);
+    await this.audit.log('rechnungen', BigInt(id), 'UPDATE', alt, neu, nutzer);
     return this.mapRechnung(neu);
   }
 
-  async rechnungLoeschen(id: number, nutzer?: string) {
-    const alt = await this.prisma.rechnungen.findUnique({ where: { id: BigInt(id) } });
+  async delete(id: number, nutzer?: string) {
+    const alt = await this.prisma.rechnungen.findUnique({
+      where: { id: BigInt(id) },
+    });
     if (!alt) throw new NotFoundException(`Rechnung ${id} nicht gefunden`);
-    if (alt.bezahlt) throw new ForbiddenException('Bezahlte Rechnungen können nicht gelöscht werden (GoBD §146 AO).');
+    if (alt.bezahlt)
+      throw new ForbiddenException(
+        'Bezahlte Rechnungen können nicht gelöscht werden (GoBD §146 AO).',
+      );
     await this.prisma.rechnungen.delete({ where: { id: BigInt(id) } });
-    await this.audit.protokollieren('rechnungen', BigInt(id), 'DELETE', alt, null, nutzer);
+    await this.audit.log('rechnungen', BigInt(id), 'DELETE', alt, null, nutzer);
     return { ok: true };
   }
 
-  private rechnungDatenMappen(d: CreateRechnungDto): Prisma.RechnungenCreateInput {
+  private mapData(d: CreateRechnungDto): Prisma.RechnungenCreateInput {
     return {
       nr: d.nr,
       empf: d.empf,
@@ -82,12 +123,15 @@ export class RechnungenService {
       leistungsdatum: d.leistungsdatum ?? null,
       email: d.email ?? null,
       zahlungsziel: d.zahlungsziel ?? 14,
-      kunden: d.kunden_id ? { connect: { id: BigInt(d.kunden_id) } } : undefined,
+      kunden: d.kunden_id
+        ? { connect: { id: BigInt(d.kunden_id) } }
+        : undefined,
       brutto: new Prisma.Decimal(d.brutto),
       frist: d.frist ? new Date(d.frist) : null,
       bezahlt: d.bezahlt ?? false,
       bezahlt_am: d.bezahlt_am ? new Date(d.bezahlt_am) : null,
-      positionen: (d.positionen as unknown as Prisma.InputJsonValue) ?? Prisma.JsonNull,
+      positionen:
+        (d.positionen as unknown as Prisma.InputJsonValue) ?? Prisma.JsonNull,
       mwst_satz: new Prisma.Decimal(d.mwst_satz ?? 19),
     };
   }

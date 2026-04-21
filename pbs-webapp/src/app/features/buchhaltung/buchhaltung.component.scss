@@ -11,8 +11,12 @@
   max-width: var(--content-max);
   margin: 0 auto;
 
-  @media (max-width: 1024px) { padding: 1.25rem 1.25rem 0; }
-  @media (max-width: 768px)  { padding: 1rem 1rem 0; }
+  @media (max-width: 1024px) {
+    padding: 1.25rem 1.25rem 0;
+  }
+  @media (max-width: 768px) {
+    padding: 1rem 1rem 0;
+  }
 }
 
 // ── Toolbar ──────────────────────────────────────────────────────────────────
@@ -45,26 +49,41 @@
   border-color: var(--primary-solid);
   background: var(--primary-light);
   color: var(--primary-solid);
-  &:hover:not(:disabled) { background: var(--primary-solid); color: #fff; border-color: var(--primary-solid); }
+  &:hover:not(:disabled) {
+    background: var(--primary-solid);
+    color: #fff;
+    border-color: var(--primary-solid);
+  }
 }
 
 .btn--dirty {
   background: var(--warning);
   border-color: var(--warning);
   color: #fff;
-  &:hover:not(:disabled) { background: #d97706; border-color: #d97706; color: #fff; }
+  &:hover:not(:disabled) {
+    background: #d97706;
+    border-color: #d97706;
+    color: #fff;
+  }
 }
 
 .btn--sperren {
   color: var(--danger);
   border-color: var(--danger-light);
-  &:hover:not(:disabled) { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
+  &:hover:not(:disabled) {
+    background: var(--danger-light);
+    color: var(--danger);
+    border-color: var(--danger);
+  }
 }
 
 .btn--entsperren {
   color: var(--success);
   border-color: var(--success-muted);
-  &:hover:not(:disabled) { background: var(--success-light); color: var(--success); }
+  &:hover:not(:disabled) {
+    background: var(--success-light);
+    color: var(--success);
+  }
 }
 
 .btn--gefaehrlich-klein {
@@ -72,7 +91,10 @@
   padding: 3px 8px;
   color: var(--danger);
   border-color: var(--danger-light);
-  &:hover:not(:disabled) { background: var(--danger-light); color: var(--danger); }
+  &:hover:not(:disabled) {
+    background: var(--danger-light);
+    color: var(--danger);
+  }
 }
 
 .btn--klein {
@@ -175,12 +197,26 @@
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 
-  &--sm { max-width: 480px; }
+  &--sm {
+    max-width: 480px;
+  }
 }
 
-.modal-heading { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
-.modal-text { color: var(--gray-600); font-size: 13px; margin-bottom: 0.75rem; }
-.modal-text--mb-lg { color: var(--gray-600); font-size: 13px; margin-bottom: 1rem; }
+.modal-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+.modal-text {
+  color: var(--gray-600);
+  font-size: 13px;
+  margin-bottom: 0.75rem;
+}
+.modal-text--mb-lg {
+  color: var(--gray-600);
+  font-size: 13px;
+  margin-bottom: 1rem;
+}
 
 .modal-titel {
   font-size: 1rem;

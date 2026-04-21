@@ -6,8 +6,12 @@
   max-width: var(--content-max);
   margin: 0 auto;
 
-  @media (max-width: 1024px) { padding: 20px; }
-  @media (max-width: 768px)  { padding: 16px; }
+  @media (max-width: 1024px) {
+    padding: 20px;
+  }
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 }
 
 // ── Header ────────────────────────────────────────────────────────────────
@@ -32,9 +36,15 @@
   grid-template-columns: repeat(5, 1fr);
   gap: 0.75rem;
 
-  @media (max-width: 1200px) { grid-template-columns: repeat(3, 1fr); }
-  @media (max-width: 768px)  { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 480px)  { grid-template-columns: 1fr; }
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 // ── Two-Column Layout ─────────────────────────────────────────────────────
@@ -43,7 +53,9 @@
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 
-  @media (max-width: 900px) { grid-template-columns: 1fr; }
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 // ── Card ──────────────────────────────────────────────────────────────────
@@ -70,8 +82,12 @@
   color: var(--gray-800);
   margin: 0 0 0.75rem;
 
-  &--danger { color: var(--danger); }
-  &--warning { color: var(--warning); }
+  &--danger {
+    color: var(--danger);
+  }
+  &--warning {
+    color: var(--warning);
+  }
 }
 
 // ── Benachrichtigungen ────────────────────────────────────────────────────
@@ -102,9 +118,15 @@
   flex-shrink: 0;
   background: var(--gray-400);
 
-  &--rechnung  { background: var(--warning); }
-  &--muellplan { background: var(--success); }
-  &--angebot   { background: var(--primary); }
+  &--rechnung {
+    background: var(--warning);
+  }
+  &--muellplan {
+    background: var(--success);
+  }
+  &--angebot {
+    background: var(--primary);
+  }
 }
 
 .notif-content {
@@ -148,21 +170,55 @@ table {
     vertical-align: middle;
   }
 
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--gray-50); }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  tr:hover td {
+    background: var(--gray-50);
+  }
 }
 
-.row-danger td { background: var(--danger-light); }
+.row-danger td {
+  background: var(--danger-light);
+}
 
-.col-nr     { font-weight: 600; white-space: nowrap; min-width: 80px; }
-.col-name   { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.col-betrag { text-align: right; white-space: nowrap; font-weight: 600; }
-.col-status { font-size: 12px; white-space: nowrap; }
-.col-action { white-space: nowrap; text-align: right; }
-.col-datum  { white-space: nowrap; min-width: 120px; }
-.col-typ    { white-space: nowrap; }
-.col-monat  { font-weight: 500; }
-.col-balken { min-width: 100px; }
+.col-nr {
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 80px;
+}
+.col-name {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.col-betrag {
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.col-status {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.col-action {
+  white-space: nowrap;
+  text-align: right;
+}
+.col-datum {
+  white-space: nowrap;
+  min-width: 120px;
+}
+.col-typ {
+  white-space: nowrap;
+}
+.col-monat {
+  font-weight: 500;
+}
+.col-balken {
+  min-width: 100px;
+}
 
 .table-summe {
   text-align: right;
@@ -198,10 +254,23 @@ table {
   font-size: 11px;
   font-weight: 600;
 
-  &-primary { background: var(--primary-light); color: var(--primary); }
-  &-danger  { background: var(--danger-light);  color: var(--danger);  font-weight: 700; }
-  &-warning { background: var(--warning-light); color: var(--warning); }
-  &-neutral { background: var(--gray-100);      color: var(--gray-500); }
+  &-primary {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  &-danger {
+    background: var(--danger-light);
+    color: var(--danger);
+    font-weight: 700;
+  }
+  &-warning {
+    background: var(--warning-light);
+    color: var(--warning);
+  }
+  &-neutral {
+    background: var(--gray-100);
+    color: var(--gray-500);
+  }
 }
 
 // ── Backup ────────────────────────────────────────────────────────────────
@@ -239,19 +308,52 @@ table {
   border-radius: 3px;
   min-width: 2px;
 
-  &--success { background: var(--success); }
-  &--danger  { background: var(--danger); }
+  &--success {
+    background: var(--success);
+  }
+  &--danger {
+    background: var(--danger);
+  }
 }
 
 // ── Utility ───────────────────────────────────────────────────────────────
-.text-right  { text-align: right; }
-.text-success { color: var(--success); }
-.text-danger  { color: var(--danger); }
-.text-warning { color: var(--warning); }
-.text-muted   { color: var(--gray-400); }
-.hint         { font-size: 13px; color: var(--gray-400); }
-.hint-sm      { font-size: 11px; color: var(--gray-500); }
-.fw-medium    { font-weight: 500; }
-.card-actions { margin-top: 12px; display: flex; gap: 8px; }
-.card-actions--sm { margin-top: 8px; }
-.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.text-right {
+  text-align: right;
+}
+.text-success {
+  color: var(--success);
+}
+.text-danger {
+  color: var(--danger);
+}
+.text-warning {
+  color: var(--warning);
+}
+.text-muted {
+  color: var(--gray-400);
+}
+.hint {
+  font-size: 13px;
+  color: var(--gray-400);
+}
+.hint-sm {
+  font-size: 11px;
+  color: var(--gray-500);
+}
+.fw-medium {
+  font-weight: 500;
+}
+.card-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+.card-actions--sm {
+  margin-top: 8px;
+}
+.btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}

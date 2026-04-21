@@ -10,16 +10,40 @@ import { API_BASE_URL } from '../../core/tokens';
 import { Kunde, Rechnung } from '../../core/models';
 
 const testKunden: Kunde[] = [
-  { id: 1, name: 'Müller GmbH', email: 'mueller@test.de', ort: 'München', strasse: 'Musterstr. 1', tel: null, notiz: null } as Kunde,
-  { id: 2, name: 'Schulz AG',   email: 'schulz@test.de',  ort: 'Berlin',  strasse: 'Lindenstr. 5', tel: null, notiz: null } as Kunde,
-  { id: 3, name: 'Koch KG',     email: null,               ort: 'Hamburg', strasse: null, tel: null, notiz: null } as Kunde,
+  {
+    id: 1,
+    name: 'Müller GmbH',
+    email: 'mueller@test.de',
+    ort: 'München',
+    strasse: 'Musterstr. 1',
+    tel: null,
+    notiz: null,
+  } as Kunde,
+  {
+    id: 2,
+    name: 'Schulz AG',
+    email: 'schulz@test.de',
+    ort: 'Berlin',
+    strasse: 'Lindenstr. 5',
+    tel: null,
+    notiz: null,
+  } as Kunde,
+  {
+    id: 3,
+    name: 'Koch KG',
+    email: null,
+    ort: 'Hamburg',
+    strasse: null,
+    tel: null,
+    notiz: null,
+  } as Kunde,
 ];
 
 const mockService = {
   allesDatenLaden: jest.fn(),
-  kundeErstellen: jest.fn(),
-  kundeAktualisieren: jest.fn(),
-  kundeLoeschen: jest.fn(),
+  createCustomer: jest.fn(),
+  updateCustomer: jest.fn(),
+  deleteCustomer: jest.fn(),
 };
 
 const mockToast = { success: jest.fn(), error: jest.fn() };
@@ -96,8 +120,16 @@ describe('KundenFacade', () => {
 
   describe('speichern()', () => {
     it('erstellt neuen Kunden und fügt ihn der Liste hinzu', () => {
-      const neuerKunde = { id: 99, name: 'Neuer Kunde', email: null, ort: null, strasse: null, tel: null, notiz: null } as Kunde;
-      mockService.kundeErstellen.mockReturnValue(of(neuerKunde));
+      const neuerKunde = {
+        id: 99,
+        name: 'Neuer Kunde',
+        email: null,
+        ort: null,
+        strasse: null,
+        tel: null,
+        notiz: null,
+      } as Kunde;
+      mockService.createCustomer.mockReturnValue(of(neuerKunde));
       facade.kunden.set([]);
       facade.bearbeiteterKunde.set(null);
 
@@ -112,17 +144,17 @@ describe('KundenFacade', () => {
       const updated = { ...testKunden[0], name: 'Müller Neue GmbH' };
       facade.kunden.set(testKunden);
       facade.bearbeitungStarten(testKunden[0]);
-      mockService.kundeAktualisieren.mockReturnValue(of(updated));
+      mockService.updateCustomer.mockReturnValue(of(updated));
 
       facade.speichern({ name: 'Müller Neue GmbH' } as any);
 
-      const inList = facade.kunden().find(k => k.id === 1);
+      const inList = facade.kunden().find((k) => k.id === 1);
       expect(inList?.name).toBe('Müller Neue GmbH');
       expect(mockToast.success).toHaveBeenCalled();
     });
 
     it('zeigt Fehler-Toast bei Speichern-Fehler', () => {
-      mockService.kundeErstellen.mockReturnValue(throwError(() => new Error('Fehler')));
+      mockService.createCustomer.mockReturnValue(throwError(() => new Error('Fehler')));
       facade.speichern({ name: 'Test' } as any);
       expect(mockToast.error).toHaveBeenCalled();
       expect(facade.fehler()).toBeTruthy();
@@ -133,19 +165,19 @@ describe('KundenFacade', () => {
     it('entfernt Kunden aus Liste', () => {
       facade.kunden.set(testKunden);
       facade.loeschKandidat.set(2);
-      mockService.kundeLoeschen.mockReturnValue(of({ ok: true }));
+      mockService.deleteCustomer.mockReturnValue(of({ ok: true }));
 
       facade.loeschenAusfuehren();
 
       expect(facade.kunden()).toHaveLength(2);
-      expect(facade.kunden().find(k => k.id === 2)).toBeUndefined();
+      expect(facade.kunden().find((k) => k.id === 2)).toBeUndefined();
       expect(mockToast.success).toHaveBeenCalled();
     });
 
     it('tut nichts wenn kein loeschKandidat', () => {
       facade.loeschKandidat.set(null);
       facade.loeschenAusfuehren();
-      expect(mockService.kundeLoeschen).not.toHaveBeenCalled();
+      expect(mockService.deleteCustomer).not.toHaveBeenCalled();
     });
   });
 
@@ -153,8 +185,24 @@ describe('KundenFacade', () => {
     it('berechnet offenSaldo korrekt aus Rechnungen', () => {
       facade.kunden.set(testKunden);
       const rechnungen: Rechnung[] = [
-        { id: 1, nr: 'R-001', kunden_id: 1, empf: 'Müller GmbH', bezahlt: false, brutto: 200, frist: '2026-01-01' } as Rechnung,
-        { id: 2, nr: 'R-002', kunden_id: 1, empf: 'Müller GmbH', bezahlt: true,  brutto: 100, frist: null } as Rechnung,
+        {
+          id: 1,
+          nr: 'R-001',
+          kunden_id: 1,
+          empf: 'Müller GmbH',
+          bezahlt: false,
+          brutto: 200,
+          frist: '2026-01-01',
+        } as Rechnung,
+        {
+          id: 2,
+          nr: 'R-002',
+          kunden_id: 1,
+          empf: 'Müller GmbH',
+          bezahlt: true,
+          brutto: 100,
+          frist: null,
+        } as Rechnung,
       ];
       // Inject rechnungen via internal property
       (facade as any).cachedRechnungen = rechnungen;

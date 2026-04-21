@@ -6,8 +6,19 @@ import { WiederkehrendeAusgabe } from '../../core/models';
 @Injectable({ providedIn: 'root' })
 export class WiederkehrendeAusgabenService {
   private readonly api = inject(ApiService);
-  alleLaden(): Observable<WiederkehrendeAusgabe[]> { return this.api.wiederkehrendeAusgabenLaden(); }
-  erstellen(daten: Partial<WiederkehrendeAusgabe>): Observable<WiederkehrendeAusgabe> { return this.api.wiederkehrendeAusgabeErstellen(daten); }
-  aktualisieren(id: number, daten: Partial<WiederkehrendeAusgabe>): Observable<WiederkehrendeAusgabe> { return this.api.wiederkehrendeAusgabeAktualisieren(id, daten); }
-  loeschen(id: number): Observable<void> { return this.api.wiederkehrendeAusgabeLoeschen(id); }
+  alleLaden(): Observable<WiederkehrendeAusgabe[]> {
+    return this.api.loadRecurringExpenses();
+  }
+  erstellen(daten: Partial<WiederkehrendeAusgabe>): Observable<WiederkehrendeAusgabe> {
+    return this.api.createRecurringExpense(daten);
+  }
+  aktualisieren(
+    id: number,
+    daten: Partial<WiederkehrendeAusgabe>,
+  ): Observable<WiederkehrendeAusgabe> {
+    return this.api.updateRecurringExpense(id, daten);
+  }
+  loeschen(id: number): Observable<void> {
+    return this.api.deleteRecurringExpense(id);
+  }
 }

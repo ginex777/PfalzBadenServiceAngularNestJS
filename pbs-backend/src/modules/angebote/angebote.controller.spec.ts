@@ -3,10 +3,10 @@ import { AngeboteController } from './angebote.controller';
 import { AngeboteService } from './angebote.service';
 
 const mockService = {
-  alleAngeboteLaden: jest.fn(),
-  angebotErstellen: jest.fn(),
-  angebotAktualisieren: jest.fn(),
-  angebotLoeschen: jest.fn(),
+  findAll: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
 };
 
 describe('AngeboteController', () => {
@@ -26,9 +26,15 @@ describe('AngeboteController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('alleAngeboteLaden() delegiert an Service', async () => {
-    mockService.alleAngeboteLaden.mockResolvedValue({ data: [], total: 0, page: 1, limit: 100, totalPages: 0 });
-    await controller.alleAngeboteLaden({ page: 1, limit: 100 });
-    expect(mockService.alleAngeboteLaden).toHaveBeenCalledTimes(1);
+  it('findAll() delegiert an Service', async () => {
+    mockService.findAll.mockResolvedValue({
+      data: [],
+      total: 0,
+      page: 1,
+      limit: 100,
+      totalPages: 0,
+    });
+    await controller.findAll({ page: 1, limit: 100 });
+    expect(mockService.findAll).toHaveBeenCalledTimes(1);
   });
 });

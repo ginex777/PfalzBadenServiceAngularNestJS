@@ -20,14 +20,21 @@ interface Stempel {
   selector: 'app-mitarbeiter',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MitarbeiterListeComponent, StundenErfassungComponent, ConfirmModalComponent, PageTitleComponent],
+  imports: [
+    MitarbeiterListeComponent,
+    StundenErfassungComponent,
+    ConfirmModalComponent,
+    PageTitleComponent,
+  ],
   templateUrl: './mitarbeiter.component.html',
   styleUrl: './mitarbeiter.component.scss',
 })
 export class MitarbeiterComponent implements OnInit {
   protected readonly facade = inject(MitarbeiterFacade);
 
-  ngOnInit(): void { this.facade.ladeDaten(); }
+  ngOnInit(): void {
+    this.facade.ladeDaten();
+  }
 
   protected nameGeaendert(event: Event): void {
     this.facade.formularFeldAktualisieren('name', (event.target as HTMLInputElement).value);
@@ -36,7 +43,10 @@ export class MitarbeiterComponent implements OnInit {
     this.facade.formularFeldAktualisieren('rolle', (event.target as HTMLInputElement).value);
   }
   protected stundenlohnGeaendert(event: Event): void {
-    this.facade.formularFeldAktualisieren('stundenlohn', +((event.target as HTMLInputElement).value) || 0);
+    this.facade.formularFeldAktualisieren(
+      'stundenlohn',
+      +(event.target as HTMLInputElement).value || 0,
+    );
   }
   protected emailGeaendert(event: Event): void {
     this.facade.formularFeldAktualisieren('email', (event.target as HTMLInputElement).value);
@@ -45,21 +55,30 @@ export class MitarbeiterComponent implements OnInit {
     this.facade.formularFeldAktualisieren('tel', (event.target as HTMLInputElement).value);
   }
   protected aktivGeaendert(event: Event): void {
-    this.facade.formularFeldAktualisieren('aktiv', (event.target as HTMLInputElement).checked as never);
+    this.facade.formularFeldAktualisieren(
+      'aktiv',
+      (event.target as HTMLInputElement).checked as never,
+    );
   }
-  protected stundenFeldGeaendert(event: { feld: keyof StundenFormularDaten; wert: string | number }): void {
+  protected stundenFeldGeaendert(event: {
+    feld: keyof StundenFormularDaten;
+    wert: string | number;
+  }): void {
     this.facade.stundenFormularFeldAktualisieren(event.feld, event.wert as never);
   }
 
   protected stempelZuStundenKonvertieren(stempel: Stempel): void {
     if (!stempel.stop || !stempel.dauer_minuten) return;
-    
-    const stunden = Math.round(stempel.dauer_minuten / 60 * 100) / 100;
+
+    const stunden = Math.round((stempel.dauer_minuten / 60) * 100) / 100;
     const datum = stempel.start.split('T')[0];
-    
+
     // Pre-fill the form with stempel data
     this.facade.stundenFormularFeldAktualisieren('datum', datum);
     this.facade.stundenFormularFeldAktualisieren('stunden', stunden);
-    this.facade.stundenFormularFeldAktualisieren('beschreibung', stempel.notiz || 'Aus Stempeluhr übernommen');
+    this.facade.stundenFormularFeldAktualisieren(
+      'beschreibung',
+      stempel.notiz || 'Aus Stempeluhr übernommen',
+    );
   }
 }

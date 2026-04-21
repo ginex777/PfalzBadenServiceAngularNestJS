@@ -1,8 +1,18 @@
-.select-auto { width: auto; }
-.flex-grow { flex: 1; }
-.hidden-file-input { display: none; }
-.input-sm { font-size: 12px; }
-.link { cursor: pointer; }
+.select-auto {
+  width: auto;
+}
+.flex-grow {
+  flex: 1;
+}
+.hidden-file-input {
+  display: none;
+}
+.input-sm {
+  font-size: 12px;
+}
+.link {
+  cursor: pointer;
+}
 
 .stats-3-col {
   grid-template-columns: repeat(3, 1fr);
@@ -59,7 +69,8 @@
   border-radius: var(--radius-sm);
 }
 
-.upload-card { }
+.upload-card {
+}
 
 .upload-zeile {
   display: flex;
@@ -80,10 +91,18 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
 
-  &__search { flex: 1; min-width: 200px; max-width: 280px; }
+  &__search {
+    flex: 1;
+    min-width: 200px;
+    max-width: 280px;
+  }
 }
 
-.filter-btns { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.filter-btns {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
 
 .filter-btn {
   padding: 0.3rem 0.75rem;
@@ -95,22 +114,68 @@
   transition: all 0.15s;
   color: var(--gray-600);
 
-  &.aktiv { background: var(--primary); color: #fff; border-color: var(--primary); }
-  &:hover:not(.aktiv) { border-color: var(--primary); color: var(--primary); }
+  &.aktiv {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+  &:hover:not(.aktiv) {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
 }
 
-.anzahl { font-size: 12px; color: var(--gray-500); margin-left: auto; }
+.anzahl {
+  font-size: 12px;
+  color: var(--gray-500);
+  margin-left: auto;
+}
 
-.tabelle-scroll { overflow-x: auto; }
+.tabelle-scroll {
+  overflow-x: auto;
+}
 
-.td-datei { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.link { color: var(--primary); text-decoration: none; &:hover { text-decoration: underline; } }
-.buchung-name { font-size: 12px; font-weight: 500; }
-.buchung-betrag { font-size: 11px; color: var(--gray-500); }
-.td-notiz { max-width: 180px; }
-.notiz-text { font-size: 12px; color: var(--gray-500); cursor: pointer; &:hover { color: var(--primary); } }
-.notiz-edit { display: flex; gap: 0.25rem; align-items: center; }
-.grau-text { color: var(--gray-500); font-size: 12px; }
+.td-datei {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.link {
+  color: var(--primary);
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+.buchung-name {
+  font-size: 12px;
+  font-weight: 500;
+}
+.buchung-betrag {
+  font-size: 11px;
+  color: var(--gray-500);
+}
+.td-notiz {
+  max-width: 180px;
+}
+.notiz-text {
+  font-size: 12px;
+  color: var(--gray-500);
+  cursor: pointer;
+  &:hover {
+    color: var(--primary);
+  }
+}
+.notiz-edit {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+.grau-text {
+  color: var(--gray-500);
+  font-size: 12px;
+}
 
 .typ-badge {
   display: inline-block;
@@ -122,18 +187,31 @@
   color: var(--primary);
 }
 
-.laedt { padding: 2rem; text-align: center; color: var(--gray-500); }
+.laedt {
+  padding: 2rem;
+  text-align: center;
+  color: var(--gray-500);
+}
 
 .alert {
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
   margin-bottom: 1rem;
   font-size: 13px;
-  &--danger { background: var(--danger-light); color: var(--danger); }
+  &--danger {
+    background: var(--danger-light);
+    color: var(--danger);
+  }
 }
 
-.hint { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
-.td-aktionen { white-space: nowrap; }
+.hint {
+  font-size: 11px;
+  color: var(--gray-500);
+  margin-top: 4px;
+}
+.td-aktionen {
+  white-space: nowrap;
+}
 
 .data-table {
   width: 100%;
@@ -159,6 +237,10 @@
     vertical-align: middle;
   }
 
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--gray-50); }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  tr:hover td {
+    background: var(--gray-50);
+  }
 }

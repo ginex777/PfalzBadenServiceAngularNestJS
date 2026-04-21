@@ -7,7 +7,7 @@ describe('DatevComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [DatevComponent]
+      declarations: [DatevComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DatevComponent);

@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
@@ -26,11 +32,16 @@ export class BelegeService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async belegeLaden(pagination: PaginationDto, jahr?: number): Promise<PaginatedResponse<BelegListItem>> {
+  async belegeLaden(
+    pagination: PaginationDto,
+    jahr?: number,
+  ): Promise<PaginatedResponse<BelegListItem>> {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
     const where = jahr ? { buchhaltung: { jahr } } : undefined;
-    const include = { buchhaltung: { select: { name: true, brutto: true, kategorie: true } } } as const;
+    const include = {
+      buchhaltung: { select: { name: true, brutto: true, kategorie: true } },
+    } as const;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.belege.findMany({
         where,
@@ -42,15 +53,21 @@ export class BelegeService {
       this.prisma.belege.count({ where }),
     ]);
     return {
-      data: rows.map(b => ({
+      data: rows.map((b) => ({
         id: Number(b.id),
         buchhaltung_id: b.buchhaltung_id ? Number(b.buchhaltung_id) : null,
-        filename: b.filename, mimetype: b.mimetype, filesize: b.filesize,
-        sha256: b.sha256, typ: b.typ, notiz: b.notiz,
+        filename: b.filename,
+        mimetype: b.mimetype,
+        filesize: b.filesize,
+        sha256: b.sha256,
+        typ: b.typ,
+        notiz: b.notiz,
         aufbewahrung_bis: b.aufbewahrung_bis?.toISOString().slice(0, 10),
         erstellt_am: b.erstellt_am,
         buchung_name: b.buchhaltung?.name ?? null,
-        buchung_brutto: b.buchhaltung?.brutto ? Number(b.buchhaltung.brutto) : null,
+        buchung_brutto: b.buchhaltung?.brutto
+          ? Number(b.buchhaltung.brutto)
+          : null,
         buchung_kategorie: b.buchhaltung?.kategorie ?? null,
       })),
       total,
@@ -61,30 +78,57 @@ export class BelegeService {
   }
 
   async belegLaden(id: number) {
-    const b = await this.prisma.belege.findUnique({ where: { id: BigInt(id) } });
+    const b = await this.prisma.belege.findUnique({
+      where: { id: BigInt(id) },
+    });
     if (!b) throw new NotFoundException();
     const { data: _, ...rest } = b;
-    return { ...rest, id: Number(b.id), buchhaltung_id: b.buchhaltung_id ? Number(b.buchhaltung_id) : null };
+    return {
+      ...rest,
+      id: Number(b.id),
+      buchhaltung_id: b.buchhaltung_id ? Number(b.buchhaltung_id) : null,
+    };
   }
 
   async belegDownload(id: number) {
-    const b = await this.prisma.belege.findUnique({ where: { id: BigInt(id) } });
+    const b = await this.prisma.belege.findUnique({
+      where: { id: BigInt(id) },
+    });
     if (!b) throw new NotFoundException();
     return b;
   }
 
   async belegeFuerBuchung(buchungId: number) {
-    const rows = await this.prisma.belege.findMany({ where: { buchhaltung_id: BigInt(buchungId) } });
-    return rows.map(b => {
+    const rows = await this.prisma.belege.findMany({
+      where: { buchhaltung_id: BigInt(buchungId) },
+    });
+    return rows.map((b) => {
       const { data: _, ...rest } = b;
-      return { ...rest, id: Number(b.id), buchhaltung_id: b.buchhaltung_id ? Number(b.buchhaltung_id) : null };
+      return {
+        ...rest,
+        id: Number(b.id),
+        buchhaltung_id: b.buchhaltung_id ? Number(b.buchhaltung_id) : null,
+      };
     });
   }
 
-  async belegHochladen(file: Express.Multer.File, buchhaltungId?: number, typ = 'beleg', notiz?: string) {
-    const sha256 = crypto.createHash('sha256').update(file.buffer).digest('hex');
-    const vorhanden = await this.prisma.belege.findUnique({ where: { sha256 } });
-    if (vorhanden) throw new BadRequestException('Dieser Beleg wurde bereits hochgeladen (GoBD: Duplikat)');
+  async belegHochladen(
+    file: Express.Multer.File,
+    buchhaltungId?: number,
+    typ = 'beleg',
+    notiz?: string,
+  ) {
+    const sha256 = crypto
+      .createHash('sha256')
+      .update(file.buffer)
+      .digest('hex');
+    const vorhanden = await this.prisma.belege.findUnique({
+      where: { sha256 },
+    });
+    if (vorhanden)
+      throw new BadRequestException(
+        'Dieser Beleg wurde bereits hochgeladen (GoBD: Duplikat)',
+      );
 
     const aufbewahrungBis = new Date();
     aufbewahrungBis.setFullYear(aufbewahrungBis.getFullYear() + 10);
@@ -104,25 +148,40 @@ export class BelegeService {
     });
 
     if (buchhaltungId) {
-      await this.prisma.buchhaltung.update({ where: { id: BigInt(buchhaltungId) }, data: { beleg_id: b.id } });
+      await this.prisma.buchhaltung.update({
+        where: { id: BigInt(buchhaltungId) },
+        data: { beleg_id: b.id },
+      });
     }
 
     const { data: _, ...rest } = b;
-    return { ...rest, id: Number(b.id), buchhaltung_id: b.buchhaltung_id ? Number(b.buchhaltung_id) : null };
+    return {
+      ...rest,
+      id: Number(b.id),
+      buchhaltung_id: b.buchhaltung_id ? Number(b.buchhaltung_id) : null,
+    };
   }
 
   async notizAktualisieren(id: number, notiz: string) {
-    if (!await this.prisma.belege.findUnique({ where: { id: BigInt(id) } })) throw new NotFoundException();
-    const b = await this.prisma.belege.update({ where: { id: BigInt(id) }, data: { notiz } });
+    if (!(await this.prisma.belege.findUnique({ where: { id: BigInt(id) } })))
+      throw new NotFoundException();
+    const b = await this.prisma.belege.update({
+      where: { id: BigInt(id) },
+      data: { notiz },
+    });
     const { data: _, ...rest } = b;
     return { ...rest, id: Number(b.id) };
   }
 
   async belegLoeschen(id: number) {
-    const b = await this.prisma.belege.findUnique({ where: { id: BigInt(id) } });
+    const b = await this.prisma.belege.findUnique({
+      where: { id: BigInt(id) },
+    });
     if (!b) throw new NotFoundException();
     if (b.aufbewahrung_bis && b.aufbewahrung_bis > new Date()) {
-      throw new ForbiddenException(`GoBD §147 AO: Aufbewahrungsfrist läuft bis ${b.aufbewahrung_bis.toISOString().slice(0, 10)}`);
+      throw new ForbiddenException(
+        `GoBD §147 AO: Aufbewahrungsfrist läuft bis ${b.aufbewahrung_bis.toISOString().slice(0, 10)}`,
+      );
     }
     await this.prisma.belege.delete({ where: { id: BigInt(id) } });
     return { ok: true };

@@ -1,133 +1,158 @@
 <div class="page-wrap">
-<app-page-title titel="Einstellungen" untertitel="Firma, Backup & System" />
+  <app-page-title titel="Einstellungen" untertitel="Firma, Backup & System" />
 
-<app-firma-formular
-  [firma]="facade.firma()"
-  [speichert]="facade.speichert()"
-  [erfolg]="facade.erfolg()"
-  [fehler]="null"
-  (speichern)="facade.firmaSpeichern()"
-  (feldAktualisieren)="feldAktualisieren($event)"
-/>
+  <app-firma-formular
+    [firma]="facade.firma()"
+    [speichert]="facade.speichert()"
+    [erfolg]="facade.erfolg()"
+    [fehler]="null"
+    (speichern)="facade.firmaSpeichern()"
+    (feldAktualisieren)="feldAktualisieren($event)"
+  />
 
-<!-- Datensicherung -->
-<div class="card">
-  <h3 class="section-title">Datensicherung</h3>
-  <div class="backup-banner">
-    <div class="backup-dot" [class.backup-ok]="!!facade.letztesBackup()"></div>
-    <div class="backup-info">
-      <div class="backup-titel">{{ backupZeitFormatieren(facade.letztesBackup()) }}</div>
-      <div class="backup-sub">Tägliche Backups + automatisch alle 30 Minuten in data/backups/</div>
+  <!-- Datensicherung -->
+  <div class="card">
+    <h3 class="section-title">Datensicherung</h3>
+    <div class="backup-banner">
+      <div class="backup-dot" [class.backup-ok]="!!facade.letztesBackup()"></div>
+      <div class="backup-info">
+        <div class="backup-titel">{{ backupZeitFormatieren(facade.letztesBackup()) }}</div>
+        <div class="backup-sub">
+          Tägliche Backups + automatisch alle 30 Minuten in data/backups/
+        </div>
+      </div>
+      <button class="btn btn-sm" [disabled]="facade.backupLaedt()" (click)="facade.createBackup()">
+        {{ facade.backupLaedt() ? 'Sichert…' : 'Jetzt sichern' }}
+      </button>
     </div>
-    <button class="btn btn-sm" [disabled]="facade.backupLaedt()" (click)="facade.backupErstellen()">
-      {{ facade.backupLaedt() ? 'Sichert…' : 'Jetzt sichern' }}
-    </button>
+    @if (facade.backupDateien().length) {
+      <div class="backup-dateien">
+        <strong>Vorhandene Backups:</strong>
+        @for (datei of facade.backupDateien(); track datei) {
+          <span class="backup-datei">{{ datei }}</span>
+        }
+      </div>
+    }
   </div>
-  @if (facade.backupDateien().length) {
-    <div class="backup-dateien">
-      <strong>Vorhandene Backups:</strong>
-      @for (datei of facade.backupDateien(); track datei) {
-        <span class="backup-datei">{{ datei }}</span>
-      }
-    </div>
-  }
-</div>
 
-<!-- Benutzerverwaltung -->
-<div class="card">
-  <h3 class="section-title">Benutzerverwaltung</h3>
-  <p class="hint hint--mb">Benutzer anlegen, bearbeiten und löschen.</p>
-  <a routerLink="/benutzerverwaltung" class="btn btn-primary link-btn">
-    Zur Benutzerverwaltung →
-  </a>
-</div>
-
-<!-- Erscheinungsbild -->
-<div class="card">
-  <h3 class="section-title">Erscheinungsbild</h3>
-  <div class="theme-row">
-    <div>
-      <div class="theme-label">Dark Mode</div>
-      <div class="hint">Wird in diesem Browser gespeichert.</div>
-    </div>
-    <button
-      class="theme-toggle"
-      [class.theme-toggle--aktiv]="theme.isDark()"
-      (click)="theme.toggle()"
-      [attr.aria-label]="theme.isDark() ? 'Dark Mode deaktivieren' : 'Dark Mode aktivieren'"
-      type="button"
-    >
-      <span class="theme-toggle__thumb"></span>
-    </button>
+  <!-- Benutzerverwaltung -->
+  <div class="card">
+    <h3 class="section-title">Benutzerverwaltung</h3>
+    <p class="hint hint--mb">Benutzer anlegen, bearbeiten und löschen.</p>
+    <a routerLink="/benutzerverwaltung" class="btn btn-primary link-btn">
+      Zur Benutzerverwaltung →
+    </a>
   </div>
-</div>
 
-<!-- Datenbank Info -->
-<div class="card">
-  <h3 class="section-title">Datenbank</h3>
-  <p class="hint">Alle Daten werden in <code>data/pbs.db</code> gespeichert. Tägliche Backups in <code>data/backups/</code>.</p>
-</div>
-
-<!-- SMTP Einstellungen -->
-<div class="card">
-  <h3 class="section-title">E-Mail / SMTP</h3>
-  <p class="hint hint--mb">Für den E-Mail-Versand aus der App (Marketing, Rechnungen).</p>
-  @if (facade.smtpErfolg()) {
-    <div class="success-banner">{{ facade.smtpErfolg() }}</div>
-  }
-  <div class="form-row">
-    <div class="form-field">
-      <label class="form-label">SMTP Host</label>
-      <input class="form-input" type="text" placeholder="smtp.gmail.com"
-        [value]="facade.smtp().host"
-        (input)="smtpFeldAktualisieren('host', $event)" />
-    </div>
-    <div class="form-field form-field--narrow-120">
-      <label class="form-label">Port</label>
-      <input class="form-input" type="number" placeholder="587"
-        [value]="facade.smtp().port"
-        (input)="smtpPortGeaendert($event)" />
-    </div>
-    <div class="form-field form-field--narrow-140">
-      <label class="form-label">SSL/TLS</label>
-      <label class="checkbox-label">
-        <input type="checkbox"
-          [checked]="facade.smtp().secure"
-          (change)="smtpSecureGeaendert($event)" />
-        Secure
-      </label>
+  <!-- Erscheinungsbild -->
+  <div class="card">
+    <h3 class="section-title">Erscheinungsbild</h3>
+    <div class="theme-row">
+      <div>
+        <div class="theme-label">Dark Mode</div>
+        <div class="hint">Wird in diesem Browser gespeichert.</div>
+      </div>
+      <button
+        class="theme-toggle"
+        [class.theme-toggle--aktiv]="theme.isDark()"
+        (click)="theme.toggle()"
+        [attr.aria-label]="theme.isDark() ? 'Dark Mode deaktivieren' : 'Dark Mode aktivieren'"
+        type="button"
+      >
+        <span class="theme-toggle__thumb"></span>
+      </button>
     </div>
   </div>
-  <div class="form-row">
-    <div class="form-field">
-      <label class="form-label">Benutzername / E-Mail</label>
-      <input class="form-input" type="text" placeholder="user@gmail.com"
-        [value]="facade.smtp().user"
-        (input)="smtpFeldAktualisieren('user', $event)" />
-    </div>
-    <div class="form-field">
-      <label class="form-label">Passwort / App-Passwort</label>
-      <input class="form-input" type="password" placeholder="••••••••"
-        [value]="facade.smtp().pass"
-        (input)="smtpFeldAktualisieren('pass', $event)" />
-    </div>
-    <div class="form-field">
-      <label class="form-label">Absendername</label>
-      <input class="form-input" type="text" placeholder="PBS Buchhaltung"
-        [value]="facade.smtp().fromName || ''"
-        (input)="smtpFeldAktualisieren('fromName', $event)" />
-    </div>
+
+  <!-- Datenbank Info -->
+  <div class="card">
+    <h3 class="section-title">Datenbank</h3>
+    <p class="hint">Datenbank: PostgreSQL (Docker). Backups in <code>data/backups/</code>.</p>
   </div>
-  <div class="form-actions">
-    <button class="btn btn-primary"
-      [disabled]="facade.smtpSpeichert()"
-      (click)="facade.smtpSpeichernAusfuehren()">
-      {{ facade.smtpSpeichert() ? 'Speichert…' : 'SMTP speichern' }}
-    </button>
-    <button class="btn"
-      [disabled]="facade.smtpTestLaedt()"
-      (click)="facade.smtpTesten()">
-      {{ facade.smtpTestLaedt() ? 'Teste…' : 'Verbindung testen' }}
-    </button>
+
+  <!-- SMTP Einstellungen -->
+  <div class="card">
+    <h3 class="section-title">E-Mail / SMTP</h3>
+    <p class="hint hint--mb">Für den E-Mail-Versand aus der App (Marketing, Rechnungen).</p>
+    @if (facade.smtpErfolg()) {
+      <div class="success-banner">{{ facade.smtpErfolg() }}</div>
+    }
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">SMTP Host</label>
+        <input
+          class="form-input"
+          type="text"
+          placeholder="smtp.gmail.com"
+          [value]="facade.smtp().host"
+          (input)="smtpFeldAktualisieren('host', $event)"
+        />
+      </div>
+      <div class="form-field form-field--narrow-120">
+        <label class="form-label">Port</label>
+        <input
+          class="form-input"
+          type="number"
+          placeholder="587"
+          [value]="facade.smtp().port"
+          (input)="smtpPortGeaendert($event)"
+        />
+      </div>
+      <div class="form-field form-field--narrow-140">
+        <label class="form-label">SSL/TLS</label>
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [checked]="facade.smtp().secure"
+            (change)="smtpSecureGeaendert($event)"
+          />
+          Secure
+        </label>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Benutzername / E-Mail</label>
+        <input
+          class="form-input"
+          type="text"
+          placeholder="user@gmail.com"
+          [value]="facade.smtp().user"
+          (input)="smtpFeldAktualisieren('user', $event)"
+        />
+      </div>
+      <div class="form-field">
+        <label class="form-label">Passwort / App-Passwort</label>
+        <input
+          class="form-input"
+          type="password"
+          placeholder="••••••••"
+          [value]="facade.smtp().pass"
+          (input)="smtpFeldAktualisieren('pass', $event)"
+        />
+      </div>
+      <div class="form-field">
+        <label class="form-label">Absendername</label>
+        <input
+          class="form-input"
+          type="text"
+          placeholder="PBS Buchhaltung"
+          [value]="facade.smtp().fromName || ''"
+          (input)="smtpFeldAktualisieren('fromName', $event)"
+        />
+      </div>
+    </div>
+    <div class="form-actions">
+      <button
+        class="btn btn-primary"
+        [disabled]="facade.smtpSpeichert()"
+        (click)="facade.saveSmtpAusfuehren()"
+      >
+        {{ facade.smtpSpeichert() ? 'Speichert…' : 'SMTP speichern' }}
+      </button>
+      <button class="btn" [disabled]="facade.smtpTestLaedt()" (click)="facade.smtpTesten()">
+        {{ facade.smtpTestLaedt() ? 'Teste…' : 'Verbindung testen' }}
+      </button>
+    </div>
   </div>
 </div>

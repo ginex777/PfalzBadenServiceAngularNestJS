@@ -7,7 +7,7 @@ describe('MuellplanComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MuellplanComponent]
+      declarations: [MuellplanComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MuellplanComponent);

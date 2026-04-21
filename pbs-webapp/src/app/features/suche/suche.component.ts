@@ -30,7 +30,7 @@ export class SucheComponent implements OnInit {
 
   ngOnInit(): void {
     this.facade.ladeDaten();
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       if (params['q']) {
         this.sucheModell.set({ suchbegriff: params['q'] });
         this.facade.suchbegriffSetzen(params['q']);

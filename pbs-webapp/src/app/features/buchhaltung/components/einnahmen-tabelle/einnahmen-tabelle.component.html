@@ -1,16 +1,20 @@
 <div class="tabelle-container">
   <div class="tabelle-kopf">
     <span class="badge badge--gruen">Einnahmen</span>
-    <span class="anzahl">{{ zeilen().length }} Eintr{{ zeilen().length !== 1 ? 'äge' : 'ag' }}</span>
-    <input type="search" class="eingabe eingabe--suche" placeholder="Einnahmen durchsuchen…"
+    <span class="anzahl"
+      >{{ zeilen().length }} Eintr{{ zeilen().length !== 1 ? 'äge' : 'ag' }}</span
+    >
+    <input
+      type="search"
+      class="eingabe eingabe--suche"
+      placeholder="Einnahmen durchsuchen…"
       [value]="suchbegriff"
-      (input)="suchbegriff = $any($event.target).value" />
+      (input)="suchbegriff = $any($event.target).value"
+    />
   </div>
 
   @if (istGesperrt()) {
-    <div class="gesperrt-banner">
-      Gesperrt (GoBD §146 AO) — nur lesbar.
-    </div>
+    <div class="gesperrt-banner">Gesperrt (GoBD §146 AO) — nur lesbar.</div>
   }
 
   <div class="tabelle-scroll">
@@ -95,8 +99,16 @@
                 {{ zeile.beleg_id ? 'Beleg' : '+ Beleg' }}
               </button>
               @if (!istGesperrt()) {
-                <button class="btn-kopie" (click)="kopierenKlicken(zeile._tempId)" type="button">Kopie</button>
-                <button class="btn-loeschen" (click)="entfernenKlicken(zeile._tempId)" type="button">Löschen</button>
+                <button class="btn-kopie" (click)="kopierenKlicken(zeile._tempId)" type="button">
+                  Kopie
+                </button>
+                <button
+                  class="btn-loeschen"
+                  (click)="entfernenKlicken(zeile._tempId)"
+                  type="button"
+                >
+                  Löschen
+                </button>
               } @else {
                 <span class="gesperrt-label">Gesperrt</span>
               }
@@ -108,7 +120,11 @@
   </div>
 
   @if (!istGesperrt()) {
-    <button class="btn-hinzufuegen btn-hinzufuegen--gruen" (click)="hinzufuegenKlicken()" type="button">
+    <button
+      class="btn-hinzufuegen btn-hinzufuegen--gruen"
+      (click)="hinzufuegenKlicken()"
+      type="button"
+    >
       + Einnahme
     </button>
   }

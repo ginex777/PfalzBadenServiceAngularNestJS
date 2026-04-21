@@ -8,26 +8,48 @@
     (aktion)="neuAnlegen.emit()"
   />
 } @else if (kunden().length === 0 && suchbegriff()) {
-  <div class="keine-treffer">
-    Keine Treffer für „{{ suchbegriff() }}"
-  </div>
+  <div class="keine-treffer">Keine Treffer für „{{ suchbegriff() }}"</div>
 } @else {
   <div class="tabelle-wrapper">
     <table>
       <thead>
         <tr>
-          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'name'" (click)="toggleSort('name')">
-            Name<span class="sort-icon">{{ sortSpalte() === 'name' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          <th
+            class="sortable"
+            [class.sortable--aktiv]="sortSpalte() === 'name'"
+            (click)="toggleSort('name')"
+          >
+            Name<span class="sort-icon">{{
+              sortSpalte() === 'name' ? (sortAufsteigend() ? '↑' : '↓') : '↕'
+            }}</span>
           </th>
-          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'strasse'" (click)="toggleSort('strasse')">
-            Straße<span class="sort-icon">{{ sortSpalte() === 'strasse' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          <th
+            class="sortable"
+            [class.sortable--aktiv]="sortSpalte() === 'strasse'"
+            (click)="toggleSort('strasse')"
+          >
+            Straße<span class="sort-icon">{{
+              sortSpalte() === 'strasse' ? (sortAufsteigend() ? '↑' : '↓') : '↕'
+            }}</span>
           </th>
-          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'ort'" (click)="toggleSort('ort')">
-            Ort<span class="sort-icon">{{ sortSpalte() === 'ort' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          <th
+            class="sortable"
+            [class.sortable--aktiv]="sortSpalte() === 'ort'"
+            (click)="toggleSort('ort')"
+          >
+            Ort<span class="sort-icon">{{
+              sortSpalte() === 'ort' ? (sortAufsteigend() ? '↑' : '↓') : '↕'
+            }}</span>
           </th>
           <th>Telefon</th>
-          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'email'" (click)="toggleSort('email')">
-            E-Mail<span class="sort-icon">{{ sortSpalte() === 'email' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          <th
+            class="sortable"
+            [class.sortable--aktiv]="sortSpalte() === 'email'"
+            (click)="toggleSort('email')"
+          >
+            E-Mail<span class="sort-icon">{{
+              sortSpalte() === 'email' ? (sortAufsteigend() ? '↑' : '↓') : '↕'
+            }}</span>
           </th>
           <th class="text-right">Umsatz (bezahlt)</th>
           <th></th>
@@ -41,10 +63,22 @@
                 <span class="name-text">{{ kunde.name }}</span>
                 @if (umsatzFuerKunde(kunde.id); as u) {
                   @if (u.rechnungenAnzahl > 0) {
-                    <a class="tag tag-green" [routerLink]="['/rechnungen']" [queryParams]="{q: kunde.name}" title="Rechnungen anzeigen">{{ u.rechnungenAnzahl }} RE</a>
+                    <a
+                      class="tag tag-green"
+                      [routerLink]="['/rechnungen']"
+                      [queryParams]="{ q: kunde.name }"
+                      title="Rechnungen anzeigen"
+                      >{{ u.rechnungenAnzahl }} RE</a
+                    >
                   }
                   @if (u.angeboteAnzahl > 0) {
-                    <a class="tag tag-primary" [routerLink]="['/angebote']" [queryParams]="{q: kunde.name}" title="Angebote anzeigen">{{ u.angeboteAnzahl }} ANG</a>
+                    <a
+                      class="tag tag-primary"
+                      [routerLink]="['/angebote']"
+                      [queryParams]="{ q: kunde.name }"
+                      title="Angebote anzeigen"
+                      >{{ u.angeboteAnzahl }} ANG</a
+                    >
                   }
                 }
               </div>
@@ -55,21 +89,33 @@
             <td class="col-text">{{ kunde.email || '–' }}</td>
             <td class="col-umsatz text-right">
               @if (umsatzFuerKunde(kunde.id)?.umsatzBezahlt) {
-                <span class="text-success">{{ waehrungFormatieren(umsatzFuerKunde(kunde.id)!.umsatzBezahlt) }}</span>
+                <span class="text-success">{{
+                  waehrungFormatieren(umsatzFuerKunde(kunde.id)!.umsatzBezahlt)
+                }}</span>
               } @else {
                 <span class="text-muted">–</span>
               }
             </td>
             <td class="col-aktionen">
               <div class="aktionen">
-                <button class="btn-action" (click)="offenePosten.emit(kunde.id)">Offene Posten</button>
-                <button class="btn-action btn-action--primary" (click)="rechnung.emit(kunde)">+ Rechnung</button>
-                <button class="btn-action btn-action--success" (click)="angebot.emit(kunde)">+ Angebot</button>
+                <button class="btn-action" (click)="offenePosten.emit(kunde.id)">
+                  Offene Posten
+                </button>
+                <button class="btn-action btn-action--primary" (click)="rechnung.emit(kunde)">
+                  + Rechnung
+                </button>
+                <button class="btn-action btn-action--success" (click)="angebot.emit(kunde)">
+                  + Angebot
+                </button>
                 <button class="btn-action" (click)="bearbeiten.emit(kunde)">Bearbeiten</button>
                 @if (hatVerknuepfteDokumente(kunde.id)) {
-                  <span class="btn-action btn-action--disabled" title="Hat verknüpfte Dokumente">Nicht löschbar</span>
+                  <span class="btn-action btn-action--disabled" title="Hat verknüpfte Dokumente"
+                    >Nicht löschbar</span
+                  >
                 } @else {
-                  <button class="btn-action btn-action--danger" (click)="loeschen.emit(kunde.id)">Löschen</button>
+                  <button class="btn-action btn-action--danger" (click)="loeschen.emit(kunde.id)">
+                    Löschen
+                  </button>
                 }
               </div>
             </td>

@@ -19,12 +19,8 @@
             <th rowspan="2" class="col-rechts">Offen</th>
           </tr>
           <tr>
-            <th class="col-rechts th-sub-col">
-              Kz. 81<br /><span class="th-sub">Netto 19%</span>
-            </th>
-            <th class="col-rechts th-sub-col">
-              Kz. 86<br /><span class="th-sub">Netto 7%</span>
-            </th>
+            <th class="col-rechts th-sub-col">Kz. 81<br /><span class="th-sub">Netto 19%</span></th>
+            <th class="col-rechts th-sub-col">Kz. 86<br /><span class="th-sub">Netto 7%</span></th>
             <th class="col-rechts th-sub-col">
               Kz. 83+85<br /><span class="th-sub">USt gesamt</span>
             </th>
@@ -67,8 +63,10 @@
       </table>
     </div>
     <p class="hinweis">
-      Kz. 81 = steuerpflichtige Umsätze 19 % (Netto) · Kz. 83 = USt darauf · Kz. 86 = steuerpflichtige Umsätze 7 % (Netto) · Kz. 85 = USt darauf · Kz. 66 = Vorsteuer aus Eingangsrechnungen.
-      Klicke auf die Checkbox, um Zahlungen an das Finanzamt als erledigt zu markieren.
+      Kz. 81 = steuerpflichtige Umsätze 19 % (Netto) · Kz. 83 = USt darauf · Kz. 86 =
+      steuerpflichtige Umsätze 7 % (Netto) · Kz. 85 = USt darauf · Kz. 66 = Vorsteuer aus
+      Eingangsrechnungen. Klicke auf die Checkbox, um Zahlungen an das Finanzamt als erledigt zu
+      markieren.
     </p>
   </div>
 
@@ -98,8 +96,12 @@
                 <td class="zahl zahl--rot">{{ formatieren(quartal.einnahmenUst) }}</td>
                 <td class="zahl">{{ formatieren(quartal.ausgabenNetto) }}</td>
                 <td class="zahl zahl--gruen">{{ formatieren(quartal.vorsteuer) }}</td>
-                <td class="zahl" [class]="zahllastKlasse(quartal.zahllast)">{{ formatieren(quartal.zahllast) }}</td>
-                <td class="zahl" [class]="gewinnKlasse(quartal.gewinn)">{{ formatieren(quartal.gewinn) }}</td>
+                <td class="zahl" [class]="zahllastKlasse(quartal.zahllast)">
+                  {{ formatieren(quartal.zahllast) }}
+                </td>
+                <td class="zahl" [class]="gewinnKlasse(quartal.gewinn)">
+                  {{ formatieren(quartal.gewinn) }}
+                </td>
               </tr>
             } @else {
               <tr class="zeile--leer">
@@ -116,8 +118,12 @@
             <td class="zahl zahl--rot">{{ formatieren(quartalGesamtUst()) }}</td>
             <td class="zahl">{{ formatieren(quartalGesamtAusgaben()) }}</td>
             <td class="zahl zahl--gruen">{{ formatieren(quartalGesamtVorsteuer()) }}</td>
-            <td class="zahl" [class]="zahllastKlasse(quartalGesamtZahllast())">{{ formatieren(quartalGesamtZahllast()) }}</td>
-            <td class="zahl" [class]="gewinnKlasse(quartalGesamtGewinn())">{{ formatieren(quartalGesamtGewinn()) }}</td>
+            <td class="zahl" [class]="zahllastKlasse(quartalGesamtZahllast())">
+              {{ formatieren(quartalGesamtZahllast()) }}
+            </td>
+            <td class="zahl" [class]="gewinnKlasse(quartalGesamtGewinn())">
+              {{ formatieren(quartalGesamtGewinn()) }}
+            </td>
           </tr>
         </tfoot>
       </table>
@@ -147,8 +153,12 @@
                 <td class="zahl zahl--rot">{{ formatieren(monat.einnahmenUst) }}</td>
                 <td class="zahl">{{ formatieren(monat.ausgabenNetto) }}</td>
                 <td class="zahl zahl--gruen">{{ formatieren(monat.vorsteuer) }}</td>
-                <td class="zahl" [class]="zahllastKlasse(monat.zahllast)">{{ formatieren(monat.zahllast) }}</td>
-                <td class="zahl" [class]="gewinnKlasse(monat.gewinn)">{{ formatieren(monat.gewinn) }}</td>
+                <td class="zahl" [class]="zahllastKlasse(monat.zahllast)">
+                  {{ formatieren(monat.zahllast) }}
+                </td>
+                <td class="zahl" [class]="gewinnKlasse(monat.gewinn)">
+                  {{ formatieren(monat.gewinn) }}
+                </td>
               </tr>
             } @else {
               <tr class="zeile--leer">
@@ -165,8 +175,12 @@
             <td class="zahl zahl--rot">{{ formatieren(jahresGesamtUst()) }}</td>
             <td class="zahl">{{ formatieren(jahresGesamtAusgaben()) }}</td>
             <td class="zahl zahl--gruen">{{ formatieren(jahresGesamtVorsteuer()) }}</td>
-            <td class="zahl" [class]="zahllastKlasse(jahresGesamtZahllast())">{{ formatieren(jahresGesamtZahllast()) }}</td>
-            <td class="zahl" [class]="gewinnKlasse(jahresGesamtGewinn())">{{ formatieren(jahresGesamtGewinn()) }}</td>
+            <td class="zahl" [class]="zahllastKlasse(jahresGesamtZahllast())">
+              {{ formatieren(jahresGesamtZahllast()) }}
+            </td>
+            <td class="zahl" [class]="gewinnKlasse(jahresGesamtGewinn())">
+              {{ formatieren(jahresGesamtGewinn()) }}
+            </td>
           </tr>
         </tfoot>
       </table>

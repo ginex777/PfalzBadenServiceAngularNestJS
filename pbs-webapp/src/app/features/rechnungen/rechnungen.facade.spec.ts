@@ -30,8 +30,8 @@ describe('RechnungenFacade', () => {
     it('sollte offene Rechnungen korrekt summieren', () => {
       facade.rechnungen.set([
         { id: 1, nr: 'R-1', empf: 'A', bezahlt: false, brutto: 100 } as Rechnung,
-        { id: 2, nr: 'R-2', empf: 'B', bezahlt: true,  brutto: 200 } as Rechnung,
-        { id: 3, nr: 'R-3', empf: 'C', bezahlt: false, brutto: 50  } as Rechnung,
+        { id: 2, nr: 'R-2', empf: 'B', bezahlt: true, brutto: 200 } as Rechnung,
+        { id: 3, nr: 'R-3', empf: 'C', bezahlt: false, brutto: 50 } as Rechnung,
       ]);
       expect(facade.statistik().offen).toBe(150);
       expect(facade.statistik().gesamtumsatz).toBe(200);
@@ -48,23 +48,25 @@ describe('RechnungenFacade', () => {
   describe('gefilterteRechnungen()', () => {
     const testRechnungen: Rechnung[] = [
       { id: 1, nr: 'R-2026-001', empf: 'Müller GmbH', titel: 'April', bezahlt: false } as Rechnung,
-      { id: 2, nr: 'R-2026-002', empf: 'Schulz AG',   titel: 'Mai',   bezahlt: true  } as Rechnung,
-      { id: 3, nr: 'R-2026-003', empf: 'Koch KG',     titel: 'Juni',  bezahlt: false } as Rechnung,
+      { id: 2, nr: 'R-2026-002', empf: 'Schulz AG', titel: 'Mai', bezahlt: true } as Rechnung,
+      { id: 3, nr: 'R-2026-003', empf: 'Koch KG', titel: 'Juni', bezahlt: false } as Rechnung,
     ];
 
-    beforeEach(() => { facade.rechnungen.set(testRechnungen); });
+    beforeEach(() => {
+      facade.rechnungen.set(testRechnungen);
+    });
 
     it('sollte nach "offen" filtern', () => {
       facade.aktiverFilter.set('offen');
       const result = facade.gefilterteRechnungen();
-      expect(result.every(r => !r.bezahlt)).toBe(true);
+      expect(result.every((r) => !r.bezahlt)).toBe(true);
       expect(result.length).toBe(2);
     });
 
     it('sollte nach "bezahlt" filtern', () => {
       facade.aktiverFilter.set('bezahlt');
       const result = facade.gefilterteRechnungen();
-      expect(result.every(r => r.bezahlt)).toBe(true);
+      expect(result.every((r) => r.bezahlt)).toBe(true);
       expect(result.length).toBe(1);
     });
 
@@ -92,14 +94,20 @@ describe('RechnungenFacade', () => {
   describe('Paginierung', () => {
     it('sollte gesamtSeiten korrekt berechnen (30 Einträge → 2 Seiten)', () => {
       facade.rechnungen.set(
-        Array.from({ length: 30 }, (_, i) => ({ id: i + 1, nr: `R-${i}`, empf: 'Test', bezahlt: false } as Rechnung))
+        Array.from(
+          { length: 30 },
+          (_, i) => ({ id: i + 1, nr: `R-${i}`, empf: 'Test', bezahlt: false }) as Rechnung,
+        ),
       );
       expect(facade.gesamtSeiten()).toBe(2);
     });
 
     it('sollte seiteVor die Seite erhöhen', () => {
       facade.rechnungen.set(
-        Array.from({ length: 30 }, (_, i) => ({ id: i + 1, nr: `R-${i}`, empf: 'Test', bezahlt: false } as Rechnung))
+        Array.from(
+          { length: 30 },
+          (_, i) => ({ id: i + 1, nr: `R-${i}`, empf: 'Test', bezahlt: false }) as Rechnung,
+        ),
       );
       facade.seiteVor();
       expect(facade.aktuelleSeite()).toBe(2);
@@ -114,11 +122,11 @@ describe('RechnungenFacade', () => {
 
   describe('netto() / brutto()', () => {
     it('sollte Netto korrekt aus Positionen summieren', () => {
-      facade.formularDaten.update(d => ({
+      facade.formularDaten.update((d) => ({
         ...d,
         positionen: [
           { bez: 'Pos 1', gesamtpreis: 100, stunden: '', einzelpreis: undefined },
-          { bez: 'Pos 2', gesamtpreis: 50,  stunden: '', einzelpreis: undefined },
+          { bez: 'Pos 2', gesamtpreis: 50, stunden: '', einzelpreis: undefined },
         ],
         mwst_satz: 19,
       }));
@@ -126,7 +134,7 @@ describe('RechnungenFacade', () => {
     });
 
     it('sollte Brutto mit 19% MwSt berechnen', () => {
-      facade.formularDaten.update(d => ({
+      facade.formularDaten.update((d) => ({
         ...d,
         positionen: [{ bez: 'Pos 1', gesamtpreis: 100, stunden: '', einzelpreis: undefined }],
         mwst_satz: 19,
@@ -135,7 +143,7 @@ describe('RechnungenFacade', () => {
     });
 
     it('sollte Brutto mit 0% MwSt gleich Netto sein', () => {
-      facade.formularDaten.update(d => ({
+      facade.formularDaten.update((d) => ({
         ...d,
         positionen: [{ bez: 'Pos 1', gesamtpreis: 200, stunden: '', einzelpreis: undefined }],
         mwst_satz: 0,
@@ -150,12 +158,12 @@ describe('RechnungenFacade', () => {
     });
 
     it('sollte true sein wenn Empfänger gesetzt', () => {
-      facade.formularDaten.update(d => ({ ...d, empf: 'Test GmbH' }));
+      facade.formularDaten.update((d) => ({ ...d, empf: 'Test GmbH' }));
       expect(facade.formularGeaendert()).toBe(true);
     });
 
     it('sollte true sein wenn Titel gesetzt', () => {
-      facade.formularDaten.update(d => ({ ...d, titel: 'Rechnung Mai' }));
+      facade.formularDaten.update((d) => ({ ...d, titel: 'Rechnung Mai' }));
       expect(facade.formularGeaendert()).toBe(true);
     });
   });

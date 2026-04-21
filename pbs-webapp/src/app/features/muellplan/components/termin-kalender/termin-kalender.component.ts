@@ -60,16 +60,24 @@ export class TerminKalenderComponent {
     return [obj.strasse, obj.plz, obj.ort].filter(Boolean).join(', ');
   }
 
-  protected datumFormatieren(d: string): string { return datumFormatieren(d); }
+  protected datumFormatieren(d: string): string {
+    return datumFormatieren(d);
+  }
 
   protected statusLabel(t: TerminAnzeige): string {
     switch (t.status) {
-      case 'erledigt': return 'Erledigt';
-      case 'heute': return 'Heute!';
-      case 'morgen': return 'Morgen';
-      case 'bald': return `In ${t.diffTage} Tagen`;
-      case 'verpasst': return 'Verpasst';
-      default: return `In ${t.diffTage} Tagen`;
+      case 'erledigt':
+        return 'Erledigt';
+      case 'heute':
+        return 'Heute!';
+      case 'morgen':
+        return 'Morgen';
+      case 'bald':
+        return `In ${t.diffTage} Tagen`;
+      case 'verpasst':
+        return 'Verpasst';
+      default:
+        return `In ${t.diffTage} Tagen`;
     }
   }
 

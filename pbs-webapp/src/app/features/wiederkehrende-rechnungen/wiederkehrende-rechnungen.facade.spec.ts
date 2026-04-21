@@ -6,7 +6,7 @@ describe('WiederkehrendeRechnungenFacade', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [WiederkehrendeRechnungenFacade]
+      providers: [WiederkehrendeRechnungenFacade],
     });
 
     service = TestBed.inject(WiederkehrendeRechnungenFacade);

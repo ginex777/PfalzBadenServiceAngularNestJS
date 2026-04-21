@@ -17,9 +17,9 @@
       @for (e of eintraege(); track e.id) {
         <li class="list-item" [class.offen]="!e.stop">
           <div class="item-time">
-            <span>{{ e.start | date:'HH:mm' }}</span>
+            <span>{{ e.start | date: 'HH:mm' }}</span>
             <span class="arrow">→</span>
-            <span>{{ e.stop ? (e.stop | date:'HH:mm') : '…' }}</span>
+            <span>{{ e.stop ? (e.stop | date: 'HH:mm') : '…' }}</span>
           </div>
           <div class="item-dauer">{{ formatDauer(e.dauer_minuten) }}</div>
           @if (e.notiz) {

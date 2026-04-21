@@ -1,6 +1,12 @@
 import { MarketingKontakt } from '../../core/models';
 
-export type MarketingStatusFilter = '' | 'neu' | 'gesendet' | 'interesse' | 'kein-interesse' | 'angebot';
+export type MarketingStatusFilter =
+  | ''
+  | 'neu'
+  | 'gesendet'
+  | 'interesse'
+  | 'kein-interesse'
+  | 'angebot';
 
 export interface MarketingStatistik {
   neu: number;

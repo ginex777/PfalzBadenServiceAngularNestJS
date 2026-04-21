@@ -25,12 +25,12 @@ export class LoginComponent implements OnInit {
   sessionAbgelaufen = signal(false);
 
   ngOnInit() {
-    this.route.queryParams.subscribe(p => {
+    this.route.queryParams.subscribe((p) => {
       if (p['reason'] === 'session') this.sessionAbgelaufen.set(true);
     });
     // Check first-run
     this.auth.checkSetupRequired().subscribe({
-      next: res => this.setupModus.set(res.setupRequired),
+      next: (res) => this.setupModus.set(res.setupRequired),
       error: () => {},
     });
   }
@@ -51,7 +51,10 @@ export class LoginComponent implements OnInit {
       next: () => {
         if (this.setupModus()) {
           this.auth.login(this.email(), this.password()).subscribe({
-            next: () => { this._autoSetNutzer(); this._redirect(); },
+            next: () => {
+              this._autoSetNutzer();
+              this._redirect();
+            },
             error: () => this._redirect(),
           });
         } else {
@@ -70,9 +73,10 @@ export class LoginComponent implements OnInit {
   private _autoSetNutzer(): void {
     const user = this.auth.currentUser();
     if (user) {
-      const name = user.vorname && user.nachname
-        ? `${user.vorname} ${user.nachname}`
-        : user.vorname || user.nachname || user.email;
+      const name =
+        user.vorname && user.nachname
+          ? `${user.vorname} ${user.nachname}`
+          : user.vorname || user.nachname || user.email;
       this.nutzerService.setzen(name);
     }
   }

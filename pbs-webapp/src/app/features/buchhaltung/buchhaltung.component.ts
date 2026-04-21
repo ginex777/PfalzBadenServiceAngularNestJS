@@ -2,7 +2,14 @@
 // Buchhaltung — Smart Container Component
 // ============================================================
 
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BuchhaltungFacade } from './buchhaltung.facade';
 import { BuchhaltungService } from './buchhaltung.service';
@@ -51,8 +58,12 @@ export class BuchhaltungComponent implements OnInit {
   }
 
   protected readonly belegModal = signal<BelegModalState>({
-    offen: false, zeile: null, typ: 'exp',
-    laedt: false, hochladen: false, beleg: null,
+    offen: false,
+    zeile: null,
+    typ: 'exp',
+    laedt: false,
+    hochladen: false,
+    beleg: null,
   });
 
   protected readonly verfuegbareJahre = computed(() => {
@@ -88,7 +99,7 @@ export class BuchhaltungComponent implements OnInit {
 
   protected batchSpeichern(): void {
     const ausgaben = this.facade.aktuelleAusgaben();
-    const ohneNummer = ausgaben.filter(z => !z.belegnr?.trim());
+    const ohneNummer = ausgaben.filter((z) => !z.belegnr?.trim());
     if (ohneNummer.length > 0) {
       this.belegnummerWarnungSichtbar.set(true);
       return;
@@ -106,12 +117,12 @@ export class BuchhaltungComponent implements OnInit {
   }
 
   // ── Monat sperren/entsperren ──────────────────────────────────────────────
-  protected monatSperren(): void {
-    this.facade.monatSperren();
+  protected lockMonth(): void {
+    this.facade.lockMonth();
   }
 
-  protected monatEntsperren(): void {
-    this.facade.monatEntsperren();
+  protected unlockMonth(): void {
+    this.facade.unlockMonth();
   }
 
   protected monatLeeren(): void {
@@ -145,7 +156,10 @@ export class BuchhaltungComponent implements OnInit {
     this.facade.zeileKopieren('inc', tempId);
   }
 
-  protected einnahmeZeileAktualisieren(event: { tempId: string; aenderungen: Partial<BuchhaltungZeile> }): void {
+  protected einnahmeZeileAktualisieren(event: {
+    tempId: string;
+    aenderungen: Partial<BuchhaltungZeile>;
+  }): void {
     this.facade.einnahmeZeileAktualisieren(event.tempId, event.aenderungen);
   }
 
@@ -162,7 +176,10 @@ export class BuchhaltungComponent implements OnInit {
     this.facade.zeileKopieren('exp', tempId);
   }
 
-  protected ausgabeZeileAktualisieren(event: { tempId: string; aenderungen: Partial<BuchhaltungZeile> }): void {
+  protected ausgabeZeileAktualisieren(event: {
+    tempId: string;
+    aenderungen: Partial<BuchhaltungZeile>;
+  }): void {
     this.facade.ausgabeZeileAktualisieren(event.tempId, event.aenderungen);
   }
 
@@ -194,17 +211,15 @@ export class BuchhaltungComponent implements OnInit {
 
   // ── Beleg-Modal ───────────────────────────────────────────────────────────
   protected belegModalOeffnen(event: { typ: 'inc' | 'exp'; tempId: string }): void {
-    const zeilen = event.typ === 'inc'
-      ? this.facade.aktuelleEinnahmen()
-      : this.facade.aktuelleAusgaben();
+    const zeilen =
+      event.typ === 'inc' ? this.facade.aktuelleEinnahmen() : this.facade.aktuelleAusgaben();
     const zeile = zeilen.find((z) => z._tempId === event.tempId);
     if (!zeile) return;
 
     if (!zeile.id) {
       this.facade.batchSpeichern().then(() => {
-        const aktualisiert = (event.typ === 'inc'
-          ? this.facade.aktuelleEinnahmen()
-          : this.facade.aktuelleAusgaben()
+        const aktualisiert = (
+          event.typ === 'inc' ? this.facade.aktuelleEinnahmen() : this.facade.aktuelleAusgaben()
         ).find((z) => z._tempId === event.tempId);
         if (aktualisiert) this._belegModalAnzeigen(aktualisiert, event.typ);
       });
@@ -217,16 +232,17 @@ export class BuchhaltungComponent implements OnInit {
     this.belegModal.set({ offen: true, zeile, typ, laedt: false, hochladen: false, beleg: null });
 
     if (zeile.beleg_id) {
-      this.belegModal.update(s => ({ ...s, laedt: true }));
-      this.service.belegeFuerBuchungLaden(zeile.id!).subscribe({
-        next: (belege) => this.belegModal.update(s => ({ ...s, beleg: belege[0] ?? null, laedt: false })),
-        error: () => this.belegModal.update(s => ({ ...s, laedt: false })),
+      this.belegModal.update((s) => ({ ...s, laedt: true }));
+      this.service.loadReceiptsForEntry(zeile.id!).subscribe({
+        next: (belege) =>
+          this.belegModal.update((s) => ({ ...s, beleg: belege[0] ?? null, laedt: false })),
+        error: () => this.belegModal.update((s) => ({ ...s, laedt: false })),
       });
     }
   }
 
   protected belegModalSchliessen(): void {
-    this.belegModal.update(s => ({ ...s, offen: false, zeile: null, beleg: null }));
+    this.belegModal.update((s) => ({ ...s, offen: false, zeile: null, beleg: null }));
   }
 
   protected belegDateiHochladen(event: Event): void {
@@ -242,22 +258,22 @@ export class BuchhaltungComponent implements OnInit {
     fd.append('buchhaltung_id', String(zeile.id));
     fd.append('typ', 'beleg');
 
-    this.belegModal.update(s => ({ ...s, hochladen: true }));
-    this.service.belegHochladen(fd).subscribe({
+    this.belegModal.update((s) => ({ ...s, hochladen: true }));
+    this.service.uploadReceipt(fd).subscribe({
       next: (beleg) => {
-        this.belegModal.update(s => ({ ...s, beleg, hochladen: false }));
+        this.belegModal.update((s) => ({ ...s, beleg, hochladen: false }));
         if (this.belegModal().typ === 'inc') {
           this.facade.einnahmeZeileAktualisieren(zeile._tempId, { beleg_id: beleg.id });
         } else {
           this.facade.ausgabeZeileAktualisieren(zeile._tempId, { beleg_id: beleg.id });
         }
       },
-      error: () => this.belegModal.update(s => ({ ...s, hochladen: false })),
+      error: () => this.belegModal.update((s) => ({ ...s, hochladen: false })),
     });
   }
 
-  protected belegDownloadUrl(id: number, inline = false): string {
-    return this.service.belegDownloadUrl(id, inline);
+  protected getReceiptDownloadUrl(id: number, inline = false): string {
+    return this.service.getReceiptDownloadUrl(id, inline);
   }
 
   protected einnahmeBelegOeffnen(tempId: string): void {
@@ -268,6 +284,3 @@ export class BuchhaltungComponent implements OnInit {
     this.belegModalOeffnen({ typ: 'exp', tempId });
   }
 }
-
-
-  

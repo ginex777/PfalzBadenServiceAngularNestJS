@@ -1,6 +1,14 @@
 import {
-  IsString, IsNotEmpty, IsOptional, IsNumber, IsBoolean,
-  IsDateString, IsArray, ValidateNested, Min, IsPositive,
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  IsDateString,
+  IsArray,
+  ValidateNested,
+  Min,
+  IsPositive,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -19,8 +27,16 @@ export class CreateAngebotDto {
   @ApiPropertyOptional() @IsOptional() @IsBoolean() abgelehnt?: boolean;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() gesendet?: boolean;
   @ApiPropertyOptional() @IsOptional() @IsString() zusatz?: string;
-  @ApiProperty({ type: [RechnungPositionDto] }) @IsArray() @ValidateNested({ each: true }) @Type(() => RechnungPositionDto) positionen!: RechnungPositionDto[];
-  @ApiPropertyOptional() @IsOptional() @IsNumber() @IsPositive() kunden_id?: number;
+  @ApiProperty({ type: [RechnungPositionDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => RechnungPositionDto)
+  positionen!: RechnungPositionDto[];
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  kunden_id?: number;
 }
 
 export class UpdateAngebotDto extends CreateAngebotDto {}

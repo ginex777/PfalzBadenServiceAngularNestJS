@@ -13,7 +13,9 @@ describe('BenachrichtigungenController', () => {
       providers: [{ provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
-    controller = module.get<BenachrichtigungenController>(BenachrichtigungenController);
+    controller = module.get<BenachrichtigungenController>(
+      BenachrichtigungenController,
+    );
   });
 
   it('should be defined', () => {

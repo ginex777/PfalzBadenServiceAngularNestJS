@@ -34,7 +34,8 @@ export class DashboardComponent implements OnInit {
   }
 
   protected muellTerminBadge(abholung: string): string {
-    const heute = new Date(); heute.setHours(0, 0, 0, 0);
+    const heute = new Date();
+    heute.setHours(0, 0, 0, 0);
     const diff = Math.round((new Date(abholung).getTime() - heute.getTime()) / MS_PER_DAY);
     if (diff === 0) return 'Heute!';
     if (diff === 1) return 'Morgen';
@@ -42,7 +43,8 @@ export class DashboardComponent implements OnInit {
   }
 
   protected muellTerminBadgeKlasse(abholung: string): string {
-    const heute = new Date(); heute.setHours(0, 0, 0, 0);
+    const heute = new Date();
+    heute.setHours(0, 0, 0, 0);
     const diff = Math.round((new Date(abholung).getTime() - heute.getTime()) / MS_PER_DAY);
     if (diff === 0) return 'badge-danger';
     if (diff === 1) return 'badge-warning';
@@ -52,12 +54,16 @@ export class DashboardComponent implements OnInit {
   protected aktivitaetDatumFormatieren(datum: string | undefined): string {
     if (!datum) return '–';
     const d = new Date(datum);
-    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
-      + ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    return (
+      d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+      ' ' +
+      d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+    );
   }
 
   protected einsatzDatumBadge(datum: string): string {
-    const heute = new Date(); heute.setHours(0, 0, 0, 0);
+    const heute = new Date();
+    heute.setHours(0, 0, 0, 0);
     const diff = Math.round((new Date(datum).getTime() - heute.getTime()) / MS_PER_DAY);
     if (diff === 0) return 'Heute';
     if (diff === 1) return 'Morgen';

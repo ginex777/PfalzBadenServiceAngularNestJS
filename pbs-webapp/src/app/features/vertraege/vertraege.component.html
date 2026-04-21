@@ -1,5 +1,4 @@
 <div class="page-wrap">
-
   <!-- ── Header ─────────────────────────────────────────────────── -->
   <div class="page-header">
     <div class="page-header__left">
@@ -19,11 +18,19 @@
   }
   <!-- ══════════════════════ LISTE ════════════════════════════════ -->
   @if (ansicht() === 'liste') {
-
     <div class="filter-bar">
-      <input class="search-input" type="search" placeholder="Suchen…"
-             [ngModel]="suchbegriff()" (ngModelChange)="suchbegriff.set($event)" />
-      <select class="filter-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+      <input
+        class="search-input"
+        type="search"
+        placeholder="Suchen…"
+        [ngModel]="suchbegriff()"
+        (ngModelChange)="suchbegriff.set($event)"
+      />
+      <select
+        class="filter-select"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event)"
+      >
         <option value="alle">Alle Status</option>
         <option value="aktiv">Aktiv</option>
         <option value="beendet">Beendet</option>
@@ -57,7 +64,7 @@
               </div>
               <div class="vc-meta-row">
                 <span class="meta-label">Beginn</span>
-                <span>{{ v.vertragsbeginn | date:'dd.MM.yyyy' }}</span>
+                <span>{{ v.vertragsbeginn | date: 'dd.MM.yyyy' }}</span>
               </div>
               <div class="vc-meta-row">
                 <span class="meta-label">Laufzeit</span>
@@ -65,7 +72,9 @@
               </div>
               <div class="vc-meta-row">
                 <span class="meta-label">Rate / Monat</span>
-                <span>{{ v.monatliche_rate | currency:'EUR':'symbol':'1.2-2':'de-DE' }}</span>
+                <span>{{
+                  v.monatliche_rate | currency: 'EUR' : 'symbol' : '1.2-2' : 'de-DE'
+                }}</span>
               </div>
             </div>
 
@@ -92,8 +101,11 @@
         <div class="form-grid">
           <label class="form-label">
             Kunde wählen
-            <select class="form-input" [ngModel]="formVertrag().kunden_id ?? ''"
-                    (ngModelChange)="kundeGewaehlt($event)">
+            <select
+              class="form-input"
+              [ngModel]="formVertrag().kunden_id ?? ''"
+              (ngModelChange)="kundeGewaehlt($event)"
+            >
               <option value="">– Kunden auswählen –</option>
               @for (k of kunden(); track k.id) {
                 <option [value]="k.id">{{ k.name }}</option>
@@ -103,20 +115,32 @@
 
           <label class="form-label">
             Name *
-            <input class="form-input" type="text" [ngModel]="formVertrag().kunden_name ?? ''"
-                   (ngModelChange)="formVertrag.update(f => ({...f, kunden_name: $event}))" />
+            <input
+              class="form-input"
+              type="text"
+              [ngModel]="formVertrag().kunden_name ?? ''"
+              (ngModelChange)="formVertrag.update((f) => ({ ...f, kunden_name: $event }))"
+            />
           </label>
 
           <label class="form-label">
             Straße
-            <input class="form-input" type="text" [ngModel]="formVertrag().kunden_strasse ?? ''"
-                   (ngModelChange)="formVertrag.update(f => ({...f, kunden_strasse: $event}))" />
+            <input
+              class="form-input"
+              type="text"
+              [ngModel]="formVertrag().kunden_strasse ?? ''"
+              (ngModelChange)="formVertrag.update((f) => ({ ...f, kunden_strasse: $event }))"
+            />
           </label>
 
           <label class="form-label">
             Ort
-            <input class="form-input" type="text" [ngModel]="formVertrag().kunden_ort ?? ''"
-                   (ngModelChange)="formVertrag.update(f => ({...f, kunden_ort: $event}))" />
+            <input
+              class="form-input"
+              type="text"
+              [ngModel]="formVertrag().kunden_ort ?? ''"
+              (ngModelChange)="formVertrag.update((f) => ({ ...f, kunden_ort: $event }))"
+            />
           </label>
         </div>
       </div>
@@ -125,9 +149,11 @@
         <h3>Vertragsart</h3>
         <div class="vorlage-grid">
           @for (vl of vorlagen; track vl.id) {
-            <button class="vorlage-btn"
-                    [class.vorlage-btn--aktiv]="formVertrag().vorlage === vl.id"
-                    (click)="titelAktualisieren(vl.id)">
+            <button
+              class="vorlage-btn"
+              [class.vorlage-btn--aktiv]="formVertrag().vorlage === vl.id"
+              (click)="titelAktualisieren(vl.id)"
+            >
               <strong>{{ vl.label }}</strong>
               <span>{{ vl.beschreibung }}</span>
             </button>
@@ -140,39 +166,66 @@
         <div class="form-grid">
           <label class="form-label span-2">
             Titel *
-            <input class="form-input" type="text" [ngModel]="formVertrag().titel ?? ''"
-                   (ngModelChange)="formVertrag.update(f => ({...f, titel: $event}))" />
+            <input
+              class="form-input"
+              type="text"
+              [ngModel]="formVertrag().titel ?? ''"
+              (ngModelChange)="formVertrag.update((f) => ({ ...f, titel: $event }))"
+            />
           </label>
 
           <label class="form-label">
             Vertragsbeginn *
-            <input class="form-input" type="date" [ngModel]="formVertrag().vertragsbeginn ?? ''"
-                   (ngModelChange)="formVertrag.update(f => ({...f, vertragsbeginn: $event}))" />
+            <input
+              class="form-input"
+              type="date"
+              [ngModel]="formVertrag().vertragsbeginn ?? ''"
+              (ngModelChange)="formVertrag.update((f) => ({ ...f, vertragsbeginn: $event }))"
+            />
           </label>
 
           <label class="form-label">
             Laufzeit (Monate)
-            <input class="form-input" type="number" min="1" [ngModel]="formVertrag().laufzeit_monate ?? 12"
-                   (ngModelChange)="formVertrag.update(f => ({...f, laufzeit_monate: +$event}))" />
+            <input
+              class="form-input"
+              type="number"
+              min="1"
+              [ngModel]="formVertrag().laufzeit_monate ?? 12"
+              (ngModelChange)="formVertrag.update((f) => ({ ...f, laufzeit_monate: +$event }))"
+            />
           </label>
 
           <label class="form-label">
             Monatliche Rate (€)
-            <input class="form-input" type="number" min="0" step="0.01" [ngModel]="formVertrag().monatliche_rate ?? 0"
-                   (ngModelChange)="formVertrag.update(f => ({...f, monatliche_rate: +$event}))" />
+            <input
+              class="form-input"
+              type="number"
+              min="0"
+              step="0.01"
+              [ngModel]="formVertrag().monatliche_rate ?? 0"
+              (ngModelChange)="formVertrag.update((f) => ({ ...f, monatliche_rate: +$event }))"
+            />
           </label>
 
           <label class="form-label">
             Kündigungsfrist (Monate)
-            <input class="form-input" type="number" min="1" [ngModel]="formVertrag().kuendigungsfrist ?? 3"
-                   (ngModelChange)="formVertrag.update(f => ({...f, kuendigungsfrist: +$event}))" />
+            <input
+              class="form-input"
+              type="number"
+              min="1"
+              [ngModel]="formVertrag().kuendigungsfrist ?? 3"
+              (ngModelChange)="formVertrag.update((f) => ({ ...f, kuendigungsfrist: +$event }))"
+            />
           </label>
 
           @if (ansicht() === 'bearbeiten') {
             <label class="form-label">
               Status
-              <select class="form-input" [ngModel]="formVertrag().status ?? 'aktiv'"
-                      (ngModelChange)="formVertrag.update(f => ({...f, status: $event}))">
+              <select
+                class="form-input"
+                [ngModel]="formVertrag().status ?? 'aktiv'"
+                (ngModelChange)="formVertrag.update((f) => ({ ...f, status: $event }))"
+              >
                 <option value="aktiv">Aktiv</option>
                 <option value="beendet">Beendet</option>
                 <option value="gekuendigt">Gekündigt</option>
@@ -182,9 +235,13 @@
 
           <label class="form-label span-2">
             Leistungsumfang
-            <textarea class="form-input" rows="4" [ngModel]="formVertrag().leistungsumfang ?? ''"
-                      (ngModelChange)="formVertrag.update(f => ({...f, leistungsumfang: $event}))"
-                      placeholder="Beschreibung der zu erbringenden Leistungen…"></textarea>
+            <textarea
+              class="form-input"
+              rows="4"
+              [ngModel]="formVertrag().leistungsumfang ?? ''"
+              (ngModelChange)="formVertrag.update((f) => ({ ...f, leistungsumfang: $event }))"
+              placeholder="Beschreibung der zu erbringenden Leistungen…"
+            ></textarea>
           </label>
         </div>
       </div>
@@ -192,10 +249,15 @@
       <div class="form-actions">
         <button class="btn-secondary" (click)="abbrechen()">Abbrechen</button>
         <button class="btn-primary" [disabled]="laedt()" (click)="speichern()">
-          {{ laedt() ? 'Speichern…' : (ansicht() === 'neu' ? 'Vertrag erstellen' : 'Änderungen speichern') }}
+          {{
+            laedt()
+              ? 'Speichern…'
+              : ansicht() === 'neu'
+                ? 'Vertrag erstellen'
+                : 'Änderungen speichern'
+          }}
         </button>
       </div>
     </div>
   }
-
 </div>

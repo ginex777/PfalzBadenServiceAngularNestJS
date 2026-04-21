@@ -26,7 +26,9 @@ export class AuditLogComponent implements OnInit {
     { id: 'DELETE', label: 'Gelöscht' },
   ];
 
-  ngOnInit(): void { this.facade.ladeDaten(); }
+  ngOnInit(): void {
+    this.facade.ladeDaten();
+  }
 
   protected suchbegriffGeaendert(event: Event): void {
     this.facade.suchbegriffAktualisieren((event.target as HTMLInputElement).value);
@@ -42,8 +44,12 @@ export class AuditLogComponent implements OnInit {
 
   protected zeitstempelFormatieren(ts: string): string {
     return new Date(ts).toLocaleString('de-DE', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
     });
   }
 

@@ -1,7 +1,18 @@
 import {
-  Controller, Post, Get, Delete, Patch, Body, Req, Param, ParseIntPipe, HttpCode, HttpStatus, UseGuards,
+  Controller,
+  Post,
+  Get,
+  Delete,
+  Patch,
+  Body,
+  Req,
+  Param,
+  ParseIntPipe,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -19,14 +30,14 @@ export class AuthController {
   @Public()
   @Post('setup')
   setup(@Body() dto: SetupDto) {
-    return this.auth.ersteinrichtung(dto);
+    return this.auth.setup(dto);
   }
 
   /** Check whether first-run setup is still required */
   @Public()
   @Post('setup/status')
   async setupStatus() {
-    const required = await this.auth.istErsteinrichtung();
+    const required = await this.auth.isFirstRun();
     return { setupRequired: required };
   }
 
@@ -54,45 +65,65 @@ export class AuthController {
   @Get('users')
   @UseGuards(RolesGuard)
   @Roles('admin')
-  userListe() {
-    return this.auth.userListe();
+  listUsers() {
+    return this.auth.listUsers();
   }
 
   @Post('users')
   @UseGuards(RolesGuard)
   @Roles('admin')
-  userAnlegen(
-    @Body() body: { email: string; password: string; rolle: 'admin' | 'readonly' | 'mitarbeiter'; vorname?: string; nachname?: string },
+  createUser(
+    @Body()
+    body: {
+      email: string;
+      password: string;
+      rolle: 'admin' | 'readonly' | 'mitarbeiter';
+      vorname?: string;
+      nachname?: string;
+    },
     @Req() req: Request & { user?: { email: string; fullName?: string } },
   ) {
     const erstelltVon = req.user?.email ?? 'admin';
     const erstelltVonName = req.user?.fullName ?? req.user?.email ?? 'admin';
-    return this.auth.userAnlegen(body.email, body.password, body.rolle, erstelltVon, body.vorname, body.nachname, erstelltVonName);
+    return this.auth.createUser(
+      body.email,
+      body.password,
+      body.rolle,
+      erstelltVon,
+      body.vorname,
+      body.nachname,
+      erstelltVonName,
+    );
   }
 
   @Delete('users/:id')
   @UseGuards(RolesGuard)
   @Roles('admin')
   @HttpCode(HttpStatus.OK)
-  userLoeschen(
+  deleteUser(
     @Param('id', ParseIntPipe) id: number,
     @Req() req: Request & { user?: { email: string; fullName?: string } },
   ) {
     const geloeschtVon = req.user?.email ?? 'admin';
     const geloeschtVonName = req.user?.fullName ?? req.user?.email ?? 'admin';
-    return this.auth.userLoeschen(BigInt(id), geloeschtVon, geloeschtVonName);
+    return this.auth.deleteUser(BigInt(id), geloeschtVon, geloeschtVonName);
   }
 
   @Patch('users/:id')
   @UseGuards(RolesGuard)
   @Roles('admin')
-  userAktualisieren(
+  updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { vorname?: string; nachname?: string; rolle?: string },
     @Req() req: Request & { user?: { email: string; fullName?: string } },
   ) {
     const geaendertVon = req.user?.email ?? 'admin';
     const geaendertVonName = req.user?.fullName ?? req.user?.email ?? 'admin';
-    return this.auth.userAktualisieren(BigInt(id), body, geaendertVon, geaendertVonName);
+    return this.auth.updateUser(
+      BigInt(id),
+      body,
+      geaendertVon,
+      geaendertVonName,
+    );
   }
 }

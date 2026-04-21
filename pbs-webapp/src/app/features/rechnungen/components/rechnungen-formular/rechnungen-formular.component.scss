@@ -42,7 +42,6 @@
   margin-bottom: 1rem;
 }
 
-
 .form-section {
   display: flex;
   flex-direction: column;
@@ -62,8 +61,13 @@
   flex-direction: column;
   gap: 0.3rem;
 
-  &--wide { flex: 2; }
-  &--narrow { flex: 0 0 120px; min-width: 100px; }
+  &--wide {
+    flex: 2;
+  }
+  &--narrow {
+    flex: 0 0 120px;
+    min-width: 100px;
+  }
 
   label {
     font-size: 12px;
@@ -71,7 +75,9 @@
     color: var(--gray-600);
   }
 
-  input, select, textarea {
+  input,
+  select,
+  textarea {
     padding: 0.45rem 0.6rem;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
@@ -94,7 +100,10 @@
     }
   }
 
-  textarea { resize: vertical; min-height: 60px; }
+  textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
 }
 
 .hint-label {
@@ -141,13 +150,21 @@
 }
 
 .form-section-collapsible {
-  &[open] .section-title--collapsible::before { transform: rotate(0deg); }
+  &[open] .section-title--collapsible::before {
+    transform: rotate(0deg);
+  }
 
-  &:not([open]) .section-title--collapsible::before { transform: rotate(-90deg); }
+  &:not([open]) .section-title--collapsible::before {
+    transform: rotate(-90deg);
+  }
 
-  summary { outline: none; }
+  summary {
+    outline: none;
+  }
 
-  .form-section { margin-top: 0.5rem; }
+  .form-section {
+    margin-top: 0.5rem;
+  }
 }
 
 .positions-wrapper {
@@ -176,13 +193,30 @@
     vertical-align: top;
   }
 
-  .pos-nr { width: 40px; text-align: center; color: var(--gray-400); }
-  .pos-stunden { width: 90px; }
-  .pos-preis { width: 130px; }
-  .pos-action { width: 80px; }
-  .pos-actions { white-space: nowrap; display: flex; gap: 4px; align-items: center; vertical-align: middle; }
+  .pos-nr {
+    width: 40px;
+    text-align: center;
+    color: var(--gray-400);
+  }
+  .pos-stunden {
+    width: 90px;
+  }
+  .pos-preis {
+    width: 130px;
+  }
+  .pos-action {
+    width: 80px;
+  }
+  .pos-actions {
+    white-space: nowrap;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    vertical-align: middle;
+  }
 
-  input, textarea {
+  input,
+  textarea {
     width: 100%;
     padding: 0.35rem 0.4rem;
     border: 1px solid var(--border);
@@ -196,30 +230,9 @@
     }
   }
 
-  textarea { resize: vertical; min-height: 48px; }
-}
-
-
-.btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover { background: var(--gray-100); }
-
-  &-sm { padding: 0.35rem 0.75rem; font-size: 12px; }
-
-  &-primary {
-    background: var(--primary);
-    color: var(--gray-0);
-    border-color: var(--primary);
-
-    &:hover:not(:disabled) { background: var(--primary-hover); border-color: var(--primary-hover); color: var(--gray-0); }
-    &:disabled { opacity: 0.6; cursor: not-allowed; }
+  textarea {
+    resize: vertical;
+    min-height: 48px;
   }
 }
 
@@ -239,7 +252,9 @@
   font-size: 13px;
   border-bottom: 1px solid var(--border);
 
-  &:last-child { border-bottom: none; }
+  &:last-child {
+    border-bottom: none;
+  }
 
   &--total {
     font-weight: 700;

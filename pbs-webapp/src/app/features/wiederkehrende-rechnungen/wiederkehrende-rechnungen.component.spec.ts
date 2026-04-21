@@ -7,7 +7,7 @@ describe('WiederkehrendeRechnungenComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [WiederkehrendeRechnungenComponent]
+      declarations: [WiederkehrendeRechnungenComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WiederkehrendeRechnungenComponent);

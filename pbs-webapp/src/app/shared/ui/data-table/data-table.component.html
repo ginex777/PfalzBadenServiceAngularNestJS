@@ -23,11 +23,7 @@
       </thead>
       <tbody>
         @for (zeile of zeilen(); track $index) {
-          <tr
-            class="data-table__zeile"
-            (click)="zeilenKlickAusfuehren(zeile)"
-            role="row"
-          >
+          <tr class="data-table__zeile" (click)="zeilenKlickAusfuehren(zeile)" role="row">
             @for (spalte of spalten(); track spalte.schluessel) {
               <td
                 [class.data-table__td--rechts]="spalte.ausrichtung === 'rechts'"

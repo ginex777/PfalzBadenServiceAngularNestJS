@@ -7,7 +7,7 @@ describe('MonatsErgebnisComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MonatsErgebnisComponent]
+      declarations: [MonatsErgebnisComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MonatsErgebnisComponent);

@@ -3,7 +3,13 @@ import { DatevService } from './datev.service';
 import { BrowserService } from '../../core/services/browser.service';
 import { ToastService } from '../../core/services/toast.service';
 import { FirmaSettings } from '../../core/models';
-import { DatevZeitraumTyp, DatevVorschauZeile, DatevValidierungsMeldung, QUARTAL_MONATE, QUARTAL_LABELS } from './datev.models';
+import {
+  DatevZeitraumTyp,
+  DatevVorschauZeile,
+  DatevValidierungsMeldung,
+  QUARTAL_MONATE,
+  QUARTAL_LABELS,
+} from './datev.models';
 import { MONATE } from '../../core/utils/format.utils';
 
 @Injectable({ providedIn: 'root' })
@@ -20,7 +26,13 @@ export class DatevFacade {
   readonly meldungen = signal<DatevValidierungsMeldung[]>([]);
   readonly firma = signal<FirmaSettings>({});
   readonly exportBereit = signal(false);
-  readonly stats = signal<{ totalInc: number; totalExp: number; sumIncNetto: number; sumExpNetto: number; zahllast: number } | null>(null);
+  readonly stats = signal<{
+    totalInc: number;
+    totalExp: number;
+    sumIncNetto: number;
+    sumExpNetto: number;
+    zahllast: number;
+  } | null>(null);
 
   readonly verfuegbareJahre = computed(() => {
     const j = new Date().getFullYear();
@@ -52,16 +64,19 @@ export class DatevFacade {
         const typ = this.zeitraumTyp();
         if (typ in QUARTAL_MONATE) {
           const qm = new Set(QUARTAL_MONATE[typ]);
-          zeilen = zeilen.filter(r => r.datum && qm.has(new Date(r.datum).getMonth()));
+          zeilen = zeilen.filter((r) => r.datum && qm.has(new Date(r.datum).getMonth()));
         }
         this.vorschauZeilen.set(zeilen);
         this.stats.set(vorschau.stats ?? null);
         this.exportBereit.set(zeilen.length > 0);
         this.laedt.set(false);
       },
-      error: () => { this.toast.error('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => {
+        this.toast.error('Daten konnten nicht geladen werden.');
+        this.laedt.set(false);
+      },
     });
-    this.service.firmaLaden().subscribe({ next: f => this.firma.set(f), error: () => {} });
+    this.service.firmaLaden().subscribe({ next: (f) => this.firma.set(f), error: () => {} });
   }
 
   zeitraumTypSetzen(typ: DatevZeitraumTyp): void {
@@ -69,16 +84,26 @@ export class DatevFacade {
     this.ladeDaten();
   }
 
-  jahrSetzen(jahr: number): void { this.aktuellesJahr.set(jahr); this.ladeDaten(); }
-  monatSetzen(monat: number): void { this.aktiverMonat.set(monat); this.ladeDaten(); }
+  jahrSetzen(jahr: number): void {
+    this.aktuellesJahr.set(jahr);
+    this.ladeDaten();
+  }
+  monatSetzen(monat: number): void {
+    this.aktiverMonat.set(monat);
+    this.ladeDaten();
+  }
 
   csvExportieren(): void {
     const { jahr, monat } = this.apiParameter();
-    this.browser.blobOeffnen(this.service.exportUrl(jahr, monat)).catch(() => this.toast.error('CSV-Export fehlgeschlagen.'));
+    this.browser
+      .blobOeffnen(this.service.exportUrl(jahr, monat))
+      .catch(() => this.toast.error('CSV-Export fehlgeschlagen.'));
   }
 
   excelExportieren(): void {
     const { jahr, monat } = this.apiParameter();
-    this.browser.blobOeffnen(this.service.excelUrl(jahr, monat)).catch(() => this.toast.error('Excel-Export fehlgeschlagen.'));
+    this.browser
+      .blobOeffnen(this.service.excelUrl(jahr, monat))
+      .catch(() => this.toast.error('Excel-Export fehlgeschlagen.'));
   }
 }

@@ -9,15 +9,24 @@ export type { DatevVorschauAntwort };
 export class DatevService {
   private readonly api = inject(ApiService);
 
-  validierenUndVorschauLaden(jahr: number, monat: number): Observable<{ validierung: DatevVorschauAntwort; vorschau: DatevVorschauAntwort }> {
+  validierenUndVorschauLaden(
+    jahr: number,
+    monat: number,
+  ): Observable<{ validierung: DatevVorschauAntwort; vorschau: DatevVorschauAntwort }> {
     return forkJoin({
-      validierung: this.api.datevValidieren(jahr, monat),
-      vorschau: this.api.datevVorschauLaden(jahr, monat),
+      validierung: this.api.validateDatev(jahr, monat),
+      vorschau: this.api.loadDatevPreview(jahr, monat),
     });
   }
 
-  firmaLaden(): Observable<FirmaSettings> { return this.api.einstellungenLaden('firma'); }
+  firmaLaden(): Observable<FirmaSettings> {
+    return this.api.loadSettings('firma');
+  }
 
-  exportUrl(jahr: number, monat: number): string { return this.api.datevExportUrl(jahr, monat); }
-  excelUrl(jahr: number, monat: number): string { return this.api.datevExcelUrl(jahr, monat); }
+  exportUrl(jahr: number, monat: number): string {
+    return this.api.getDatevExportUrl(jahr, monat);
+  }
+  excelUrl(jahr: number, monat: number): string {
+    return this.api.getDatevExcelUrl(jahr, monat);
+  }
 }

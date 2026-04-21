@@ -1,5 +1,3 @@
-import { WiederkehrendeAusgabe } from '../../core/models';
-
 export interface WiederkehrendeAusgabeFormularDaten {
   name: string;
   kategorie: string;
@@ -11,5 +9,11 @@ export interface WiederkehrendeAusgabeFormularDaten {
 }
 
 export const LEERES_FORMULAR: WiederkehrendeAusgabeFormularDaten = {
-  name: '', kategorie: 'Betriebsausgabe', brutto: 0, mwst: 19, abzug: 100, belegnr: '', aktiv: true,
+  name: '',
+  kategorie: 'Betriebsausgabe',
+  brutto: 0,
+  mwst: 19,
+  abzug: 100,
+  belegnr: '',
+  aktiv: true,
 };

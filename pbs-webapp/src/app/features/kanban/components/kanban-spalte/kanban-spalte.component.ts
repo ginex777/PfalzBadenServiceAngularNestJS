@@ -18,10 +18,10 @@ export class KanbanSpalteComponent {
   readonly dragTaskId = input<number | null>(null);
 
   readonly taskBearbeiten = output<Task>();
-  readonly taskLoeschen = output<number>();
+  readonly deleteTask = output<number>();
   readonly dragStart = output<number>();
   readonly dragEnd = output<void>();
-  readonly drop = output<KanbanSpalte>();
+  readonly spalteDrop = output<KanbanSpalte>();
   readonly schnellHinzufuegen = output<{ titel: string; status: KanbanSpalte }>();
 
   protected readonly prioritaetFarben = PRIORITAET_FARBEN;
@@ -35,12 +35,14 @@ export class KanbanSpalteComponent {
     this.dragOver = true;
   }
 
-  protected onDragLeave(): void { this.dragOver = false; }
+  protected onDragLeave(): void {
+    this.dragOver = false;
+  }
 
   protected onDrop(event: DragEvent): void {
     event.preventDefault();
     this.dragOver = false;
-    this.drop.emit(this.spalteId());
+    this.spalteDrop.emit(this.spalteId());
   }
 
   protected onDragStart(taskId: number, event: DragEvent): void {
@@ -52,7 +54,8 @@ export class KanbanSpalteComponent {
     this.schnellTitel = (event.target as HTMLInputElement).value;
   }
 
-  protected schnellHinzufuegenAusfuehren(): void {    if (!this.schnellTitel.trim()) return;
+  protected schnellHinzufuegenAusfuehren(): void {
+    if (!this.schnellTitel.trim()) return;
     this.schnellHinzufuegen.emit({ titel: this.schnellTitel.trim(), status: this.spalteId() });
     this.schnellTitel = '';
   }

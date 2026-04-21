@@ -33,7 +33,9 @@
             <td>
               @if (k.email) {
                 <a [href]="'mailto:' + k.email" class="link">{{ k.email }}</a>
-              } @else { – }
+              } @else {
+                –
+              }
             </td>
             <td>{{ k.tel || '–' }}</td>
             <td>{{ k.ort || '–' }}</td>
@@ -47,11 +49,25 @@
             </td>
             <td>{{ datumFormatieren(k.datum) }}</td>
             <td class="td-aktionen">
-              <button class="btn-action" title="E-Mail senden" (click)="senden.emit(k)">Senden</button>
-              <button class="btn-action" title="Status ändern" (click)="statusSetzen.emit(k)">Status</button>
-              <button class="btn-action" title="Zu Kunde konvertieren" (click)="zuKunde.emit(k)">→ Kunde</button>
-              <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(k)">Bearbeiten</button>
-              <button class="btn-action btn-action--danger" title="Löschen" (click)="loeschen.emit(k.id)">Löschen</button>
+              <button class="btn-action" title="E-Mail senden" (click)="senden.emit(k)">
+                Senden
+              </button>
+              <button class="btn-action" title="Status ändern" (click)="statusSetzen.emit(k)">
+                Status
+              </button>
+              <button class="btn-action" title="Zu Kunde konvertieren" (click)="zuKunde.emit(k)">
+                → Kunde
+              </button>
+              <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(k)">
+                Bearbeiten
+              </button>
+              <button
+                class="btn-action btn-action--danger"
+                title="Löschen"
+                (click)="loeschen.emit(k.id)"
+              >
+                Löschen
+              </button>
             </td>
           </tr>
         }

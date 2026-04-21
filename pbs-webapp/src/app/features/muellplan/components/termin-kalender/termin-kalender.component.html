@@ -27,7 +27,9 @@
       class="btn btn-sm"
       [class.btn-filter-aktiv]="hatAktivenFilter()"
       (click)="filterOeffnen.emit()"
-    >Filter</button>
+    >
+      Filter
+    </button>
     <button class="btn btn-sm" (click)="vorlageAnwenden.emit()">Vorlage anwenden</button>
     <button class="btn btn-sm" (click)="pdfErstellen.emit()">Monatsabschluss</button>
     <button class="btn btn-sm" (click)="bearbeiten.emit()">Bearbeiten</button>
@@ -43,7 +45,9 @@
       <div class="naechster-termin" [class]="'naechster-termin--' + t.status">
         <span class="termin-punkt" [style.background]="t.farbe"></span>
         {{ t.muellart }} — {{ naechsterLabel(t) }}
-        <span class="naechster-termin__abholung">(Abholung {{ datumFormatieren(t.abholungAnzeige) }})</span>
+        <span class="naechster-termin__abholung"
+          >(Abholung {{ datumFormatieren(t.abholungAnzeige) }})</span
+        >
       </div>
     }
   </div>
@@ -93,12 +97,20 @@
                   type="checkbox"
                   [checked]="t.erledigt"
                   [disabled]="!erledigtAenderbar(t)"
-                  [title]="!erledigtAenderbar(t) ? 'Erst ab ' + datumFormatieren(t.rausstellen) + ' abhakbar' : ''"
-                  (change)="terminErledigt.emit({ id: t.id, erledigt: $any($event.target).checked })"
+                  [title]="
+                    !erledigtAenderbar(t)
+                      ? 'Erst ab ' + datumFormatieren(t.rausstellen) + ' abhakbar'
+                      : ''
+                  "
+                  (change)="
+                    terminErledigt.emit({ id: t.id, erledigt: $any($event.target).checked })
+                  "
                 />
               </td>
               <td class="col-aktion">
-                <button class="btn-action btn-action-danger" (click)="terminLoeschen.emit(t.id)">Löschen</button>
+                <button class="btn-action btn-action-danger" (click)="terminLoeschen.emit(t.id)">
+                  Löschen
+                </button>
               </td>
             </tr>
           }

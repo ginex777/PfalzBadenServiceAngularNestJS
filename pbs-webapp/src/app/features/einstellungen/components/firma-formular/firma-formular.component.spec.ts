@@ -7,7 +7,7 @@ describe('FirmaFormularComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [FirmaFormularComponent]
+      declarations: [FirmaFormularComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FirmaFormularComponent);

@@ -10,19 +10,21 @@ import { BuchhaltungEintrag } from '../../core/models';
 
 const mockService = {
   jahresDateLaden: jest.fn(),
-  vstLaden: jest.fn(),
-  gesperrteMonateLaden: jest.fn(),
+  loadVst: jest.fn(),
+  loadLockedMonths: jest.fn(),
   batchSpeichern: jest.fn(),
   eintragLoeschen: jest.fn(),
-  monatSperren: jest.fn(),
-  monatEntsperren: jest.fn(),
-  vstSpeichern: jest.fn(),
-  wiederkehrendeAusgabenLaden: jest.fn(),
+  lockMonth: jest.fn(),
+  unlockMonth: jest.fn(),
+  saveVst: jest.fn(),
+  loadRecurringExpenses: jest.fn(),
 };
 
 const mockToast = { success: jest.fn(), error: jest.fn() };
 
-function makeZeile(overrides: Partial<BuchhaltungEintrag & { _tempId: string }> = {}): BuchhaltungEintrag & { _tempId: string } {
+function makeZeile(
+  overrides: Partial<BuchhaltungEintrag & { _tempId: string }> = {},
+): BuchhaltungEintrag & { _tempId: string } {
   return { typ: 'inc', brutto: 100, mwst: 19, abzug: 100, _tempId: 'tmp-1', ...overrides } as any;
 }
 
@@ -32,8 +34,8 @@ describe('BuchhaltungFacade', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockService.jahresDateLaden.mockReturnValue(of({}));
-    mockService.vstLaden.mockReturnValue(of([]));
-    mockService.gesperrteMonateLaden.mockReturnValue(of([]));
+    mockService.loadVst.mockReturnValue(of([]));
+    mockService.loadLockedMonths.mockReturnValue(of([]));
 
     TestBed.configureTestingModule({
       providers: [
@@ -98,7 +100,9 @@ describe('BuchhaltungFacade', () => {
       facade.aktuellerMonat.set(0);
       facade.gesperrteMonateSet.set(new Set());
       // Inject zeile direkt
-      (facade as any)._einnahmenZeilen.set({ 0: [makeZeile({ brutto: 119, mwst: 19, typ: 'inc' })] });
+      (facade as any)._einnahmenZeilen.set({
+        0: [makeZeile({ brutto: 119, mwst: 19, typ: 'inc' })],
+      });
 
       const ergebnis = facade.aktuellesMonatsergebnis();
       expect(ergebnis.einnahmenNetto).toBeCloseTo(100, 1);
@@ -107,7 +111,9 @@ describe('BuchhaltungFacade', () => {
 
     it('berechnet Ausgaben-Vorsteuer mit Abzugsquote', () => {
       facade.aktuellerMonat.set(0);
-      (facade as any)._ausgabenZeilen.set({ 0: [makeZeile({ brutto: 119, mwst: 19, abzug: 50, typ: 'exp' })] });
+      (facade as any)._ausgabenZeilen.set({
+        0: [makeZeile({ brutto: 119, mwst: 19, abzug: 50, typ: 'exp' })],
+      });
 
       const ergebnis = facade.aktuellesMonatsergebnis();
       // Vorsteuer = 19 * 50% = 9.5
@@ -116,8 +122,12 @@ describe('BuchhaltungFacade', () => {
 
     it('berechnet Gewinn = Einnahmen-Netto minus Ausgaben-Netto', () => {
       facade.aktuellerMonat.set(5);
-      (facade as any)._einnahmenZeilen.set({ 5: [makeZeile({ brutto: 119, mwst: 19, typ: 'inc' })] });
-      (facade as any)._ausgabenZeilen.set({ 5: [makeZeile({ brutto: 59.5, mwst: 19, abzug: 100, typ: 'exp' })] });
+      (facade as any)._einnahmenZeilen.set({
+        5: [makeZeile({ brutto: 119, mwst: 19, typ: 'inc' })],
+      });
+      (facade as any)._ausgabenZeilen.set({
+        5: [makeZeile({ brutto: 59.5, mwst: 19, abzug: 100, typ: 'exp' })],
+      });
 
       const ergebnis = facade.aktuellesMonatsergebnis();
       expect(ergebnis.gewinn).toBeCloseTo(50, 0); // ~100 - ~50
@@ -146,7 +156,9 @@ describe('BuchhaltungFacade', () => {
     it('ruft Service auf und zeigt Erfolgs-Toast', async () => {
       facade.aktuellerMonat.set(0);
       facade.gesperrteMonateSet.set(new Set());
-      const saved = [{ id: 1, typ: 'inc', brutto: 100, mwst: 19, abzug: 100 }] as BuchhaltungEintrag[];
+      const saved = [
+        { id: 1, typ: 'inc', brutto: 100, mwst: 19, abzug: 100 },
+      ] as BuchhaltungEintrag[];
       mockService.batchSpeichern.mockReturnValue(of(saved));
 
       await facade.batchSpeichern();

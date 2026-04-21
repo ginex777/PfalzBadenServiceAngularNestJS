@@ -1,18 +1,50 @@
-.termin-liste { display: flex; flex-direction: column; gap: 0.4rem; }
+.termin-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
 .termin-zeile {
-  display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface);
-  &.erledigt { opacity: 0.5; text-decoration: line-through; }
-  &.ueberfaellig { border-color: var(--danger); background: var(--danger-light); }
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  &.erledigt {
+    opacity: 0.5;
+    text-decoration: line-through;
+  }
+  &.ueberfaellig {
+    border-color: var(--danger);
+    background: var(--danger-light);
+  }
 }
-.termin-check { cursor: pointer; }
+.termin-check {
+  cursor: pointer;
+}
 .muell-badge {
-  display: inline-block; padding: 2px 10px; border-radius: 12px;
-  font-size: 11px; font-weight: 600; color: #fff;
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
 }
-.termin-datum { font-size: 13px; color: var(--gray-700); }
+.termin-datum {
+  font-size: 13px;
+  color: var(--gray-700);
+}
 .ueberfaellig-badge {
-  font-size: 10px; font-weight: 700; color: var(--danger);
-  background: #fee2e2; padding: 1px 6px; border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--danger);
+  background: #fee2e2;
+  padding: 1px 6px;
+  border-radius: 10px;
 }
-.termin-aktionen { margin-left: auto; display: flex; gap: 2px; }
+.termin-aktionen {
+  margin-left: auto;
+  display: flex;
+  gap: 2px;
+}

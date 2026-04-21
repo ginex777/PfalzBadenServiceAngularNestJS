@@ -8,10 +8,38 @@ import { API_BASE_URL } from '../../core/tokens';
 import { Task } from '../../core/models';
 
 const testTasks: Task[] = [
-  { id: 1, titel: 'Task A', status: 'todo',       prioritaet: 'hoch',   position: 0, kategorie: 'Allgemein' } as Task,
-  { id: 2, titel: 'Task B', status: 'inprogress',  prioritaet: 'mittel', position: 0, kategorie: 'Allgemein' } as Task,
-  { id: 3, titel: 'Task C', status: 'done',        prioritaet: 'niedrig',position: 0, kategorie: 'Support'   } as Task,
-  { id: 4, titel: 'Task D', status: 'todo',        prioritaet: 'mittel', position: 1, kategorie: 'Support'   } as Task,
+  {
+    id: 1,
+    titel: 'Task A',
+    status: 'todo',
+    prioritaet: 'hoch',
+    position: 0,
+    kategorie: 'Allgemein',
+  } as Task,
+  {
+    id: 2,
+    titel: 'Task B',
+    status: 'inprogress',
+    prioritaet: 'mittel',
+    position: 0,
+    kategorie: 'Allgemein',
+  } as Task,
+  {
+    id: 3,
+    titel: 'Task C',
+    status: 'done',
+    prioritaet: 'niedrig',
+    position: 0,
+    kategorie: 'Support',
+  } as Task,
+  {
+    id: 4,
+    titel: 'Task D',
+    status: 'todo',
+    prioritaet: 'mittel',
+    position: 1,
+    kategorie: 'Support',
+  } as Task,
 ];
 
 const mockService = {
@@ -86,7 +114,12 @@ describe('KanbanFacade', () => {
     it('zeigt alle Tasks wenn Filter leer', () => {
       facade.filterLeeren();
       const spalten = facade.gefilterteTasksProSpalte();
-      expect(spalten.todo.length + spalten.inprogress.length + spalten.done.length + spalten.blocked.length).toBe(4);
+      expect(
+        spalten.todo.length +
+          spalten.inprogress.length +
+          spalten.done.length +
+          spalten.blocked.length,
+      ).toBe(4);
     });
   });
 
@@ -112,9 +145,12 @@ describe('KanbanFacade', () => {
 
       facade.drop('done');
 
-      const task = facade.tasks().find(t => t.id === 1);
+      const task = facade.tasks().find((t) => t.id === 1);
       expect(task?.status).toBe('done');
-      expect(mockService.aktualisieren).toHaveBeenCalledWith(1, expect.objectContaining({ status: 'done' }));
+      expect(mockService.aktualisieren).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ status: 'done' }),
+      );
     });
 
     it('tut nichts wenn kein dragTaskId gesetzt', () => {
@@ -140,7 +176,7 @@ describe('KanbanFacade', () => {
       facade.loeschenAusfuehren();
 
       expect(facade.tasks()).toHaveLength(3);
-      expect(facade.tasks().find(t => t.id === 2)).toBeUndefined();
+      expect(facade.tasks().find((t) => t.id === 2)).toBeUndefined();
     });
 
     it('zeigt Fehler bei Löschen-Fehler', () => {
@@ -157,7 +193,7 @@ describe('KanbanFacade', () => {
 
   describe('speichern()', () => {
     it('zeigt Fehler wenn Titel fehlt', () => {
-      facade.formularDaten.update(d => ({ ...d, titel: '' }));
+      facade.formularDaten.update((d) => ({ ...d, titel: '' }));
       facade.speichern();
       expect(facade.fehler()).toBeTruthy();
       expect(mockService.erstellen).not.toHaveBeenCalled();
@@ -167,11 +203,11 @@ describe('KanbanFacade', () => {
       const neuerTask = { ...testTasks[0], id: 99, titel: 'Neuer Task' };
       mockService.erstellen.mockReturnValue(of(neuerTask));
       facade.bearbeiteterTask.set(null);
-      facade.formularDaten.update(d => ({ ...d, titel: 'Neuer Task', status: 'todo' }));
+      facade.formularDaten.update((d) => ({ ...d, titel: 'Neuer Task', status: 'todo' }));
 
       facade.speichern();
 
-      expect(facade.tasks().find(t => t.id === 99)).toBeTruthy();
+      expect(facade.tasks().find((t) => t.id === 99)).toBeTruthy();
       expect(facade.formularSichtbar()).toBe(false);
     });
   });

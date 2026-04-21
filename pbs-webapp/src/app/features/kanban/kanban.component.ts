@@ -16,7 +16,9 @@ export class KanbanComponent implements OnInit {
   protected readonly facade = inject(KanbanFacade);
   protected readonly spalten = SPALTEN_KONFIGURATION;
 
-  ngOnInit(): void { this.facade.ladeDaten(); }
+  ngOnInit(): void {
+    this.facade.ladeDaten();
+  }
 
   protected filterSuchbegriffGeaendert(event: Event): void {
     this.facade.filterAktualisieren('suchbegriff', (event.target as HTMLInputElement).value);
@@ -34,7 +36,10 @@ export class KanbanComponent implements OnInit {
     this.facade.formularFeldAktualisieren('titel', (event.target as HTMLInputElement).value);
   }
   protected beschreibungGeaendert(event: Event): void {
-    this.facade.formularFeldAktualisieren('beschreibung', (event.target as HTMLTextAreaElement).value);
+    this.facade.formularFeldAktualisieren(
+      'beschreibung',
+      (event.target as HTMLTextAreaElement).value,
+    );
   }
   protected datumGeaendert(event: Event): void {
     this.facade.formularFeldAktualisieren('datum', (event.target as HTMLInputElement).value);
@@ -46,9 +51,15 @@ export class KanbanComponent implements OnInit {
     this.facade.formularFeldAktualisieren('kategorie', (event.target as HTMLSelectElement).value);
   }
   protected prioritaetGeaendert(event: Event): void {
-    this.facade.formularFeldAktualisieren('prioritaet', (event.target as HTMLSelectElement).value as 'hoch' | 'mittel' | 'niedrig');
+    this.facade.formularFeldAktualisieren(
+      'prioritaet',
+      (event.target as HTMLSelectElement).value as 'hoch' | 'mittel' | 'niedrig',
+    );
   }
   protected statusGeaendert(event: Event): void {
-    this.facade.formularFeldAktualisieren('status', (event.target as HTMLSelectElement).value as 'todo' | 'inprogress' | 'done' | 'blocked');
+    this.facade.formularFeldAktualisieren(
+      'status',
+      (event.target as HTMLSelectElement).value as 'todo' | 'inprogress' | 'done' | 'blocked',
+    );
   }
 }

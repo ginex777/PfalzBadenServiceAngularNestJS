@@ -1,8 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MahnungenController } from './mahnungen.controller';
-import { PrismaService } from '../../core/database/prisma.service';
+import { MahnungenService } from './mahnungen.service';
 
-const mockPrisma = {};
+const mockService = {
+  findAllGrouped: jest.fn(),
+  findByInvoice: jest.fn(),
+  create: jest.fn(),
+  delete: jest.fn(),
+  createPdf: jest.fn(),
+};
 
 describe('MahnungenController', () => {
   let controller: MahnungenController;
@@ -10,7 +16,7 @@ describe('MahnungenController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MahnungenController],
-      providers: [{ provide: PrismaService, useValue: mockPrisma }],
+      providers: [{ provide: MahnungenService, useValue: mockService }],
     }).compile();
 
     controller = module.get<MahnungenController>(MahnungenController);

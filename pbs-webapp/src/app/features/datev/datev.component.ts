@@ -24,7 +24,9 @@ export class DatevComponent implements OnInit {
     { id: 'month', label: 'Einzelmonat' },
   ];
 
-  ngOnInit(): void { this.facade.ladeDaten(); }
+  ngOnInit(): void {
+    this.facade.ladeDaten();
+  }
 
   protected jahrGeaendert(event: Event): void {
     this.facade.jahrSetzen(+(event.target as HTMLSelectElement).value);
@@ -35,6 +37,9 @@ export class DatevComponent implements OnInit {
   }
 
   protected fmt(n: number): string {
-    return (parseFloat(String(n)) || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (parseFloat(String(n)) || 0).toLocaleString('de-DE', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   }
 }

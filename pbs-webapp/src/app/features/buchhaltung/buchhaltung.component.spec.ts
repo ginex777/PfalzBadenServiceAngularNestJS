@@ -7,7 +7,7 @@ describe('BuchhaltungComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [BuchhaltungComponent]
+      declarations: [BuchhaltungComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BuchhaltungComponent);

@@ -1,10 +1,16 @@
 <div class="tabelle-container">
   <div class="tabelle-kopf">
     <span class="badge badge--rot">Ausgaben</span>
-    <span class="anzahl">{{ zeilen().length }} Eintr{{ zeilen().length !== 1 ? 'äge' : 'ag' }}</span>
-    <input type="search" class="eingabe eingabe--suche" placeholder="Ausgaben durchsuchen…"
+    <span class="anzahl"
+      >{{ zeilen().length }} Eintr{{ zeilen().length !== 1 ? 'äge' : 'ag' }}</span
+    >
+    <input
+      type="search"
+      class="eingabe eingabe--suche"
+      placeholder="Ausgaben durchsuchen…"
       [value]="suchbegriff"
-      (input)="suchbegriff = $any($event.target).value" />
+      (input)="suchbegriff = $any($event.target).value"
+    />
     @if (!istGesperrt()) {
       <button
         class="btn-wiederkehrend"
@@ -24,22 +30,24 @@
         [class.chip--aktiv]="kategorieFilter === ''"
         (click)="kategorieChipKlicken('')"
         type="button"
-      >Alle ({{ zeilen().length }})</button>
+      >
+        Alle ({{ zeilen().length }})
+      </button>
       @for (kat of verwendeteKategorien(); track kat) {
         <button
           class="chip"
           [class.chip--aktiv]="kategorieFilter === kat"
           (click)="kategorieChipKlicken(kat)"
           type="button"
-        >{{ kat }} ({{ kategorieAnzahl(kat) }})</button>
+        >
+          {{ kat }} ({{ kategorieAnzahl(kat) }})
+        </button>
       }
     </div>
   }
 
   @if (istGesperrt()) {
-    <div class="gesperrt-banner">
-      Gesperrt (GoBD §146 AO) — nur lesbar.
-    </div>
+    <div class="gesperrt-banner">Gesperrt (GoBD §146 AO) — nur lesbar.</div>
   }
 
   <div class="tabelle-scroll">
@@ -49,21 +57,38 @@
           <th class="col-kategorie">Kategorie</th>
           <th class="col-belegnr">
             Beleg-Nr.
-            <button class="btn-help" type="button"
-              title="Belegnummer (GoBD-Pflicht nach §146 AO): Jede Buchung muss einer eindeutigen Belegnummer zugeordnet sein, um die lückenlose Nachvollziehbarkeit sicherzustellen.">?</button>
+            <button
+              class="btn-help"
+              type="button"
+              title="Belegnummer (GoBD-Pflicht nach §146 AO): Jede Buchung muss einer eindeutigen Belegnummer zugeordnet sein, um die lückenlose Nachvollziehbarkeit sicherzustellen."
+            >
+              ?
+            </button>
           </th>
           <th class="col-bezeichnung">Bezeichnung</th>
           <th class="col-datum">Datum</th>
           <th class="col-brutto">Brutto</th>
           <th class="col-mwst">MwSt.</th>
-          <th class="col-abzug">Abzug %
-            <button class="btn-help" type="button"
-              title="Betrieblicher Abzug in %: Welcher Anteil dieser Ausgabe ist betrieblich veranlasst? (z.B. 50% bei gemischt privat/betrieblich genutzten Geräten)">?</button>
+          <th class="col-abzug">
+            Abzug %
+            <button
+              class="btn-help"
+              type="button"
+              title="Betrieblicher Abzug in %: Welcher Anteil dieser Ausgabe ist betrieblich veranlasst? (z.B. 50% bei gemischt privat/betrieblich genutzten Geräten)"
+            >
+              ?
+            </button>
           </th>
           <th class="col-netto">Netto</th>
-          <th class="col-vorsteuer">Vorst.
-            <button class="btn-help" type="button"
-              title="Vorsteuer (§15 UStG): Der abziehbare Umsatzsteueranteil dieser Ausgabe. Nur für VSt-pflichtige Unternehmer relevant.">?</button>
+          <th class="col-vorsteuer">
+            Vorst.
+            <button
+              class="btn-help"
+              type="button"
+              title="Vorsteuer (§15 UStG): Der abziehbare Umsatzsteueranteil dieser Ausgabe. Nur für VSt-pflichtige Unternehmer relevant."
+            >
+              ?
+            </button>
           </th>
           <th class="col-aktionen"></th>
         </tr>
@@ -164,8 +189,16 @@
                 {{ zeile.beleg_id ? 'Beleg' : '+ Beleg' }}
               </button>
               @if (!istGesperrt()) {
-                <button class="btn-kopie" (click)="kopierenKlicken(zeile._tempId)" type="button">Kopie</button>
-                <button class="btn-loeschen" (click)="entfernenKlicken(zeile._tempId)" type="button">Löschen</button>
+                <button class="btn-kopie" (click)="kopierenKlicken(zeile._tempId)" type="button">
+                  Kopie
+                </button>
+                <button
+                  class="btn-loeschen"
+                  (click)="entfernenKlicken(zeile._tempId)"
+                  type="button"
+                >
+                  Löschen
+                </button>
               } @else {
                 <span class="gesperrt-label">Gesperrt</span>
               }
@@ -177,7 +210,11 @@
   </div>
 
   @if (!istGesperrt()) {
-    <button class="btn-hinzufuegen btn-hinzufuegen--rot" (click)="hinzufuegenKlicken()" type="button">
+    <button
+      class="btn-hinzufuegen btn-hinzufuegen--rot"
+      (click)="hinzufuegenKlicken()"
+      type="button"
+    >
       + Ausgabe
     </button>
   }

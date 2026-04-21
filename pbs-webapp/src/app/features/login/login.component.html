@@ -48,9 +48,13 @@
       }
 
       <button type="submit" [disabled]="laedt()">
-        @if (laedt()) { Bitte warten… }
-        @else if (setupModus()) { Admin-Account erstellen }
-        @else { Anmelden }
+        @if (laedt()) {
+          Bitte warten…
+        } @else if (setupModus()) {
+          Admin-Account erstellen
+        } @else {
+          Anmelden
+        }
       </button>
     </form>
   </div>

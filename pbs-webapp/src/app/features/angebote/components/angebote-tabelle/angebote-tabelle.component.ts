@@ -1,7 +1,10 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { Angebot } from '../../../../core/models';
 import { AngebotFilter } from '../../angebote.models';
-import { StatusBadgeComponent, StatusBadgeTyp } from '../../../../shared/ui/status-badge/status-badge.component';
+import {
+  StatusBadgeComponent,
+  StatusBadgeTyp,
+} from '../../../../shared/ui/status-badge/status-badge.component';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { ConfirmModalComponent } from '../../../../shared/ui/confirm-modal/confirm-modal.component';
 import { waehrungFormatieren, datumFormatieren } from '../../../../core/utils/format.utils';
@@ -29,14 +32,27 @@ export class AngeboteTabelleComponent {
 
   protected readonly waehrungFormatieren = waehrungFormatieren;
   protected readonly datumFormatieren = datumFormatieren;
-  protected readonly MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  protected readonly MONATE = [
+    'Jan',
+    'Feb',
+    'Mär',
+    'Apr',
+    'Mai',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Okt',
+    'Nov',
+    'Dez',
+  ];
   protected monatFilter = '';
   protected readonly pendingDeleteId = signal<number | null>(null);
 
   protected gefilterteAngebote(): Angebot[] {
     if (this.monatFilter === '') return this.angebote();
     const m = parseInt(this.monatFilter);
-    return this.angebote().filter(a => a.datum && new Date(a.datum).getMonth() === m);
+    return this.angebote().filter((a) => a.datum && new Date(a.datum).getMonth() === m);
   }
 
   protected onFilterSelectChange(event: Event): void {
@@ -61,7 +77,10 @@ export class AngeboteTabelleComponent {
       this.statusSetzen.emit({ id: angebot.id, status: 'gesendet' }); // reset via gesendet=false
       return;
     }
-    this.statusSetzen.emit({ id: angebot.id, status: status as 'angenommen' | 'abgelehnt' | 'gesendet' });
+    this.statusSetzen.emit({
+      id: angebot.id,
+      status: status as 'angenommen' | 'abgelehnt' | 'gesendet',
+    });
   }
 
   protected loeschenBestaetigen(id: number): void {
@@ -76,7 +95,8 @@ export class AngeboteTabelleComponent {
 
   protected istAbgelaufen(angebot: Angebot): boolean {
     if (!angebot.gueltig_bis || angebot.angenommen || angebot.abgelehnt) return false;
-    const heute = new Date(); heute.setHours(0, 0, 0, 0);
+    const heute = new Date();
+    heute.setHours(0, 0, 0, 0);
     return new Date(angebot.gueltig_bis) < heute;
   }
 

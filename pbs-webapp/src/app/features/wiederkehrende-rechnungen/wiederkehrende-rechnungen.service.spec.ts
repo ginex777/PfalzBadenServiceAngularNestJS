@@ -6,7 +6,7 @@ describe('WiederkehrendeRechnungenService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [WiederkehrendeRechnungenService]
+      providers: [WiederkehrendeRechnungenService],
     });
 
     service = TestBed.inject(WiederkehrendeRechnungenService);

@@ -1,6 +1,12 @@
 @if (sichtbar()) {
   <div class="onboarding-overlay" (click)="schliessen()">
-    <div class="onboarding-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Willkommen bei PBS">
+    <div
+      class="onboarding-modal"
+      (click)="$event.stopPropagation()"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Willkommen bei PBS"
+    >
       <div class="onboarding-header">
         <h2 class="onboarding-titel">Willkommen bei PBS Buchhaltung</h2>
         <p class="onboarding-sub">In 3 Schritten startklar — dauert unter 5 Minuten.</p>
@@ -10,7 +16,11 @@
         <li class="onboarding-schritt" [class.onboarding-schritt--erledigt]="schritte().firma">
           <span class="onboarding-schritt__check">{{ schritte().firma ? '✓' : '1' }}</span>
           <div class="onboarding-schritt__inhalt">
-            <a [routerLink]="['/einstellungen']" (click)="schliessen()" class="onboarding-schritt__link">
+            <a
+              [routerLink]="['/einstellungen']"
+              (click)="schliessen()"
+              class="onboarding-schritt__link"
+            >
               Firmendaten eingeben
             </a>
             <p class="onboarding-schritt__hint">Name, Adresse und Bankverbindung für Rechnungen</p>
@@ -22,16 +32,24 @@
             <a [routerLink]="['/kunden']" (click)="schliessen()" class="onboarding-schritt__link">
               Ersten Kunden anlegen
             </a>
-            <p class="onboarding-schritt__hint">Name, Adresse und E-Mail für automatischen Versand</p>
+            <p class="onboarding-schritt__hint">
+              Name, Adresse und E-Mail für automatischen Versand
+            </p>
           </div>
         </li>
         <li class="onboarding-schritt" [class.onboarding-schritt--erledigt]="schritte().rechnung">
           <span class="onboarding-schritt__check">{{ schritte().rechnung ? '✓' : '3' }}</span>
           <div class="onboarding-schritt__inhalt">
-            <a [routerLink]="['/rechnungen']" (click)="schliessen()" class="onboarding-schritt__link">
+            <a
+              [routerLink]="['/rechnungen']"
+              (click)="schliessen()"
+              class="onboarding-schritt__link"
+            >
               Erste Rechnung erstellen
             </a>
-            <p class="onboarding-schritt__hint">PDF wird automatisch generiert und kann per E-Mail versandt werden</p>
+            <p class="onboarding-schritt__hint">
+              PDF wird automatisch generiert und kann per E-Mail versandt werden
+            </p>
           </div>
         </li>
       </ol>
@@ -41,7 +59,7 @@
           <p class="onboarding-fertig">Alles erledigt — Sie sind startklar!</p>
         }
         <button class="btn btn-primary" (click)="schliessen()" type="button">
-          {{ alleErledigt() ? 'Los geht\'s' : 'Später einrichten' }}
+          {{ alleErledigt() ? "Los geht's" : 'Später einrichten' }}
         </button>
       </div>
     </div>

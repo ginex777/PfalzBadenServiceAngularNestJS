@@ -15,12 +15,12 @@ export class LoginPage {
   private readonly router = inject(Router);
 
   form = new FormGroup({
-    email:    new FormControl('', [Validators.required, Validators.email]),
+    email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required]),
   });
 
   fehler = signal('');
-  laedt  = signal(false);
+  laedt = signal(false);
 
   login() {
     if (this.form.invalid) {

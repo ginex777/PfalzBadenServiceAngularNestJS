@@ -27,7 +27,9 @@
 @if (pendingBulkDelete().length > 0) {
   <app-confirm-modal
     titel="Rechnungen löschen"
-    [nachricht]="pendingBulkDelete().length + ' Rechnungen werden unwiderruflich gelöscht. Fortfahren?'"
+    [nachricht]="
+      pendingBulkDelete().length + ' Rechnungen werden unwiderruflich gelöscht. Fortfahren?'
+    "
     bestaetigenLabel="Alle löschen"
     (bestaetigt)="bulkLoeschenBestaetigt()"
     (abgebrochen)="pendingBulkDelete.set([])"
@@ -36,7 +38,9 @@
 
 @if (laedt()) {
   <div class="skeleton-liste" aria-label="Lade Rechnungen" role="status">
-    @for (i of [1,2,3,4,5,6]; track i) { <div class="skeleton-zeile"></div> }
+    @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+      <div class="skeleton-zeile"></div>
+    }
   </div>
 } @else if (rechnungen().length === 0) {
   <app-empty-state
@@ -47,9 +51,13 @@
   @if (ausgewaehlt().size > 0) {
     <div class="bulk-aktionen">
       <span class="bulk-aktionen__info">{{ ausgewaehlt().size }} ausgewählt</span>
-      <button class="btn btn-sm btn-action--success" (click)="onBulkAlsGezahlt()">Als bezahlt markieren</button>
+      <button class="btn btn-sm btn-action--success" (click)="onBulkAlsGezahlt()">
+        Als bezahlt markieren
+      </button>
       <button class="btn btn-sm" (click)="onBulkCsvExport()">CSV Export</button>
-      <button class="btn btn-sm btn-action--danger" (click)="onBulkLoeschen()">{{ ausgewaehlt().size }} löschen</button>
+      <button class="btn btn-sm btn-action--danger" (click)="onBulkLoeschen()">
+        {{ ausgewaehlt().size }} löschen
+      </button>
       <button class="btn btn-sm" (click)="auswahlLeeren()">Abbrechen</button>
     </div>
   }
@@ -59,25 +67,66 @@
       <thead>
         <tr>
           <th class="col-check">
-            <input type="checkbox" [checked]="alleAusgewaehlt()" (change)="alleToggle($event)" title="Alle auswählen">
+            <input
+              type="checkbox"
+              [checked]="alleAusgewaehlt()"
+              (change)="alleToggle($event)"
+              title="Alle auswählen"
+            />
           </th>
-          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'nr'" (click)="toggleSort('nr')">
-            Nr.<span class="sort-icon">{{ sortSpalte() === 'nr' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          <th
+            class="sortable"
+            [class.sortable--aktiv]="sortSpalte() === 'nr'"
+            (click)="toggleSort('nr')"
+          >
+            Nr.<span class="sort-icon">{{
+              sortSpalte() === 'nr' ? (sortAufsteigend() ? '↑' : '↓') : '↕'
+            }}</span>
           </th>
-          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'titel'" (click)="toggleSort('titel')">
-            Titel<span class="sort-icon">{{ sortSpalte() === 'titel' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          <th
+            class="sortable"
+            [class.sortable--aktiv]="sortSpalte() === 'titel'"
+            (click)="toggleSort('titel')"
+          >
+            Titel<span class="sort-icon">{{
+              sortSpalte() === 'titel' ? (sortAufsteigend() ? '↑' : '↓') : '↕'
+            }}</span>
           </th>
-          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'empf'" (click)="toggleSort('empf')">
-            Empfänger<span class="sort-icon">{{ sortSpalte() === 'empf' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          <th
+            class="sortable"
+            [class.sortable--aktiv]="sortSpalte() === 'empf'"
+            (click)="toggleSort('empf')"
+          >
+            Empfänger<span class="sort-icon">{{
+              sortSpalte() === 'empf' ? (sortAufsteigend() ? '↑' : '↓') : '↕'
+            }}</span>
           </th>
-          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'datum'" (click)="toggleSort('datum')">
-            Datum<span class="sort-icon">{{ sortSpalte() === 'datum' ? (sortAufsteigend() ? '↑' : '↓') : '↓' }}</span>
+          <th
+            class="sortable"
+            [class.sortable--aktiv]="sortSpalte() === 'datum'"
+            (click)="toggleSort('datum')"
+          >
+            Datum<span class="sort-icon">{{
+              sortSpalte() === 'datum' ? (sortAufsteigend() ? '↑' : '↓') : '↓'
+            }}</span>
           </th>
-          <th class="text-right sortable" [class.sortable--aktiv]="sortSpalte() === 'brutto'" (click)="toggleSort('brutto')">
-            Betrag (Brutto)<span class="sort-icon">{{ sortSpalte() === 'brutto' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          <th
+            class="text-right sortable"
+            [class.sortable--aktiv]="sortSpalte() === 'brutto'"
+            (click)="toggleSort('brutto')"
+          >
+            Betrag (Brutto)<span class="sort-icon">{{
+              sortSpalte() === 'brutto' ? (sortAufsteigend() ? '↑' : '↓') : '↕'
+            }}</span>
           </th>
-          <th class="sortable" [class.sortable--aktiv]="sortSpalte() === 'frist'" (click)="toggleSort('frist')">
-            Zahlungsziel<span class="sort-icon">{{ sortSpalte() === 'frist' ? (sortAufsteigend() ? '↑' : '↓') : '↕' }}</span>
+          <th
+            class="sortable"
+            [class.sortable--aktiv]="sortSpalte() === 'frist'"
+            (click)="toggleSort('frist')"
+          >
+            Zahlungsziel<span class="sort-icon">{{
+              sortSpalte() === 'frist' ? (sortAufsteigend() ? '↑' : '↓') : '↕'
+            }}</span>
           </th>
           <th>Status</th>
           <th class="actions-col"></th>
@@ -85,9 +134,17 @@
       </thead>
       <tbody>
         @for (rechnung of sortierteListe(); track rechnung.id) {
-          <tr [class.row--bezahlt]="rechnung.bezahlt" [class.row--ueberfaellig]="istUeberfaellig(rechnung)" [class.row--ausgewaehlt]="rechnung.id != null && ausgewaehlt().has(rechnung.id)">
+          <tr
+            [class.row--bezahlt]="rechnung.bezahlt"
+            [class.row--ueberfaellig]="istUeberfaellig(rechnung)"
+            [class.row--ausgewaehlt]="rechnung.id !== null && rechnung.id !== undefined && ausgewaehlt().has(rechnung.id)"
+          >
             <td class="col-check">
-              <input type="checkbox" [checked]="rechnung.id != null && ausgewaehlt().has(rechnung.id)" (change)="auswahlToggle(rechnung.id!)">
+              <input
+                type="checkbox"
+                [checked]="rechnung.id !== null && rechnung.id !== undefined && ausgewaehlt().has(rechnung.id)"
+                (change)="auswahlToggle(rechnung.id!)"
+              />
             </td>
             <td class="nr-cell">{{ rechnung.nr }}</td>
             <td>{{ rechnung.titel || '–' }}</td>
@@ -102,17 +159,32 @@
                     <span class="overdue-badge">({{ tageUeberfaellig(rechnung) }} Tage)</span>
                   }
                 </span>
-              } @else { – }
+              } @else {
+                –
+              }
             </td>
             <td><app-status-badge [status]="statusTyp(rechnung)" /></td>
             <td class="actions-cell">
               <button class="btn-action" (click)="pdfGenerieren.emit(rechnung)">PDF</button>
               <button class="btn-action" (click)="kopieren.emit(rechnung)">Kopie</button>
-              <button class="btn-action" (click)="mahnung.emit(rechnung)" title="Mahnungen verwalten">Mahnung</button>
+              <button
+                class="btn-action"
+                (click)="mahnung.emit(rechnung)"
+                title="Mahnungen verwalten"
+              >
+                Mahnung
+              </button>
               @if (!rechnung.bezahlt) {
-                <button class="btn-action btn-action--success" (click)="alsGezahlt.emit(rechnung)">Bezahlt</button>
+                <button class="btn-action btn-action--success" (click)="alsGezahlt.emit(rechnung)">
+                  Bezahlt
+                </button>
                 <button class="btn-action" (click)="bearbeiten.emit(rechnung)">Bearbeiten</button>
-                <button class="btn-action btn-action--danger" (click)="loeschenBestaetigen(rechnung.id!)">Löschen</button>
+                <button
+                  class="btn-action btn-action--danger"
+                  (click)="loeschenBestaetigen(rechnung.id!)"
+                >
+                  Löschen
+                </button>
               }
               @if (rechnung.bezahlt) {
                 <span class="gobd-hint">Gesperrt</span>

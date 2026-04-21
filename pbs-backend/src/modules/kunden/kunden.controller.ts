@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Headers, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  ParseIntPipe,
+  Headers,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiSecurity, ApiOperation } from '@nestjs/swagger';
 import { KundenService } from './kunden.service';
 import { CreateKundeDto, UpdateKundeDto } from './dto/kunde.dto';
@@ -12,27 +23,32 @@ export class KundenController {
 
   @Get()
   @ApiOperation({ summary: 'Alle Kunden laden' })
-  alleKundenLaden(@Query() pagination: PaginationDto) { return this.service.alleKundenLaden(pagination); }
+  findAll(@Query() pagination: PaginationDto) {
+    return this.service.findAll(pagination);
+  }
 
   @Post()
   @ApiOperation({ summary: 'Kunde erstellen' })
-  kundeErstellen(
-    @Body() dto: CreateKundeDto,
-    @Headers('x-nutzer') nutzer?: string,
-  ) { return this.service.kundeErstellen(dto, nutzer); }
+  create(@Body() dto: CreateKundeDto, @Headers('x-nutzer') user?: string) {
+    return this.service.create(dto, user);
+  }
 
   @Put(':id')
   @ApiOperation({ summary: 'Kunde aktualisieren' })
-  kundeAktualisieren(
+  update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateKundeDto,
-    @Headers('x-nutzer') nutzer?: string,
-  ) { return this.service.kundeAktualisieren(id, dto, nutzer); }
+    @Headers('x-nutzer') user?: string,
+  ) {
+    return this.service.update(id, dto, user);
+  }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Kunde löschen' })
-  kundeLoeschen(
+  delete(
     @Param('id', ParseIntPipe) id: number,
-    @Headers('x-nutzer') nutzer?: string,
-  ) { return this.service.kundeLoeschen(id, nutzer); }
+    @Headers('x-nutzer') user?: string,
+  ) {
+    return this.service.delete(id, user);
+  }
 }

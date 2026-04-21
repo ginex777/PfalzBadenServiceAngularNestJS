@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RechnungenController } from './rechnungen.controller';
 import { RechnungenService } from './rechnungen.service';
+import { CreateRechnungDto } from './dto/rechnung.dto';
 
 const mockService = {
-  alleRechnungenLaden: jest.fn(),
-  rechnungErstellen: jest.fn(),
-  rechnungAktualisieren: jest.fn(),
-  rechnungLoeschen: jest.fn(),
+  findAll: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
 };
 
 describe('RechnungenController', () => {
@@ -26,38 +27,52 @@ describe('RechnungenController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('alleRechnungenLaden()', () => {
+  describe('findAll()', () => {
     it('delegiert an Service und gibt Ergebnis zurück', async () => {
-      const rechnungen = { data: [{ id: 1, nr: 'R-001', empf: 'Test', bezahlt: false, brutto: 100 }], total: 1, page: 1, limit: 100, totalPages: 1 };
-      mockService.alleRechnungenLaden.mockResolvedValue(rechnungen);
+      const rechnungen = {
+        data: [
+          { id: 1, nr: 'R-001', empf: 'Test', bezahlt: false, brutto: 100 },
+        ],
+        total: 1,
+        page: 1,
+        limit: 100,
+        totalPages: 1,
+      };
+      mockService.findAll.mockResolvedValue(rechnungen);
 
-      const result = await controller.alleRechnungenLaden({ page: 1, limit: 100 });
+      const result = await controller.findAll({ page: 1, limit: 100 });
 
       expect(result).toBe(rechnungen);
-      expect(mockService.alleRechnungenLaden).toHaveBeenCalledTimes(1);
+      expect(mockService.findAll).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('rechnungErstellen()', () => {
+  describe('create()', () => {
     it('delegiert DTO und Nutzer an Service', async () => {
-      const dto = { nr: 'R-001', empf: 'Test', brutto: 100, positionen: [], mwst_satz: 19 } as any;
+      const dto: CreateRechnungDto = {
+        nr: 'R-001',
+        empf: 'Test',
+        brutto: 100,
+        positionen: [],
+        mwst_satz: 19,
+      };
       const created = { id: 1, ...dto };
-      mockService.rechnungErstellen.mockResolvedValue(created);
+      mockService.create.mockResolvedValue(created);
 
-      const result = await controller.rechnungErstellen(dto, 'Dennis');
+      const result = await controller.create(dto, 'Dennis');
 
-      expect(mockService.rechnungErstellen).toHaveBeenCalledWith(dto, 'Dennis');
+      expect(mockService.create).toHaveBeenCalledWith(dto, 'Dennis');
       expect(result).toBe(created);
     });
   });
 
-  describe('rechnungLoeschen()', () => {
+  describe('delete()', () => {
     it('delegiert ID und Nutzer an Service', async () => {
-      mockService.rechnungLoeschen.mockResolvedValue({ ok: true });
+      mockService.delete.mockResolvedValue({ ok: true });
 
-      const result = await controller.rechnungLoeschen(42, 'Dennis');
+      const result = await controller.delete(42, 'Dennis');
 
-      expect(mockService.rechnungLoeschen).toHaveBeenCalledWith(42, 'Dennis');
+      expect(mockService.delete).toHaveBeenCalledWith(42, 'Dennis');
       expect(result).toEqual({ ok: true });
     });
   });

@@ -6,7 +6,7 @@ describe('PdfArchivFacade', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [PdfArchivFacade]
+      providers: [PdfArchivFacade],
     });
 
     service = TestBed.inject(PdfArchivFacade);

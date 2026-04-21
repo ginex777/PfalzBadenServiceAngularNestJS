@@ -26,7 +26,9 @@
               @for (t of e.taetigkeiten; track $index) {
                 <div class="taetigkeit-zeile">
                   <span>{{ t.beschreibung }}</span>
-                  <span class="taetigkeit-stunden">{{ t.stunden.toLocaleString('de-DE', {minimumFractionDigits:1}) }} h</span>
+                  <span class="taetigkeit-stunden"
+                    >{{ t.stunden.toLocaleString('de-DE', { minimumFractionDigits: 1 }) }} h</span
+                  >
                 </div>
               }
               @if (e.notiz) {
@@ -34,12 +36,22 @@
               }
             </td>
             <td class="rechts stunden-gesamt">
-              {{ e.stunden_gesamt.toLocaleString('de-DE', {minimumFractionDigits:1}) }} h
+              {{ e.stunden_gesamt.toLocaleString('de-DE', { minimumFractionDigits: 1 }) }} h
             </td>
             <td class="td-aktionen">
-              <button class="btn-action" title="PDF erstellen" (click)="pdfGenerieren.emit(e)">PDF</button>
-              <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(e)">Bearbeiten</button>
-              <button class="btn-action btn-action--danger" title="Löschen" (click)="loeschen.emit(e.id)">Löschen</button>
+              <button class="btn-action" title="PDF erstellen" (click)="pdfGenerieren.emit(e)">
+                PDF
+              </button>
+              <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(e)">
+                Bearbeiten
+              </button>
+              <button
+                class="btn-action btn-action--danger"
+                title="Löschen"
+                (click)="loeschen.emit(e.id)"
+              >
+                Löschen
+              </button>
             </td>
           </tr>
         }

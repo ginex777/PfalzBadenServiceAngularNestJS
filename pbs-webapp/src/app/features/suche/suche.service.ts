@@ -8,14 +8,20 @@ export class SucheService {
   private readonly api = inject(ApiService);
 
   alleLaden(): Observable<SucheErgebnis> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       forkJoin({
-        rechnungen: this.api.rechnungenLaden(),
-        angebote: this.api.angeboteLaden(),
-        kunden: this.api.kundenLaden(),
-        marketing: this.api.marketingKontakteLaden(),
-        hausmeister: this.api.hausmeisterEinsaetzeLaden(),
-      }).subscribe({ next: d => { observer.next(d); observer.complete(); }, error: e => observer.error(e) });
+        rechnungen: this.api.loadInvoices(),
+        angebote: this.api.loadOffers(),
+        kunden: this.api.loadCustomers(),
+        marketing: this.api.loadMarketingContacts(),
+        hausmeister: this.api.loadServiceAssignments(),
+      }).subscribe({
+        next: (d) => {
+          observer.next(d);
+          observer.complete();
+        },
+        error: (e) => observer.error(e),
+      });
     });
   }
 }

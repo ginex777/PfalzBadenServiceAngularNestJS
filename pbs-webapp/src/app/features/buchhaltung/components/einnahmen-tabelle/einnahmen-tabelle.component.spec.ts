@@ -7,7 +7,7 @@ describe('EinnahmenTabelleComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EinnahmenTabelleComponent]
+      declarations: [EinnahmenTabelleComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EinnahmenTabelleComponent);

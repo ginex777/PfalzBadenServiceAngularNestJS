@@ -19,54 +19,54 @@ export class BuchhaltungService {
   private readonly api = inject(ApiService);
 
   jahresDateLaden(jahr: number): Observable<BuchhaltungJahr> {
-    return this.api.buchhaltungLaden(jahr);
+    return this.api.loadAccounting(jahr);
   }
 
   batchSpeichern(
     jahr: number,
     monat: number,
-    zeilen: Partial<BuchhaltungEintrag>[]
+    zeilen: Partial<BuchhaltungEintrag>[],
   ): Observable<BuchhaltungEintrag[]> {
-    return this.api.buchhaltungBatchSpeichern(jahr, monat, zeilen);
+    return this.api.saveAccountingBatch(jahr, monat, zeilen);
   }
 
   eintragLoeschen(id: number): Observable<void> {
-    return this.api.buchhaltungEintragLoeschen(id);
+    return this.api.deleteAccountingEntry(id);
   }
 
-  vstLaden(jahr: number): Observable<VstPaid[]> {
-    return this.api.vstLaden(jahr);
+  loadVst(jahr: number): Observable<VstPaid[]> {
+    return this.api.loadVst(jahr);
   }
 
-  vstSpeichern(daten: Partial<VstPaid>): Observable<VstPaid> {
-    return this.api.vstSpeichern(daten);
+  saveVst(daten: Partial<VstPaid>): Observable<VstPaid> {
+    return this.api.saveVst(daten);
   }
 
-  gesperrteMonateLaden(jahr: number): Observable<GesperrterMonat[]> {
-    return this.api.gesperrteMonateLaden(jahr);
+  loadLockedMonths(jahr: number): Observable<GesperrterMonat[]> {
+    return this.api.loadLockedMonths(jahr);
   }
 
-  monatSperren(jahr: number, monat: number): Observable<GesperrterMonat> {
-    return this.api.monatSperren(jahr, monat);
+  lockMonth(jahr: number, monat: number): Observable<GesperrterMonat> {
+    return this.api.lockMonth(jahr, monat);
   }
 
-  monatEntsperren(jahr: number, monat: number): Observable<void> {
-    return this.api.monatEntsperren(jahr, monat);
+  unlockMonth(jahr: number, monat: number): Observable<void> {
+    return this.api.unlockMonth(jahr, monat);
   }
 
-  wiederkehrendeAusgabenLaden(): Observable<WiederkehrendeAusgabe[]> {
-    return this.api.wiederkehrendeAusgabenLaden();
+  loadRecurringExpenses(): Observable<WiederkehrendeAusgabe[]> {
+    return this.api.loadRecurringExpenses();
   }
 
-  belegeFuerBuchungLaden(buchungId: number): Observable<Beleg[]> {
-    return this.api.belegeFuerBuchungLaden(buchungId);
+  loadReceiptsForEntry(buchungId: number): Observable<Beleg[]> {
+    return this.api.loadReceiptsForEntry(buchungId);
   }
 
-  belegHochladen(formData: FormData): Observable<Beleg> {
-    return this.api.belegHochladen(formData);
+  uploadReceipt(formData: FormData): Observable<Beleg> {
+    return this.api.uploadReceipt(formData);
   }
 
-  belegDownloadUrl(id: number, inline = false): string {
-    return this.api.belegDownloadUrl(id, inline);
+  getReceiptDownloadUrl(id: number, inline = false): string {
+    return this.api.getReceiptDownloadUrl(id, inline);
   }
 }

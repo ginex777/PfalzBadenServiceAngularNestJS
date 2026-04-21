@@ -1,7 +1,21 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { BuchhaltungService } from './buchhaltung.service';
-import { BuchhaltungEintragDto, BatchSpeichernDto, VstDto, MonatSperrenDto } from './dto/buchhaltung.dto';
+import {
+  BuchhaltungEintragDto,
+  BatchSpeichernDto,
+  VstDto,
+  MonatSperrenDto,
+} from './dto/buchhaltung.dto';
 
 @ApiTags('Buchhaltung')
 @Controller('api')
@@ -10,36 +24,62 @@ export class BuchhaltungController {
 
   @Get('buchhaltung/:jahr')
   @ApiOperation({ summary: 'Jahres-Buchhaltungsdaten laden' })
-  jahresDateLaden(@Param('jahr', ParseIntPipe) j: number) { return this.service.jahresDateLaden(j); }
+  getYearData(@Param('jahr', ParseIntPipe) j: number) {
+    return this.service.getYearData(j);
+  }
 
   @Post('buchhaltung/batch')
   @ApiOperation({ summary: 'Batch-Speichern (ganzer Monat)' })
-  batchSpeichern(@Body() dto: BatchSpeichernDto) { return this.service.batchSpeichern(dto.jahr, dto.monat, dto.rows); }
+  saveBatch(@Body() dto: BatchSpeichernDto) {
+    return this.service.saveBatch(dto.jahr, dto.monat, dto.rows);
+  }
 
   @Post('buchhaltung')
   @ApiOperation({ summary: 'Einzelnen Eintrag erstellen' })
-  eintragErstellen(@Body() dto: BuchhaltungEintragDto) { return this.service.eintragErstellen(dto); }
+  create(@Body() dto: BuchhaltungEintragDto) {
+    return this.service.create(dto);
+  }
 
   @Put('buchhaltung/:id')
   @ApiOperation({ summary: 'Eintrag aktualisieren' })
-  eintragAktualisieren(@Param('id', ParseIntPipe) id: number, @Body() dto: BuchhaltungEintragDto) { return this.service.eintragAktualisieren(id, dto); }
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: BuchhaltungEintragDto,
+  ) {
+    return this.service.update(id, dto);
+  }
 
   @Delete('buchhaltung/:id')
   @ApiOperation({ summary: 'Eintrag löschen' })
-  eintragLoeschen(@Param('id', ParseIntPipe) id: number) { return this.service.eintragLoeschen(id); }
+  delete(@Param('id', ParseIntPipe) id: number) {
+    return this.service.delete(id);
+  }
 
   @Get('vst/:jahr')
-  vstLaden(@Param('jahr', ParseIntPipe) j: number) { return this.service.vstLaden(j); }
+  getVst(@Param('jahr', ParseIntPipe) j: number) {
+    return this.service.getVst(j);
+  }
 
   @Post('vst')
-  vstSpeichern(@Body() dto: VstDto) { return this.service.vstSpeichern(dto); }
+  saveVst(@Body() dto: VstDto) {
+    return this.service.saveVst(dto);
+  }
 
   @Get('gesperrte-monate/:jahr')
-  gesperrteMonateLaden(@Param('jahr', ParseIntPipe) j: number) { return this.service.gesperrteMonateLaden(j); }
+  getLockedMonths(@Param('jahr', ParseIntPipe) j: number) {
+    return this.service.getLockedMonths(j);
+  }
 
   @Post('gesperrte-monate')
-  monatSperren(@Body() dto: MonatSperrenDto) { return this.service.monatSperren(dto.jahr, dto.monat); }
+  lockMonth(@Body() dto: MonatSperrenDto) {
+    return this.service.lockMonth(dto.jahr, dto.monat);
+  }
 
   @Delete('gesperrte-monate/:jahr/:monat')
-  monatEntsperren(@Param('jahr', ParseIntPipe) j: number, @Param('monat', ParseIntPipe) m: number) { return this.service.monatEntsperren(j, m); }
+  unlockMonth(
+    @Param('jahr', ParseIntPipe) j: number,
+    @Param('monat', ParseIntPipe) m: number,
+  ) {
+    return this.service.unlockMonth(j, m);
+  }
 }

@@ -7,7 +7,7 @@ describe('EinsatzListeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EinsatzListeComponent]
+      declarations: [EinsatzListeComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EinsatzListeComponent);

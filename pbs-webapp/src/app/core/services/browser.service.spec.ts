@@ -6,7 +6,7 @@ describe('BrowserService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [BrowserService]
+      providers: [BrowserService],
     });
 
     service = TestBed.inject(BrowserService);

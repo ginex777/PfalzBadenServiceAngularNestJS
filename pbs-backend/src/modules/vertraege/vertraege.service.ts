@@ -15,16 +15,24 @@ export class VertraegeService {
     private readonly audit: AuditService,
   ) {}
 
-  async alleLaden(pagination: PaginationDto, kundenId?: number): Promise<PaginatedResponse<ReturnType<VertraegeService['_map']>>> {
+  async findAll(
+    pagination: PaginationDto,
+    kundenId?: number,
+  ): Promise<PaginatedResponse<ReturnType<VertraegeService['_map']>>> {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
     const where = kundenId ? { kunden_id: BigInt(kundenId) } : undefined;
     const [rows, total] = await this.prisma.$transaction([
-      this.prisma.vertraege.findMany({ where, orderBy: { created_at: 'desc' }, skip, take: limit }),
+      this.prisma.vertraege.findMany({
+        where,
+        orderBy: { created_at: 'desc' },
+        skip,
+        take: limit,
+      }),
       this.prisma.vertraege.count({ where }),
     ]);
     return {
-      data: rows.map(v => this._map(v)),
+      data: rows.map((v) => this._map(v)),
       total,
       page,
       limit,
@@ -32,13 +40,15 @@ export class VertraegeService {
     };
   }
 
-  async einenLaden(id: number) {
-    const v = await this.prisma.vertraege.findUnique({ where: { id: BigInt(id) } });
+  async findOne(id: number) {
+    const v = await this.prisma.vertraege.findUnique({
+      where: { id: BigInt(id) },
+    });
     if (!v) throw new NotFoundException(`Vertrag ${id} nicht gefunden`);
     return this._map(v);
   }
 
-  async erstellen(d: CreateVertragDto, nutzer?: string) {
+  async create(d: CreateVertragDto, nutzer?: string) {
     const v = await this.prisma.vertraege.create({
       data: {
         kunden_id: d.kunden_id ? BigInt(d.kunden_id) : null,
@@ -55,47 +65,86 @@ export class VertraegeService {
         status: 'aktiv',
       },
     });
-    await this.audit.protokollieren('vertraege', v.id, 'CREATE', null, this._map(v), nutzer);
+    await this.audit.log(
+      'vertraege',
+      v.id,
+      'CREATE',
+      null,
+      this._map(v),
+      nutzer,
+    );
     return this._map(v);
   }
 
-  async aktualisieren(id: number, d: UpdateVertragDto, nutzer?: string) {
-    const alt = await this.prisma.vertraege.findUnique({ where: { id: BigInt(id) } });
+  async update(id: number, d: UpdateVertragDto, nutzer?: string) {
+    const alt = await this.prisma.vertraege.findUnique({
+      where: { id: BigInt(id) },
+    });
     if (!alt) throw new NotFoundException();
     const v = await this.prisma.vertraege.update({
       where: { id: BigInt(id) },
       data: {
         kunden_name: d.kunden_name,
-        kunden_strasse: d.kunden_strasse !== undefined ? (d.kunden_strasse ?? null) : undefined,
-        kunden_ort: d.kunden_ort !== undefined ? (d.kunden_ort ?? null) : undefined,
+        kunden_strasse:
+          d.kunden_strasse !== undefined
+            ? (d.kunden_strasse ?? null)
+            : undefined,
+        kunden_ort:
+          d.kunden_ort !== undefined ? (d.kunden_ort ?? null) : undefined,
         vorlage: d.vorlage,
         titel: d.titel,
-        vertragsbeginn: d.vertragsbeginn ? new Date(d.vertragsbeginn) : undefined,
+        vertragsbeginn: d.vertragsbeginn
+          ? new Date(d.vertragsbeginn)
+          : undefined,
         laufzeit_monate: d.laufzeit_monate,
-        monatliche_rate: d.monatliche_rate !== undefined ? new Prisma.Decimal(d.monatliche_rate) : undefined,
-        leistungsumfang: d.leistungsumfang !== undefined ? (d.leistungsumfang ?? null) : undefined,
+        monatliche_rate:
+          d.monatliche_rate !== undefined
+            ? new Prisma.Decimal(d.monatliche_rate)
+            : undefined,
+        leistungsumfang:
+          d.leistungsumfang !== undefined
+            ? (d.leistungsumfang ?? null)
+            : undefined,
         kuendigungsfrist: d.kuendigungsfrist,
         status: d.status,
-        pdf_filename: d.pdf_filename !== undefined ? (d.pdf_filename ?? null) : undefined,
-        html_body: d.html_body !== undefined ? (d.html_body ?? null) : undefined,
+        pdf_filename:
+          d.pdf_filename !== undefined ? (d.pdf_filename ?? null) : undefined,
+        html_body:
+          d.html_body !== undefined ? (d.html_body ?? null) : undefined,
       },
     });
-    await this.audit.protokollieren('vertraege', v.id, 'UPDATE', this._map(alt), this._map(v), nutzer);
+    await this.audit.log(
+      'vertraege',
+      v.id,
+      'UPDATE',
+      this._map(alt),
+      this._map(v),
+      nutzer,
+    );
     return this._map(v);
   }
 
-  async loeschen(id: number, nutzer?: string) {
-    const v = await this.prisma.vertraege.findUnique({ where: { id: BigInt(id) } });
+  async delete(id: number, nutzer?: string) {
+    const v = await this.prisma.vertraege.findUnique({
+      where: { id: BigInt(id) },
+    });
     if (!v) throw new NotFoundException();
     await this.prisma.vertraege.delete({ where: { id: BigInt(id) } });
-    await this.audit.protokollieren('vertraege', v.id, 'DELETE', this._map(v), null, nutzer);
+    await this.audit.log(
+      'vertraege',
+      v.id,
+      'DELETE',
+      this._map(v),
+      null,
+      nutzer,
+    );
     return { ok: true };
   }
 
   private _map(v: Vertraege) {
     const monatlicheRate = Number(v.monatliche_rate);
     const gesamtwert = monatlicheRate * v.laufzeit_monate; // ADDED: Total contract value calculation
-    
+
     return {
       ...v,
       id: Number(v.id),

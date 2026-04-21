@@ -6,7 +6,7 @@ describe('MuellplanService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [MuellplanService]
+      providers: [MuellplanService],
     });
 
     service = TestBed.inject(MuellplanService);

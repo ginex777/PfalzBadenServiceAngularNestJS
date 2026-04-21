@@ -38,14 +38,27 @@ table {
     vertical-align: middle;
   }
 
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--gray-50); }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  tr:hover td {
+    background: var(--gray-50);
+  }
 }
 
-.col-name   { min-width: 160px; }
-.col-text   { color: var(--gray-700); }
-.col-umsatz { white-space: nowrap; font-weight: 600; }
-.col-aktionen { white-space: nowrap; }
+.col-name {
+  min-width: 160px;
+}
+.col-text {
+  color: var(--gray-700);
+}
+.col-umsatz {
+  white-space: nowrap;
+  font-weight: 600;
+}
+.col-aktionen {
+  white-space: nowrap;
+}
 
 .name-cell {
   display: flex;
@@ -67,8 +80,14 @@ table {
   font-size: 10px;
   font-weight: 600;
 
-  &-green   { background: var(--success-light); color: var(--success); }
-  &-primary { background: var(--primary-light); color: var(--primary); }
+  &-green {
+    background: var(--success-light);
+    color: var(--success);
+  }
+  &-primary {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
 }
 
 // ── Aktionen ──────────────────────────────────────────────────────────────
@@ -90,36 +109,54 @@ table {
   color: var(--gray-700);
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 
-  &:hover { background: var(--gray-50); }
+  &:hover {
+    background: var(--gray-50);
+  }
 
   &--primary {
     color: var(--primary);
     border-color: var(--primary-light);
-    &:hover { background: var(--primary-light); }
+    &:hover {
+      background: var(--primary-light);
+    }
   }
 
   &--success {
     color: var(--success);
     border-color: var(--success-light);
-    &:hover { background: var(--success-light); }
+    &:hover {
+      background: var(--success-light);
+    }
   }
 
   &--danger {
     color: var(--danger);
     border-color: var(--danger-light);
-    &:hover { background: var(--danger-light); }
+    &:hover {
+      background: var(--danger-light);
+    }
   }
 
   &--disabled {
     color: var(--gray-400);
     cursor: default;
-    &:hover { background: var(--surface); }
+    &:hover {
+      background: var(--surface);
+    }
   }
 }
 
 // ── Utility ───────────────────────────────────────────────────────────────
-.text-right   { text-align: right; }
-.text-success { color: var(--success); }
-.text-muted   { color: var(--gray-400); }
+.text-right {
+  text-align: right;
+}
+.text-success {
+  color: var(--success);
+}
+.text-muted {
+  color: var(--gray-400);
+}

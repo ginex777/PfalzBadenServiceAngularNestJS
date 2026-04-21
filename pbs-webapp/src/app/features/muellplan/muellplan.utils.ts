@@ -6,10 +6,29 @@
 import { MUELL_FARBEN } from './muellplan.models';
 
 const MONTH_ABBR: Record<string, number> = {
-  'jan': 1, 'feb': 2, 'mär': 3, 'apr': 4, 'mai': 5, 'jun': 6,
-  'jul': 7, 'aug': 8, 'sep': 9, 'okt': 10, 'nov': 11, 'dez': 12,
-  'januar': 1, 'februar': 2, 'märz': 3, 'april': 4, 'juni': 6,
-  'juli': 7, 'august': 8, 'september': 9, 'oktober': 10, 'november': 11, 'dezember': 12,
+  jan: 1,
+  feb: 2,
+  mär: 3,
+  apr: 4,
+  mai: 5,
+  jun: 6,
+  jul: 7,
+  aug: 8,
+  sep: 9,
+  okt: 10,
+  nov: 11,
+  dez: 12,
+  januar: 1,
+  februar: 2,
+  märz: 3,
+  april: 4,
+  juni: 6,
+  juli: 7,
+  august: 8,
+  september: 9,
+  oktober: 10,
+  november: 11,
+  dezember: 12,
 };
 
 export interface ParsedTermin {
@@ -30,13 +49,16 @@ function findMuellType(text: string): { name: string; farbe: string } | null {
 
 export function parseVorlageText(text: string, jahr: number): ParsedTermin[] {
   const results: ParsedTermin[] = [];
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const lines = text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
 
   // Detect Format A: lines starting with month name + colon
   // e.g. "Januar: Biotonne 8.22, Restmüll 8.22"
-  const isFormatA = lines.some(l => {
+  const isFormatA = lines.some((l) => {
     const ll = l.toLowerCase();
-    return Object.keys(MONTH_ABBR).some(m => ll.startsWith(m) && ll.includes(':'));
+    return Object.keys(MONTH_ABBR).some((m) => ll.startsWith(m) && ll.includes(':'));
   });
 
   if (isFormatA) {
@@ -44,7 +66,10 @@ export function parseVorlageText(text: string, jahr: number): ParsedTermin[] {
       const ll = line.toLowerCase();
       let mo: number | null = null;
       for (const [abbr, num] of Object.entries(MONTH_ABBR)) {
-        if (ll.startsWith(abbr)) { mo = num; break; }
+        if (ll.startsWith(abbr)) {
+          mo = num;
+          break;
+        }
       }
       if (!mo) continue;
       const colonIdx = line.indexOf(':');
@@ -55,8 +80,8 @@ export function parseVorlageText(text: string, jahr: number): ParsedTermin[] {
         const type = findMuellType(part);
         if (!type) continue;
         const days = [...part.matchAll(/\b(\d{1,2})\b/g)]
-          .map(m => parseInt(m[1]))
-          .filter(d => d >= 1 && d <= 31);
+          .map((m) => parseInt(m[1]))
+          .filter((d) => d >= 1 && d <= 31);
         for (const day of days) {
           const dt = new Date(jahr, mo - 1, day);
           if (!isNaN(dt.getTime()) && dt.getMonth() === mo - 1) {
@@ -83,12 +108,16 @@ export function parseVorlageText(text: string, jahr: number): ParsedTermin[] {
         const mo = MONTH_ABBR[mColon[1].slice(0, 3)] ?? MONTH_ABBR[mColon[1]];
         if (mo) {
           const days = [...mColon[2].matchAll(/\b(\d{1,2})\b/g)]
-            .map(m => parseInt(m[1]))
-            .filter(d => d >= 1 && d <= 31);
+            .map((m) => parseInt(m[1]))
+            .filter((d) => d >= 1 && d <= 31);
           for (const day of days) {
             const dt = new Date(jahr, mo - 1, day);
             if (!isNaN(dt.getTime()) && dt.getMonth() === mo - 1) {
-              results.push({ datum: dt.toISOString().slice(0, 10), muellart: currentType.name, farbe: currentType.farbe });
+              results.push({
+                datum: dt.toISOString().slice(0, 10),
+                muellart: currentType.name,
+                farbe: currentType.farbe,
+              });
             }
           }
           continue;
@@ -98,10 +127,13 @@ export function parseVorlageText(text: string, jahr: number): ParsedTermin[] {
       // Type detection
       const matchedType = findMuellType(line);
       const days = [...line.matchAll(/\b(\d{1,2})\b/g)]
-        .map(m => parseInt(m[1]))
-        .filter(d => d >= 1 && d <= 31);
+        .map((m) => parseInt(m[1]))
+        .filter((d) => d >= 1 && d <= 31);
 
-      if (matchedType && !days.length) { currentType = matchedType; continue; }
+      if (matchedType && !days.length) {
+        currentType = matchedType;
+        continue;
+      }
       if (matchedType) currentType = matchedType;
       if (!currentType || !days.length) continue;
     }
@@ -110,6 +142,11 @@ export function parseVorlageText(text: string, jahr: number): ParsedTermin[] {
   // Deduplicate
   const seen = new Set<string>();
   return results
-    .filter(r => { const k = r.datum + '|' + r.muellart; if (seen.has(k)) return false; seen.add(k); return true; })
+    .filter((r) => {
+      const k = r.datum + '|' + r.muellart;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    })
     .sort((a, b) => a.datum.localeCompare(b.datum));
 }

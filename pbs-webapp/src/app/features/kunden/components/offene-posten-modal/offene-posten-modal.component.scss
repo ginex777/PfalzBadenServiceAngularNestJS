@@ -43,18 +43,30 @@
   border-radius: var(--radius-sm);
   min-width: 140px;
 
-  &--danger  { background: var(--danger-light); }
-  &--success { background: var(--success-light); }
-  &--warning { background: var(--warning-light); }
+  &--danger {
+    background: var(--danger-light);
+  }
+  &--success {
+    background: var(--success-light);
+  }
+  &--warning {
+    background: var(--warning-light);
+  }
 }
 
 .kennzahl-wert {
   font-size: 14px;
   font-weight: 700;
 
-  .kennzahl--danger &  { color: var(--danger); }
-  .kennzahl--success & { color: var(--success); }
-  .kennzahl--warning & { color: var(--warning); }
+  .kennzahl--danger & {
+    color: var(--danger);
+  }
+  .kennzahl--success & {
+    color: var(--success);
+  }
+  .kennzahl--warning & {
+    color: var(--warning);
+  }
 }
 
 .kennzahl-label {
@@ -93,15 +105,34 @@ table {
     vertical-align: middle;
   }
 
-  tr:last-child td { border-bottom: none; }
+  tr:last-child td {
+    border-bottom: none;
+  }
 }
 
-.col-nr     { font-weight: 600; white-space: nowrap; }
-.col-titel  { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.col-datum  { white-space: nowrap; }
-.col-betrag { font-weight: 600; }
-.text-right { text-align: right; }
-.hint-sm    { font-size: 11px; color: var(--gray-500); }
+.col-nr {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.col-titel {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.col-datum {
+  white-space: nowrap;
+}
+.col-betrag {
+  font-weight: 600;
+}
+.text-right {
+  text-align: right;
+}
+.hint-sm {
+  font-size: 11px;
+  color: var(--gray-500);
+}
 
 .leer {
   text-align: center;
@@ -110,9 +141,17 @@ table {
 }
 
 // ── Status ────────────────────────────────────────────────────────────────
-.status-bezahlt     { color: var(--success); font-weight: 600; }
-.status-ueberfaellig { color: var(--danger);  font-weight: 600; }
-.status-offen       { color: var(--warning); }
+.status-bezahlt {
+  color: var(--success);
+  font-weight: 600;
+}
+.status-ueberfaellig {
+  color: var(--danger);
+  font-weight: 600;
+}
+.status-offen {
+  color: var(--warning);
+}
 
 // ── Aktionen ──────────────────────────────────────────────────────────────
 .modal-aktionen {
@@ -132,12 +171,16 @@ table {
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover { background: var(--gray-50); }
+  &:hover {
+    background: var(--gray-50);
+  }
 
   &-primary {
     background: var(--primary);
     color: #fff;
     border-color: var(--primary);
-    &:hover { background: var(--primary-dark); }
+    &:hover {
+      background: var(--primary-dark);
+    }
   }
 }

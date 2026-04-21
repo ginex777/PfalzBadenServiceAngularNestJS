@@ -7,7 +7,7 @@ describe('SkeletonRowsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SkeletonRowsComponent]
+      declarations: [SkeletonRowsComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SkeletonRowsComponent);

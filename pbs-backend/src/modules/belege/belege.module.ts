@@ -5,7 +5,12 @@ import { BelegeController } from './belege.controller';
 import { BelegeService } from './belege.service';
 
 @Module({
-  imports: [MulterModule.register({ storage: memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } })],
+  imports: [
+    MulterModule.register({
+      storage: memoryStorage(),
+      limits: { fileSize: 20 * 1024 * 1024 },
+    }),
+  ],
   controllers: [BelegeController],
   providers: [BelegeService],
 })

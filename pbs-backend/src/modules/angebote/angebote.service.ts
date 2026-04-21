@@ -10,17 +10,26 @@ import { PaginatedResponse } from '../../common/interfaces/paginated-response.in
 export class AngeboteService {
   private readonly logger = new Logger(AngeboteService.name);
 
-  constructor(private readonly prisma: PrismaService, private readonly audit: AuditService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
 
-  async alleAngeboteLaden(pagination: PaginationDto): Promise<PaginatedResponse<ReturnType<AngeboteService['mapAngebot']>>> {
+  async findAll(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<ReturnType<AngeboteService['mapAngebot']>>> {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
     const [rows, total] = await this.prisma.$transaction([
-      this.prisma.angebote.findMany({ orderBy: [{ datum: 'desc' }, { id: 'desc' }], skip, take: limit }),
+      this.prisma.angebote.findMany({
+        orderBy: [{ datum: 'desc' }, { id: 'desc' }],
+        skip,
+        take: limit,
+      }),
       this.prisma.angebote.count(),
     ]);
     return {
-      data: rows.map(r => this.mapAngebot(r)),
+      data: rows.map((r) => this.mapAngebot(r)),
       total,
       page,
       limit,
@@ -28,29 +37,45 @@ export class AngeboteService {
     };
   }
 
-  async angebotErstellen(daten: CreateAngebotDto, nutzer?: string) {
-    const angebot = await this.prisma.angebote.create({ data: this.angebotDatenMappen(daten) });
-    await this.audit.protokollieren('angebote', angebot.id, 'CREATE', null, angebot, nutzer);
+  async create(daten: CreateAngebotDto, nutzer?: string) {
+    const angebot = await this.prisma.angebote.create({
+      data: this.mapData(daten),
+    });
+    await this.audit.log(
+      'angebote',
+      angebot.id,
+      'CREATE',
+      null,
+      angebot,
+      nutzer,
+    );
     return this.mapAngebot(angebot);
   }
 
-  async angebotAktualisieren(id: number, daten: UpdateAngebotDto, nutzer?: string) {
-    const alt = await this.prisma.angebote.findUnique({ where: { id: BigInt(id) } });
+  async update(id: number, daten: UpdateAngebotDto, nutzer?: string) {
+    const alt = await this.prisma.angebote.findUnique({
+      where: { id: BigInt(id) },
+    });
     if (!alt) throw new NotFoundException(`Angebot ${id} nicht gefunden`);
-    const neu = await this.prisma.angebote.update({ where: { id: BigInt(id) }, data: this.angebotDatenMappen(daten) });
-    await this.audit.protokollieren('angebote', BigInt(id), 'UPDATE', alt, neu, nutzer);
+    const neu = await this.prisma.angebote.update({
+      where: { id: BigInt(id) },
+      data: this.mapData(daten),
+    });
+    await this.audit.log('angebote', BigInt(id), 'UPDATE', alt, neu, nutzer);
     return this.mapAngebot(neu);
   }
 
-  async angebotLoeschen(id: number, nutzer?: string) {
-    const alt = await this.prisma.angebote.findUnique({ where: { id: BigInt(id) } });
+  async delete(id: number, nutzer?: string) {
+    const alt = await this.prisma.angebote.findUnique({
+      where: { id: BigInt(id) },
+    });
     if (!alt) throw new NotFoundException(`Angebot ${id} nicht gefunden`);
     await this.prisma.angebote.delete({ where: { id: BigInt(id) } });
-    await this.audit.protokollieren('angebote', BigInt(id), 'DELETE', alt, null, nutzer);
+    await this.audit.log('angebote', BigInt(id), 'DELETE', alt, null, nutzer);
     return { ok: true };
   }
 
-  private angebotDatenMappen(d: CreateAngebotDto): Prisma.AngeboteCreateInput {
+  private mapData(d: CreateAngebotDto): Prisma.AngeboteCreateInput {
     return {
       nr: d.nr,
       empf: d.empf,
@@ -64,8 +89,11 @@ export class AngeboteService {
       abgelehnt: d.abgelehnt ?? false,
       gesendet: d.gesendet ?? false,
       zusatz: d.zusatz ?? null,
-      positionen: (d.positionen as unknown as Prisma.InputJsonValue) ?? Prisma.JsonNull,
-      kunden: d.kunden_id ? { connect: { id: BigInt(d.kunden_id) } } : undefined,
+      positionen:
+        (d.positionen as unknown as Prisma.InputJsonValue) ?? Prisma.JsonNull,
+      kunden: d.kunden_id
+        ? { connect: { id: BigInt(d.kunden_id) } }
+        : undefined,
     };
   }
 

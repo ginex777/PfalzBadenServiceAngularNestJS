@@ -23,22 +23,39 @@
           <tr [class.inaktiv]="!ma.aktiv">
             <td class="td-name">
               <strong>{{ ma.name }}</strong>
-              @if (ma.notiz) { <div class="td-notiz">{{ ma.notiz }}</div> }
+              @if (ma.notiz) {
+                <div class="td-notiz">{{ ma.notiz }}</div>
+              }
             </td>
             <td>{{ ma.rolle || '–' }}</td>
             <td class="rechts">{{ fmt(ma.stundenlohn) }}/h</td>
             <td>
-              @if (ma.email) { <div class="td-kontakt">{{ ma.email }}</div> }
-              @if (ma.tel) { <div class="td-kontakt">{{ ma.tel }}</div> }
+              @if (ma.email) {
+                <div class="td-kontakt">{{ ma.email }}</div>
+              }
+              @if (ma.tel) {
+                <div class="td-kontakt">{{ ma.tel }}</div>
+              }
             </td>
             <td class="mitte">
-              <input type="checkbox" [checked]="ma.aktiv"
-                (change)="aktivGeaendert(ma.id, $event)" />
+              <input
+                type="checkbox"
+                [checked]="ma.aktiv"
+                (change)="aktivGeaendert(ma.id, $event)"
+              />
             </td>
             <td class="td-aktionen">
               <button class="btn btn-sm" (click)="stundenOeffnen.emit(ma.id)">Stunden</button>
-              <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(ma)">Bearbeiten</button>
-              <button class="btn-action btn-action--danger" title="Löschen" (click)="loeschen.emit(ma.id)">Löschen</button>
+              <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(ma)">
+                Bearbeiten
+              </button>
+              <button
+                class="btn-action btn-action--danger"
+                title="Löschen"
+                (click)="loeschen.emit(ma.id)"
+              >
+                Löschen
+              </button>
             </td>
           </tr>
         }

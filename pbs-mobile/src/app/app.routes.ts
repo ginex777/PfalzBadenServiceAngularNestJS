@@ -14,22 +14,24 @@ export const routes: Routes = [
   { path: '', redirectTo: 'stempeluhr', pathMatch: 'full' },
   {
     path: 'login',
-    loadComponent: () => import('./pages/login/login.page').then(m => m.LoginPage),
+    loadComponent: () => import('./pages/login/login.page').then((m) => m.LoginPage),
   },
   {
     path: 'stempeluhr',
     canActivate: [authGuard],
-    loadComponent: () => import('./pages/stempeluhr/stempeluhr.page').then(m => m.StempeluhrPage),
+    loadComponent: () => import('./pages/stempeluhr/stempeluhr.page').then((m) => m.StempeluhrPage),
   },
   {
     path: 'tagesuebersicht',
     canActivate: [authGuard],
-    loadComponent: () => import('./pages/tagesuebersicht/tagesuebersicht.page').then(m => m.TagesuebersichtPage),
+    loadComponent: () =>
+      import('./pages/tagesuebersicht/tagesuebersicht.page').then((m) => m.TagesuebersichtPage),
   },
   {
     path: 'foto-upload',
     canActivate: [authGuard],
-    loadComponent: () => import('./pages/foto-upload/foto-upload.page').then(m => m.FotoUploadPage),
+    loadComponent: () =>
+      import('./pages/foto-upload/foto-upload.page').then((m) => m.FotoUploadPage),
   },
   { path: '**', redirectTo: 'stempeluhr' },
 ];

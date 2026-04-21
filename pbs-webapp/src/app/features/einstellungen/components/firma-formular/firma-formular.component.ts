@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, linkedSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FirmaSettings } from '../../../../core/models';
 
 @Component({

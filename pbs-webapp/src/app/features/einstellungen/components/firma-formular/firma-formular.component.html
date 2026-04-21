@@ -1,73 +1,145 @@
 <div class="card">
   <h3 class="section-title">Firmen-Stammdaten</h3>
-  <p class="hint hint--mb">Diese Daten erscheinen auf allen Rechnungen und Angeboten als Absender und im Footer.</p>
+  <p class="hint hint--mb">
+    Diese Daten erscheinen auf allen Rechnungen und Angeboten als Absender und im Footer.
+  </p>
 
   <div class="form-row">
     <div class="form-field">
       <label>Firmenname</label>
-      <input type="text" [value]="firma().firma || ''" (input)="feldGeaendert('firma', $event)" placeholder="Pfalz-Baden Service">
+      <input
+        type="text"
+        [value]="firma().firma || ''"
+        (input)="feldGeaendert('firma', $event)"
+        placeholder="Pfalz-Baden Service"
+      />
     </div>
     <div class="form-field">
       <label>Rechtsform / Zusatz</label>
-      <input type="text" [value]="firma().zusatz || ''" (input)="feldGeaendert('zusatz', $event)" placeholder="Hassan Maatouk und Dennis Schuhmacher GbR">
+      <input
+        type="text"
+        [value]="firma().zusatz || ''"
+        (input)="feldGeaendert('zusatz', $event)"
+        placeholder="Hassan Maatouk und Dennis Schuhmacher GbR"
+      />
     </div>
   </div>
   <div class="form-row">
     <div class="form-field">
       <label>Straße</label>
-      <input type="text" [value]="firma().strasse || ''" (input)="feldGeaendert('strasse', $event)" placeholder="Petronia-Steiner-Straße 3">
+      <input
+        type="text"
+        [value]="firma().strasse || ''"
+        (input)="feldGeaendert('strasse', $event)"
+        placeholder="Petronia-Steiner-Straße 3"
+      />
     </div>
     <div class="form-field">
       <label>PLZ Ort</label>
-      <input type="text" [value]="firma().ort || ''" (input)="feldGeaendert('ort', $event)" placeholder="67346 Speyer">
+      <input
+        type="text"
+        [value]="firma().ort || ''"
+        (input)="feldGeaendert('ort', $event)"
+        placeholder="67346 Speyer"
+      />
     </div>
   </div>
   <div class="form-row">
     <div class="form-field">
       <label>Steuernummer</label>
-      <input type="text" [value]="firma().steuernr || ''" (input)="feldGeaendert('steuernr', $event)" placeholder="41/108/84558">
+      <input
+        type="text"
+        [value]="firma().steuernr || ''"
+        (input)="feldGeaendert('steuernr', $event)"
+        placeholder="41/108/84558"
+      />
     </div>
     <div class="form-field">
       <label>USt-IdNr. (optional)</label>
-      <input type="text" [value]="firma().ustId || ''" (input)="feldGeaendert('ustId', $event)" placeholder="DE123456789">
+      <input
+        type="text"
+        [value]="firma().ustId || ''"
+        (input)="feldGeaendert('ustId', $event)"
+        placeholder="DE123456789"
+      />
     </div>
   </div>
   <div class="form-row">
     <div class="form-field">
       <label>Geschäftsführer</label>
-      <input type="text" [value]="firma().gf || ''" (input)="feldGeaendert('gf', $event)" placeholder="Hassan Maatouk">
+      <input
+        type="text"
+        [value]="firma().gf || ''"
+        (input)="feldGeaendert('gf', $event)"
+        placeholder="Hassan Maatouk"
+      />
     </div>
     <div class="form-field">
       <label>Telefon</label>
-      <input type="text" [value]="firma().tel || ''" (input)="feldGeaendert('tel', $event)" placeholder="0179 6150849">
+      <input
+        type="text"
+        [value]="firma().tel || ''"
+        (input)="feldGeaendert('tel', $event)"
+        placeholder="0179 6150849"
+      />
     </div>
     <div class="form-field">
       <label>E-Mail</label>
-      <input type="text" [value]="firma().email || ''" (input)="feldGeaendert('email', $event)" placeholder="kontakt@pfalzbaden-service.de">
+      <input
+        type="text"
+        [value]="firma().email || ''"
+        (input)="feldGeaendert('email', $event)"
+        placeholder="kontakt@pfalzbaden-service.de"
+      />
     </div>
   </div>
   <div class="form-row">
     <div class="form-field">
       <label>Bank</label>
-      <input type="text" [value]="firma().bank || ''" (input)="feldGeaendert('bank', $event)" placeholder="Sparkasse Vorderpfalz">
+      <input
+        type="text"
+        [value]="firma().bank || ''"
+        (input)="feldGeaendert('bank', $event)"
+        placeholder="Sparkasse Vorderpfalz"
+      />
     </div>
     <div class="form-field">
       <label>IBAN</label>
-      <input type="text" [value]="firma().iban || ''" (input)="feldGeaendert('iban', $event)" placeholder="DE55 5455 0010 0194 3758 61">
+      <input
+        type="text"
+        [value]="firma().iban || ''"
+        (input)="feldGeaendert('iban', $event)"
+        placeholder="DE55 5455 0010 0194 3758 61"
+      />
     </div>
     <div class="form-field">
       <label>BIC</label>
-      <input type="text" [value]="firma().bic || ''" (input)="feldGeaendert('bic', $event)" placeholder="LUHSDE6XXX">
+      <input
+        type="text"
+        [value]="firma().bic || ''"
+        (input)="feldGeaendert('bic', $event)"
+        placeholder="LUHSDE6XXX"
+      />
     </div>
   </div>
   <div class="form-row">
     <div class="form-field">
       <label>DATEV Beraternummer</label>
-      <input type="text" [value]="firma().datev_beraternr || ''" (input)="feldGeaendert('datev_beraternr', $event)" placeholder="99999">
+      <input
+        type="text"
+        [value]="firma().datev_beraternr || ''"
+        (input)="feldGeaendert('datev_beraternr', $event)"
+        placeholder="99999"
+      />
     </div>
     <div class="form-field">
       <label>DATEV Mandantennummer</label>
-      <input type="text" [value]="firma().datev_mandantennr || ''" (input)="feldGeaendert('datev_mandantennr', $event)" placeholder="1">
+      <input
+        type="text"
+        [value]="firma().datev_mandantennr || ''"
+        (input)="feldGeaendert('datev_mandantennr', $event)"
+        placeholder="1"
+      />
     </div>
   </div>
 

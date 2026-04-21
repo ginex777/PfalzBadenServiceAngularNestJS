@@ -1,8 +1,19 @@
-import { ChangeDetectionStrategy, Component, input, output, signal, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+  signal,
+  computed,
+  inject,
+} from '@angular/core';
 import { ToastService } from '../../../../core/services/toast.service';
 import { Rechnung } from '../../../../core/models';
 import { RechnungFilter } from '../../rechnungen.models';
-import { StatusBadgeComponent, StatusBadgeTyp } from '../../../../shared/ui/status-badge/status-badge.component';
+import {
+  StatusBadgeComponent,
+  StatusBadgeTyp,
+} from '../../../../shared/ui/status-badge/status-badge.component';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { ConfirmModalComponent } from '../../../../shared/ui/confirm-modal/confirm-modal.component';
 import { waehrungFormatieren, datumFormatieren, MONATE } from '../../../../core/utils/format.utils';
@@ -46,7 +57,7 @@ export class RechnungenTabelleComponent {
 
   protected readonly alleAusgewaehlt = computed(() => {
     const liste = this.sortierteListe();
-    return liste.length > 0 && liste.every(r => r.id != null && this.ausgewaehlt().has(r.id));
+    return liste.length > 0 && liste.every((r) => r.id != null && this.ausgewaehlt().has(r.id));
   });
 
   protected readonly sortierteListe = computed(() => {
@@ -57,7 +68,7 @@ export class RechnungenTabelleComponent {
     let liste = [...this.rechnungen()];
     if (mf !== '') {
       const m = parseInt(mf);
-      liste = liste.filter(r => r.datum && new Date(r.datum).getMonth() === m);
+      liste = liste.filter((r) => r.datum && new Date(r.datum).getMonth() === m);
     }
 
     return liste.sort((a, b) => {
@@ -69,7 +80,7 @@ export class RechnungenTabelleComponent {
 
   protected toggleSort(col: keyof Rechnung): void {
     if (this.sortSpalte() === col) {
-      this.sortAufsteigend.update(v => !v);
+      this.sortAufsteigend.update((v) => !v);
     } else {
       this.sortSpalte.set(col);
       this.sortAufsteigend.set(true);
@@ -91,7 +102,7 @@ export class RechnungenTabelleComponent {
   }
 
   protected auswahlToggle(id: number): void {
-    this.ausgewaehlt.update(set => {
+    this.ausgewaehlt.update((set) => {
       const next = new Set(set);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
@@ -101,7 +112,9 @@ export class RechnungenTabelleComponent {
   protected alleToggle(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     if (checked) {
-      const ids = this.sortierteListe().map(r => r.id!).filter(Boolean);
+      const ids = this.sortierteListe()
+        .map((r) => r.id!)
+        .filter(Boolean);
       this.ausgewaehlt.set(new Set(ids));
     } else {
       this.ausgewaehlt.set(new Set());
@@ -114,7 +127,9 @@ export class RechnungenTabelleComponent {
 
   protected loeschenBestaetigt(): void {
     const id = this.pendingDeleteId();
-    if (id !== null) { this.loeschen.emit(id); }
+    if (id !== null) {
+      this.loeschen.emit(id);
+    }
     this.pendingDeleteId.set(null);
   }
 
@@ -131,7 +146,9 @@ export class RechnungenTabelleComponent {
   }
 
   protected onBulkAlsGezahlt(): void {
-    const rechnungen = this.sortierteListe().filter(r => r.id != null && this.ausgewaehlt().has(r.id) && !r.bezahlt);
+    const rechnungen = this.sortierteListe().filter(
+      (r) => r.id != null && this.ausgewaehlt().has(r.id) && !r.bezahlt,
+    );
     if (rechnungen.length === 0) {
       this.toast.info('Alle gewählten Rechnungen sind bereits bezahlt.');
       return;
@@ -145,15 +162,22 @@ export class RechnungenTabelleComponent {
   }
 
   protected onBulkCsvExport(): void {
-    const rechnungen = this.sortierteListe().filter(r => r.id != null && this.ausgewaehlt().has(r.id));
+    const rechnungen = this.sortierteListe().filter(
+      (r) => r.id != null && this.ausgewaehlt().has(r.id),
+    );
     const zeilen = [
       'Nr;Empfänger;Datum;Betrag;Status',
-      ...rechnungen.map(r => `${r.nr};"${r.empf}";${r.datum ?? ''};${r.brutto ?? 0};${r.bezahlt ? 'Bezahlt' : 'Offen'}`),
+      ...rechnungen.map(
+        (r) =>
+          `${r.nr};"${r.empf}";${r.datum ?? ''};${r.brutto ?? 0};${r.bezahlt ? 'Bezahlt' : 'Offen'}`,
+      ),
     ];
     const blob = new Blob([zeilen.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'rechnungen-export.csv'; a.click();
+    a.href = url;
+    a.download = 'rechnungen-export.csv';
+    a.click();
     URL.revokeObjectURL(url);
     this.toast.success(`${rechnungen.length} Rechnungen exportiert`);
     this.ausgewaehlt.set(new Set());
@@ -161,13 +185,15 @@ export class RechnungenTabelleComponent {
 
   protected istUeberfaellig(rechnung: Rechnung): boolean {
     if (rechnung.bezahlt || !rechnung.frist) return false;
-    const heute = new Date(); heute.setHours(0, 0, 0, 0);
+    const heute = new Date();
+    heute.setHours(0, 0, 0, 0);
     return new Date(rechnung.frist) < heute;
   }
 
   protected tageUeberfaellig(rechnung: Rechnung): number {
     if (!rechnung.frist) return 0;
-    const heute = new Date(); heute.setHours(0, 0, 0, 0);
+    const heute = new Date();
+    heute.setHours(0, 0, 0, 0);
     const frist = new Date(rechnung.frist);
     return Math.floor((heute.getTime() - frist.getTime()) / MS_PER_DAY);
   }

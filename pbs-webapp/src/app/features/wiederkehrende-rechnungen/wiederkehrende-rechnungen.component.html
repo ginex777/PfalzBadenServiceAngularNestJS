@@ -1,4 +1,7 @@
-<app-page-title titel="Wiederkehrende Rechnungen" untertitel="Vorlagen für regelmäßige Rechnungen" />
+<app-page-title
+  titel="Wiederkehrende Rechnungen"
+  untertitel="Vorlagen für regelmäßige Rechnungen"
+/>
 
 <!-- Formular -->
 @if (facade.formularSichtbar()) {
@@ -9,15 +12,21 @@
     <div class="form-row">
       <div class="form-field">
         <label class="form-label">Titel *</label>
-        <input class="form-input" type="text" placeholder="z.B. Monatliche Reinigung"
+        <input
+          class="form-input"
+          type="text"
+          placeholder="z.B. Monatliche Reinigung"
           [value]="facade.formularDaten().titel"
-          (input)="titelGeaendert($event)" />
+          (input)="titelGeaendert($event)"
+        />
       </div>
       <div class="form-field">
         <label class="form-label">Kunde</label>
-        <select class="form-select"
+        <select
+          class="form-select"
           [value]="facade.formularDaten().kunden_id ?? ''"
-          (change)="kundeGeaendert($event)">
+          (change)="kundeGeaendert($event)"
+        >
           <option value="">-- kein Kunde --</option>
           @for (k of facade.kunden(); track k.id) {
             <option [value]="k.id">{{ k.name }}</option>
@@ -26,9 +35,11 @@
       </div>
       <div class="form-field">
         <label class="form-label">Intervall</label>
-        <select class="form-select"
+        <select
+          class="form-select"
           [value]="facade.formularDaten().intervall"
-          (change)="intervallGeaendert($event)">
+          (change)="intervallGeaendert($event)"
+        >
           <option value="monatlich">Monatlich</option>
           <option value="quartalsweise">Quartalsweise</option>
           <option value="halbjaehrlich">Halbjährlich</option>
@@ -37,9 +48,11 @@
       </div>
       <div class="form-field form-field--checkbox">
         <label class="form-label">Aktiv</label>
-        <input type="checkbox"
+        <input
+          type="checkbox"
           [checked]="facade.formularDaten().aktiv"
-          (change)="aktivGeaendert($event)" />
+          (change)="aktivGeaendert($event)"
+        />
       </div>
     </div>
 
@@ -51,14 +64,26 @@
       </div>
       @for (pos of facade.formularDaten().positionen; track $index) {
         <div class="position-zeile">
-          <textarea class="form-input" rows="1" placeholder="Beschreibung"
+          <textarea
+            class="form-input"
+            rows="1"
+            placeholder="Beschreibung"
             [value]="pos.bez"
-            (input)="positionBezGeaendert($index, $event)"></textarea>
-          <input class="form-input pos-preis" type="number" step="0.01" min="0" placeholder="Betrag"
+            (input)="positionBezGeaendert($index, $event)"
+          ></textarea>
+          <input
+            class="form-input pos-preis"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="Betrag"
             [value]="pos.gesamtpreis || ''"
-            (input)="positionGesamtpreisGeaendert($index, $event)" />
+            (input)="positionGesamtpreisGeaendert($index, $event)"
+          />
           @if (facade.formularDaten().positionen.length > 1) {
-            <button class="btn-action btn-action-danger" (click)="facade.positionEntfernen($index)">✕</button>
+            <button class="btn-action btn-action-danger" (click)="facade.positionEntfernen($index)">
+              ✕
+            </button>
           }
         </div>
       }
@@ -66,7 +91,13 @@
     </div>
 
     <div class="form-aktionen">
-      <button class="btn btn--primary" [disabled]="!facade.formularDaten().titel" (click)="facade.speichern()">Speichern</button>
+      <button
+        class="btn btn--primary"
+        [disabled]="!facade.formularDaten().titel"
+        (click)="facade.speichern()"
+      >
+        Speichern
+      </button>
       <button class="btn" (click)="facade.formularSchliessen()">Abbrechen</button>
     </div>
   </div>
@@ -108,16 +139,31 @@
             <td>
               <span class="badge badge--blue">{{ wr.intervall }}</span>
             </td>
-            <td class="rechts">{{ fmt(wr.positionen.reduce((s, p) => s + (p.gesamtpreis || 0), 0)) }}</td>
+            <td class="rechts">
+              {{ fmt(wr.positionen.reduce((s, p) => s + (p.gesamtpreis || 0), 0)) }}
+            </td>
             <td>{{ fmtDatum(wr.letzte_erstellung) }}</td>
             <td class="mitte">
-              <input type="checkbox" [checked]="wr.aktiv"
-                (change)="aktivToggleGeaendert(wr.id, $event)" />
+              <input
+                type="checkbox"
+                [checked]="wr.aktiv"
+                (change)="aktivToggleGeaendert(wr.id, $event)"
+              />
             </td>
             <td class="td-aktionen">
-              <button class="btn btn-sm btn--primary" (click)="facade.jetztErstellen(wr)">Jetzt erstellen</button>
-              <button class="btn-action" title="Bearbeiten" (click)="facade.formularOeffnen(wr)">Bearbeiten</button>
-              <button class="btn-action btn-action--danger" title="Löschen" (click)="facade.loeschenBestaetigen(wr.id)">Löschen</button>
+              <button class="btn btn-sm btn--primary" (click)="facade.jetztErstellen(wr)">
+                Jetzt erstellen
+              </button>
+              <button class="btn-action" title="Bearbeiten" (click)="facade.formularOeffnen(wr)">
+                Bearbeiten
+              </button>
+              <button
+                class="btn-action btn-action--danger"
+                title="Löschen"
+                (click)="facade.loeschenBestaetigen(wr.id)"
+              >
+                Löschen
+              </button>
             </td>
           </tr>
         }

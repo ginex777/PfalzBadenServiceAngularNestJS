@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, linkedSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, linkedSignal } from '@angular/core';
 import { form, required, applyEach, SchemaPathTree } from '@angular/forms/signals';
 import { WiederkehrendeRechnungenFacade } from './wiederkehrende-rechnungen.facade';
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
-import { WiederkehrendeRechnung, RechnungPosition } from '../../core/models';
-import { WrFormularDaten, LEERES_WR_FORMULAR } from './wiederkehrende-rechnungen.models';
+import { RechnungPosition } from '../../core/models';
 import { datumFormatieren, waehrungFormatieren } from '../../core/utils/format.utils';
 
 function positionSchema(p: SchemaPathTree<RechnungPosition>): void {
@@ -31,7 +30,9 @@ export class WiederkehrendeRechnungenComponent implements OnInit {
     applyEach(schema.positionen, positionSchema);
   });
 
-  ngOnInit(): void { this.facade.ladeDaten(); }
+  ngOnInit(): void {
+    this.facade.ladeDaten();
+  }
 
   protected titelGeaendert(event: Event): void {
     this.facade.formularFeldAktualisieren('titel', (event.target as HTMLInputElement).value);
@@ -39,7 +40,7 @@ export class WiederkehrendeRechnungenComponent implements OnInit {
 
   protected kundeGeaendert(event: Event): void {
     const id = (event.target as HTMLSelectElement).value;
-    this.facade.formularFeldAktualisieren('kunden_id', id ? +id : undefined as never);
+    this.facade.formularFeldAktualisieren('kunden_id', id ? +id : (undefined as never));
   }
 
   protected intervallGeaendert(event: Event): void {
@@ -47,15 +48,22 @@ export class WiederkehrendeRechnungenComponent implements OnInit {
   }
 
   protected aktivGeaendert(event: Event): void {
-    this.facade.formularFeldAktualisieren('aktiv', (event.target as HTMLInputElement).checked as never);
+    this.facade.formularFeldAktualisieren(
+      'aktiv',
+      (event.target as HTMLInputElement).checked as never,
+    );
   }
 
   protected aktivToggleGeaendert(id: number, event: Event): void {
     this.facade.aktivToggle(id, (event.target as HTMLInputElement).checked);
   }
 
-  protected fmt(n: number): string { return waehrungFormatieren(n); }
-  protected fmtDatum(s: string | undefined): string { return datumFormatieren(s); }
+  protected fmt(n: number): string {
+    return waehrungFormatieren(n);
+  }
+  protected fmtDatum(s: string | undefined): string {
+    return datumFormatieren(s);
+  }
 
   protected positionBezGeaendert(index: number, event: Event): void {
     const pos = { ...this.facade.formularDaten().positionen[index] };

@@ -7,10 +7,10 @@ export class GlobalErrorHandler implements ErrorHandler {
 
   handleError(error: any): void {
     console.error('Global error caught:', error);
-    
+
     // Extract meaningful error message
     let message = 'Ein unerwarteter Fehler ist aufgetreten.';
-    
+
     if (error?.message) {
       message = error.message;
     } else if (error?.error?.message) {

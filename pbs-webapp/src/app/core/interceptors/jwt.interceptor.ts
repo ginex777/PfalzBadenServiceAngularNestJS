@@ -1,4 +1,9 @@
-import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpInterceptorFn,
+  HttpRequest,
+  HttpHandlerFn,
+  HttpErrorResponse,
+} from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
@@ -7,7 +12,10 @@ function addBearer(req: HttpRequest<unknown>, token: string): HttpRequest<unknow
   return req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
 }
 
-export const jwtInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
+export const jwtInterceptor: HttpInterceptorFn = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+) => {
   const auth = inject(AuthService);
   const token = auth.accessToken();
 
@@ -18,15 +26,11 @@ export const jwtInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, nex
 
   return next(outgoing).pipe(
     catchError((err: unknown) => {
-      if (
-        err instanceof HttpErrorResponse &&
-        err.status === 401 &&
-        !isAuthEndpoint
-      ) {
+      if (err instanceof HttpErrorResponse && err.status === 401 && !isAuthEndpoint) {
         // Try a silent refresh, then replay the original request once
         return auth.refreshTokens().pipe(
           switchMap(({ accessToken }) => next(addBearer(req, accessToken))),
-          catchError(refreshErr => {
+          catchError((refreshErr) => {
             // Refresh failed — auth.refreshTokens() already cleared the session
             return throwError(() => refreshErr);
           }),

@@ -17,9 +17,7 @@ export class BrowserService {
   /** Lädt eine geschützte URL per HttpClient (JWT wird automatisch mitgeschickt)
    *  und öffnet den Blob in einem neuen Tab. Für PDFs, CSV und Excel-Downloads. */
   async blobOeffnen(url: string): Promise<void> {
-    const blob = await firstValueFrom(
-      this.http.get(url, { responseType: 'blob' })
-    );
+    const blob = await firstValueFrom(this.http.get(url, { responseType: 'blob' }));
     const objectUrl = URL.createObjectURL(blob);
     const win = window.open(objectUrl, '_blank');
     // Object-URL nach kurzer Zeit freigeben

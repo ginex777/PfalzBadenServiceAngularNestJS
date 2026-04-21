@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, input, output, linkedSignal, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+  linkedSignal,
+  signal,
+  computed,
+} from '@angular/core';
 import { form, required, applyEach, SchemaPathTree } from '@angular/forms/signals';
 import { Rechnung, Kunde, RechnungPosition } from '../../../../core/models';
 import { RechnungFormularDaten } from '../../rechnungen.models';
@@ -50,8 +58,11 @@ export class RechnungenFormularComponent {
 
   protected readonly istFormularGueltig = computed(() => {
     const daten = this.formularDaten();
-    return !!(daten.empf?.trim() && daten.nr?.trim() && 
-             daten.positionen.every(p => p.bez?.trim() && p.gesamtpreis > 0));
+    return !!(
+      daten.empf?.trim() &&
+      daten.nr?.trim() &&
+      daten.positionen.every((p) => p.bez?.trim() && p.gesamtpreis > 0)
+    );
   });
 
   readonly istGesperrt = computed(() => {
@@ -62,7 +73,7 @@ export class RechnungenFormularComponent {
   protected readonly waehrungFormatieren = waehrungFormatieren;
 
   protected beruehren(feld: string): void {
-    this.beruehrt.update(b => ({ ...b, [feld]: true }));
+    this.beruehrt.update((b) => ({ ...b, [feld]: true }));
   }
 
   protected onFeldChange(feld: keyof RechnungFormularDaten, event: Event): void {
@@ -72,7 +83,10 @@ export class RechnungenFormularComponent {
 
   protected onSelectChange(feld: keyof RechnungFormularDaten, event: Event): void {
     const wert = (event.target as HTMLSelectElement).value;
-    this.feldAktualisieren.emit({ feld, wert: feld === 'zahlungsziel' || feld === 'mwst_satz' ? Number(wert) : wert });
+    this.feldAktualisieren.emit({
+      feld,
+      wert: feld === 'zahlungsziel' || feld === 'mwst_satz' ? Number(wert) : wert,
+    });
   }
 
   protected onKundeChange(event: Event): void {

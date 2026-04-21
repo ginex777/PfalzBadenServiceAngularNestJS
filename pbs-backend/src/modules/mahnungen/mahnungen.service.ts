@@ -13,19 +13,24 @@ export class MahnungenService {
     private readonly pdfService: PdfService,
   ) {}
 
-  async alleGruppiert(): Promise<Record<number, number>> {
-    const rows = await this.prisma.mahnungen.groupBy({ by: ['rechnung_id'], _count: { id: true } });
+  async findAllGrouped(): Promise<Record<number, number>> {
+    const rows = await this.prisma.mahnungen.groupBy({
+      by: ['rechnung_id'],
+      _count: { id: true },
+    });
     const map: Record<number, number> = {};
-    rows.forEach(r => { map[Number(r.rechnung_id)] = r._count.id; });
+    rows.forEach((r) => {
+      map[Number(r.rechnung_id)] = r._count.id;
+    });
     return map;
   }
 
-  async mahnungenLaden(rechnungId: number) {
+  async findByInvoice(rechnungId: number) {
     const rows = await this.prisma.mahnungen.findMany({
       where: { rechnung_id: BigInt(rechnungId) },
       orderBy: { stufe: 'asc' },
     });
-    return rows.map(m => ({
+    return rows.map((m) => ({
       ...m,
       id: Number(m.id),
       rechnung_id: Number(m.rechnung_id),
@@ -33,7 +38,7 @@ export class MahnungenService {
     }));
   }
 
-  async mahnungErstellen(dto: CreateMahnungDto) {
+  async create(dto: CreateMahnungDto) {
     const m = await this.prisma.mahnungen.create({
       data: {
         rechnung: { connect: { id: BigInt(dto.rechnung_id) } },
@@ -43,15 +48,20 @@ export class MahnungenService {
         notiz: dto.notiz ?? null,
       },
     });
-    return { ...m, id: Number(m.id), rechnung_id: Number(m.rechnung_id), betrag_gebuehr: Number(m.betrag_gebuehr) };
+    return {
+      ...m,
+      id: Number(m.id),
+      rechnung_id: Number(m.rechnung_id),
+      betrag_gebuehr: Number(m.betrag_gebuehr),
+    };
   }
 
-  async mahnungLoeschen(id: number) {
+  async delete(id: number) {
     await this.prisma.mahnungen.delete({ where: { id: BigInt(id) } });
     return { ok: true };
   }
 
-  async mahnungPdfErstellen(id: number) {
-    return this.pdfService.mahnungPdfErstellen(id);
+  async createPdf(id: number) {
+    return this.pdfService.createMahnungPdf(id);
   }
 }

@@ -4,7 +4,9 @@
     <p class="page-sub">Benutzer anlegen, bearbeiten und löschen</p>
   </div>
 
-  @if (erfolg()) { <div class="banner banner--ok">{{ erfolg() }}</div> }
+  @if (erfolg()) {
+    <div class="banner banner--ok">{{ erfolg() }}</div>
+  }
 
   <!-- Neuen Benutzer anlegen -->
   <div class="card">
@@ -12,41 +14,58 @@
     <div class="form-grid">
       <label class="form-label">
         Vorname
-        <input class="form-input" type="text" placeholder="Max"
+        <input
+          class="form-input"
+          type="text"
+          placeholder="Max"
           [value]="neuerUser().vorname"
-          (input)="neuerUser.update(u => ({...u, vorname: $any($event.target).value}))" />
+          (input)="neuerUser.update((u) => ({ ...u, vorname: $any($event.target).value }))"
+        />
       </label>
       <label class="form-label">
         Nachname
-        <input class="form-input" type="text" placeholder="Mustermann"
+        <input
+          class="form-input"
+          type="text"
+          placeholder="Mustermann"
           [value]="neuerUser().nachname"
-          (input)="neuerUser.update(u => ({...u, nachname: $any($event.target).value}))" />
+          (input)="neuerUser.update((u) => ({ ...u, nachname: $any($event.target).value }))"
+        />
       </label>
       <label class="form-label">
         E-Mail *
-        <input class="form-input" type="email" placeholder="nutzer@beispiel.de"
+        <input
+          class="form-input"
+          type="email"
+          placeholder="nutzer@beispiel.de"
           [value]="neuerUser().email"
-          (input)="neuerUser.update(u => ({...u, email: $any($event.target).value}))" />
+          (input)="neuerUser.update((u) => ({ ...u, email: $any($event.target).value }))"
+        />
       </label>
       <label class="form-label">
         Passwort * (min. 8 Zeichen)
-        <input class="form-input" type="password" placeholder="••••••••"
+        <input
+          class="form-input"
+          type="password"
+          placeholder="••••••••"
           [value]="neuerUser().password"
-          (input)="neuerUser.update(u => ({...u, password: $any($event.target).value}))" />
+          (input)="neuerUser.update((u) => ({ ...u, password: $any($event.target).value }))"
+        />
       </label>
       <label class="form-label">
         Rolle
-        <select class="form-input"
+        <select
+          class="form-input"
           [value]="neuerUser().rolle"
-          (change)="neuerUser.update(u => ({...u, rolle: $any($event.target).value}))">
+          (change)="neuerUser.update((u) => ({ ...u, rolle: $any($event.target).value }))"
+        >
           <option value="admin">Admin</option>
           <option value="mitarbeiter">Mitarbeiter</option>
           <option value="readonly">Nur Lesen</option>
         </select>
       </label>
     </div>
-    <button class="btn btn-primary btn-mt"
-      [disabled]="anlegenLaedt()" (click)="anlegen()">
+    <button class="btn btn-primary btn-mt" [disabled]="anlegenLaedt()" (click)="anlegen()">
       {{ anlegenLaedt() ? 'Anlegen…' : 'Benutzer anlegen' }}
     </button>
   </div>
@@ -78,12 +97,16 @@
                 <td>{{ u.vorname || '–' }}</td>
                 <td>{{ u.nachname || '–' }}</td>
                 <td>{{ u.email }}</td>
-                <td><span class="rolle-badge rolle-{{ u.rolle }}">{{ u.rolle }}</span></td>
+                <td>
+                  <span class="rolle-badge rolle-{{ u.rolle }}">{{ u.rolle }}</span>
+                </td>
                 <td>{{ u.aktiv ? 'Aktiv' : 'Inaktiv' }}</td>
-                <td>{{ u.created_at | date:'dd.MM.yyyy' }}</td>
+                <td>{{ u.created_at | date: 'dd.MM.yyyy' }}</td>
                 <td class="td-aktionen">
                   <button class="btn-action" (click)="bearbeitenOeffnen(u)">Bearbeiten</button>
-                  <button class="btn-action btn-action--danger" (click)="loeschen(u)">Löschen</button>
+                  <button class="btn-action btn-action--danger" (click)="loeschen(u)">
+                    Löschen
+                  </button>
                 </td>
               </tr>
             }
@@ -102,21 +125,29 @@
       <div class="form-grid">
         <label class="form-label">
           Vorname
-          <input class="form-input" type="text"
+          <input
+            class="form-input"
+            type="text"
             [value]="bearbeitenForm().vorname"
-            (input)="bearbeitenForm.update(f => ({...f, vorname: $any($event.target).value}))" />
+            (input)="bearbeitenForm.update((f) => ({ ...f, vorname: $any($event.target).value }))"
+          />
         </label>
         <label class="form-label">
           Nachname
-          <input class="form-input" type="text"
+          <input
+            class="form-input"
+            type="text"
             [value]="bearbeitenForm().nachname"
-            (input)="bearbeitenForm.update(f => ({...f, nachname: $any($event.target).value}))" />
+            (input)="bearbeitenForm.update((f) => ({ ...f, nachname: $any($event.target).value }))"
+          />
         </label>
         <label class="form-label">
           Rolle
-          <select class="form-input"
+          <select
+            class="form-input"
             [value]="bearbeitenForm().rolle"
-            (change)="bearbeitenForm.update(f => ({...f, rolle: $any($event.target).value}))">
+            (change)="bearbeitenForm.update((f) => ({ ...f, rolle: $any($event.target).value }))"
+          >
             <option value="admin">Admin</option>
             <option value="mitarbeiter">Mitarbeiter</option>
             <option value="readonly">Nur Lesen</option>

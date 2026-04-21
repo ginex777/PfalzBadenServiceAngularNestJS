@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+} from '@angular/core';
 import { HausmeisterFacade } from './hausmeister.facade';
 import { EinsatzListeComponent } from './components/einsatz-liste/einsatz-liste.component';
 import { EinsatzFormularComponent } from './components/einsatz-formular/einsatz-formular.component';
@@ -14,7 +21,13 @@ const WOCHENTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
   selector: 'app-hausmeister',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EinsatzListeComponent, EinsatzFormularComponent, ConfirmModalComponent, PageTitleComponent, StatCardComponent],
+  imports: [
+    EinsatzListeComponent,
+    EinsatzFormularComponent,
+    ConfirmModalComponent,
+    PageTitleComponent,
+    StatCardComponent,
+  ],
   templateUrl: './hausmeister.component.html',
   styleUrl: './hausmeister.component.scss',
 })
@@ -36,9 +49,9 @@ export class HausmeisterComponent implements OnInit {
   protected readonly einsaetzeProTag = computed(() => {
     const tage = this.wocheTage();
     const einsaetze = this.facade.gefilterteEinsaetze();
-    return tage.map(tag => {
+    return tage.map((tag) => {
       const isoDate = tag.toISOString().slice(0, 10);
-      return einsaetze.filter(e => e.datum === isoDate);
+      return einsaetze.filter((e) => e.datum === isoDate);
     });
   });
 
@@ -46,11 +59,14 @@ export class HausmeisterComponent implements OnInit {
     const tage = this.wocheTage();
     const start = tage[0];
     const end = tage[6];
-    const fmt = (d: Date) => `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth() + 1).toString().padStart(2, '0')}.`;
+    const fmt = (d: Date) =>
+      `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth() + 1).toString().padStart(2, '0')}.`;
     return `${fmt(start)} – ${fmt(end)}${end.getFullYear()}`;
   });
 
-  ngOnInit(): void { this.facade.ladeDaten(); }
+  ngOnInit(): void {
+    this.facade.ladeDaten();
+  }
 
   protected monatLabel(key: string): string {
     const [y, mo] = key.split('-');

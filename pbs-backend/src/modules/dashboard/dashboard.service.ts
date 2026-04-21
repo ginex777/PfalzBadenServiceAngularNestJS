@@ -8,25 +8,36 @@ export class DashboardService {
   async kpis() {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    const monthEnd = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+    );
 
-    const [monthlyRevenue, outstanding, overdueCount, hausmeisterHours] = await Promise.all([
-      this.prisma.rechnungen.aggregate({
-        where: { bezahlt: true, bezahlt_am: { gte: monthStart, lte: monthEnd } },
-        _sum: { brutto: true },
-      }),
-      this.prisma.rechnungen.aggregate({
-        where: { bezahlt: false },
-        _sum: { brutto: true },
-      }),
-      this.prisma.rechnungen.count({
-        where: { bezahlt: false, frist: { lt: now } },
-      }),
-      this.prisma.hausmeisterEinsaetze.aggregate({
-        where: { datum: { gte: monthStart, lte: monthEnd } },
-        _sum: { stunden_gesamt: true },
-      }),
-    ]);
+    const [monthlyRevenue, outstanding, overdueCount, hausmeisterHours] =
+      await Promise.all([
+        this.prisma.rechnungen.aggregate({
+          where: {
+            bezahlt: true,
+            bezahlt_am: { gte: monthStart, lte: monthEnd },
+          },
+          _sum: { brutto: true },
+        }),
+        this.prisma.rechnungen.aggregate({
+          where: { bezahlt: false },
+          _sum: { brutto: true },
+        }),
+        this.prisma.rechnungen.count({
+          where: { bezahlt: false, frist: { lt: now } },
+        }),
+        this.prisma.hausmeisterEinsaetze.aggregate({
+          where: { datum: { gte: monthStart, lte: monthEnd } },
+          _sum: { stunden_gesamt: true },
+        }),
+      ]);
 
     return {
       monthlyRevenue: Number(monthlyRevenue._sum.brutto ?? 0),
@@ -41,7 +52,7 @@ export class DashboardService {
       orderBy: { zeitstempel: 'desc' },
       take: 10,
     });
-    return rows.map(r => {
+    return rows.map((r) => {
       const wert = (r.neu_wert ?? r.alt_wert) as Record<string, unknown> | null;
       return {
         id: Number(r.id),
@@ -61,12 +72,19 @@ export class DashboardService {
     const now = new Date();
     const results = await Promise.all(
       Array.from({ length: months }, (_, i) => {
-        const d = new Date(now.getFullYear(), now.getMonth() - (months - 1 - i), 1);
+        const d = new Date(
+          now.getFullYear(),
+          now.getMonth() - (months - 1 - i),
+          1,
+        );
         const start = new Date(d.getFullYear(), d.getMonth(), 1);
         const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
         return this.prisma.rechnungen
-          .aggregate({ where: { bezahlt: true, bezahlt_am: { gte: start, lte: end } }, _sum: { brutto: true } })
-          .then(agg => ({
+          .aggregate({
+            where: { bezahlt: true, bezahlt_am: { gte: start, lte: end } },
+            _sum: { brutto: true },
+          })
+          .then((agg) => ({
             month: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
             revenue: Number(agg._sum.brutto ?? 0),
           }));

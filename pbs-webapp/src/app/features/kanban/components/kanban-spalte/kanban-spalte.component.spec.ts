@@ -7,7 +7,7 @@ describe('KanbanSpalteComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [KanbanSpalteComponent]
+      declarations: [KanbanSpalteComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(KanbanSpalteComponent);

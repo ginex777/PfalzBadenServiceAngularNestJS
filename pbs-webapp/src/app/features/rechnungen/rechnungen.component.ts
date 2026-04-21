@@ -39,16 +39,14 @@ export class RechnungenComponent {
   private urlId: number | null = null;
 
   constructor() {
-    this.route.queryParams
-      .pipe(takeUntilDestroyed())
-      .subscribe(params => {
-        if (params['id']) this.urlId = parseInt(params['id']);
-      });
+    this.route.queryParams.pipe(takeUntilDestroyed()).subscribe((params) => {
+      if (params['id']) this.urlId = parseInt(params['id']);
+    });
 
     // When loading completes and we have a URL id, open the matching record
     effect(() => {
       if (!this.facade.laedt() && this.urlId !== null) {
-        const rechnung = this.facade.rechnungen().find(r => r.id === this.urlId);
+        const rechnung = this.facade.rechnungen().find((r) => r.id === this.urlId);
         if (rechnung) {
           this.facade.bearbeitungStarten(rechnung);
           this.urlId = null;
@@ -94,7 +92,10 @@ export class RechnungenComponent {
 
   protected onMahnungFeld(feld: string, event: Event): void {
     const val = (event.target as HTMLInputElement).value;
-    this.facade.mahnungFormularFeld(feld, feld === 'betrag_gebuehr' || feld === 'stufe' ? parseFloat(val) || 0 : val);
+    this.facade.mahnungFormularFeld(
+      feld,
+      feld === 'betrag_gebuehr' || feld === 'stufe' ? parseFloat(val) || 0 : val,
+    );
   }
 
   protected onOutlookOeffnen(): void {
@@ -135,7 +136,7 @@ export class RechnungenComponent {
   protected onFeldAktualisieren(event: { feld: keyof RechnungFormularDaten; wert: unknown }): void {
     this.facade.formularFeldAktualisieren(
       event.feld,
-      event.wert as RechnungFormularDaten[typeof event.feld]
+      event.wert as RechnungFormularDaten[typeof event.feld],
     );
   }
 
@@ -145,11 +146,11 @@ export class RechnungenComponent {
 
   protected onBulkLoeschen(ids: number[]): void {
     if (!confirm(`${ids.length} Rechnungen unwiderruflich löschen?`)) return;
-    ids.forEach(id => this.facade.loeschenSofort(id));
+    ids.forEach((id) => this.facade.loeschenSofort(id));
   }
 
   protected onBulkAlsGezahlt(rechnungen: Rechnung[]): void {
-    rechnungen.forEach(r => this.facade.alsGezahltMarkierenStarten(r));
+    rechnungen.forEach((r) => this.facade.alsGezahltMarkierenStarten(r));
   }
 
   hatUngespeicherteAenderungen(): boolean {

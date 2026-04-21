@@ -17,30 +17,50 @@ export class MahnungPdfGenerator {
     private readonly token: PdfTokenService,
   ) {}
 
-  async erstellen(mahnungId: number): Promise<{ token: string; url: string }> {
+  async create(mahnungId: number): Promise<{ token: string; url: string }> {
     const mahnung = await this.prisma.mahnungen.findUnique({
       where: { id: BigInt(mahnungId) },
       include: { rechnung: true },
     });
-    if (!mahnung) throw new NotFoundException(`Mahnung ${mahnungId} nicht gefunden`);
+    if (!mahnung)
+      throw new NotFoundException(`Mahnung ${mahnungId} nicht gefunden`);
 
     const rechnung = mahnung.rechnung;
-    const firma = await this.render.firmaLaden();
+    const firma = await this.render.loadFirma();
 
-    const positionen = (rechnung.positionen as { bez: string; stunden?: string; einzelpreis?: number; gesamtpreis: number }[]) ?? [];
+    const positionen =
+      (rechnung.positionen as {
+        bez: string;
+        stunden?: string;
+        einzelpreis?: number;
+        gesamtpreis: number;
+      }[]) ?? [];
     const mwstSatz = Number(rechnung.mwst_satz ?? 19);
-    const netto = positionen.reduce((s, p) => s + (Number(p.gesamtpreis) || 0), 0);
+    const netto = positionen.reduce(
+      (s, p) => s + (Number(p.gesamtpreis) || 0),
+      0,
+    );
     const ust = netto * (mwstSatz / 100);
     const brutto = netto + ust;
     const gebuehr = Number(mahnung.betrag_gebuehr);
     const gesamtbetrag = brutto + gebuehr;
 
-    const datumStr = rechnung.datum ? this.render.datumFormatieren(rechnung.datum.toISOString().slice(0, 10)) : '–';
-    const mahnungDatumStr = this.render.datumFormatieren(mahnung.datum.toISOString().slice(0, 10));
-    const zahlDatum = rechnung.datum ? this.render.addTage(rechnung.datum.toISOString().slice(0, 10), (rechnung.zahlungsziel ?? 14) + 14) : '–';
+    const datumStr = rechnung.datum
+      ? this.render.formatDate(rechnung.datum.toISOString().slice(0, 10))
+      : '–';
+    const mahnungDatumStr = this.render.formatDate(
+      mahnung.datum.toISOString().slice(0, 10),
+    );
+    const zahlDatum = rechnung.datum
+      ? this.render.addDays(
+          rechnung.datum.toISOString().slice(0, 10),
+          (rechnung.zahlungsziel ?? 14) + 14,
+        )
+      : '–';
 
     const kontext = {
-      firma, logoBase64: this.render.logoBase64,
+      firma,
+      logoBase64: this.render.logoBase64,
       mahnung: {
         ...mahnung,
         id: Number(mahnung.id),
@@ -60,28 +80,31 @@ export class MahnungPdfGenerator {
         datumFormatiert: datumStr,
         zahlDatumFormatiert: zahlDatum,
         mwstLabel: mwstSatz === 0 ? '0 % (steuerfrei)' : `${mwstSatz} %`,
-        nettoFormatiert: this.render.fmtEur(netto),
-        ustFormatiert: this.render.fmtEur(ust),
-        bruttoFormatiert: this.render.fmtEur(brutto),
+        nettoFormatiert: this.render.formatEuro(netto),
+        ustFormatiert: this.render.formatEuro(ust),
+        bruttoFormatiert: this.render.formatEuro(brutto),
       },
-      gebuehrFormatiert: this.render.fmtEur(gebuehr),
-      gesamtbetragFormatiert: this.render.fmtEur(gesamtbetrag),
+      gebuehrFormatiert: this.render.formatEuro(gebuehr),
+      gesamtbetragFormatiert: this.render.formatEuro(gesamtbetrag),
     };
 
-    const html = this.render.templateRendern('mahnung.hbs', kontext);
-    const pdf = await this.render.pdfMitHeaderFooterErstellen(html, firma);
+    const html = this.render.renderTemplate('mahnung.hbs', kontext);
+    const pdf = await this.render.createPdfWithHeaderFooter(html, firma);
     const filename = `Mahnung_${mahnung.stufe}_${rechnung.nr}.pdf`;
 
     await this.prisma.pdfArchive.create({
       data: {
-        typ: 'mahnung', referenz_nr: `${mahnung.stufe}. Mahnung zu ${rechnung.nr}`,
-        referenz_id: mahnung.id, empf: rechnung.empf,
+        typ: 'mahnung',
+        referenz_nr: `${mahnung.stufe}. Mahnung zu ${rechnung.nr}`,
+        referenz_id: mahnung.id,
+        empf: rechnung.empf,
         titel: `${mahnung.stufe}. Mahnung`,
         datum: mahnung.datum,
-        filename, html_body: html,
+        filename,
+        html_body: html,
       },
     });
 
-    return this.token.tokenErstellen(pdf, filename);
+    return this.token.createToken(pdf, filename);
   }
 }

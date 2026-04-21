@@ -3,7 +3,14 @@ import { EinstellungenService, UserEintrag, UserAnlegenPayload } from './einstel
 import { ToastService } from '../../core/services/toast.service';
 import { FirmaSettings } from '../../core/models';
 
-interface SmtpSettings { host: string; port: number; secure: boolean; user: string; pass: string; fromName?: string; }
+interface SmtpSettings {
+  host: string;
+  port: number;
+  secure: boolean;
+  user: string;
+  pass: string;
+  fromName?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class EinstellungenFacade {
@@ -17,7 +24,14 @@ export class EinstellungenFacade {
   readonly backupLaedt = signal(false);
   readonly letztesBackup = signal<string | null>(null);
   readonly backupDateien = signal<string[]>([]);
-  readonly smtp = signal<SmtpSettings>({ host: '', port: 587, secure: false, user: '', pass: '', fromName: '' });
+  readonly smtp = signal<SmtpSettings>({
+    host: '',
+    port: 587,
+    secure: false,
+    user: '',
+    pass: '',
+    fromName: '',
+  });
   readonly smtpSpeichert = signal(false);
   readonly smtpTestLaedt = signal(false);
   readonly smtpErfolg = signal<string | null>(null);
@@ -25,7 +39,7 @@ export class EinstellungenFacade {
   // Benutzerverwaltung
   readonly users = signal<UserEintrag[]>([]);
   readonly userLaedt = signal(false);
-  readonly userAnlegenLaedt = signal(false);
+  readonly createUserLaedt = signal(false);
   readonly userErfolg = signal<string | null>(null);
   readonly userFehler = signal<string | null>(null);
   readonly neuerUser = signal<UserAnlegenPayload>({ email: '', password: '', rolle: 'readonly' });
@@ -33,11 +47,19 @@ export class EinstellungenFacade {
   ladeDaten(): void {
     this.laedt.set(true);
     this.service.firmaLaden().subscribe({
-      next: f => { this.firma.set(f); this.laedt.set(false); },
-      error: () => { this.toast.error('Einstellungen konnten nicht geladen werden.'); this.laedt.set(false); },
+      next: (f) => {
+        this.firma.set(f);
+        this.laedt.set(false);
+      },
+      error: () => {
+        this.toast.error('Einstellungen konnten nicht geladen werden.');
+        this.laedt.set(false);
+      },
     });
-    this.service.smtpLaden().subscribe({
-      next: (s: unknown) => { if (s && typeof s === 'object') this.smtp.set(s as SmtpSettings); },
+    this.service.loadSmtp().subscribe({
+      next: (s: unknown) => {
+        if (s && typeof s === 'object') this.smtp.set(s as SmtpSettings);
+      },
       error: () => {},
     });
     this.backupStatusLaden();
@@ -47,34 +69,39 @@ export class EinstellungenFacade {
   userListeLaden(): void {
     this.userLaedt.set(true);
     this.service.userListeLaden().subscribe({
-      next: list => { this.users.set(list); this.userLaedt.set(false); },
-      error: () => { this.userLaedt.set(false); },
+      next: (list) => {
+        this.users.set(list);
+        this.userLaedt.set(false);
+      },
+      error: () => {
+        this.userLaedt.set(false);
+      },
     });
   }
 
   neuerUserFeldSetzen(feld: keyof UserAnlegenPayload, wert: string): void {
-    this.neuerUser.update(u => ({ ...u, [feld]: wert }));
+    this.neuerUser.update((u) => ({ ...u, [feld]: wert }));
   }
 
-  userAnlegenAusfuehren(): void {
+  createUserAusfuehren(): void {
     const payload = this.neuerUser();
     if (!payload.email || !payload.password) {
       this.userFehler.set('E-Mail und Passwort sind Pflichtfelder.');
       return;
     }
-    this.userAnlegenLaedt.set(true);
+    this.createUserLaedt.set(true);
     this.userFehler.set(null);
     this.userErfolg.set(null);
-    this.service.userAnlegen(payload).subscribe({
-      next: user => {
-        this.users.update(list => [...list, user]);
+    this.service.createUser(payload).subscribe({
+      next: (user) => {
+        this.users.update((list) => [...list, user]);
         this.neuerUser.set({ email: '', password: '', rolle: 'readonly' });
-        this.userAnlegenLaedt.set(false);
+        this.createUserLaedt.set(false);
         this.userErfolg.set(`✓ Benutzer ${user.email} wurde angelegt`);
         setTimeout(() => this.userErfolg.set(null), 4000);
       },
       error: (e: { error?: { message?: string } }) => {
-        this.userAnlegenLaedt.set(false);
+        this.createUserLaedt.set(false);
         this.userFehler.set(e?.error?.message ?? 'Benutzer konnte nicht angelegt werden.');
       },
     });
@@ -89,55 +116,76 @@ export class EinstellungenFacade {
         this.erfolg.set('✓ Gespeichert — PDFs verwenden ab sofort diese Daten');
         setTimeout(() => this.erfolg.set(null), 4000);
       },
-      error: () => { this.toast.error('Einstellungen konnten nicht gespeichert werden.'); this.speichert.set(false); },
+      error: () => {
+        this.toast.error('Einstellungen konnten nicht gespeichert werden.');
+        this.speichert.set(false);
+      },
     });
   }
 
   firmaFeldAktualisieren<K extends keyof FirmaSettings>(feld: K, wert: FirmaSettings[K]): void {
-    this.firma.update(f => ({ ...f, [feld]: wert }));
+    this.firma.update((f) => ({ ...f, [feld]: wert }));
   }
 
   smtpFeldAktualisieren(feld: keyof SmtpSettings, wert: string | number | boolean): void {
-    this.smtp.update(s => ({ ...s, [feld]: wert }));
+    this.smtp.update((s) => ({ ...s, [feld]: wert }));
   }
 
-  smtpSpeichernAusfuehren(): void {
+  saveSmtpAusfuehren(): void {
     this.smtpSpeichert.set(true);
-    this.service.smtpSpeichern(this.smtp()).subscribe({
+    this.service.saveSmtp(this.smtp()).subscribe({
       next: () => {
         this.smtpSpeichert.set(false);
         this.smtpErfolg.set('✓ SMTP gespeichert');
         setTimeout(() => this.smtpErfolg.set(null), 3000);
       },
-      error: () => { this.toast.error('SMTP konnte nicht gespeichert werden.'); this.smtpSpeichert.set(false); },
+      error: () => {
+        this.toast.error('SMTP konnte nicht gespeichert werden.');
+        this.smtpSpeichert.set(false);
+      },
     });
   }
 
   smtpTesten(): void {
     this.smtpTestLaedt.set(true);
     this.service.smtpTesten().subscribe({
-      next: () => { this.smtpTestLaedt.set(false); this.smtpErfolg.set('✓ SMTP Verbindung erfolgreich'); setTimeout(() => this.smtpErfolg.set(null), 3000); },
-      error: (e: Error) => { this.smtpTestLaedt.set(false); this.toast.error('SMTP-Test fehlgeschlagen: ' + e.message); },
+      next: () => {
+        this.smtpTestLaedt.set(false);
+        this.smtpErfolg.set('✓ SMTP Verbindung erfolgreich');
+        setTimeout(() => this.smtpErfolg.set(null), 3000);
+      },
+      error: (e: Error) => {
+        this.smtpTestLaedt.set(false);
+        this.toast.error('SMTP-Test fehlgeschlagen: ' + e.message);
+      },
     });
   }
 
-  backupErstellen(): void {
+  createBackup(): void {
     this.backupLaedt.set(true);
-    this.service.backupErstellen().subscribe({
-      next: () => { this.backupLaedt.set(false); this.erfolg.set('Backup erstellt ✓'); this.backupStatusLaden(); setTimeout(() => this.erfolg.set(null), 3000); },
-      error: () => { this.toast.error('Backup fehlgeschlagen.'); this.backupLaedt.set(false); },
+    this.service.createBackup().subscribe({
+      next: () => {
+        this.backupLaedt.set(false);
+        this.erfolg.set('Backup erstellt ✓');
+        this.backupStatusLaden();
+        setTimeout(() => this.erfolg.set(null), 3000);
+      },
+      error: () => {
+        this.toast.error('Backup fehlgeschlagen.');
+        this.backupLaedt.set(false);
+      },
     });
   }
 
   private backupStatusLaden(): void {
-    this.service.letztesBackupLaden().subscribe({
+    this.service.loadLastBackup().subscribe({
       next: (info: unknown) => {
         const data = info as { lastBackupTime?: string };
         this.letztesBackup.set(data?.lastBackupTime ?? null);
       },
       error: () => {},
     });
-    this.service.backupDateienLaden().subscribe({
+    this.service.loadBackupFiles().subscribe({
       next: (info: unknown) => {
         const data = info as { files?: string[] };
         this.backupDateien.set(data?.files ?? []);

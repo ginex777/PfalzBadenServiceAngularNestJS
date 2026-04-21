@@ -27,19 +27,40 @@
 .tabelle {
   @include shared.tabelle-basis;
 
-  .col-renr      { width: 80px; }
-  .col-bezeichnung { min-width: 130px; }
-  .col-datum     { width: 120px; }
-  .col-brutto    { width: 100px; }
-  .col-mwst      { width: 70px; }
-  .col-netto     { width: 90px; text-align: right; }
-  .col-ust       { width: 80px; text-align: right; }
-  .col-aktionen  { width: 160px; }
+  .col-renr {
+    width: 80px;
+  }
+  .col-bezeichnung {
+    min-width: 130px;
+  }
+  .col-datum {
+    width: 120px;
+  }
+  .col-brutto {
+    width: 100px;
+  }
+  .col-mwst {
+    width: 70px;
+  }
+  .col-netto {
+    width: 90px;
+    text-align: right;
+  }
+  .col-ust {
+    width: 80px;
+    text-align: right;
+  }
+  .col-aktionen {
+    width: 160px;
+  }
 }
 
 .eingabe {
   @include shared.eingabe;
-  &--suche { width: 200px; font-size: 12px; }
+  &--suche {
+    width: 200px;
+    font-size: 12px;
+  }
 }
 
 .eingabe--rechts {
@@ -75,7 +96,9 @@
 .btn-loeschen {
   @include shared.btn-aktion;
   color: var(--danger);
-  &:hover { background: var(--danger-light); }
+  &:hover {
+    background: var(--danger-light);
+  }
 }
 
 .gesperrt-label {
@@ -88,7 +111,9 @@
   &--gruen {
     color: var(--success);
     border-color: var(--success-light);
-    &:hover { background: var(--success-light); }
+    &:hover {
+      background: var(--success-light);
+    }
   }
 }
 

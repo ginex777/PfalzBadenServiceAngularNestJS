@@ -1,52 +1,59 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, firstValueFrom } from 'rxjs';
 import { ApiService } from '../../core/api/api.service';
-import { Rechnung, Kunde, FirmaSettings, RechnungPosition, Mahnung, AuditLogEntry } from '../../core/models';
+import {
+  Rechnung,
+  Kunde,
+  FirmaSettings,
+  RechnungPosition,
+  Mahnung,
+  AuditLogEntry,
+} from '../../core/models';
 
 @Injectable({ providedIn: 'root' })
 export class RechnungenService {
   private readonly api = inject(ApiService);
 
   rechnungenUndKundenLaden(): Observable<{ rechnungen: Rechnung[]; kunden: Kunde[] }> {
-    return forkJoin({ rechnungen: this.api.rechnungenLaden(), kunden: this.api.kundenLaden() });
+    return forkJoin({ rechnungen: this.api.loadInvoices(), kunden: this.api.loadCustomers() });
   }
 
   firmaEinstellungenLaden(): Observable<FirmaSettings> {
-    return this.api.einstellungenLaden('firma');
+    return this.api.loadSettings('firma');
   }
 
-  rechnungErstellen(daten: Partial<Rechnung>): Observable<Rechnung> {
-    return this.api.rechnungErstellen(daten);
+  createInvoice(daten: Partial<Rechnung>): Observable<Rechnung> {
+    return this.api.createInvoice(daten);
   }
 
-  rechnungAktualisieren(id: number, daten: Partial<Rechnung>): Observable<Rechnung> {
-    return this.api.rechnungAktualisieren(id, daten);
+  updateInvoice(id: number, daten: Partial<Rechnung>): Observable<Rechnung> {
+    return this.api.updateInvoice(id, daten);
   }
 
-  rechnungLoeschen(id: number): Observable<void> {
-    return this.api.rechnungLoeschen(id);
+  deleteInvoice(id: number): Observable<void> {
+    return this.api.deleteInvoice(id);
   }
 
   // PDF wird jetzt serverseitig mit Handlebars generiert — kein HTML vom Frontend
   async pdfOeffnen(rechnung: Rechnung, _firma: FirmaSettings): Promise<void> {
-    const response = await firstValueFrom(this.api.rechnungPdfErstellen(rechnung.id));
+    const response = await firstValueFrom(this.api.createInvoicePdf(rechnung.id));
     window.open(response.url, '_blank');
   }
 
-  mahnungenLaden(rechnungId: number): Observable<Mahnung[]> {
-    return this.api.mahnungenLaden(rechnungId);
+  loadReminders(rechnungId: number): Observable<Mahnung[]> {
+    return this.api.loadReminders(rechnungId);
   }
 
-  mahnungErstellen(daten: Partial<Mahnung>): Observable<Mahnung> {
-    return this.api.mahnungErstellen(daten);
+  createReminder(daten: Partial<Mahnung>): Observable<Mahnung> {
+    return this.api.createReminder(daten);
   }
 
-  mahnungLoeschen(id: number): Observable<void> {
-    return this.api.mahnungLoeschen(id);
+  deleteReminder(id: number): Observable<void> {
+    return this.api.deleteReminder(id);
   }
 
   auditEintraegeLaden(rechnungId: number): Observable<AuditLogEntry[]> {
-    return this.api.auditLogFuerDatensatzLaden('rechnungen', rechnungId);
+    return this.api.loadAuditLogForRecord('rechnungen', rechnungId);
   }
 
   nettoSummeBerechnen(positionen: RechnungPosition[]): number {

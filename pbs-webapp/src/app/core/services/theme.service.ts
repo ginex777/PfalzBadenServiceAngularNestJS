@@ -10,7 +10,7 @@ export class ThemeService {
 
   readonly isDark = signal<boolean>(this.leseGespeichertesThema());
 
-  readonly label = computed(() => this.isDark() ? 'Dark Mode' : 'Light Mode');
+  readonly label = computed(() => (this.isDark() ? 'Dark Mode' : 'Light Mode'));
 
   constructor() {
     this.anwenden(this.isDark());
@@ -23,7 +23,7 @@ export class ThemeService {
   }
 
   toggle(): void {
-    this.isDark.update(v => !v);
+    this.isDark.update((v) => !v);
   }
 
   private leseGespeichertesThema(): boolean {

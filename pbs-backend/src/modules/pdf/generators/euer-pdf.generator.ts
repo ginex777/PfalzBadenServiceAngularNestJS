@@ -11,19 +11,39 @@ export class EuerPdfGenerator {
     private readonly token: PdfTokenService,
   ) {}
 
-  async erstellen(jahr: number, ergebnis: Record<string, unknown>): Promise<{ token: string; url: string }> {
-    const firma = await this.render.firmaLaden();
-    const now = new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  async create(
+    jahr: number,
+    ergebnis: Record<string, unknown>,
+  ): Promise<{ token: string; url: string }> {
+    const firma = await this.render.loadFirma();
+    const now = new Date().toLocaleString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
-    const kontext = { firma, logoBase64: this.render.logoBase64, jahr, erstelltAm: now, ...ergebnis };
-    const html = this.render.templateRendern('euer.hbs', kontext);
-    const pdf = await this.render.pdfAusHtmlErstellen(html);
+    const kontext = {
+      firma,
+      logoBase64: this.render.logoBase64,
+      jahr,
+      erstelltAm: now,
+      ...ergebnis,
+    };
+    const html = this.render.renderTemplate('euer.hbs', kontext);
+    const pdf = await this.render.createPdfFromHtml(html);
     const filename = `EÜR_${jahr}.pdf`;
 
     await this.prisma.pdfArchive.create({
-      data: { typ: 'euer', referenz_nr: String(jahr), filename, html_body: html },
+      data: {
+        typ: 'euer',
+        referenz_nr: String(jahr),
+        filename,
+        html_body: html,
+      },
     });
 
-    return this.token.tokenErstellen(pdf, filename);
+    return this.token.createToken(pdf, filename);
   }
 }

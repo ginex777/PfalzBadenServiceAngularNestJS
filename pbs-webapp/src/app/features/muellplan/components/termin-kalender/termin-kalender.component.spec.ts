@@ -7,7 +7,7 @@ describe('TerminKalenderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TerminKalenderComponent]
+      declarations: [TerminKalenderComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TerminKalenderComponent);

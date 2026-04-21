@@ -8,11 +8,15 @@ import { EuerErgebnis } from './euer.models';
 export class EuerService {
   private readonly api = inject(ApiService);
 
-  buchhaltungLaden(jahr: number): Observable<BuchhaltungJahr> { return this.api.buchhaltungLaden(jahr); }
-  firmaLaden(): Observable<FirmaSettings> { return this.api.einstellungenLaden('firma'); }
+  loadAccounting(jahr: number): Observable<BuchhaltungJahr> {
+    return this.api.loadAccounting(jahr);
+  }
+  firmaLaden(): Observable<FirmaSettings> {
+    return this.api.loadSettings('firma');
+  }
 
   // PDF wird serverseitig mit Handlebars generiert — nur Daten senden
   pdfErstellen(jahr: number, ergebnis: EuerErgebnis): Observable<{ token: string; url: string }> {
-    return this.api.euerPdfErstellen(jahr, ergebnis as unknown as Record<string, unknown>);
+    return this.api.createEuerPdf(jahr, ergebnis as unknown as Record<string, unknown>);
   }
 }

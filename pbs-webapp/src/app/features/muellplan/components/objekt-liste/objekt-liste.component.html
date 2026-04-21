@@ -8,7 +8,11 @@
 } @else {
   <div class="objekt-grid">
     @for (obj of objekte(); track obj.id) {
-      <div class="objekt-karte" [class.aktiv]="aktuellesObjekt()?.id === obj.id" (click)="auswaehlen.emit(obj)">
+      <div
+        class="objekt-karte"
+        [class.aktiv]="aktuellesObjekt()?.id === obj.id"
+        (click)="auswaehlen.emit(obj)"
+      >
         <div class="objekt-name">{{ obj.name }}</div>
         @if (obj.strasse || obj.ort) {
           <div class="objekt-adresse">
@@ -16,8 +20,16 @@
           </div>
         }
         <div class="objekt-aktionen" (click)="$event.stopPropagation()">
-          <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(obj)">Bearbeiten</button>
-          <button class="btn-action btn-action--danger" title="Löschen" (click)="loeschen.emit(obj.id)">Löschen</button>
+          <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(obj)">
+            Bearbeiten
+          </button>
+          <button
+            class="btn-action btn-action--danger"
+            title="Löschen"
+            (click)="loeschen.emit(obj.id)"
+          >
+            Löschen
+          </button>
         </div>
       </div>
     }

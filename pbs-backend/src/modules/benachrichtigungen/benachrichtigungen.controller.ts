@@ -6,24 +6,30 @@ export class BenachrichtigungenController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get()
-  async alleLaden() {
+  async findAll() {
     const rows = await this.prisma.benachrichtigungen.findMany({
       where: { gelesen: false },
       orderBy: { erstellt_am: 'desc' },
       take: 50,
     });
-    return rows.map(b => ({ ...b, id: Number(b.id) }));
+    return rows.map((b) => ({ ...b, id: Number(b.id) }));
   }
 
   @Post('alle-lesen')
-  async alleAlsGelesenMarkieren() {
-    await this.prisma.benachrichtigungen.updateMany({ where: { gelesen: false }, data: { gelesen: true } });
+  async markAllRead() {
+    await this.prisma.benachrichtigungen.updateMany({
+      where: { gelesen: false },
+      data: { gelesen: true },
+    });
     return { ok: true };
   }
 
   @Post(':id/lesen')
-  async alsGelesenMarkieren(@Param('id', ParseIntPipe) id: number) {
-    await this.prisma.benachrichtigungen.update({ where: { id: BigInt(id) }, data: { gelesen: true } });
+  async markRead(@Param('id', ParseIntPipe) id: number) {
+    await this.prisma.benachrichtigungen.update({
+      where: { id: BigInt(id) },
+      data: { gelesen: true },
+    });
     return { ok: true };
   }
 }

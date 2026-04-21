@@ -1,9 +1,6 @@
 import '@angular/compiler';
 import { getTestBed } from '@angular/core/testing';
-import {
-  BrowserTestingModule,
-  platformBrowserTesting,
-} from '@angular/platform-browser/testing';
+import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { ɵresolveComponentResources as resolveComponentResources } from '@angular/core';
 import { vi } from 'vitest';
 
@@ -19,8 +16,6 @@ import { vi } from 'vitest';
 // Resolve external templateUrl / styleUrl references before tests run
 resolveComponentResources(() => Promise.resolve({ text: async () => '' }));
 
-getTestBed().initTestEnvironment(
-  BrowserTestingModule,
-  platformBrowserTesting(),
-  { teardown: { destroyAfterEach: true } },
-);
+getTestBed().initTestEnvironment(BrowserTestingModule, platformBrowserTesting(), {
+  teardown: { destroyAfterEach: true },
+});

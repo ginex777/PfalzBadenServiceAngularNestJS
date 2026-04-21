@@ -29,7 +29,7 @@ export class OffenePostenModalComponent {
     this.geschlossen.emit();
   }
 
-  protected rechnungErstellen(): void {
+  protected createInvoice(): void {
     this.neueRechnung.emit(this.daten().kundeId);
     this.geschlossen.emit();
   }

@@ -16,7 +16,9 @@ function decodeJwtSub(token: string): number | null {
   try {
     const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
     return payload.sub ? Number(payload.sub) : null;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 @Injectable({ providedIn: 'root' })
@@ -36,28 +38,34 @@ export class MobileAuthService {
         const user = JSON.parse(userRaw) as AuthUser;
         if (!user.mitarbeiterId && token) user.mitarbeiterId = decodeJwtSub(token) ?? undefined;
         this.currentUser.set(user);
-      } catch { /**/ }
+      } catch {
+        /**/
+      }
     }
   }
 
   login(email: string, password: string) {
-    return this.http.post<{ accessToken: string; refreshToken: string; email: string; rolle: string }>(
-      `${API_BASE}/api/auth/login`,
-      { email, password },
-    ).pipe(
-      tap(async res => {
-        await Preferences.set({ key: 'access_token', value: res.accessToken });
-        await Preferences.set({ key: 'refresh_token', value: res.refreshToken });
-        const user: AuthUser = {
-          email: res.email,
-          rolle: res.rolle,
-          mitarbeiterId: decodeJwtSub(res.accessToken) ?? undefined,
-        };
-        await Preferences.set({ key: 'auth_user', value: JSON.stringify(user) });
-        this.accessToken.set(res.accessToken);
-        this.currentUser.set(user);
-      }),
-    );
+    return this.http
+      .post<{
+        accessToken: string;
+        refreshToken: string;
+        email: string;
+        rolle: string;
+      }>(`${API_BASE}/api/auth/login`, { email, password })
+      .pipe(
+        tap(async (res) => {
+          await Preferences.set({ key: 'access_token', value: res.accessToken });
+          await Preferences.set({ key: 'refresh_token', value: res.refreshToken });
+          const user: AuthUser = {
+            email: res.email,
+            rolle: res.rolle,
+            mitarbeiterId: decodeJwtSub(res.accessToken) ?? undefined,
+          };
+          await Preferences.set({ key: 'auth_user', value: JSON.stringify(user) });
+          this.accessToken.set(res.accessToken);
+          this.currentUser.set(user);
+        }),
+      );
   }
 
   async logout() {

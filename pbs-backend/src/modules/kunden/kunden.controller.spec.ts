@@ -1,13 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { KundenController } from './kunden.controller';
 import { KundenService } from './kunden.service';
-import { of } from 'rxjs';
 
 const mockService = {
-  alleKundenLaden: jest.fn(),
-  kundeErstellen: jest.fn(),
-  kundeAktualisieren: jest.fn(),
-  kundeLoeschen: jest.fn(),
+  findAll: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
 };
 
 describe('KundenController', () => {
@@ -27,20 +26,26 @@ describe('KundenController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('alleKundenLaden()', () => {
+  describe('findAll()', () => {
     it('delegiert an Service', async () => {
-      const kunden = { data: [{ id: 1, name: 'Test' }], total: 1, page: 1, limit: 100, totalPages: 1 };
-      mockService.alleKundenLaden.mockResolvedValue(kunden);
-      const result = await controller.alleKundenLaden({ page: 1, limit: 100 });
+      const kunden = {
+        data: [{ id: 1, name: 'Test' }],
+        total: 1,
+        page: 1,
+        limit: 100,
+        totalPages: 1,
+      };
+      mockService.findAll.mockResolvedValue(kunden);
+      const result = await controller.findAll({ page: 1, limit: 100 });
       expect(result).toBe(kunden);
     });
   });
 
-  describe('kundeLoeschen()', () => {
+  describe('delete()', () => {
     it('delegiert ID und Nutzer an Service', async () => {
-      mockService.kundeLoeschen.mockResolvedValue({ ok: true });
-      const result = await controller.kundeLoeschen(5, 'Dennis');
-      expect(mockService.kundeLoeschen).toHaveBeenCalledWith(5, 'Dennis');
+      mockService.delete.mockResolvedValue({ ok: true });
+      const result = await controller.delete(5, 'Dennis');
+      expect(mockService.delete).toHaveBeenCalledWith(5, 'Dennis');
       expect(result).toEqual({ ok: true });
     });
   });

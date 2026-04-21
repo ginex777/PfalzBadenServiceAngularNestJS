@@ -30,7 +30,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const errorBody =
       typeof message === 'string'
         ? { statusCode: status, message, path: request.url }
-        : { ...(message as object), path: request.url };
+        : { ...message, path: request.url };
 
     if (status >= 500) {
       this.logger.error(
@@ -38,7 +38,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
         exception instanceof Error ? exception.stack : String(exception),
       );
     } else {
-      this.logger.warn(`${request.method} ${request.url} → ${status}: ${JSON.stringify(message)}`);
+      this.logger.warn(
+        `${request.method} ${request.url} → ${status}: ${JSON.stringify(message)}`,
+      );
     }
 
     response.status(status).json(errorBody);

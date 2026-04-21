@@ -5,5 +5,7 @@ import { Public } from './modules/auth/decorators/public.decorator';
 export class HealthController {
   @Public()
   @Get('health')
-  health() { return { ok: true, timestamp: new Date().toISOString() }; }
+  health() {
+    return { ok: true, timestamp: new Date().toISOString() };
+  }
 }

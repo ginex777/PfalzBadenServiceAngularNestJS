@@ -3,8 +3,13 @@ import { forkJoin, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../../core/api/api.service';
 import {
-  Rechnung, Angebot, MuellplanTermin,
-  Benachrichtigung, BackupInfo, BuchhaltungJahr, HausmeisterEinsatz,
+  Rechnung,
+  Angebot,
+  MuellplanTermin,
+  Benachrichtigung,
+  BackupInfo,
+  BuchhaltungJahr,
+  HausmeisterEinsatz,
 } from '../../core/models';
 import { DashboardAktivitaet } from './dashboard.models';
 
@@ -27,43 +32,43 @@ export class DashboardService {
   }
 
   rohdatenLaden(jahr: number): Observable<DashboardRohdaten> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       forkJoin({
-        rechnungen: this.api.rechnungenLaden(),
-        angebote: this.api.angeboteLaden(),
-        muellTermine: this.api.muellplanAnstehendeTermineLaden(5),
-        benachrichtigungen: this.api.benachrichtigungenLaden(),
-        buchhaltung: this.api.buchhaltungLaden(jahr),
+        rechnungen: this.api.loadInvoices(),
+        angebote: this.api.loadOffers(),
+        muellTermine: this.api.loadUpcomingGarbageTerms(5),
+        benachrichtigungen: this.api.loadNotifications(),
+        buchhaltung: this.api.loadAccounting(jahr),
       }).subscribe({
-        next: daten => {
-          this.api.letztesBackupLaden().subscribe({
-            next: backup => observer.next({ ...daten, backupInfo: backup }),
+        next: (daten) => {
+          this.api.loadLastBackup().subscribe({
+            next: (backup) => observer.next({ ...daten, backupInfo: backup }),
             error: () => observer.next({ ...daten, backupInfo: null }),
             complete: () => observer.complete(),
           });
         },
-        error: err => observer.error(err),
+        error: (err) => observer.error(err),
       });
     });
   }
 
-  benachrichtigungAlsGelesenMarkieren(id: number): Observable<void> {
-    return this.api.benachrichtigungAlsGelesenMarkieren(id);
+  markNotificationRead(id: number): Observable<void> {
+    return this.api.markNotificationRead(id);
   }
 
-  alleBenachrichtigungenAlsGelesenMarkieren(): Observable<void> {
-    return this.api.alleBenachrichtigungenAlsGelesenMarkieren();
+  markAllNotificationsRead(): Observable<void> {
+    return this.api.markAllNotificationsRead();
   }
 
   benachrichtigungenNeuLaden(): Observable<Benachrichtigung[]> {
-    return this.api.benachrichtigungenLaden();
+    return this.api.loadNotifications();
   }
 
-  hausmeisterEinsaetzeLaden(): Observable<HausmeisterEinsatz[]> {
-    return this.api.hausmeisterEinsaetzeLaden();
+  loadServiceAssignments(): Observable<HausmeisterEinsatz[]> {
+    return this.api.loadServiceAssignments();
   }
 
-  backupErstellen(): Observable<BackupInfo> {
-    return this.api.backupErstellen();
+  createBackup(): Observable<BackupInfo> {
+    return this.api.createBackup();
   }
 }

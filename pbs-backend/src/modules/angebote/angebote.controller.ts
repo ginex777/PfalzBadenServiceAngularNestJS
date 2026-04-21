@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Headers, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  ParseIntPipe,
+  Headers,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiSecurity, ApiOperation } from '@nestjs/swagger';
 import { AngeboteService } from './angebote.service';
 import { CreateAngebotDto, UpdateAngebotDto } from './dto/angebot.dto';
@@ -12,27 +23,32 @@ export class AngeboteController {
 
   @Get()
   @ApiOperation({ summary: 'Alle Angebote laden' })
-  alleAngeboteLaden(@Query() pagination: PaginationDto) { return this.service.alleAngeboteLaden(pagination); }
+  findAll(@Query() pagination: PaginationDto) {
+    return this.service.findAll(pagination);
+  }
 
   @Post()
   @ApiOperation({ summary: 'Angebot erstellen' })
-  angebotErstellen(
-    @Body() dto: CreateAngebotDto,
-    @Headers('x-nutzer') nutzer?: string,
-  ) { return this.service.angebotErstellen(dto, nutzer); }
+  create(@Body() dto: CreateAngebotDto, @Headers('x-nutzer') nutzer?: string) {
+    return this.service.create(dto, nutzer);
+  }
 
   @Put(':id')
   @ApiOperation({ summary: 'Angebot aktualisieren' })
-  angebotAktualisieren(
+  update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateAngebotDto,
     @Headers('x-nutzer') nutzer?: string,
-  ) { return this.service.angebotAktualisieren(id, dto, nutzer); }
+  ) {
+    return this.service.update(id, dto, nutzer);
+  }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Angebot löschen' })
-  angebotLoeschen(
+  delete(
     @Param('id', ParseIntPipe) id: number,
     @Headers('x-nutzer') nutzer?: string,
-  ) { return this.service.angebotLoeschen(id, nutzer); }
+  ) {
+    return this.service.delete(id, nutzer);
+  }
 }

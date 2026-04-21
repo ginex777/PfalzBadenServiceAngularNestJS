@@ -79,10 +79,20 @@
   min-width: 90px;
 }
 
-.col-zeitraum { min-width: 120px; }
-.col-rechts   { text-align: right; min-width: 90px; }
-.col-mitte    { text-align: center; min-width: 90px; }
-.col-datum    { min-width: 110px; }
+.col-zeitraum {
+  min-width: 120px;
+}
+.col-rechts {
+  text-align: right;
+  min-width: 90px;
+}
+.col-mitte {
+  text-align: center;
+  min-width: 90px;
+}
+.col-datum {
+  min-width: 110px;
+}
 
 .zahl {
   text-align: right;
@@ -90,10 +100,22 @@
   font-variant-numeric: tabular-nums;
 }
 
-.zahl--gruen  { color: var(--success); font-weight: 500; }
-.zahl--rot    { color: var(--danger); font-weight: 500; }
-.zahl--gewinn { color: var(--success); font-weight: 600; }
-.zahl--verlust { color: var(--danger); font-weight: 600; }
+.zahl--gruen {
+  color: var(--success);
+  font-weight: 500;
+}
+.zahl--rot {
+  color: var(--danger);
+  font-weight: 500;
+}
+.zahl--gewinn {
+  color: var(--success);
+  font-weight: 600;
+}
+.zahl--verlust {
+  color: var(--danger);
+  font-weight: 600;
+}
 
 .quartal-label {
   font-weight: 500;

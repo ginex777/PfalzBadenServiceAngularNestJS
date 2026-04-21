@@ -1,3 +1,11 @@
 {
-    "kiroAgent.configureMCP": "Disabled"
+    "kiroAgent.configureMCP": "Disabled",
+
+    // Monorepo: make the ESLint VSCode extension lint each package with its local config/deps.
+    "eslint.workingDirectories": [
+        { "mode": "auto" },
+        "./pbs-backend",
+        "./pbs-webapp",
+        "./pbs-mobile"
+    ]
 }

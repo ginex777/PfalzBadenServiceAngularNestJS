@@ -1,4 +1,12 @@
-import { IsInt, IsPositive, IsDateString, IsNumber, Min, IsOptional, IsString } from 'class-validator';
+import {
+  IsInt,
+  IsPositive,
+  IsDateString,
+  IsNumber,
+  Min,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateMahnungDto {

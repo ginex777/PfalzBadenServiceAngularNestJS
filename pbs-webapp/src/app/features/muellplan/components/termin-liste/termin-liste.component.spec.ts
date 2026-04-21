@@ -7,7 +7,7 @@ describe('TerminListeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TerminListeComponent]
+      declarations: [TerminListeComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TerminListeComponent);

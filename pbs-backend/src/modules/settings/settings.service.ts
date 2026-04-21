@@ -8,9 +8,16 @@ export class SettingsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async einstellungenLaden(schluessel: string) {
-    const row = await this.prisma.settings.findUnique({ where: { key: schluessel } });
-    try { return row ? JSON.parse(row.value) : {}; } catch (e) {
-      this.logger.error(e instanceof Error ? e.message : String(e), e instanceof Error ? e.stack : undefined);
+    const row = await this.prisma.settings.findUnique({
+      where: { key: schluessel },
+    });
+    try {
+      return row ? JSON.parse(row.value) : {};
+    } catch (e) {
+      this.logger.error(
+        e instanceof Error ? e.message : String(e),
+        e instanceof Error ? e.stack : undefined,
+      );
       return {};
     }
   }

@@ -1,6 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { BuchhaltungZeile } from '../../buchhaltung.models';
-import { waehrungFormatieren, nettoBerechnen, steuerBerechnen, KATEGORIEN } from '../../../../core/utils/format.utils';
+import {
+  waehrungFormatieren,
+  nettoBerechnen,
+  steuerBerechnen,
+  KATEGORIEN,
+} from '../../../../core/utils/format.utils';
 
 @Component({
   selector: 'app-ausgaben-tabelle',
@@ -16,7 +21,10 @@ export class AusgabenTabelleComponent {
   readonly zeileHinzufuegen = output<void>();
   readonly zeileEntfernen = output<string>();
   readonly zeileKopieren = output<string>();
-  readonly zeileAktualisieren = output<{ tempId: string; aenderungen: Partial<BuchhaltungZeile> }>();
+  readonly zeileAktualisieren = output<{
+    tempId: string;
+    aenderungen: Partial<BuchhaltungZeile>;
+  }>();
   readonly kategorieAktualisieren = output<{ tempId: string; kategorie: string }>();
   readonly wiederkehrendeKostenAnwenden = output<void>();
   readonly belegOeffnen = output<string>();
@@ -27,14 +35,16 @@ export class AusgabenTabelleComponent {
   protected kategorieFilter = '';
 
   protected verwendeteKategorien(): string[] {
-    const alle = this.zeilen().map(z => z.kategorie ?? '').filter(Boolean);
+    const alle = this.zeilen()
+      .map((z) => z.kategorie ?? '')
+      .filter(Boolean);
     return [...new Set(alle)].sort();
   }
 
   protected gefilterteZeilen(): BuchhaltungZeile[] {
     const q = this.suchbegriff.toLowerCase();
     const kf = this.kategorieFilter;
-    return this.zeilen().filter(z => {
+    return this.zeilen().filter((z) => {
       if (kf && z.kategorie !== kf) return false;
       if (!q) return true;
       return (
@@ -51,7 +61,7 @@ export class AusgabenTabelleComponent {
   }
 
   protected kategorieAnzahl(kat: string): number {
-    return this.zeilen().filter(z => z.kategorie === kat).length;
+    return this.zeilen().filter((z) => z.kategorie === kat).length;
   }
 
   protected nettoBerechnen(brutto: number, mwst: number, abzug: number): string {
@@ -107,12 +117,22 @@ export class AusgabenTabelleComponent {
 
   protected abzugAktualisieren(tempId: string, event: Event): void {
     const wert = parseFloat((event.target as HTMLInputElement).value) || 0;
-    this.zeileAktualisieren.emit({ tempId, aenderungen: { abzug: Math.min(100, Math.max(0, wert)) } });
+    this.zeileAktualisieren.emit({
+      tempId,
+      aenderungen: { abzug: Math.min(100, Math.max(0, wert)) },
+    });
   }
 
-  protected textfeldAktualisieren(tempId: string, feld: keyof BuchhaltungZeile, event: Event): void {
+  protected textfeldAktualisieren(
+    tempId: string,
+    feld: keyof BuchhaltungZeile,
+    event: Event,
+  ): void {
     const wert = (event.target as HTMLInputElement).value;
-    this.zeileAktualisieren.emit({ tempId, aenderungen: { [feld]: wert } as Partial<BuchhaltungZeile> });
+    this.zeileAktualisieren.emit({
+      tempId,
+      aenderungen: { [feld]: wert } as Partial<BuchhaltungZeile>,
+    });
   }
 
   protected hinzufuegenKlicken(): void {

@@ -28,7 +28,7 @@ export class AngeboteComponent implements OnInit {
 
   hatUngespeicherteAenderungen(): boolean {
     const d = this.facade.formularDaten();
-    return !!(d.empf?.trim() || d.titel?.trim() || d.positionen.some(p => p.bez?.trim()));
+    return !!(d.empf?.trim() || d.titel?.trim() || d.positionen.some((p) => p.bez?.trim()));
   }
   private readonly route = inject(ActivatedRoute);
   private urlId: number | null = null;
@@ -36,7 +36,7 @@ export class AngeboteComponent implements OnInit {
   constructor() {
     effect(() => {
       if (!this.facade.laedt() && this.urlId !== null) {
-        const angebot = this.facade.angebote().find(a => a.id === this.urlId);
+        const angebot = this.facade.angebote().find((a) => a.id === this.urlId);
         if (angebot) {
           this.facade.bearbeitungStarten(angebot);
           this.urlId = null;
@@ -46,7 +46,7 @@ export class AngeboteComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       if (params['id']) this.urlId = parseInt(params['id']);
     });
     this.facade.ladeDaten();
@@ -65,7 +65,10 @@ export class AngeboteComponent implements OnInit {
     this.facade.loeschenBestaetigen(id);
   }
 
-  protected onStatusSetzen(event: { id: number; status: 'angenommen' | 'abgelehnt' | 'gesendet' }): void {
+  protected onStatusSetzen(event: {
+    id: number;
+    status: 'angenommen' | 'abgelehnt' | 'gesendet';
+  }): void {
     this.facade.statusSetzen(event.id, event.status);
   }
 
@@ -120,7 +123,7 @@ export class AngeboteComponent implements OnInit {
   protected onFeldAktualisieren(event: { feld: keyof AngebotFormularDaten; wert: unknown }): void {
     this.facade.formularFeldAktualisieren(
       event.feld,
-      event.wert as AngebotFormularDaten[typeof event.feld]
+      event.wert as AngebotFormularDaten[typeof event.feld],
     );
   }
 

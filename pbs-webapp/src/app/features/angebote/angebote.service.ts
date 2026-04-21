@@ -8,32 +8,37 @@ export class AngeboteService {
   private readonly api = inject(ApiService);
 
   angeboteUndKundenLaden(): Observable<{ angebote: Angebot[]; kunden: Kunde[] }> {
-    return forkJoin({ angebote: this.api.angeboteLaden(), kunden: this.api.kundenLaden() });
+    return forkJoin({ angebote: this.api.loadOffers(), kunden: this.api.loadCustomers() });
   }
 
   firmaEinstellungenLaden(): Observable<FirmaSettings> {
-    return this.api.einstellungenLaden('firma');
+    return this.api.loadSettings('firma');
   }
 
-  angebotErstellen(daten: Partial<Angebot>): Observable<Angebot> {
-    return this.api.angebotErstellen(daten);
+  createOffer(daten: Partial<Angebot>): Observable<Angebot> {
+    return this.api.createOffer(daten);
   }
 
-  angebotAktualisieren(id: number, daten: Partial<Angebot>): Observable<Angebot> {
-    return this.api.angebotAktualisieren(id, daten);
+  updateOffer(id: number, daten: Partial<Angebot>): Observable<Angebot> {
+    return this.api.updateOffer(id, daten);
   }
 
-  angebotLoeschen(id: number): Observable<void> {
-    return this.api.angebotLoeschen(id);
+  deleteOffer(id: number): Observable<void> {
+    return this.api.deleteOffer(id);
   }
 
-  kundeErstellen(daten: { name: string; strasse?: string; ort?: string; email?: string }): Observable<import('../../core/models').Kunde> {
-    return this.api.kundeErstellen(daten);
+  createCustomer(daten: {
+    name: string;
+    strasse?: string;
+    ort?: string;
+    email?: string;
+  }): Observable<import('../../core/models').Kunde> {
+    return this.api.createCustomer(daten);
   }
 
   // PDF wird jetzt serverseitig mit Handlebars generiert — kein HTML vom Frontend
   async pdfOeffnen(angebot: Angebot, _firma: FirmaSettings): Promise<void> {
-    const response = await firstValueFrom(this.api.angebotPdfErstellen(angebot.id));
+    const response = await firstValueFrom(this.api.createOfferPdf(angebot.id));
     window.open(response.url, '_blank');
   }
 

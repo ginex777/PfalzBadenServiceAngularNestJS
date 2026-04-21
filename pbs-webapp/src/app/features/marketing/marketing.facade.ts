@@ -5,8 +5,11 @@ import { ToastService } from '../../core/services/toast.service';
 import { ApiService } from '../../core/api/api.service';
 import { MarketingKontakt, Kunde } from '../../core/models';
 import {
-  MarketingStatusFilter, MarketingStatistik, CsvImportZeile,
-  MarketingFormularDaten, LEERES_MARKETING_FORMULAR,
+  MarketingStatusFilter,
+  MarketingStatistik,
+  CsvImportZeile,
+  MarketingFormularDaten,
+  LEERES_MARKETING_FORMULAR,
 } from './marketing.models';
 
 @Injectable({ providedIn: 'root' })
@@ -41,48 +44,59 @@ export class MarketingFacade {
     if (!this.vorlageText()) this.vorlageText.set(this.DEFAULT_TEXT);
     this.vorlageModalSichtbar.set(true);
   }
-  vorlageModalSchliessen(): void { this.vorlageModalSichtbar.set(false); }
+  vorlageModalSchliessen(): void {
+    this.vorlageModalSichtbar.set(false);
+  }
   vorlageZuruecksetzen(): void {
     this.vorlageBetreff.set(this.DEFAULT_BETREFF);
     this.vorlageText.set(this.DEFAULT_TEXT);
   }
   vorlageSpeichern(): void {
-    this.api.marketingVorlageSpeichern({ betreff: this.vorlageBetreff(), text: this.vorlageText() }).subscribe({
-      next: () => this.vorlageModalSchliessen(),
-      error: () => this.toast.error('Vorlage konnte nicht gespeichert werden.'),
-    });
+    this.api
+      .saveMarketingTemplate({ betreff: this.vorlageBetreff(), text: this.vorlageText() })
+      .subscribe({
+        next: () => this.vorlageModalSchliessen(),
+        error: () => this.toast.error('Vorlage konnte nicht gespeichert werden.'),
+      });
   }
 
   readonly gefilterteKontakte = computed(() => {
     const q = this.suchbegriff().toLowerCase();
     const sf = this.statusFilter();
     return this.kontakte()
-      .filter(k => !sf || k.status === sf)
-      .filter(k => !q || [k.name, k.email, k.person, k.notiz, k.tel].join(' ').toLowerCase().includes(q))
+      .filter((k) => !sf || k.status === sf)
+      .filter(
+        (k) =>
+          !q || [k.name, k.email, k.person, k.notiz, k.tel].join(' ').toLowerCase().includes(q),
+      )
       .sort((a, b) => (b.datum ?? '').localeCompare(a.datum ?? ''));
   });
 
   readonly aktuelleSeite = signal(1);
   readonly PAGE_SIZE = 25;
   readonly gesamtSeiten = computed(() =>
-    Math.max(1, Math.ceil(this.gefilterteKontakte().length / this.PAGE_SIZE))
+    Math.max(1, Math.ceil(this.gefilterteKontakte().length / this.PAGE_SIZE)),
   );
   readonly seitenKontakte = computed(() => {
     const start = (this.aktuelleSeite() - 1) * this.PAGE_SIZE;
     return this.gefilterteKontakte().slice(start, start + this.PAGE_SIZE);
   });
 
-  seiteZurueck(): void { this.aktuelleSeite.update(p => Math.max(1, p - 1)); }
-  seiteVor(): void { this.aktuelleSeite.update(p => Math.min(this.gesamtSeiten(), p + 1)); }
+  seiteZurueck(): void {
+    this.aktuelleSeite.update((p) => Math.max(1, p - 1));
+  }
+  seiteVor(): void {
+    this.aktuelleSeite.update((p) => Math.min(this.gesamtSeiten(), p + 1));
+  }
 
   readonly statistik = computed<MarketingStatistik>(() => {
     const alle = this.kontakte();
     return {
-      neu: alle.filter(k => k.status === 'neu').length,
-      gesendet: alle.filter(k => k.status === 'gesendet').length,
-      interesse: alle.filter(k => k.status === 'interesse').length,
-      keinInteresse: alle.filter(k => k.status === 'kein-interesse').length,
-      angebot: alle.filter(k => k.status === 'angebot').length,
+      neu: alle.filter((k) => k.status === 'neu').length,
+      gesendet: alle.filter((k) => k.status === 'gesendet').length,
+      interesse: alle.filter((k) => k.status === 'interesse').length,
+      keinInteresse: alle.filter((k) => k.status === 'kein-interesse').length,
+      angebot: alle.filter((k) => k.status === 'angebot').length,
     };
   });
 
@@ -94,10 +108,13 @@ export class MarketingFacade {
         this.kunden.set(kunden);
         this.laedt.set(false);
       },
-      error: () => { this.toast.error('Daten konnten nicht geladen werden.'); this.laedt.set(false); },
+      error: () => {
+        this.toast.error('Daten konnten nicht geladen werden.');
+        this.laedt.set(false);
+      },
     });
-    this.api.marketingVorlageLaden().subscribe({
-      next: t => {
+    this.api.loadMarketingTemplate().subscribe({
+      next: (t) => {
         if (t?.betreff) this.vorlageBetreff.set(t.betreff);
         if (t?.text) this.vorlageText.set(t.text);
       },
@@ -107,12 +124,22 @@ export class MarketingFacade {
 
   formularOeffnen(kontakt?: MarketingKontakt): void {
     this.bearbeiteterKontakt.set(kontakt ?? null);
-    this.formularDaten.set(kontakt ? {
-      name: kontakt.name, person: kontakt.person ?? '', email: kontakt.email,
-      tel: kontakt.tel ?? '', strasse: kontakt.strasse ?? '', ort: kontakt.ort ?? '',
-      notiz: kontakt.notiz ?? '', status: kontakt.status,
-      status_notiz: kontakt.status_notiz ?? '', datum: kontakt.datum ?? '',
-    } : { ...LEERES_MARKETING_FORMULAR, datum: new Date().toISOString().slice(0, 10) });
+    this.formularDaten.set(
+      kontakt
+        ? {
+            name: kontakt.name,
+            person: kontakt.person ?? '',
+            email: kontakt.email,
+            tel: kontakt.tel ?? '',
+            strasse: kontakt.strasse ?? '',
+            ort: kontakt.ort ?? '',
+            notiz: kontakt.notiz ?? '',
+            status: kontakt.status,
+            status_notiz: kontakt.status_notiz ?? '',
+            datum: kontakt.datum ?? '',
+          }
+        : { ...LEERES_MARKETING_FORMULAR, datum: new Date().toISOString().slice(0, 10) },
+    );
     this.formularSichtbar.set(true);
   }
 
@@ -124,45 +151,63 @@ export class MarketingFacade {
 
   speichern(): void {
     const daten = this.formularDaten();
-    if (!daten.name || !daten.email) { this.toast.error('Name und E-Mail sind Pflichtfelder.'); return; }
+    if (!daten.name || !daten.email) {
+      this.toast.error('Name und E-Mail sind Pflichtfelder.');
+      return;
+    }
     const editId = this.bearbeiteterKontakt()?.id;
     const anfrage = editId
       ? this.service.kontaktAktualisieren(editId, daten)
       : this.service.kontaktErstellen(daten);
     anfrage.subscribe({
-      next: gespeichert => {
-        if (editId) this.kontakte.update(list => list.map(k => k.id === editId ? gespeichert : k));
-        else this.kontakte.update(list => [gespeichert, ...list]);
+      next: (gespeichert) => {
+        if (editId)
+          this.kontakte.update((list) => list.map((k) => (k.id === editId ? gespeichert : k)));
+        else this.kontakte.update((list) => [gespeichert, ...list]);
         this.formularSchliessen();
       },
       error: () => this.toast.error('Kontakt konnte nicht gespeichert werden.'),
     });
   }
 
-  statusModalOeffnen(kontakt: MarketingKontakt): void { this.statusModalKontakt.set(kontakt); }
-  statusModalSchliessen(): void { this.statusModalKontakt.set(null); }
+  statusModalOeffnen(kontakt: MarketingKontakt): void {
+    this.statusModalKontakt.set(kontakt);
+  }
+  statusModalSchliessen(): void {
+    this.statusModalKontakt.set(null);
+  }
 
   statusSpeichern(status: MarketingKontakt['status'], statusNotiz: string): void {
     const k = this.statusModalKontakt();
     if (!k) return;
     this.service.kontaktAktualisieren(k.id, { ...k, status, status_notiz: statusNotiz }).subscribe({
-      next: aktualisiert => {
-        this.kontakte.update(list => list.map(x => x.id === k.id ? aktualisiert : x));
+      next: (aktualisiert) => {
+        this.kontakte.update((list) => list.map((x) => (x.id === k.id ? aktualisiert : x)));
         this.statusModalSchliessen();
       },
       error: () => this.toast.error('Status konnte nicht gespeichert werden.'),
     });
   }
 
-  loeschenBestaetigen(id: number): void { this.loeschKandidat.set(id); }
-  loeschenAbbrechen(): void { this.loeschKandidat.set(null); }
+  loeschenBestaetigen(id: number): void {
+    this.loeschKandidat.set(id);
+  }
+  loeschenAbbrechen(): void {
+    this.loeschKandidat.set(null);
+  }
 
   loeschenAusfuehren(): void {
     const id = this.loeschKandidat();
     if (id === null) return;
     this.service.kontaktLoeschen(id).subscribe({
-      next: () => { this.kontakte.update(list => list.filter(k => k.id !== id)); this.loeschKandidat.set(null); },
-      error: () => { this.toast.error('Kontakt konnte nicht gelöscht werden.'); this.loeschKandidat.set(null); },
+      next: () => {
+        this.kontakte.update((list) => list.filter((k) => k.id !== id));
+        this.loeschKandidat.set(null);
+      },
+      error: () => {
+        this.toast.error('Kontakt konnte nicht gelöscht werden.');
+        this.loeschKandidat.set(null);
+      },
     });
   }
 
@@ -171,44 +216,75 @@ export class MarketingFacade {
     this.importModalSichtbar.set(true);
   }
 
-  csvImportAbbrechen(): void { this.importVorschau.set([]); this.importModalSichtbar.set(false); }
+  csvImportAbbrechen(): void {
+    this.importVorschau.set([]);
+    this.importModalSichtbar.set(false);
+  }
 
   csvImportBestaetigen(): void {
-    const zeilen = this.importVorschau().filter(z => !z.istDuplikat);
+    const zeilen = this.importVorschau().filter((z) => !z.istDuplikat);
     const heute = new Date().toISOString().slice(0, 10);
     let abgeschlossen = 0;
-    zeilen.forEach(z => {
-      this.service.kontaktErstellen({ ...z, status: 'neu', status_notiz: '', datum: heute }).subscribe({
-        next: k => {
-          this.kontakte.update(list => [k, ...list]);
-          abgeschlossen++;
-          if (abgeschlossen === zeilen.length) this.csvImportAbbrechen();
-        },
-      });
+    zeilen.forEach((z) => {
+      this.service
+        .kontaktErstellen({ ...z, status: 'neu', status_notiz: '', datum: heute })
+        .subscribe({
+          next: (k) => {
+            this.kontakte.update((list) => [k, ...list]);
+            abgeschlossen++;
+            if (abgeschlossen === zeilen.length) this.csvImportAbbrechen();
+          },
+        });
     });
     if (!zeilen.length) this.csvImportAbbrechen();
   }
 
   zuKundeKonvertieren(kontakt: MarketingKontakt): void {
-    this.service.kundeErstellen({
-      name: kontakt.name, email: kontakt.email, tel: kontakt.tel,
-      strasse: kontakt.strasse, ort: kontakt.ort,
-    }).subscribe({
-      next: kunde => {
-        this.service.kontaktAktualisieren(kontakt.id, { ...kontakt, status: 'angebot' }).subscribe({
-          next: aktualisiert => this.kontakte.update(list => list.map(k => k.id === kontakt.id ? aktualisiert : k)),
-        });
-        this.router.navigate(['/angebote'], {
-          state: { prefill: { empf: kunde.name, str: kunde.strasse, ort: kunde.ort, email: kunde.email, kunden_id: kunde.id } },
-        });
-      },
-      error: () => this.toast.error('Kunde konnte nicht erstellt werden.'),
-    });
+    this.service
+      .createCustomer({
+        name: kontakt.name,
+        email: kontakt.email,
+        tel: kontakt.tel,
+        strasse: kontakt.strasse,
+        ort: kontakt.ort,
+      })
+      .subscribe({
+        next: (kunde) => {
+          this.service
+            .kontaktAktualisieren(kontakt.id, { ...kontakt, status: 'angebot' })
+            .subscribe({
+              next: (aktualisiert) =>
+                this.kontakte.update((list) =>
+                  list.map((k) => (k.id === kontakt.id ? aktualisiert : k)),
+                ),
+            });
+          this.router.navigate(['/angebote'], {
+            state: {
+              prefill: {
+                empf: kunde.name,
+                str: kunde.strasse,
+                ort: kunde.ort,
+                email: kunde.email,
+                kunden_id: kunde.id,
+              },
+            },
+          });
+        },
+        error: () => this.toast.error('Kunde konnte nicht erstellt werden.'),
+      });
   }
 
-  filterSetzen(filter: MarketingStatusFilter): void { this.statusFilter.set(filter); this.aktuelleSeite.set(1); }
-  suchbegriffAktualisieren(q: string): void { this.suchbegriff.set(q); }
-  formularFeldAktualisieren<K extends keyof MarketingFormularDaten>(feld: K, wert: MarketingFormularDaten[K]): void {
-    this.formularDaten.update(d => ({ ...d, [feld]: wert }));
+  filterSetzen(filter: MarketingStatusFilter): void {
+    this.statusFilter.set(filter);
+    this.aktuelleSeite.set(1);
+  }
+  suchbegriffAktualisieren(q: string): void {
+    this.suchbegriff.set(q);
+  }
+  formularFeldAktualisieren<K extends keyof MarketingFormularDaten>(
+    feld: K,
+    wert: MarketingFormularDaten[K],
+  ): void {
+    this.formularDaten.update((d) => ({ ...d, [feld]: wert }));
   }
 }

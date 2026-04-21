@@ -8,30 +8,33 @@ export class MarketingService {
   private readonly api = inject(ApiService);
 
   allesDatenLaden(): Observable<{ kontakte: MarketingKontakt[]; kunden: Kunde[] }> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       forkJoin({
-        kontakte: this.api.marketingKontakteLaden(),
-        kunden: this.api.kundenLaden(),
+        kontakte: this.api.loadMarketingContacts(),
+        kunden: this.api.loadCustomers(),
       }).subscribe({
-        next: data => { observer.next(data); observer.complete(); },
-        error: err => observer.error(err),
+        next: (data) => {
+          observer.next(data);
+          observer.complete();
+        },
+        error: (err) => observer.error(err),
       });
     });
   }
 
   kontaktErstellen(daten: Partial<MarketingKontakt>): Observable<MarketingKontakt> {
-    return this.api.marketingKontaktErstellen(daten);
+    return this.api.createMarketingContact(daten);
   }
 
   kontaktAktualisieren(id: number, daten: Partial<MarketingKontakt>): Observable<MarketingKontakt> {
-    return this.api.marketingKontaktAktualisieren(id, daten);
+    return this.api.updateMarketingContact(id, daten);
   }
 
   kontaktLoeschen(id: number): Observable<void> {
-    return this.api.marketingKontaktLoeschen(id);
+    return this.api.deleteMarketingContact(id);
   }
 
-  kundeErstellen(daten: Partial<Kunde>): Observable<Kunde> {
-    return this.api.kundeErstellen(daten);
+  createCustomer(daten: Partial<Kunde>): Observable<Kunde> {
+    return this.api.createCustomer(daten);
   }
 }

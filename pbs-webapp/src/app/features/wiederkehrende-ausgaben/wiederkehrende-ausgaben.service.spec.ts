@@ -6,7 +6,7 @@ describe('WiederkehrendeAusgabenService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [WiederkehrendeAusgabenService]
+      providers: [WiederkehrendeAusgabenService],
     });
 
     service = TestBed.inject(WiederkehrendeAusgabenService);

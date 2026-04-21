@@ -4,7 +4,6 @@ import { HttpClient } from '@angular/common/http';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { environment } from '../../../environments/environment';
 
-
 function base64ToBlob(dataUrl: string, mimeType = 'image/jpeg'): Blob {
   const byteString = atob(dataUrl.split(',')[1]);
   const ab = new ArrayBuffer(byteString.length);
@@ -39,7 +38,7 @@ export class FotoUploadPage {
       this.vorschau.set(`data:image/jpeg;base64,${image.base64String}`);
       this.meldung.set('');
       this.fehler.set('');
-    } catch (e) {
+    } catch {
       this.fehler.set('Kamera-Zugriff verweigert oder abgebrochen.');
     }
   }
@@ -55,7 +54,7 @@ export class FotoUploadPage {
       this.vorschau.set(`data:image/jpeg;base64,${image.base64String}`);
       this.meldung.set('');
       this.fehler.set('');
-    } catch (e) {
+    } catch {
       this.fehler.set('Galerie-Zugriff verweigert oder abgebrochen.');
     }
   }

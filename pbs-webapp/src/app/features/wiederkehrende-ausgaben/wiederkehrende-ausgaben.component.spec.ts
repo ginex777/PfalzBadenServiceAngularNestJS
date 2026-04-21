@@ -7,7 +7,7 @@ describe('WiederkehrendeAusgabenComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [WiederkehrendeAusgabenComponent]
+      declarations: [WiederkehrendeAusgabenComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WiederkehrendeAusgabenComponent);

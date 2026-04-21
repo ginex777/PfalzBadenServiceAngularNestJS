@@ -2,11 +2,21 @@
 
 @if (facade.formularSichtbar()) {
   <div class="card">
-    <h3 class="section-title">{{ facade.bearbeiteteAusgabe() ? 'Bearbeiten: ' + facade.bearbeiteteAusgabe()!.name : 'Neuer wiederkehrender Kostenpunkt' }}</h3>
+    <h3 class="section-title">
+      {{
+        facade.bearbeiteteAusgabe()
+          ? 'Bearbeiten: ' + facade.bearbeiteteAusgabe()!.name
+          : 'Neuer wiederkehrender Kostenpunkt'
+      }}
+    </h3>
     <div class="form-row">
       <div class="form-field">
         <label>Bezeichnung *</label>
-        <input type="text" placeholder="z.B. Miete Büro, Telefon, Software-Abo" [formField]="ausgabeForm.name" />
+        <input
+          type="text"
+          placeholder="z.B. Miete Büro, Telefon, Software-Abo"
+          [formField]="ausgabeForm.name"
+        />
         @if (ausgabeForm.name().touched() && ausgabeForm.name().invalid()) {
           <span class="form-fehler">{{ ausgabeForm.name().errors()[0]?.message }}</span>
         }
@@ -30,8 +40,7 @@
       </div>
       <div class="form-field">
         <label>MwSt.</label>
-        <select [value]="ausgabeModell().mwst"
-          (change)="mwstGeaendert($event)">
+        <select [value]="ausgabeModell().mwst" (change)="mwstGeaendert($event)">
           <option value="0">0 %</option>
           <option value="7">7 %</option>
           <option value="19">19 %</option>
@@ -47,7 +56,9 @@
       </div>
     </div>
     <div class="btn-group">
-      <button class="btn btn-primary" [disabled]="ausgabeForm().invalid()" (click)="speichern()">Speichern</button>
+      <button class="btn btn-primary" [disabled]="ausgabeForm().invalid()" (click)="speichern()">
+        Speichern
+      </button>
       <button class="btn" (click)="formularSchliessen()">Abbrechen</button>
     </div>
   </div>
@@ -61,11 +72,19 @@
         <span class="hint hint-inline">{{ facade.ausgaben().length }} Einträge</span>
       </h3>
       @if (facade.aktiveSumme().brutto > 0) {
-        <div class="aktive-summe">Aktive Fixkosten: Netto {{ fmt(facade.aktiveSumme().netto) }} · Vorsteuer {{ fmt(facade.aktiveSumme().vst) }}</div>
+        <div class="aktive-summe">
+          Aktive Fixkosten: Netto {{ fmt(facade.aktiveSumme().netto) }} · Vorsteuer
+          {{ fmt(facade.aktiveSumme().vst) }}
+        </div>
       }
     </div>
     <div class="toolbar-end">
-      <input class="input-search" type="text" placeholder="Suchen…" (input)="suchbegriffGeaendert($event)">
+      <input
+        class="input-search"
+        type="text"
+        placeholder="Suchen…"
+        (input)="suchbegriffGeaendert($event)"
+      />
       <button class="btn btn-sm btn-primary" (click)="formularOeffnen()">+ Neu</button>
     </div>
   </div>
@@ -82,9 +101,15 @@
       <table class="tabelle">
         <thead>
           <tr>
-            <th>Bezeichnung</th><th>Kategorie</th>
-            <th class="rechts">Brutto</th><th class="rechts">Netto</th><th class="rechts">Vorsteuer</th>
-            <th class="mitte">MwSt.</th><th class="mitte">Abzug</th><th class="mitte">Aktiv</th><th></th>
+            <th>Bezeichnung</th>
+            <th>Kategorie</th>
+            <th class="rechts">Brutto</th>
+            <th class="rechts">Netto</th>
+            <th class="rechts">Vorsteuer</th>
+            <th class="mitte">MwSt.</th>
+            <th class="mitte">Abzug</th>
+            <th class="mitte">Aktiv</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -98,12 +123,16 @@
               <td class="mitte">{{ a.mwst }} %</td>
               <td class="mitte">{{ a.abzug }} %</td>
               <td class="mitte">
-                <input type="checkbox" [checked]="a.aktiv"
-                  (change)="aktivToggle(a.id, $event)">
+                <input type="checkbox" [checked]="a.aktiv" (change)="aktivToggle(a.id, $event)" />
               </td>
               <td class="aktionen">
                 <button class="btn-action" (click)="formularOeffnen(a)">Bearbeiten</button>
-                <button class="btn-action btn-action-danger" (click)="facade.loeschenBestaetigen(a.id)">✕</button>
+                <button
+                  class="btn-action btn-action-danger"
+                  (click)="facade.loeschenBestaetigen(a.id)"
+                >
+                  ✕
+                </button>
               </td>
             </tr>
           }
@@ -116,7 +145,10 @@
 @if (facade.loeschKandidat() !== null) {
   <app-confirm-modal
     titel="Kostenpunkt löschen"
-    [nachricht]="(facade.ausgaben().find(a => a.id === facade.loeschKandidat())?.name || '') + ' wirklich löschen?'"
+    [nachricht]="
+      (facade.ausgaben().find((a) => a.id === facade.loeschKandidat())?.name || '') +
+      ' wirklich löschen?'
+    "
     (bestaetigt)="facade.loeschenAusfuehren()"
     (abgebrochen)="facade.loeschenAbbrechen()"
   />

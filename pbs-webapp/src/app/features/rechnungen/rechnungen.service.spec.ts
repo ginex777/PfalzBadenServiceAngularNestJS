@@ -6,7 +6,7 @@ describe('RechnungenService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [RechnungenService]
+      providers: [RechnungenService],
     });
 
     service = TestBed.inject(RechnungenService);

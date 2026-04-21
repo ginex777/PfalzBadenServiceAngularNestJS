@@ -1,106 +1,136 @@
 <div class="page-wrap">
-<app-page-title titel="Mitarbeiter" untertitel="Mitarbeiterverwaltung und Stundenerfassung" />
+  <app-page-title titel="Mitarbeiter" untertitel="Mitarbeiterverwaltung und Stundenerfassung" />
 
-@if (!facade.aktiverMitarbeiter()) {
-  <div class="toolbar">
-    <span class="toolbar__info">{{ facade.mitarbeiter().length }} Mitarbeiter</span>
-    <button class="btn btn--primary" (click)="facade.formularOeffnen()">+ Neuer Mitarbeiter</button>
-  </div>
-
-  @if (facade.formularSichtbar()) {
-    <div class="formular-card">
-      <h3 class="formular-titel">
-        {{ facade.bearbeiteterMitarbeiter() ? 'Mitarbeiter bearbeiten' : 'Neuer Mitarbeiter' }}
-      </h3>
-      <div class="form-row">
-        <div class="form-field">
-          <label class="form-label">Name *</label>
-          <input class="form-input" type="text" placeholder="Max Mustermann"
-            [value]="facade.formularDaten().name"
-            (input)="nameGeaendert($event)" />
-        </div>
-        <div class="form-field">
-          <label class="form-label">Rolle</label>
-          <input class="form-input" type="text" placeholder="z.B. Hausmeister"
-            [value]="facade.formularDaten().rolle"
-            (input)="rolleGeaendert($event)" />
-        </div>
-        <div class="form-field">
-          <label class="form-label">Stundenlohn (€)</label>
-          <input class="form-input" type="number" min="0" step="0.5"
-            [value]="facade.formularDaten().stundenlohn"
-            (input)="stundenlohnGeaendert($event)" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-field">
-          <label class="form-label">E-Mail</label>
-          <input class="form-input" type="email" placeholder="max@firma.de"
-            [value]="facade.formularDaten().email"
-            (input)="emailGeaendert($event)" />
-        </div>
-        <div class="form-field">
-          <label class="form-label">Telefon</label>
-          <input class="form-input" type="text" placeholder="0621 123456"
-            [value]="facade.formularDaten().tel"
-            (input)="telGeaendert($event)" />
-        </div>
-        <div class="form-field form-field--checkbox">
-          <label class="form-label">Aktiv</label>
-          <input type="checkbox"
-            [checked]="facade.formularDaten().aktiv"
-            (change)="aktivGeaendert($event)" />
-        </div>
-      </div>
-      <div class="form-aktionen">
-        <button class="btn btn--primary" [disabled]="!facade.formularDaten().name" (click)="facade.speichern()">Speichern</button>
-        <button class="btn" (click)="facade.formularSchliessen()">Abbrechen</button>
-      </div>
+  @if (!facade.aktiverMitarbeiter()) {
+    <div class="toolbar">
+      <span class="toolbar__info">{{ facade.mitarbeiter().length }} Mitarbeiter</span>
+      <button class="btn btn--primary" (click)="facade.formularOeffnen()">
+        + Neuer Mitarbeiter
+      </button>
     </div>
+
+    @if (facade.formularSichtbar()) {
+      <div class="formular-card">
+        <h3 class="formular-titel">
+          {{ facade.bearbeiteterMitarbeiter() ? 'Mitarbeiter bearbeiten' : 'Neuer Mitarbeiter' }}
+        </h3>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Name *</label>
+            <input
+              class="form-input"
+              type="text"
+              placeholder="Max Mustermann"
+              [value]="facade.formularDaten().name"
+              (input)="nameGeaendert($event)"
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Rolle</label>
+            <input
+              class="form-input"
+              type="text"
+              placeholder="z.B. Hausmeister"
+              [value]="facade.formularDaten().rolle"
+              (input)="rolleGeaendert($event)"
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Stundenlohn (€)</label>
+            <input
+              class="form-input"
+              type="number"
+              min="0"
+              step="0.5"
+              [value]="facade.formularDaten().stundenlohn"
+              (input)="stundenlohnGeaendert($event)"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">E-Mail</label>
+            <input
+              class="form-input"
+              type="email"
+              placeholder="max@firma.de"
+              [value]="facade.formularDaten().email"
+              (input)="emailGeaendert($event)"
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Telefon</label>
+            <input
+              class="form-input"
+              type="text"
+              placeholder="0621 123456"
+              [value]="facade.formularDaten().tel"
+              (input)="telGeaendert($event)"
+            />
+          </div>
+          <div class="form-field form-field--checkbox">
+            <label class="form-label">Aktiv</label>
+            <input
+              type="checkbox"
+              [checked]="facade.formularDaten().aktiv"
+              (change)="aktivGeaendert($event)"
+            />
+          </div>
+        </div>
+        <div class="form-aktionen">
+          <button
+            class="btn btn--primary"
+            [disabled]="!facade.formularDaten().name"
+            (click)="facade.speichern()"
+          >
+            Speichern
+          </button>
+          <button class="btn" (click)="facade.formularSchliessen()">Abbrechen</button>
+        </div>
+      </div>
+    }
+
+    <app-mitarbeiter-liste
+      [mitarbeiter]="facade.mitarbeiter()"
+      [laedt]="facade.laedt()"
+      (bearbeiten)="facade.formularOeffnen($event)"
+      (loeschen)="facade.loeschenBestaetigen($event)"
+      (stundenOeffnen)="facade.stundenOeffnen($event)"
+      (aktivToggle)="facade.aktivToggle($event.id, $event.aktiv)"
+    />
+  } @else {
+    <app-stunden-erfassung
+      [mitarbeiter]="facade.aktiverMitarbeiter()!"
+      [stunden]="facade.stunden()"
+      [stundenLaedt]="facade.stundenLaedt()"
+      [stempelEintraege]="facade.stempelEintraege()"
+      [stempelLaedt]="facade.stempelLaedt()"
+      [formularDaten]="facade.stundenFormular()"
+      [lohnVorschau]="facade.lohnVorschau()"
+      [statistik]="facade.statistik()"
+      (zurueck)="facade.stundenSchliessen()"
+      (eintragen)="facade.stundenEintragen()"
+      (bezahltToggle)="facade.bezahltToggle($event.id, $event.bezahlt)"
+      (loeschen)="facade.stundenLoeschenBestaetigen($event)"
+      (feldGeaendert)="stundenFeldGeaendert($event)"
+      (pdfGenerieren)="facade.abrechnungPdfGenerieren()"
+      (stempelZuStundenKonvertieren)="stempelZuStundenKonvertieren($event)"
+    />
   }
 
-  <app-mitarbeiter-liste
-    [mitarbeiter]="facade.mitarbeiter()"
-    [laedt]="facade.laedt()"
-    (bearbeiten)="facade.formularOeffnen($event)"
-    (loeschen)="facade.loeschenBestaetigen($event)"
-    (stundenOeffnen)="facade.stundenOeffnen($event)"
-    (aktivToggle)="facade.aktivToggle($event.id, $event.aktiv)"
-  />
-} @else {
-  <app-stunden-erfassung
-    [mitarbeiter]="facade.aktiverMitarbeiter()!"
-    [stunden]="facade.stunden()"
-    [stundenLaedt]="facade.stundenLaedt()"
-    [stempelEintraege]="facade.stempelEintraege()"
-    [stempelLaedt]="facade.stempelLaedt()"
-    [formularDaten]="facade.stundenFormular()"
-    [lohnVorschau]="facade.lohnVorschau()"
-    [statistik]="facade.statistik()"
-    (zurueck)="facade.stundenSchliessen()"
-    (eintragen)="facade.stundenEintragen()"
-    (bezahltToggle)="facade.bezahltToggle($event.id, $event.bezahlt)"
-    (loeschen)="facade.stundenLoeschenBestaetigen($event)"
-    (feldGeaendert)="stundenFeldGeaendert($event)"
-    (pdfGenerieren)="facade.abrechnungPdfGenerieren()"
-    (stempelZuStundenKonvertieren)="stempelZuStundenKonvertieren($event)"
-  />
-}
+  @if (facade.loeschKandidat() !== null) {
+    <app-confirm-modal
+      nachricht="Mitarbeiter wirklich löschen? Alle Stundendaten werden ebenfalls gelöscht."
+      (bestaetigt)="facade.loeschenAusfuehren()"
+      (abgebrochen)="facade.loeschenAbbrechen()"
+    />
+  }
 
-@if (facade.loeschKandidat() !== null) {
-  <app-confirm-modal
-    nachricht="Mitarbeiter wirklich löschen? Alle Stundendaten werden ebenfalls gelöscht."
-    (bestaetigt)="facade.loeschenAusfuehren()"
-    (abgebrochen)="facade.loeschenAbbrechen()"
-  />
-}
-
-@if (facade.loeschStundenKandidat() !== null) {
-  <app-confirm-modal
-    nachricht="Stundeneintrag wirklich löschen?"
-    (bestaetigt)="facade.stundenLoeschenAusfuehren()"
-    (abgebrochen)="facade.stundenLoeschenAbbrechen()"
-  />
-}
-
+  @if (facade.loeschStundenKandidat() !== null) {
+    <app-confirm-modal
+      nachricht="Stundeneintrag wirklich löschen?"
+      (bestaetigt)="facade.stundenLoeschenAusfuehren()"
+      (abgebrochen)="facade.stundenLoeschenAbbrechen()"
+    />
+  }
 </div>

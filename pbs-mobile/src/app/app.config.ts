@@ -1,4 +1,8 @@
-import { ApplicationConfig, APP_INITIALIZER, provideBrowserGlobalErrorListeners } from '@angular/core';
+import {
+  ApplicationConfig,
+  APP_INITIALIZER,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { HttpInterceptorFn } from '@angular/common/http';
@@ -23,5 +27,5 @@ export const appConfig: ApplicationConfig = {
       deps: [MobileAuthService],
       multi: true,
     },
-  ]
+  ],
 };

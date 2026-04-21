@@ -6,7 +6,7 @@ describe('AuditLogFacade', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [AuditLogFacade]
+      providers: [AuditLogFacade],
     });
 
     service = TestBed.inject(AuditLogFacade);

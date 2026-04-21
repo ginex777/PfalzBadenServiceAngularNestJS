@@ -27,22 +27,33 @@ export class AuthService {
   ) {}
 
   /** Returns true if no users exist yet (first-run) */
-  async istErsteinrichtung(): Promise<boolean> {
+  async isFirstRun(): Promise<boolean> {
     const count = await this.prisma.users.count();
     return count === 0;
   }
 
   /** Create the first admin user (only allowed when no users exist) */
-  async ersteinrichtung(dto: SetupDto) {
+  async setup(dto: SetupDto) {
     const exists = await this.prisma.users.count();
     if (exists > 0) {
       throw new ConflictException('Ersteinrichtung bereits abgeschlossen');
     }
     const hash = await bcrypt.hash(dto.password, BCRYPT_ROUNDS);
     const user = await this.prisma.users.create({
-      data: { email: dto.email.toLowerCase(), password_hash: hash, rolle: 'admin' },
+      data: {
+        email: dto.email.toLowerCase(),
+        password_hash: hash,
+        rolle: 'admin',
+      },
     });
-    await this.audit.protokollieren('users', user.id, 'CREATE', null, { email: user.email, rolle: user.rolle }, 'system');
+    await this.audit.log(
+      'users',
+      user.id,
+      'CREATE',
+      null,
+      { email: user.email, rolle: user.rolle },
+      'system',
+    );
     return { message: 'Admin-Account erstellt' };
   }
 
@@ -60,15 +71,25 @@ export class AuthService {
 
     const tokens = await this._issueTokens(user.id, user.email, user.rolle);
 
-    await this.audit.protokollieren(
-      'users', user.id, 'UPDATE',
+    await this.audit.log(
+      'users',
+      user.id,
+      'UPDATE',
       null,
       { aktion: 'login', ip: ip ?? 'unbekannt' },
       user.email,
-      user.vorname && user.nachname ? `${user.vorname} ${user.nachname}` : user.email,
+      user.vorname && user.nachname
+        ? `${user.vorname} ${user.nachname}`
+        : user.email,
     );
 
-    return { ...tokens, rolle: user.rolle, email: user.email, vorname: user.vorname, nachname: user.nachname };
+    return {
+      ...tokens,
+      rolle: user.rolle,
+      email: user.email,
+      vorname: user.vorname,
+      nachname: user.nachname,
+    };
   }
 
   async refresh(tokenHash: string) {
@@ -78,16 +99,22 @@ export class AuthService {
     if (!stored || stored.expires_at < new Date()) {
       throw new UnauthorizedException('Session abgelaufen');
     }
-    const user = await this.prisma.users.findUnique({ where: { id: stored.user_id } });
+    const user = await this.prisma.users.findUnique({
+      where: { id: stored.user_id },
+    });
     if (!user || !user.aktiv) throw new UnauthorizedException();
 
     // Rotate: delete old, issue new
-    await this.prisma.refreshTokens.delete({ where: { token_hash: tokenHash } });
+    await this.prisma.refreshTokens.delete({
+      where: { token_hash: tokenHash },
+    });
     return this._issueTokens(user.id, user.email, user.rolle);
   }
 
   async logout(refreshTokenHash: string) {
-    await this.prisma.refreshTokens.deleteMany({ where: { token_hash: refreshTokenHash } });
+    await this.prisma.refreshTokens.deleteMany({
+      where: { token_hash: refreshTokenHash },
+    });
     return { message: 'Abgemeldet' };
   }
 
@@ -96,7 +123,10 @@ export class AuthService {
     const accessToken = this.jwt.sign(payload);
 
     const refreshSecret = this.config.getOrThrow<string>('JWT_SECRET');
-    const refreshExpiresInSec = parseInt(this.config.get<string>('JWT_REFRESH_EXPIRES_IN') ?? '604800', 10);
+    const refreshExpiresInSec = parseInt(
+      this.config.get<string>('JWT_REFRESH_EXPIRES_IN') ?? '604800',
+      10,
+    );
     const refreshRaw = this.jwt.sign(payload, {
       secret: refreshSecret + '-refresh',
       expiresIn: refreshExpiresInSec,
@@ -112,48 +142,129 @@ export class AuthService {
     return { accessToken, refreshToken: refreshRaw };
   }
 
-  async userListe() {
+  async listUsers() {
     const users = await this.prisma.users.findMany({
-      select: { id: true, email: true, rolle: true, aktiv: true, vorname: true, nachname: true, created_at: true },
+      select: {
+        id: true,
+        email: true,
+        rolle: true,
+        aktiv: true,
+        vorname: true,
+        nachname: true,
+        created_at: true,
+      },
       orderBy: { created_at: 'asc' },
     });
-    return users.map(u => ({ ...u, id: u.id.toString() }));
+    return users.map((u) => ({ ...u, id: u.id.toString() }));
   }
 
-  async userAnlegen(email: string, password: string, rolle: 'admin' | 'readonly' | 'mitarbeiter', erstelltVon: string, vorname?: string, nachname?: string, erstelltVonName?: string) {
-    const exists = await this.prisma.users.findUnique({ where: { email: email.toLowerCase() } });
+  async createUser(
+    email: string,
+    password: string,
+    rolle: 'admin' | 'readonly' | 'mitarbeiter',
+    erstelltVon: string,
+    vorname?: string,
+    nachname?: string,
+    erstelltVonName?: string,
+  ) {
+    const exists = await this.prisma.users.findUnique({
+      where: { email: email.toLowerCase() },
+    });
     if (exists) throw new ConflictException('E-Mail bereits vergeben');
-    if (password.length < 8) throw new BadRequestException('Passwort zu kurz (min. 8 Zeichen)');
+    if (password.length < 8)
+      throw new BadRequestException('Passwort zu kurz (min. 8 Zeichen)');
     const hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
     const user = await this.prisma.users.create({
-      data: { email: email.toLowerCase(), password_hash: hash, rolle, vorname: vorname ?? null, nachname: nachname ?? null },
+      data: {
+        email: email.toLowerCase(),
+        password_hash: hash,
+        rolle,
+        vorname: vorname ?? null,
+        nachname: nachname ?? null,
+      },
     });
-    await this.audit.protokollieren('users', user.id, 'CREATE', null, { email: user.email, rolle }, erstelltVon, erstelltVonName);
-    return { id: user.id.toString(), email: user.email, rolle: user.rolle, vorname: user.vorname, nachname: user.nachname };
+    await this.audit.log(
+      'users',
+      user.id,
+      'CREATE',
+      null,
+      { email: user.email, rolle },
+      erstelltVon,
+      erstelltVonName,
+    );
+    return {
+      id: user.id.toString(),
+      email: user.email,
+      rolle: user.rolle,
+      vorname: user.vorname,
+      nachname: user.nachname,
+    };
   }
 
-  async userLoeschen(id: bigint, geloeschtVon: string, geloeschtVonName?: string) {
+  async deleteUser(
+    id: bigint,
+    geloeschtVon: string,
+    geloeschtVonName?: string,
+  ) {
     const user = await this.prisma.users.findUnique({ where: { id } });
     if (!user) throw new BadRequestException('Benutzer nicht gefunden');
     // Prevent deleting the last admin
     if (user.rolle === 'admin') {
-      const adminCount = await this.prisma.users.count({ where: { rolle: 'admin', aktiv: true } });
-      if (adminCount <= 1) throw new BadRequestException('Der letzte Admin kann nicht gelöscht werden');
+      const adminCount = await this.prisma.users.count({
+        where: { rolle: 'admin', aktiv: true },
+      });
+      if (adminCount <= 1)
+        throw new BadRequestException(
+          'Der letzte Admin kann nicht gelöscht werden',
+        );
     }
     await this.prisma.refreshTokens.deleteMany({ where: { user_id: id } });
     await this.prisma.users.delete({ where: { id } });
-    await this.audit.protokollieren('users', id, 'DELETE', { email: user.email, rolle: user.rolle }, null, geloeschtVon, geloeschtVonName);
+    await this.audit.log(
+      'users',
+      id,
+      'DELETE',
+      { email: user.email, rolle: user.rolle },
+      null,
+      geloeschtVon,
+      geloeschtVonName,
+    );
     return { message: 'Benutzer gelöscht' };
   }
 
-  async userAktualisieren(id: bigint, daten: { vorname?: string; nachname?: string; rolle?: string }, geaendertVon: string, geaendertVonName?: string) {
+  async updateUser(
+    id: bigint,
+    daten: { vorname?: string; nachname?: string; rolle?: string },
+    geaendertVon: string,
+    geaendertVonName?: string,
+  ) {
     const user = await this.prisma.users.findUnique({ where: { id } });
     if (!user) throw new BadRequestException('Benutzer nicht gefunden');
     const updated = await this.prisma.users.update({
       where: { id },
-      data: { vorname: daten.vorname, nachname: daten.nachname, rolle: daten.rolle as string | undefined },
+      data: {
+        vorname: daten.vorname,
+        nachname: daten.nachname,
+        rolle: daten.rolle,
+      },
     });
-    await this.audit.protokollieren('users', id, 'UPDATE', { vorname: user.vorname, nachname: user.nachname, rolle: user.rolle }, daten, geaendertVon, geaendertVonName);
-    return { id: updated.id.toString(), email: updated.email, rolle: updated.rolle, vorname: updated.vorname, nachname: updated.nachname, aktiv: updated.aktiv, created_at: updated.created_at };
+    await this.audit.log(
+      'users',
+      id,
+      'UPDATE',
+      { vorname: user.vorname, nachname: user.nachname, rolle: user.rolle },
+      daten,
+      geaendertVon,
+      geaendertVonName,
+    );
+    return {
+      id: updated.id.toString(),
+      email: updated.email,
+      rolle: updated.rolle,
+      vorname: updated.vorname,
+      nachname: updated.nachname,
+      aktiv: updated.aktiv,
+      created_at: updated.created_at,
+    };
   }
 }

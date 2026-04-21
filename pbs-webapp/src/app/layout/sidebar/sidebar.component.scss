@@ -34,7 +34,7 @@
     margin-bottom: 8px;
     flex-shrink: 0;
   }
-  
+
   &__logo-icon {
     width: 32px;
     height: 32px;
@@ -64,7 +64,7 @@
       z-index: -1;
     }
   }
-  
+
   &__logo-text {
     font-size: 16px;
     font-weight: 700;
@@ -72,7 +72,7 @@
     letter-spacing: -0.02em;
     line-height: 1.2;
   }
-  
+
   &__logo-sub {
     font-size: 11px;
     color: rgba(255, 255, 255, 0.4);
@@ -98,7 +98,7 @@
       .sidebar__chevron {
         transform: rotate(180deg);
       }
-      
+
       .sidebar__group-btn {
         background: rgba(255, 255, 255, 0.08);
         color: rgba(255, 255, 255, 0.95);
@@ -133,7 +133,12 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        transparent 100%
+      );
       opacity: 0;
       transition: opacity var(--transition);
     }
@@ -250,7 +255,9 @@
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.2);
       transform: translate(-50%, -50%);
-      transition: width 0.3s, height 0.3s;
+      transition:
+        width 0.3s,
+        height 0.3s;
     }
 
     &:active::before {
@@ -386,8 +393,18 @@
 }
 
 /* Stagger animation for nav items */
-.sidebar__group:nth-child(1) .sidebar__group-btn { animation-delay: 0.05s; }
-.sidebar__group:nth-child(2) .sidebar__group-btn { animation-delay: 0.1s; }
-.sidebar__group:nth-child(3) .sidebar__group-btn { animation-delay: 0.15s; }
-.sidebar__group:nth-child(4) .sidebar__group-btn { animation-delay: 0.2s; }
-.sidebar__group:nth-child(5) .sidebar__group-btn { animation-delay: 0.25s; }
+.sidebar__group:nth-child(1) .sidebar__group-btn {
+  animation-delay: 0.05s;
+}
+.sidebar__group:nth-child(2) .sidebar__group-btn {
+  animation-delay: 0.1s;
+}
+.sidebar__group:nth-child(3) .sidebar__group-btn {
+  animation-delay: 0.15s;
+}
+.sidebar__group:nth-child(4) .sidebar__group-btn {
+  animation-delay: 0.2s;
+}
+.sidebar__group:nth-child(5) .sidebar__group-btn {
+  animation-delay: 0.25s;
+}

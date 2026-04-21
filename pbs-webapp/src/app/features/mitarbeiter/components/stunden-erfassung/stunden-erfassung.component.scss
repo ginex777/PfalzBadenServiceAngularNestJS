@@ -1,26 +1,72 @@
 .stunden-header {
-  display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
-.stunden-titel { font-size: 16px; font-weight: 600; margin: 0; }
-.stunden-lohn { color: var(--gray-500); font-size: 13px; margin-left: auto; }
+.stunden-titel {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+.stunden-lohn {
+  color: var(--gray-500);
+  font-size: 13px;
+  margin-left: auto;
+}
 .statistik-zeile {
-  display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
 }
 .stat-item {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 0.75rem 1rem; min-width: 120px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  min-width: 120px;
 }
-.stat-label { font-size: 11px; color: var(--gray-500); margin-bottom: 2px; }
-.stat-wert { font-size: 16px; font-weight: 700; }
-.danger { color: var(--danger); }
-.success { color: var(--success); }
+.stat-label {
+  font-size: 11px;
+  color: var(--gray-500);
+  margin-bottom: 2px;
+}
+.stat-wert {
+  font-size: 16px;
+  font-weight: 700;
+}
+.danger {
+  color: var(--danger);
+}
+.success {
+  color: var(--success);
+}
 .lohn-vorschau {
-  background: var(--primary-light); border-radius: var(--radius-sm);
-  padding: 0.5rem 0.75rem; font-size: 13px; margin-bottom: 0.75rem;
+  background: var(--primary-light);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: 13px;
+  margin-bottom: 0.75rem;
 }
-.lohn-vorschau .gesamt { color: var(--primary); }
-.tabelle-scroll { overflow-x: auto; }
-.bezahlt { opacity: 0.6; }
-.rechts { text-align: right; }
-.mitte { text-align: center; }
-.laedt, .leer { padding: 1.5rem; text-align: center; color: var(--gray-500); }
+.lohn-vorschau .gesamt {
+  color: var(--primary);
+}
+.tabelle-scroll {
+  overflow-x: auto;
+}
+.bezahlt {
+  opacity: 0.6;
+}
+.rechts {
+  text-align: right;
+}
+.mitte {
+  text-align: center;
+}
+.laedt,
+.leer {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--gray-500);
+}

@@ -20,14 +20,17 @@ export class TagesuebersichtPage implements OnInit {
 
   ngOnInit() {
     this.stempel.zeiterfassung(this.mitarbeiterId).subscribe({
-      next: (rows) => { this.eintraege.set(rows); this.laedt.set(false); },
+      next: (rows) => {
+        this.eintraege.set(rows);
+        this.laedt.set(false);
+      },
       error: () => this.laedt.set(false),
     });
   }
 
   gesamtMinuten(): number {
     return this.eintraege()
-      .filter(e => e.dauer_minuten != null)
+      .filter((e) => e.dauer_minuten != null)
       .reduce((sum, e) => sum + (e.dauer_minuten ?? 0), 0);
   }
 

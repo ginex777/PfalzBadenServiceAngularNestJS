@@ -28,7 +28,9 @@
 
 @if (laedt()) {
   <div class="skeleton-liste" aria-label="Lade Angebote" role="status">
-    @for (i of [1,2,3,4,5,6]; track i) { <div class="skeleton-zeile"></div> }
+    @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+      <div class="skeleton-zeile"></div>
+    }
   </div>
 } @else if (angebote().length === 0) {
   <app-empty-state
@@ -52,7 +54,10 @@
       </thead>
       <tbody>
         @for (angebot of gefilterteAngebote(); track angebot.id) {
-          <tr [class.row--angenommen]="angebot.angenommen" [class.row--abgelehnt]="angebot.abgelehnt">
+          <tr
+            [class.row--angenommen]="angebot.angenommen"
+            [class.row--abgelehnt]="angebot.abgelehnt"
+          >
             <td class="nr-cell">{{ angebot.nr }}</td>
             <td>{{ angebot.titel || '–' }}</td>
             <td>{{ angebot.empf }}</td>
@@ -63,18 +68,27 @@
                 <span [class.text-danger]="istAbgelaufen(angebot)">
                   {{ datumFormatieren(angebot.gueltig_bis) }}
                 </span>
-              } @else { – }
+              } @else {
+                –
+              }
             </td>
             <td>
               <app-status-badge [status]="statusTyp(angebot)" />
             </td>
             <td class="actions-cell">
-              <button class="btn-action" title="PDF generieren" (click)="pdfGenerieren.emit(angebot)">PDF</button>
-              <button class="btn-action" title="Kopieren" (click)="kopieren.emit(angebot)">Kopie</button>
+              <button
+                class="btn-action"
+                title="PDF generieren"
+                (click)="pdfGenerieren.emit(angebot)"
+              >
+                PDF
+              </button>
+              <button class="btn-action" title="Kopieren" (click)="kopieren.emit(angebot)">
+                Kopie
+              </button>
 
               @if (!angebot.angenommen) {
-                <select class="filter-select select-xs"
-                  (change)="onStatusChange(angebot, $event)">
+                <select class="filter-select select-xs" (change)="onStatusChange(angebot, $event)">
                   <option value="">Status…</option>
                   <option value="offen">Offen</option>
                   <option value="gesendet">Gesendet</option>
@@ -84,15 +98,28 @@
               }
 
               @if (angebot.angenommen) {
-                <button class="btn-action btn-action--primary" title="Zu Rechnung konvertieren"
-                  (click)="zuRechnungKonvertieren.emit(angebot)">→ Rechnung</button>
+                <button
+                  class="btn-action btn-action--primary"
+                  title="Zu Rechnung konvertieren"
+                  (click)="zuRechnungKonvertieren.emit(angebot)"
+                >
+                  → Rechnung
+                </button>
                 <span class="gobd-hint">Angenommen</span>
               }
 
               @if (!angebot.angenommen) {
-                <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(angebot)">Bearbeiten</button>
+                <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(angebot)">
+                  Bearbeiten
+                </button>
               }
-              <button class="btn-action btn-action--danger" title="Löschen" (click)="loeschenBestaetigen(angebot.id)">Löschen</button>
+              <button
+                class="btn-action btn-action--danger"
+                title="Löschen"
+                (click)="loeschenBestaetigen(angebot.id)"
+              >
+                Löschen
+              </button>
             </td>
           </tr>
         }

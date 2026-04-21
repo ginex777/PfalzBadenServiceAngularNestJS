@@ -42,5 +42,10 @@ export interface OffenePostenRechnung {
 }
 
 export const LEERES_FORMULAR: KundenFormularDaten = {
-  name: '', strasse: '', ort: '', tel: '', email: '', notiz: '',
+  name: '',
+  strasse: '',
+  ort: '',
+  tel: '',
+  email: '',
+  notiz: '',
 };

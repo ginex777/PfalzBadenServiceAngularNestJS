@@ -5,11 +5,8 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Verdana, Arial, sans-serif; font-size: 10px; color: #000; }
-  .page { padding: 18mm 20mm 30mm 20mm; min-height: 257mm; position: relative; }
-  .doc-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1.5px solid #333; padding-bottom: 8px; margin-bottom: 14px; }
-  .firma-name { font-size: 15px; font-weight: bold; }
-  .firma-sub { font-size: 10px; color: #555; margin-top: 2px; }
-  .logo { max-height: 48px; max-width: 140px; }
+  /* Horizontal padding is handled here; vertical space for header/footer is reserved via Puppeteer margins. */
+  .page { padding: 0 20mm; }
   h1 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
   .sub { font-size: 10px; color: #555; margin-bottom: 14px; }
   table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
@@ -26,13 +23,10 @@
   .green { color: #16a34a; }
   .red { color: #dc2626; }
   .orange { color: #d97706; }
-  .doc-footer { position: absolute; bottom: 10mm; left: 20mm; right: 20mm; border-top: 0.5px solid #ccc; padding-top: 5px; font-size: 9px; color: #666; display: flex; justify-content: space-between; gap: 20px; }
-  .doc-footer > div { flex: 1; }
 </style>
 </head>
 <body>
 <div class="page">
-  {{> header}}
 
   <h1>Stundenabrechnung – {{mitarbeiter.name}}</h1>
   <div class="sub">{{#if mitarbeiter.rolle}}{{mitarbeiter.rolle}} · {{/if}}Stundenlohn: {{stundenlohnFormatiert}} · Erstellt: {{erstelltAm}}</div>
@@ -86,7 +80,6 @@
     <div class="si"><div class="val {{offerFarbe}}">{{fmtEur offen}}</div><div class="lbl">Offen</div></div>
   </div>
 
-  {{> footer}}
 </div>
 </body>
 </html>

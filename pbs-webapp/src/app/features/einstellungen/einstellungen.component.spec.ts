@@ -7,7 +7,7 @@ describe('EinstellungenComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EinstellungenComponent]
+      declarations: [EinstellungenComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EinstellungenComponent);

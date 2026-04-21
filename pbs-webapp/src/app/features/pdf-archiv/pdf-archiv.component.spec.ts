@@ -7,7 +7,7 @@ describe('PdfArchivComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PdfArchivComponent]
+      declarations: [PdfArchivComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PdfArchivComponent);

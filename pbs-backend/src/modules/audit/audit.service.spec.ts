@@ -27,12 +27,12 @@ describe('AuditService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('protokollieren()', () => {
+  describe('log()', () => {
     it('speichert CREATE-Eintrag mit korrekten Feldern', async () => {
       mockPrisma.auditLog.create.mockResolvedValue({});
       const neuWert = { id: 1, name: 'Test' };
 
-      await service.protokollieren('kunden', 1, 'CREATE', null, neuWert, 'Dennis');
+      await service.log('kunden', 1, 'CREATE', null, neuWert, 'Dennis');
 
       expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
         data: {
@@ -42,6 +42,7 @@ describe('AuditService', () => {
           alt_wert: undefined,
           neu_wert: neuWert,
           nutzer: 'Dennis',
+          nutzer_name: null,
         },
       });
     });
@@ -51,7 +52,7 @@ describe('AuditService', () => {
       const alt = { id: 5, name: 'Alt' };
       const neu = { id: 5, name: 'Neu' };
 
-      await service.protokollieren('rechnungen', BigInt(5), 'UPDATE', alt, neu, 'Tester');
+      await service.log('rechnungen', BigInt(5), 'UPDATE', alt, neu, 'Tester');
 
       expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
         data: {
@@ -61,6 +62,7 @@ describe('AuditService', () => {
           alt_wert: alt,
           neu_wert: neu,
           nutzer: 'Tester',
+          nutzer_name: null,
         },
       });
     });
@@ -69,7 +71,7 @@ describe('AuditService', () => {
       mockPrisma.auditLog.create.mockResolvedValue({});
       const alt = { id: 2, name: 'Gelöscht' };
 
-      await service.protokollieren('angebote', 2, 'DELETE', alt, null, undefined);
+      await service.log('angebote', 2, 'DELETE', alt, null, undefined);
 
       expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -84,7 +86,7 @@ describe('AuditService', () => {
     it('setzt nutzer auf null wenn nicht angegeben', async () => {
       mockPrisma.auditLog.create.mockResolvedValue({});
 
-      await service.protokollieren('kunden', 1, 'CREATE', null, {});
+      await service.log('kunden', 1, 'CREATE', null, {});
 
       expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
         data: expect.objectContaining({ nutzer: null }),

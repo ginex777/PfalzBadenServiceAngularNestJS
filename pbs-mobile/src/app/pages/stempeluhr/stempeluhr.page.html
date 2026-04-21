@@ -13,13 +13,9 @@
     <div class="laufzeit">{{ laufzeit() }}</div>
 
     @if (istAktiv) {
-      <button class="btn-stop" [disabled]="laedt()" (click)="stop()">
-        Stoppen
-      </button>
+      <button class="btn-stop" [disabled]="laedt()" (click)="stop()">Stoppen</button>
     } @else {
-      <button class="btn-start" [disabled]="laedt()" (click)="start()">
-        Stempeln
-      </button>
+      <button class="btn-start" [disabled]="laedt()" (click)="start()">Stempeln</button>
     }
   </div>
 

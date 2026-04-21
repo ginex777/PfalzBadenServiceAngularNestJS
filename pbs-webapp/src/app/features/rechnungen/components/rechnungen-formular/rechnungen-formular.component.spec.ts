@@ -7,7 +7,7 @@ describe('RechnungenFormularComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [RechnungenFormularComponent]
+      declarations: [RechnungenFormularComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RechnungenFormularComponent);

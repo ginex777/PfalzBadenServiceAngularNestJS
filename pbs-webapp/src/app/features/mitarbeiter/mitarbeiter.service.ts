@@ -17,24 +17,52 @@ interface Stempel {
 export class MitarbeiterService {
   private readonly api = inject(ApiService);
 
-  alleLaden(): Observable<Mitarbeiter[]> { return this.api.mitarbeiterLaden(); }
-  erstellen(daten: Partial<Mitarbeiter>): Observable<Mitarbeiter> { return this.api.mitarbeiterErstellen(daten); }
-  aktualisieren(id: number, daten: Partial<Mitarbeiter>): Observable<Mitarbeiter> { return this.api.mitarbeiterAktualisieren(id, daten); }
-  loeschen(id: number): Observable<void> { return this.api.mitarbeiterLoeschen(id); }
+  alleLaden(): Observable<Mitarbeiter[]> {
+    return this.api.loadEmployees();
+  }
+  erstellen(daten: Partial<Mitarbeiter>): Observable<Mitarbeiter> {
+    return this.api.createEmployee(daten);
+  }
+  aktualisieren(id: number, daten: Partial<Mitarbeiter>): Observable<Mitarbeiter> {
+    return this.api.updateEmployee(id, daten);
+  }
+  loeschen(id: number): Observable<void> {
+    return this.api.deleteEmployee(id);
+  }
 
-  stundenLaden(mitarbeiterId: number): Observable<MitarbeiterStunden[]> { return this.api.mitarbeiterStundenLaden(mitarbeiterId); }
-  stundenErstellen(mitarbeiterId: number, daten: Partial<MitarbeiterStunden>): Observable<MitarbeiterStunden> { return this.api.mitarbeiterStundenErstellen(mitarbeiterId, daten); }
-  stundenAktualisieren(stundenId: number, daten: Partial<MitarbeiterStunden>): Observable<MitarbeiterStunden> { return this.api.mitarbeiterStundenAktualisieren(stundenId, daten); }
-  stundenLoeschen(stundenId: number): Observable<void> { return this.api.mitarbeiterStundenLoeschen(stundenId); }
+  stundenLaden(mitarbeiterId: number): Observable<MitarbeiterStunden[]> {
+    return this.api.loadEmployeeHours(mitarbeiterId);
+  }
+  stundenErstellen(
+    mitarbeiterId: number,
+    daten: Partial<MitarbeiterStunden>,
+  ): Observable<MitarbeiterStunden> {
+    return this.api.createEmployeeHours(mitarbeiterId, daten);
+  }
+  stundenAktualisieren(
+    stundenId: number,
+    daten: Partial<MitarbeiterStunden>,
+  ): Observable<MitarbeiterStunden> {
+    return this.api.updateEmployeeHours(stundenId, daten);
+  }
+  stundenLoeschen(stundenId: number): Observable<void> {
+    return this.api.deleteEmployeeHours(stundenId);
+  }
 
   // Mobile Stempeluhr
-  stempelStart(mitarbeiterId: number, notiz?: string): Observable<Stempel> { return this.api.stempelStart(mitarbeiterId, { notiz }); }
-  stempelStop(mitarbeiterId: number): Observable<Stempel> { return this.api.stempelStop(mitarbeiterId); }
-  zeiterfassungLaden(mitarbeiterId: number): Observable<Stempel[]> { return this.api.zeiterfassungLaden(mitarbeiterId); }
+  clockIn(mitarbeiterId: number, notiz?: string): Observable<Stempel> {
+    return this.api.clockIn(mitarbeiterId, { notiz });
+  }
+  clockOut(mitarbeiterId: number): Observable<Stempel> {
+    return this.api.clockOut(mitarbeiterId);
+  }
+  loadTimeTracking(mitarbeiterId: number): Observable<Stempel[]> {
+    return this.api.loadTimeTracking(mitarbeiterId);
+  }
 
   // Stundenabrechnung als PDF (serverseitig mit Handlebars)
   async abrechnungPdfOeffnen(mitarbeiterId: number): Promise<void> {
-    const response = await firstValueFrom(this.api.mitarbeiterAbrechnungPdfErstellen(mitarbeiterId));
+    const response = await firstValueFrom(this.api.mitarbeiterAbcreateInvoicePdf(mitarbeiterId));
     window.open(response.url, '_blank');
   }
 }

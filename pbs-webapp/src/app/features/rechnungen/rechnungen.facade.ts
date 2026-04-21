@@ -7,11 +7,22 @@ import { DEFAULT_PAGE_SIZE } from '../../core/constants';
 import { Router } from '@angular/router';
 import { RechnungenService } from './rechnungen.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Rechnung, Kunde, FirmaSettings, RechnungPosition, Mahnung, AuditLogEntry } from '../../core/models';
 import {
-  RechnungFilter, RechnungFormularDaten, RechnungPrefill,
-  AngebotKonvertierungsDaten, WiederkehrendPrefill,
-  RechnungStatistik, LEERES_RECHNUNGS_FORMULAR,
+  Rechnung,
+  Kunde,
+  FirmaSettings,
+  RechnungPosition,
+  Mahnung,
+  AuditLogEntry,
+} from '../../core/models';
+import {
+  RechnungFilter,
+  RechnungFormularDaten,
+  RechnungPrefill,
+  AngebotKonvertierungsDaten,
+  WiederkehrendPrefill,
+  RechnungStatistik,
+  LEERES_RECHNUNGS_FORMULAR,
 } from './rechnungen.models';
 
 @Injectable({ providedIn: 'root' })
@@ -40,7 +51,12 @@ export class RechnungenFacade {
   readonly mahnungenModalRechnung = signal<Rechnung | null>(null);
   readonly mahnungen = signal<Mahnung[]>([]);
   readonly mahnungenLaedt = signal(false);
-  readonly mahnungFormular = signal({ datum: new Date().toISOString().split('T')[0], stufe: 1, betrag_gebuehr: 0, notiz: '' });
+  readonly mahnungFormular = signal({
+    datum: new Date().toISOString().split('T')[0],
+    stufe: 1,
+    betrag_gebuehr: 0,
+    notiz: '',
+  });
 
   // Send-Modal nach Speichern
   readonly sendModalRechnung = signal<Rechnung | null>(null);
@@ -54,12 +70,14 @@ export class RechnungenFacade {
 
   constructor() {
     const nav = this.router.getCurrentNavigation();
-    const state = nav?.extras?.state as {
-      prefill?: RechnungPrefill;
-      convertFrom?: string;
-      data?: unknown;
-      openId?: number;
-    } | undefined;
+    const state = nav?.extras?.state as
+      | {
+          prefill?: RechnungPrefill;
+          convertFrom?: string;
+          data?: unknown;
+          openId?: number;
+        }
+      | undefined;
     if (state?.prefill) {
       this.prefill.set(state.prefill);
       this.prefillAusRouterState(state.prefill);
@@ -81,16 +99,17 @@ export class RechnungenFacade {
   readonly gefilterteRechnungen = computed(() => {
     const q = this.suchbegriff().toLowerCase();
     const filter = this.aktiverFilter();
-    const heute = new Date(); heute.setHours(0, 0, 0, 0);
+    const heute = new Date();
+    heute.setHours(0, 0, 0, 0);
 
     return this.rechnungen()
-      .filter(r => {
+      .filter((r) => {
         if (filter === 'offen') return !r.bezahlt;
         if (filter === 'bezahlt') return r.bezahlt;
         if (filter === 'ueberfaellig') return !r.bezahlt && !!r.frist && new Date(r.frist) < heute;
         return true;
       })
-      .filter(r => {
+      .filter((r) => {
         if (!q) return true;
         return (
           r.nr.toLowerCase().includes(q) ||
@@ -104,44 +123,49 @@ export class RechnungenFacade {
   readonly aktuelleSeite = signal(1);
   readonly PAGE_SIZE = DEFAULT_PAGE_SIZE;
   readonly gesamtSeiten = computed(() =>
-    Math.max(1, Math.ceil(this.gefilterteRechnungen().length / this.PAGE_SIZE))
+    Math.max(1, Math.ceil(this.gefilterteRechnungen().length / this.PAGE_SIZE)),
   );
   readonly seitenRechnungen = computed(() => {
     const start = (this.aktuelleSeite() - 1) * this.PAGE_SIZE;
     return this.gefilterteRechnungen().slice(start, start + this.PAGE_SIZE);
   });
 
-  seiteZurueck(): void { this.aktuelleSeite.update(p => Math.max(1, p - 1)); }
-  seiteVor(): void { this.aktuelleSeite.update(p => Math.min(this.gesamtSeiten(), p + 1)); }
+  seiteZurueck(): void {
+    this.aktuelleSeite.update((p) => Math.max(1, p - 1));
+  }
+  seiteVor(): void {
+    this.aktuelleSeite.update((p) => Math.min(this.gesamtSeiten(), p + 1));
+  }
 
   readonly statistik = computed<RechnungStatistik>(() => {
-    const heute = new Date(); heute.setHours(0, 0, 0, 0);
+    const heute = new Date();
+    heute.setHours(0, 0, 0, 0);
     const jetztMonat = heute.getMonth();
     const jetztJahr = heute.getFullYear();
     const alle = this.rechnungen();
 
     return {
-      offen: alle.filter(r => !r.bezahlt).reduce((s, r) => s + (r.brutto ?? 0), 0),
+      offen: alle.filter((r) => !r.bezahlt).reduce((s, r) => s + (r.brutto ?? 0), 0),
       bezahltMonat: alle
-        .filter(r => r.bezahlt && r.bezahlt_am)
-        .filter(r => {
+        .filter((r) => r.bezahlt && r.bezahlt_am)
+        .filter((r) => {
           const d = new Date(r.bezahlt_am!);
           return d.getMonth() === jetztMonat && d.getFullYear() === jetztJahr;
         })
         .reduce((s, r) => s + (r.brutto ?? 0), 0),
       ueberfaellig: alle
-        .filter(r => !r.bezahlt && !!r.frist && new Date(r.frist) < heute)
+        .filter((r) => !r.bezahlt && !!r.frist && new Date(r.frist) < heute)
         .reduce((s, r) => s + (r.brutto ?? 0), 0),
-      gesamtumsatz: alle.filter(r => r.bezahlt).reduce((s, r) => s + (r.brutto ?? 0), 0),
+      gesamtumsatz: alle.filter((r) => r.bezahlt).reduce((s, r) => s + (r.brutto ?? 0), 0),
     };
   });
 
   readonly netto = computed(() =>
-    this.service.nettoSummeBerechnen(this.formularDaten().positionen)
+    this.service.nettoSummeBerechnen(this.formularDaten().positionen),
   );
 
   readonly brutto = computed(() =>
-    this.service.bruttoBerechnen(this.formularDaten().positionen, this.formularDaten().mwst_satz)
+    this.service.bruttoBerechnen(this.formularDaten().positionen, this.formularDaten().mwst_satz),
   );
 
   readonly mwstBetrag = computed(() => this.brutto() - this.netto());
@@ -155,16 +179,19 @@ export class RechnungenFacade {
         this.laedt.set(false);
         // Auto-increment Nr if form is empty
         if (!this.formularDaten().nr) {
-          this.formularDaten.update(d => ({ ...d, nr: this._naechsteRechnungsNr(rechnungen) }));
+          this.formularDaten.update((d) => ({ ...d, nr: this._naechsteRechnungsNr(rechnungen) }));
         }
         // Set today as default date if empty
         if (!this.formularDaten().datum) {
-          this.formularDaten.update(d => ({ ...d, datum: new Date().toISOString().split('T')[0] }));
+          this.formularDaten.update((d) => ({
+            ...d,
+            datum: new Date().toISOString().split('T')[0],
+          }));
         }
         // Auto-open a specific rechnung when navigated from dashboard
         const openId = this._openId();
         if (openId !== null) {
-          const target = rechnungen.find(r => r.id === openId);
+          const target = rechnungen.find((r) => r.id === openId);
           if (target) this.bearbeitungStarten(target);
           this._openId.set(null);
         }
@@ -176,7 +203,7 @@ export class RechnungenFacade {
       },
     });
     this.service.firmaEinstellungenLaden().subscribe({
-      next: firma => this.firma.set(firma),
+      next: (firma) => this.firma.set(firma),
       error: () => {},
     });
   }
@@ -184,8 +211,8 @@ export class RechnungenFacade {
   private _naechsteRechnungsNr(rechnungen: Rechnung[]): string {
     const jahr = new Date().getFullYear();
     const nummern = rechnungen
-      .filter(r => r.nr?.startsWith(`R-${jahr}-`))
-      .map(r => parseInt(r.nr.split('-')[2]) || 0);
+      .filter((r) => r.nr?.startsWith(`R-${jahr}-`))
+      .map((r) => parseInt(r.nr.split('-')[2]) || 0);
     const naechste = nummern.length ? Math.max(...nummern) + 1 : 1;
     return `R-${jahr}-${String(naechste).padStart(3, '0')}`;
   }
@@ -203,25 +230,34 @@ export class RechnungenFacade {
     const brutto = this.brutto();
     const frist = this._fristBerechnen(daten.datum, daten.zahlungsziel);
     const payload: Partial<Rechnung> = {
-      nr: daten.nr, empf: daten.empf, str: daten.str, ort: daten.ort,
-      email: daten.email, datum: daten.datum, leistungsdatum: daten.leistungsdatum,
-      zahlungsziel: daten.zahlungsziel, titel: daten.titel,
-      positionen: daten.positionen, mwst_satz: daten.mwst_satz,
-      kunden_id: daten.kunden_id, brutto, frist,
+      nr: daten.nr,
+      empf: daten.empf,
+      str: daten.str,
+      ort: daten.ort,
+      email: daten.email,
+      datum: daten.datum,
+      leistungsdatum: daten.leistungsdatum,
+      zahlungsziel: daten.zahlungsziel,
+      titel: daten.titel,
+      positionen: daten.positionen,
+      mwst_satz: daten.mwst_satz,
+      kunden_id: daten.kunden_id,
+      brutto,
+      frist,
     };
 
     const editId = this.bearbeiteteRechnung()?.id;
     const anfrage = editId
-      ? this.service.rechnungAktualisieren(editId, payload)
-      : this.service.rechnungErstellen(payload);
+      ? this.service.updateInvoice(editId, payload)
+      : this.service.createInvoice(payload);
 
     anfrage.subscribe({
-      next: gespeichert => {
+      next: (gespeichert) => {
         if (editId) {
-          this.rechnungen.update(list => list.map(r => r.id === editId ? gespeichert : r));
+          this.rechnungen.update((list) => list.map((r) => (r.id === editId ? gespeichert : r)));
           this.toast.success('Rechnung aktualisiert.');
         } else {
-          this.rechnungen.update(list => [gespeichert, ...list]);
+          this.rechnungen.update((list) => [gespeichert, ...list]);
           this.toast.success('Rechnung gespeichert.');
         }
         this.speichert.set(false);
@@ -244,10 +280,15 @@ export class RechnungenFacade {
     if (rechnung.bezahlt) return;
     this.bearbeiteteRechnung.set(rechnung);
     this.formularDaten.set({
-      nr: rechnung.nr, empf: rechnung.empf, str: rechnung.str ?? '',
-      ort: rechnung.ort ?? '', email: rechnung.email ?? '',
-      datum: rechnung.datum ?? '', leistungsdatum: rechnung.leistungsdatum ?? '',
-      zahlungsziel: rechnung.zahlungsziel ?? 14, titel: rechnung.titel ?? '',
+      nr: rechnung.nr,
+      empf: rechnung.empf,
+      str: rechnung.str ?? '',
+      ort: rechnung.ort ?? '',
+      email: rechnung.email ?? '',
+      datum: rechnung.datum ?? '',
+      leistungsdatum: rechnung.leistungsdatum ?? '',
+      zahlungsziel: rechnung.zahlungsziel ?? 14,
+      titel: rechnung.titel ?? '',
       positionen: rechnung.positionen?.length
         ? rechnung.positionen
         : [{ bez: '', stunden: '', einzelpreis: undefined, gesamtpreis: 0 }],
@@ -263,7 +304,7 @@ export class RechnungenFacade {
   private aktivitaetenLaden(rechnungId: number): void {
     this.aktivitaetenLaedt.set(true);
     this.service.auditEintraegeLaden(rechnungId).subscribe({
-      next: eintraege => {
+      next: (eintraege) => {
         this.aktivitaeten.set(eintraege);
         this.aktivitaetenLaedt.set(false);
       },
@@ -282,7 +323,7 @@ export class RechnungenFacade {
   }
 
   loeschenBestaetigen(id: number): void {
-    const r = this.rechnungen().find(x => x.id === id);
+    const r = this.rechnungen().find((x) => x.id === id);
     if (r?.bezahlt) return;
     this.loeschKandidat.set(id);
   }
@@ -294,9 +335,9 @@ export class RechnungenFacade {
   loeschenAusfuehren(): void {
     const id = this.loeschKandidat();
     if (id === null) return;
-    this.service.rechnungLoeschen(id).subscribe({
+    this.service.deleteInvoice(id).subscribe({
       next: () => {
-        this.rechnungen.update(list => list.filter(r => r.id !== id));
+        this.rechnungen.update((list) => list.filter((r) => r.id !== id));
         this.loeschKandidat.set(null);
         this.toast.success('Rechnung gelöscht.');
       },
@@ -308,8 +349,8 @@ export class RechnungenFacade {
   }
 
   loeschenSofort(id: number): void {
-    this.service.rechnungLoeschen(id).subscribe({
-      next: () => this.rechnungen.update(list => list.filter(r => r.id !== id)),
+    this.service.deleteInvoice(id).subscribe({
+      next: () => this.rechnungen.update((list) => list.filter((r) => r.id !== id)),
       error: () => this.toast.error(`Rechnung #${id} konnte nicht gelöscht werden.`),
     });
   }
@@ -329,9 +370,9 @@ export class RechnungenFacade {
     const r = this.bezahltKandidat();
     if (!r) return;
     const datum = this.bezahltDatum();
-    this.service.rechnungAktualisieren(r.id, { bezahlt: true, bezahlt_am: datum }).subscribe({
-      next: aktualisiert => {
-        this.rechnungen.update(list => list.map(x => x.id === r.id ? aktualisiert : x));
+    this.service.updateInvoice(r.id, { bezahlt: true, bezahlt_am: datum }).subscribe({
+      next: (aktualisiert) => {
+        this.rechnungen.update((list) => list.map((x) => (x.id === r.id ? aktualisiert : x)));
         this.bezahltKandidat.set(null);
         this.bezahltDatum.set('');
         this.toast.success(`Rechnung ${r.nr} als bezahlt markiert.`);
@@ -345,7 +386,7 @@ export class RechnungenFacade {
   positionKopieren(index: number): void {
     const pos = this.formularDaten().positionen[index];
     if (!pos) return;
-    this.formularDaten.update(d => ({
+    this.formularDaten.update((d) => ({
       ...d,
       positionen: [
         ...d.positionen.slice(0, index + 1),
@@ -365,23 +406,32 @@ export class RechnungenFacade {
     const brutto = this.brutto();
     const frist = this._fristBerechnen(daten.datum, daten.zahlungsziel);
     const payload: Partial<Rechnung> = {
-      nr: daten.nr, empf: daten.empf, str: daten.str, ort: daten.ort,
-      email: daten.email, datum: daten.datum, leistungsdatum: daten.leistungsdatum,
-      zahlungsziel: daten.zahlungsziel, titel: daten.titel,
-      positionen: daten.positionen, mwst_satz: daten.mwst_satz,
-      kunden_id: daten.kunden_id, brutto, frist,
+      nr: daten.nr,
+      empf: daten.empf,
+      str: daten.str,
+      ort: daten.ort,
+      email: daten.email,
+      datum: daten.datum,
+      leistungsdatum: daten.leistungsdatum,
+      zahlungsziel: daten.zahlungsziel,
+      titel: daten.titel,
+      positionen: daten.positionen,
+      mwst_satz: daten.mwst_satz,
+      kunden_id: daten.kunden_id,
+      brutto,
+      frist,
     };
     const editId = this.bearbeiteteRechnung()?.id;
     const anfrage = editId
-      ? this.service.rechnungAktualisieren(editId, payload)
-      : this.service.rechnungErstellen(payload);
+      ? this.service.updateInvoice(editId, payload)
+      : this.service.createInvoice(payload);
 
     anfrage.subscribe({
-      next: gespeichert => {
+      next: (gespeichert) => {
         if (editId) {
-          this.rechnungen.update(list => list.map(r => r.id === editId ? gespeichert : r));
+          this.rechnungen.update((list) => list.map((r) => (r.id === editId ? gespeichert : r)));
         } else {
-          this.rechnungen.update(list => [gespeichert, ...list]);
+          this.rechnungen.update((list) => [gespeichert, ...list]);
           this.bearbeiteteRechnung.set(gespeichert);
         }
         this.speichert.set(false);
@@ -400,8 +450,8 @@ export class RechnungenFacade {
   rechnungKopieren(rechnung: Rechnung): void {
     const jahr = new Date().getFullYear();
     const nummern = this.rechnungen()
-      .filter(r => r.nr?.startsWith(`R-${jahr}-`))
-      .map(r => parseInt(r.nr.split('-')[2]) || 0);
+      .filter((r) => r.nr?.startsWith(`R-${jahr}-`))
+      .map((r) => parseInt(r.nr.split('-')[2]) || 0);
     const naechste = nummern.length ? Math.max(...nummern) + 1 : 1;
     const neueNr = `R-${jahr}-${String(naechste).padStart(3, '0')}`;
     this.formularDaten.set({
@@ -415,7 +465,7 @@ export class RechnungenFacade {
       zahlungsziel: rechnung.zahlungsziel ?? 14,
       titel: rechnung.titel ?? '',
       positionen: rechnung.positionen?.length
-        ? rechnung.positionen.map(p => ({ ...p }))
+        ? rechnung.positionen.map((p) => ({ ...p }))
         : [{ bez: '', stunden: '', einzelpreis: undefined, gesamtpreis: 0 }],
       mwst_satz: rechnung.mwst_satz ?? 19,
       kunden_id: rechnung.kunden_id,
@@ -432,21 +482,24 @@ export class RechnungenFacade {
   }
 
   positionHinzufuegen(): void {
-    this.formularDaten.update(d => ({
+    this.formularDaten.update((d) => ({
       ...d,
-      positionen: [...d.positionen, { bez: '', stunden: '', einzelpreis: undefined, gesamtpreis: 0 }],
+      positionen: [
+        ...d.positionen,
+        { bez: '', stunden: '', einzelpreis: undefined, gesamtpreis: 0 },
+      ],
     }));
   }
 
   positionEntfernen(index: number): void {
-    this.formularDaten.update(d => ({
+    this.formularDaten.update((d) => ({
       ...d,
       positionen: d.positionen.filter((_, i) => i !== index),
     }));
   }
 
   positionAktualisieren(index: number, position: RechnungPosition): void {
-    this.formularDaten.update(d => {
+    this.formularDaten.update((d) => {
       const positionen = [...d.positionen];
       positionen[index] = position;
       return { ...d, positionen };
@@ -454,15 +507,16 @@ export class RechnungenFacade {
   }
 
   formularFeldAktualisieren<K extends keyof RechnungFormularDaten>(
-    feld: K, wert: RechnungFormularDaten[K]
+    feld: K,
+    wert: RechnungFormularDaten[K],
   ): void {
-    this.formularDaten.update(d => ({ ...d, [feld]: wert }));
+    this.formularDaten.update((d) => ({ ...d, [feld]: wert }));
   }
 
   kundeAuswaehlen(kundeId: number): void {
-    const kunde = this.kunden().find(k => k.id === kundeId);
+    const kunde = this.kunden().find((k) => k.id === kundeId);
     if (!kunde) return;
-    this.formularDaten.update(d => ({
+    this.formularDaten.update((d) => ({
       ...d,
       empf: kunde.name,
       str: kunde.strasse ?? '',
@@ -488,7 +542,7 @@ export class RechnungenFacade {
   }
 
   private prefillAusRouterState(prefill: RechnungPrefill): void {
-    this.formularDaten.update(d => ({
+    this.formularDaten.update((d) => ({
       ...d,
       empf: prefill.empf ?? d.empf,
       str: prefill.str ?? d.str,
@@ -500,7 +554,7 @@ export class RechnungenFacade {
 
   private prefillAusAngebot(daten: AngebotKonvertierungsDaten): void {
     if (!daten) return;
-    this.formularDaten.update(d => ({
+    this.formularDaten.update((d) => ({
       ...d,
       empf: daten.empf ?? d.empf,
       str: daten.str ?? d.str,
@@ -513,7 +567,7 @@ export class RechnungenFacade {
 
   private prefillAusWiederkehrend(daten: WiederkehrendPrefill): void {
     if (!daten) return;
-    this.formularDaten.update(d => ({
+    this.formularDaten.update((d) => ({
       ...d,
       empf: daten.empf ?? d.empf,
       str: daten.str ?? d.str,
@@ -530,11 +584,21 @@ export class RechnungenFacade {
   mahnungenOeffnen(rechnung: Rechnung): void {
     this.mahnungenModalRechnung.set(rechnung);
     this.mahnungenLaedt.set(true);
-    this.service.mahnungenLaden(rechnung.id).subscribe({
-      next: m => { this.mahnungen.set(m); this.mahnungenLaedt.set(false); },
-      error: () => { this.mahnungenLaedt.set(false); },
+    this.service.loadReminders(rechnung.id).subscribe({
+      next: (m) => {
+        this.mahnungen.set(m);
+        this.mahnungenLaedt.set(false);
+      },
+      error: () => {
+        this.mahnungenLaedt.set(false);
+      },
     });
-    this.mahnungFormular.set({ datum: new Date().toISOString().split('T')[0], stufe: 1, betrag_gebuehr: 0, notiz: '' });
+    this.mahnungFormular.set({
+      datum: new Date().toISOString().split('T')[0],
+      stufe: 1,
+      betrag_gebuehr: 0,
+      notiz: '',
+    });
   }
 
   mahnungenSchliessen(): void {
@@ -546,22 +610,35 @@ export class RechnungenFacade {
     const r = this.mahnungenModalRechnung();
     if (!r) return;
     const d = this.mahnungFormular();
-    this.service.mahnungErstellen({ rechnung_id: r.id, datum: d.datum, stufe: d.stufe, betrag_gebuehr: d.betrag_gebuehr, notiz: d.notiz || undefined }).subscribe({
-      next: m => {
-        this.mahnungen.update(list => [...list, m]);
-        this.mahnungFormular.set({ datum: new Date().toISOString().split('T')[0], stufe: this.mahnungen().length + 1, betrag_gebuehr: 0, notiz: '' });
-        this.toast.success(`${d.stufe}. Mahnung erstellt.`);
-      },
-      error: () => {
-        this.toast.error('Mahnung konnte nicht erstellt werden.');
-      },
-    });
+    this.service
+      .createReminder({
+        rechnung_id: r.id,
+        datum: d.datum,
+        stufe: d.stufe,
+        betrag_gebuehr: d.betrag_gebuehr,
+        notiz: d.notiz || undefined,
+      })
+      .subscribe({
+        next: (m) => {
+          this.mahnungen.update((list) => [...list, m]);
+          this.mahnungFormular.set({
+            datum: new Date().toISOString().split('T')[0],
+            stufe: this.mahnungen().length + 1,
+            betrag_gebuehr: 0,
+            notiz: '',
+          });
+          this.toast.success(`${d.stufe}. Mahnung erstellt.`);
+        },
+        error: () => {
+          this.toast.error('Mahnung konnte nicht erstellt werden.');
+        },
+      });
   }
 
-  mahnungLoeschen(id: number): void {
-    this.service.mahnungLoeschen(id).subscribe({
+  deleteReminder(id: number): void {
+    this.service.deleteReminder(id).subscribe({
       next: () => {
-        this.mahnungen.update(list => list.filter(m => m.id !== id));
+        this.mahnungen.update((list) => list.filter((m) => m.id !== id));
         this.toast.success('Mahnung gelöscht.');
       },
       error: () => {
@@ -571,14 +648,14 @@ export class RechnungenFacade {
   }
 
   mahnungFormularFeld(feld: string, wert: unknown): void {
-    this.mahnungFormular.update(d => ({ ...d, [feld]: wert }));
+    this.mahnungFormular.update((d) => ({ ...d, [feld]: wert }));
   }
 
   // ── Send-Modal ─────────────────────────────────────────────────────────────
 
   readonly formularGeaendert = computed(() => {
     const d = this.formularDaten();
-    return !!(d.empf?.trim() || d.titel?.trim() || d.positionen.some(p => p.bez?.trim()));
+    return !!(d.empf?.trim() || d.titel?.trim() || d.positionen.some((p) => p.bez?.trim()));
   });
 
   readonly sendBetreff = computed(() => {
@@ -602,7 +679,10 @@ export class RechnungenFacade {
   private _fristBerechnen(datum: string, tage: number): string {
     if (!datum) return '';
     const d = /^\d{4}-\d{2}-\d{2}$/.test(datum)
-      ? (() => { const [y, m, day] = datum.split('-').map(Number); return new Date(y, m - 1, day); })()
+      ? (() => {
+          const [y, m, day] = datum.split('-').map(Number);
+          return new Date(y, m - 1, day);
+        })()
       : new Date(datum);
     d.setDate(d.getDate() + tage);
     return d.toISOString().split('T')[0];

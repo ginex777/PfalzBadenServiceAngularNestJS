@@ -7,7 +7,7 @@ describe('OffenePostenModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [OffenePostenModalComponent]
+      declarations: [OffenePostenModalComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OffenePostenModalComponent);

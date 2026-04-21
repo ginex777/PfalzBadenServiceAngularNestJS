@@ -12,7 +12,10 @@ import { HausmeisterPdfGenerator } from './generators/hausmeister-pdf.generator'
 import { MitarbeiterPdfGenerator } from './generators/mitarbeiter-pdf.generator';
 import { VertragPdfGenerator } from './generators/vertrag-pdf.generator';
 
-const mockPrisma = { settings: { findUnique: jest.fn() }, pdfArchive: { findMany: jest.fn() } };
+const mockPrisma = {
+  settings: { findUnique: jest.fn() },
+  pdfArchive: { findMany: jest.fn() },
+};
 const mockPuppeteer = { htmlZuPdf: jest.fn() };
 
 describe('PdfService', () => {

@@ -33,7 +33,7 @@ export class PdfArchivComponent implements OnInit {
   ngOnInit(): void {
     this.facade.ladeDaten();
     // Support deep-link query params: ?typ=hausmeister&empf=Max
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       if (params['typ']) this.facade.filterSetzen(params['typ'] as PdfArchivFilter);
       if (params['empf']) this.facade.suchbegriffAktualisieren(params['empf']);
     });

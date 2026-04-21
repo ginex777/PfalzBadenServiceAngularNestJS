@@ -1,5 +1,3 @@
-import { Mitarbeiter } from '../../core/models';
-
 export interface MitarbeiterFormularDaten {
   name: string;
   rolle: string;
@@ -29,11 +27,22 @@ export interface StundenStatistik {
 }
 
 export const LEERES_MITARBEITER_FORMULAR: MitarbeiterFormularDaten = {
-  name: '', rolle: '', stundenlohn: 0, email: '', tel: '', notiz: '', aktiv: true,
+  name: '',
+  rolle: '',
+  stundenlohn: 0,
+  email: '',
+  tel: '',
+  notiz: '',
+  aktiv: true,
 };
 
 export const LEERES_STUNDEN_FORMULAR: StundenFormularDaten = {
-  datum: '', stunden: 0, lohnSatz: 0, zuschlagProzent: 0, ort: '', beschreibung: '',
+  datum: '',
+  stunden: 0,
+  lohnSatz: 0,
+  zuschlagProzent: 0,
+  ort: '',
+  beschreibung: '',
 };
 
 export const ZUSCHLAG_OPTIONEN = [

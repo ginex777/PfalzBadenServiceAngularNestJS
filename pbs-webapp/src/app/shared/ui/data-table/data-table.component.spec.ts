@@ -7,7 +7,7 @@ describe('DataTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [DataTableComponent]
+      declarations: [DataTableComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DataTableComponent);

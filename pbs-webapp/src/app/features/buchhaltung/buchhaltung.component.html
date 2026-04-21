@@ -1,5 +1,4 @@
 <div class="buchhaltung">
-
   <!-- Monatstabs -->
   <app-monats-tabs
     [aktuellerMonat]="facade.aktuellerMonat()"
@@ -12,11 +11,7 @@
 
   <!-- Toolbar -->
   <div class="toolbar">
-    <select
-      class="jahr-select"
-      [value]="facade.aktuellesJahr()"
-      (change)="jahrWechseln($event)"
-    >
+    <select class="jahr-select" [value]="facade.aktuellesJahr()" (change)="jahrWechseln($event)">
       @for (jahr of verfuegbareJahre(); track jahr) {
         <option [value]="jahr" [selected]="jahr === facade.aktuellesJahr()">{{ jahr }}</option>
       }
@@ -43,20 +38,20 @@
       }
 
       @if (facade.istGesperrt()) {
-        <button class="btn btn--entsperren" (click)="monatEntsperren()" type="button">
+        <button class="btn btn--entsperren" (click)="unlockMonth()" type="button">
           Monat entsperren
         </button>
       } @else {
-        <button class="btn btn--sperren" (click)="monatSperren()" type="button">
-          Monat sperren
-        </button>
+        <button class="btn btn--sperren" (click)="lockMonth()" type="button">Monat sperren</button>
       }
     }
 
     <div class="toolbar-spacer"></div>
     <button class="btn btn-sm" (click)="pdfExportieren()">PDF exportieren</button>
     <button class="btn btn-sm" (click)="excelExportieren()">Excel exportieren</button>
-    <button class="btn btn-sm btn-primary" (click)="jahresabschlussExportieren()">Jahresabschluss PDF</button>
+    <button class="btn btn-sm btn-primary" (click)="jahresabschlussExportieren()">
+      Jahresabschluss PDF
+    </button>
     <a [routerLink]="['/datev']" class="btn btn-sm">DATEV Export</a>
   </div>
 
@@ -69,7 +64,6 @@
   @if (facade.ansichtsModus() === 'monat' && !facade.ladelaeuft()) {
     <div class="monat-layout">
       <div class="linke-spalte">
-
         <!-- Einnahmen -->
         <div class="karte karte--einnahmen">
           <div class="karte-kopf">
@@ -105,7 +99,6 @@
             (belegOeffnen)="ausgabeBelegOeffnen($event)"
           />
         </div>
-
       </div>
 
       <!-- Monatsergebnis (rechte Spalte) -->
@@ -129,7 +122,6 @@
       (vstZahlungZuruecksetzen)="vstZahlungZuruecksetzen($event)"
     />
   }
-
 </div>
 
 <!-- Belegnummer-Warnung Modal (GoBD) -->
@@ -138,15 +130,15 @@
     <div class="modal modal--sm" (click)="$event.stopPropagation()">
       <h3 class="modal-heading">Belegnummer fehlt</h3>
       <p class="modal-text">
-        Einige Ausgaben haben keine Belegnummer. Laut GoBD (§146 AO) muss jede Buchung
-        einer Belegnummer zugeordnet sein, um die Nachvollziehbarkeit zu gewährleisten.
+        Einige Ausgaben haben keine Belegnummer. Laut GoBD (§146 AO) muss jede Buchung einer
+        Belegnummer zugeordnet sein, um die Nachvollziehbarkeit zu gewährleisten.
       </p>
-      <p class="modal-text--mb-lg">
-        Möchten Sie trotzdem speichern?
-      </p>
+      <p class="modal-text--mb-lg">Möchten Sie trotzdem speichern?</p>
       <div class="modal-footer">
         <button class="btn" (click)="belegnummerWarnungAbbrechen()">Abbrechen</button>
-        <button class="btn btn-primary" (click)="belegnummerWarnungBestaetigen()">Trotzdem speichern</button>
+        <button class="btn btn-primary" (click)="belegnummerWarnungBestaetigen()">
+          Trotzdem speichern
+        </button>
       </div>
     </div>
   </div>
@@ -168,7 +160,8 @@
   <div class="modal-overlay" (click)="belegModalSchliessen()">
     <div class="modal" (click)="$event.stopPropagation()">
       <h3 class="modal-titel">
-        Beleg — {{ belegModal().zeile?.name || (belegModal().typ === 'inc' ? 'Einnahme' : 'Ausgabe') }}
+        Beleg —
+        {{ belegModal().zeile?.name || (belegModal().typ === 'inc' ? 'Einnahme' : 'Ausgabe') }}
       </h3>
       <p class="modal-hinweis">
         GoBD §146 AO: Belege werden unveränderlich gespeichert (SHA-256 gesichert).<br />
@@ -183,20 +176,20 @@
             <div class="beleg-datei-name">{{ belegModal().beleg!.filename }}</div>
             <div class="beleg-datei-meta">
               {{ (belegModal().beleg!.filesize / 1024).toFixed(1) }} KB ·
-              {{ belegModal().beleg!.mimetype }} ·
-              SHA-256: <code>{{ belegModal().beleg!.sha256.slice(0, 16) }}…</code>
+              {{ belegModal().beleg!.mimetype }} · SHA-256:
+              <code>{{ belegModal().beleg!.sha256.slice(0, 16) }}…</code>
             </div>
           </div>
           <div class="beleg-aktionen">
             <a
-              [href]="belegDownloadUrl(belegModal().beleg!.id, true)"
+              [href]="getReceiptDownloadUrl(belegModal().beleg!.id, true)"
               target="_blank"
               class="btn btn--klein"
-            >Anzeigen</a>
-            <a
-              [href]="belegDownloadUrl(belegModal().beleg!.id)"
-              class="btn btn--klein"
-            >Download</a>
+              >Anzeigen</a
+            >
+            <a [href]="getReceiptDownloadUrl(belegModal().beleg!.id)" class="btn btn--klein"
+              >Download</a
+            >
           </div>
         </div>
         <div class="beleg-ersetzen">

@@ -19,8 +19,12 @@
   gap: 0.75rem;
   margin-bottom: 0.75rem;
 
-  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 600px) { grid-template-columns: 1fr; }
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .form-field {
@@ -50,7 +54,9 @@
     box-shadow: 0 0 0 3px var(--primary-light);
   }
 
-  &::placeholder { color: var(--gray-400); }
+  &::placeholder {
+    color: var(--gray-400);
+  }
 }
 
 .form-aktionen {
@@ -71,13 +77,20 @@
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover { background: var(--gray-50); }
+  &:hover {
+    background: var(--gray-50);
+  }
 
   &-primary {
     background: var(--primary);
     color: #fff;
     border-color: var(--primary);
-    &:hover { background: var(--primary-dark); }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
+    &:hover {
+      background: var(--primary-dark);
+    }
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 }

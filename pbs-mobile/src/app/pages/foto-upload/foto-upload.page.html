@@ -5,12 +5,8 @@
 
   @if (!vorschau()) {
     <div class="btn-group">
-      <button class="btn-action btn-kamera" (click)="fotoAufnehmen()">
-        Foto aufnehmen
-      </button>
-      <button class="btn-action btn-galerie" (click)="fotoAusGalerie()">
-        Aus Galerie wählen
-      </button>
+      <button class="btn-action btn-kamera" (click)="fotoAufnehmen()">Foto aufnehmen</button>
+      <button class="btn-action btn-galerie" (click)="fotoAusGalerie()">Aus Galerie wählen</button>
     </div>
   } @else {
     <div class="preview-wrap">

@@ -76,7 +76,9 @@
     color: var(--primary);
     text-decoration: none;
 
-    &:hover { text-decoration: underline; }
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   &__hint {

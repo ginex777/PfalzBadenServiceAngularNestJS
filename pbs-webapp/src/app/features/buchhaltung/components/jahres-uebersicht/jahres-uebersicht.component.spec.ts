@@ -7,7 +7,7 @@ describe('JahresUebersichtComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [JahresUebersichtComponent]
+      declarations: [JahresUebersichtComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(JahresUebersichtComponent);

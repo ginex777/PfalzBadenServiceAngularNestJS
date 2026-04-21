@@ -10,18 +10,37 @@
   border: 2px solid transparent;
   transition: border-color 0.15s;
 
-  &.drag-over { border-color: var(--primary); background: var(--primary-light); }
+  &.drag-over {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
 
   // Column status colors
-  &[data-status="todo"]       { background: #f1f5f9; }
-  &[data-status="inprogress"] { background: #eff6ff; }
-  &[data-status="done"]       { background: #f0fdf4; }
-  &[data-status="blocked"]    { background: #fef2f2; }
+  &[data-status='todo'] {
+    background: #f1f5f9;
+  }
+  &[data-status='inprogress'] {
+    background: #eff6ff;
+  }
+  &[data-status='done'] {
+    background: #f0fdf4;
+  }
+  &[data-status='blocked'] {
+    background: #fef2f2;
+  }
 
-  &[data-status="todo"]       .spalte-kopf { border-top: 3px solid var(--gray-400); }
-  &[data-status="inprogress"] .spalte-kopf { border-top: 3px solid var(--primary); }
-  &[data-status="done"]       .spalte-kopf { border-top: 3px solid var(--success); }
-  &[data-status="blocked"]    .spalte-kopf { border-top: 3px solid var(--danger); }
+  &[data-status='todo'] .spalte-kopf {
+    border-top: 3px solid var(--gray-400);
+  }
+  &[data-status='inprogress'] .spalte-kopf {
+    border-top: 3px solid var(--primary);
+  }
+  &[data-status='done'] .spalte-kopf {
+    border-top: 3px solid var(--success);
+  }
+  &[data-status='blocked'] .spalte-kopf {
+    border-top: 3px solid var(--danger);
+  }
 }
 
 .spalte-kopf {
@@ -50,7 +69,12 @@
   font-weight: 600;
 }
 
-.task-liste { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+.task-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
 
 .task-karte {
   background: var(--surface);
@@ -61,13 +85,23 @@
   transition: box-shadow 0.15s;
   position: relative;
 
-  &:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-  &.wird-gezogen { opacity: 0.4; }
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  &.wird-gezogen {
+    opacity: 0.4;
+  }
 
   // Priority left border
-  &[data-prioritaet="hoch"]    { border-left: 3px solid var(--danger); }
-  &[data-prioritaet="mittel"]  { border-left: 3px solid var(--warning); }
-  &[data-prioritaet="niedrig"] { border-left: 3px solid var(--success); }
+  &[data-prioritaet='hoch'] {
+    border-left: 3px solid var(--danger);
+  }
+  &[data-prioritaet='mittel'] {
+    border-left: 3px solid var(--warning);
+  }
+  &[data-prioritaet='niedrig'] {
+    border-left: 3px solid var(--success);
+  }
 }
 
 .task-kopf {
@@ -78,7 +112,11 @@
   margin-bottom: 0.25rem;
 }
 
-.task-titel { font-size: 13px; font-weight: 600; line-height: 1.3; }
+.task-titel {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+}
 
 .task-aktionen {
   display: flex;
@@ -86,7 +124,9 @@
   opacity: 0;
   flex-shrink: 0;
 
-  .task-karte:hover & { opacity: 1; }
+  .task-karte:hover & {
+    opacity: 1;
+  }
 }
 
 .btn-action {
@@ -99,18 +139,49 @@
   color: var(--gray-600);
   white-space: nowrap;
 
-  &:hover { background: var(--gray-100); }
-  &--danger { color: var(--danger); border-color: transparent; }
-  &--danger:hover { background: var(--danger-light); }
+  &:hover {
+    background: var(--gray-100);
+  }
+  &--danger {
+    color: var(--danger);
+    border-color: transparent;
+  }
+  &--danger:hover {
+    background: var(--danger-light);
+  }
 }
 
-.task-beschreibung { font-size: 11px; color: var(--gray-500); margin-bottom: 0.4rem; line-height: 1.4; }
-.task-meta { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
-.task-kategorie { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px; }
-.task-prioritaet { font-size: 10px; font-weight: 600; }
-.task-datum, .task-bearbeiter { font-size: 10px; color: var(--gray-500); }
+.task-beschreibung {
+  font-size: 11px;
+  color: var(--gray-500);
+  margin-bottom: 0.4rem;
+  line-height: 1.4;
+}
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+.task-kategorie {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+.task-prioritaet {
+  font-size: 10px;
+  font-weight: 600;
+}
+.task-datum,
+.task-bearbeiter {
+  font-size: 10px;
+  color: var(--gray-500);
+}
 
-.schnell-hinzufuegen { margin-top: 0.25rem; }
+.schnell-hinzufuegen {
+  margin-top: 0.25rem;
+}
 .schnell-input {
   width: 100%;
   border: 1px dashed var(--gray-300);
@@ -120,5 +191,10 @@
   background: transparent;
   color: var(--gray-500);
 
-  &:focus { outline: none; border-color: var(--primary); background: var(--surface); color: var(--gray-800); }
+  &:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--surface);
+    color: var(--gray-800);
+  }
 }

@@ -10,18 +10,45 @@ import { API_BASE_URL } from '../../core/tokens';
 import { Angebot } from '../../core/models';
 
 const testAngebote: Angebot[] = [
-  { id: 1, nr: '2026-001', empf: 'Müller GmbH', angenommen: false, abgelehnt: false, gesendet: false, brutto: 300, datum: '2026-04-01' } as Angebot,
-  { id: 2, nr: '2026-002', empf: 'Schulz AG',   angenommen: true,  abgelehnt: false, gesendet: true,  brutto: 150, datum: '2026-03-15' } as Angebot,
-  { id: 3, nr: '2026-003', empf: 'Koch KG',     angenommen: false, abgelehnt: true,  gesendet: false, brutto: 200, datum: '2026-02-20' } as Angebot,
+  {
+    id: 1,
+    nr: '2026-001',
+    empf: 'Müller GmbH',
+    angenommen: false,
+    abgelehnt: false,
+    gesendet: false,
+    brutto: 300,
+    datum: '2026-04-01',
+  } as Angebot,
+  {
+    id: 2,
+    nr: '2026-002',
+    empf: 'Schulz AG',
+    angenommen: true,
+    abgelehnt: false,
+    gesendet: true,
+    brutto: 150,
+    datum: '2026-03-15',
+  } as Angebot,
+  {
+    id: 3,
+    nr: '2026-003',
+    empf: 'Koch KG',
+    angenommen: false,
+    abgelehnt: true,
+    gesendet: false,
+    brutto: 200,
+    datum: '2026-02-20',
+  } as Angebot,
 ];
 
 const mockService = {
   angeboteUndKundenLaden: jest.fn(),
   firmaEinstellungenLaden: jest.fn(),
-  angebotErstellen: jest.fn(),
-  angebotAktualisieren: jest.fn(),
-  angebotLoeschen: jest.fn(),
-  kundeErstellen: jest.fn(),
+  createOffer: jest.fn(),
+  updateOffer: jest.fn(),
+  deleteOffer: jest.fn(),
+  createCustomer: jest.fn(),
   nettoBerechnen: jest.fn().mockReturnValue(0),
   bruttoBerechnen: jest.fn().mockReturnValue(0),
   pdfOeffnen: jest.fn().mockResolvedValue(undefined),
@@ -66,23 +93,23 @@ describe('AngeboteFacade', () => {
     it('filtert nach "offen" (weder angenommen noch abgelehnt)', () => {
       facade.aktiverFilter.set('offen');
       const result = facade.gefilterteAngebote();
-      expect(result.every(a => !a.angenommen && !a.abgelehnt)).toBe(true);
+      expect(result.every((a) => !a.angenommen && !a.abgelehnt)).toBe(true);
       expect(result).toHaveLength(1);
     });
 
     it('filtert nach "angenommen"', () => {
       facade.aktiverFilter.set('angenommen');
-      expect(facade.gefilterteAngebote().every(a => a.angenommen)).toBe(true);
+      expect(facade.gefilterteAngebote().every((a) => a.angenommen)).toBe(true);
     });
 
     it('filtert nach "abgelehnt"', () => {
       facade.aktiverFilter.set('abgelehnt');
-      expect(facade.gefilterteAngebote().every(a => a.abgelehnt)).toBe(true);
+      expect(facade.gefilterteAngebote().every((a) => a.abgelehnt)).toBe(true);
     });
 
     it('filtert nach "gesendet"', () => {
       facade.aktiverFilter.set('gesendet');
-      expect(facade.gefilterteAngebote().every(a => a.gesendet)).toBe(true);
+      expect(facade.gefilterteAngebote().every((a) => a.gesendet)).toBe(true);
     });
   });
 
@@ -108,13 +135,21 @@ describe('AngeboteFacade', () => {
 
   describe('Pagination', () => {
     it('berechnet gesamtSeiten korrekt', () => {
-      const viele = Array.from({ length: 30 }, (_, i) => ({ ...testAngebote[0], id: i + 1, nr: `${i + 1}` }));
+      const viele = Array.from({ length: 30 }, (_, i) => ({
+        ...testAngebote[0],
+        id: i + 1,
+        nr: `${i + 1}`,
+      }));
       facade.angebote.set(viele);
       expect(facade.gesamtSeiten()).toBe(2); // PAGE_SIZE = 25
     });
 
     it('seiteVor() erhöht Seite', () => {
-      const viele = Array.from({ length: 30 }, (_, i) => ({ ...testAngebote[0], id: i + 1, nr: `${i + 1}` }));
+      const viele = Array.from({ length: 30 }, (_, i) => ({
+        ...testAngebote[0],
+        id: i + 1,
+        nr: `${i + 1}`,
+      }));
       facade.angebote.set(viele);
       facade.aktuelleSeite.set(1);
       facade.seiteVor();
@@ -132,12 +167,12 @@ describe('AngeboteFacade', () => {
     it('entfernt Angebot aus Liste nach erfolgreichem Löschen', () => {
       facade.angebote.set(testAngebote);
       facade.loeschKandidat.set(2);
-      mockService.angebotLoeschen.mockReturnValue(of(undefined));
+      mockService.deleteOffer.mockReturnValue(of(undefined));
 
       facade.loeschenAusfuehren();
 
       expect(facade.angebote()).toHaveLength(2);
-      expect(facade.angebote().find(a => a.id === 2)).toBeUndefined();
+      expect(facade.angebote().find((a) => a.id === 2)).toBeUndefined();
       expect(facade.loeschKandidat()).toBeNull();
       expect(mockToast.success).toHaveBeenCalled();
     });
@@ -145,7 +180,7 @@ describe('AngeboteFacade', () => {
     it('zeigt Fehler-Toast bei Löschen-Fehler', () => {
       facade.angebote.set(testAngebote);
       facade.loeschKandidat.set(1);
-      mockService.angebotLoeschen.mockReturnValue(throwError(() => new Error('Netzwerk')));
+      mockService.deleteOffer.mockReturnValue(throwError(() => new Error('Netzwerk')));
 
       facade.loeschenAusfuehren();
 
@@ -156,22 +191,22 @@ describe('AngeboteFacade', () => {
     it('tut nichts wenn kein loeschKandidat gesetzt', () => {
       facade.loeschKandidat.set(null);
       facade.loeschenAusfuehren();
-      expect(mockService.angebotLoeschen).not.toHaveBeenCalled();
+      expect(mockService.deleteOffer).not.toHaveBeenCalled();
     });
   });
 
   describe('speichern()', () => {
     it('zeigt Fehler wenn empf oder nr fehlt', () => {
-      facade.formularDaten.update(d => ({ ...d, empf: '', nr: '' }));
+      facade.formularDaten.update((d) => ({ ...d, empf: '', nr: '' }));
       facade.speichern();
       expect(facade.fehler()).toBeTruthy();
-      expect(mockService.angebotErstellen).not.toHaveBeenCalled();
+      expect(mockService.createOffer).not.toHaveBeenCalled();
     });
 
     it('erstellt neues Angebot und fügt es der Liste hinzu', () => {
       const gespeichert = { ...testAngebote[0], id: 99 };
-      mockService.angebotErstellen.mockReturnValue(of(gespeichert));
-      facade.formularDaten.update(d => ({ ...d, empf: 'Neuer Kunde', nr: '2026-099' }));
+      mockService.createOffer.mockReturnValue(of(gespeichert));
+      facade.formularDaten.update((d) => ({ ...d, empf: 'Neuer Kunde', nr: '2026-099' }));
       facade.angebote.set([]);
 
       facade.speichern();
@@ -186,12 +221,12 @@ describe('AngeboteFacade', () => {
       const updated = { ...existing, empf: 'Geändert' };
       facade.angebote.set(testAngebote);
       facade.bearbeitungStarten(existing);
-      facade.formularDaten.update(d => ({ ...d, empf: 'Geändert' }));
-      mockService.angebotAktualisieren.mockReturnValue(of(updated));
+      facade.formularDaten.update((d) => ({ ...d, empf: 'Geändert' }));
+      mockService.updateOffer.mockReturnValue(of(updated));
 
       facade.speichern();
 
-      const inList = facade.angebote().find(a => a.id === existing.id);
+      const inList = facade.angebote().find((a) => a.id === existing.id);
       expect(inList?.empf).toBe('Geändert');
     });
   });

@@ -20,8 +20,13 @@ export interface TaskFormularDaten {
 }
 
 export const LEERES_TASK_FORMULAR: TaskFormularDaten = {
-  titel: '', beschreibung: '', datum: '', bearbeiter: '',
-  kategorie: 'Sonstiges', prioritaet: 'mittel', status: 'todo',
+  titel: '',
+  beschreibung: '',
+  datum: '',
+  bearbeiter: '',
+  kategorie: 'Sonstiges',
+  prioritaet: 'mittel',
+  status: 'todo',
 };
 
 export const SPALTEN_KONFIGURATION: { id: KanbanSpalte; label: string; klasse: string }[] = [
@@ -32,12 +37,14 @@ export const SPALTEN_KONFIGURATION: { id: KanbanSpalte; label: string; klasse: s
 ];
 
 export const PRIORITAET_FARBEN: Record<Task['prioritaet'], string> = {
-  hoch: '#ef4444', mittel: '#f59e0b', niedrig: '#10b981',
+  hoch: '#ef4444',
+  mittel: '#f59e0b',
+  niedrig: '#10b981',
 };
 
 export const KATEGORIE_FARBEN: Record<string, { background: string; color: string }> = {
-  'Operativ': { background: '#eef2ff', color: '#6366f1' },
-  'Marketing': { background: '#fef3c7', color: '#f59e0b' },
-  'Buchhaltung': { background: '#d1fae5', color: '#10b981' },
-  'Sonstiges': { background: '#f1f5f9', color: '#64748b' },
+  Operativ: { background: '#eef2ff', color: '#6366f1' },
+  Marketing: { background: '#fef3c7', color: '#f59e0b' },
+  Buchhaltung: { background: '#d1fae5', color: '#10b981' },
+  Sonstiges: { background: '#f1f5f9', color: '#64748b' },
 };

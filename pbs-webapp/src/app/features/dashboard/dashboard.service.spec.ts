@@ -6,7 +6,7 @@ describe('DashboardService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [DashboardService]
+      providers: [DashboardService],
     });
 
     service = TestBed.inject(DashboardService);
