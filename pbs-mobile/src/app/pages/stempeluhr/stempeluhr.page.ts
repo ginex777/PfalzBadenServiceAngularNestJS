@@ -2,11 +2,13 @@ import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonButton,
+  IonButtons,
   IonCard,
   IonCardContent,
   IonContent,
   IonHeader,
   IonTitle,
+  IonToast,
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { MobileAuthService } from '../../core/auth.service';
@@ -15,7 +17,8 @@ import { StempelService } from '../../core/stempel.service';
 @Component({
   selector: 'app-stempeluhr',
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, IonButton],
+  host: { class: 'ion-page' },
+  imports: [IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonCard, IonCardContent, IonToast],
   templateUrl: './stempeluhr.page.html',
   styleUrl: './stempeluhr.page.scss',
 })
@@ -27,8 +30,11 @@ export class StempeluhrPage implements OnInit, OnDestroy {
   readonly user = this.auth.currentUser;
   openStamp = signal<{ id: number; start: Date } | null>(null);
   runtime = signal('00:00:00');
+  selectedObject = signal('');
   isLoading = signal(false);
-  message = signal('');
+  statusMessage = signal('');
+  statusTone = signal<'success' | 'error' | 'info'>('info');
+  toastOpen = signal(false);
 
   private timer?: ReturnType<typeof setInterval>;
 
@@ -52,28 +58,35 @@ export class StempeluhrPage implements OnInit, OnDestroy {
 
   start() {
     if (!this.employeeId) {
-      this.message.set('Kein Mitarbeiterprofil mit dem Benutzer verknuepft');
+      this.setStatus('error', 'Kein Mitarbeiterprofil mit dem Benutzer verknuepft.');
       return;
     }
+    const objectName = this.selectedObject().trim();
 
     this.isLoading.set(true);
-    this.stampService.start(this.employeeId).subscribe({
+    const note = objectName ? `Objekt: ${objectName}` : undefined;
+    this.stampService.start(this.employeeId, note).subscribe({
       next: (s) => {
         this.openStamp.set({ id: s.id, start: new Date(s.start) });
-        this.message.set('Stempel gestartet');
+        const successMessage = objectName
+          ? `Stempel erfolgreich gestartet fuer ${objectName}.`
+          : 'Stempel erfolgreich gestartet.';
+        this.setStatus('success', successMessage);
         this.isLoading.set(false);
-        setTimeout(() => this.message.set(''), 3000);
       },
-      error: () => {
+      error: (error: { error?: { message?: string } }) => {
         this.isLoading.set(false);
-        this.message.set('Fehler beim Starten');
+        this.setStatus(
+          'error',
+          error?.error?.message ?? 'Starten fehlgeschlagen. Bitte erneut versuchen.',
+        );
       },
     });
   }
 
   stop() {
     if (!this.employeeId) {
-      this.message.set('Kein Mitarbeiterprofil mit dem Benutzer verknuepft');
+      this.setStatus('error', 'Kein Mitarbeiterprofil mit dem Benutzer verknuepft.');
       return;
     }
 
@@ -83,13 +96,15 @@ export class StempeluhrPage implements OnInit, OnDestroy {
         const min = s.dauer_minuten ?? 0;
         this.openStamp.set(null);
         this.runtime.set('00:00:00');
-        this.message.set(`Gestoppt - ${min} Minuten erfasst`);
+        this.setStatus('success', `Gestoppt. ${min} Minuten erfasst.`);
         this.isLoading.set(false);
-        setTimeout(() => this.message.set(''), 4000);
       },
-      error: () => {
+      error: (error: { error?: { message?: string } }) => {
         this.isLoading.set(false);
-        this.message.set('Fehler beim Stoppen');
+        this.setStatus(
+          'error',
+          error?.error?.message ?? 'Stoppen fehlgeschlagen. Bitte erneut versuchen.',
+        );
       },
     });
   }
@@ -112,5 +127,25 @@ export class StempeluhrPage implements OnInit, OnDestroy {
       .padStart(2, '0');
     const s = (diff % 60).toString().padStart(2, '0');
     this.runtime.set(`${h}:${m}:${s}`);
+  }
+
+  private setStatus(tone: 'success' | 'error' | 'info', message: string): void {
+    this.statusTone.set(tone);
+    this.statusMessage.set(message);
+    this.toastOpen.set(true);
+  }
+
+  protected updateObject(value: string): void {
+    this.selectedObject.set(value);
+  }
+
+  protected closeToast(): void {
+    this.toastOpen.set(false);
+  }
+
+  protected toastColor(): 'success' | 'danger' | 'medium' {
+    if (this.statusTone() === 'success') return 'success';
+    if (this.statusTone() === 'error') return 'danger';
+    return 'medium';
   }
 }

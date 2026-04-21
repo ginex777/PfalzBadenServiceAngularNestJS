@@ -17,7 +17,7 @@ export interface AuthUser {
 export class MobileAuthService {
   readonly accessToken = signal<string | null>(null);
   readonly currentUser = signal<AuthUser | null>(null);
-  readonly isLoggedIn = computed(() => !!this.accessToken());
+  readonly isLoggedIn = computed(() => !!this.accessToken() && !!this.currentUser());
   private refreshPromise: Promise<string | null> | null = null;
 
   constructor(private readonly http: HttpClient) {}

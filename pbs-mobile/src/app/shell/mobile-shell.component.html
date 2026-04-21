@@ -1,28 +1,22 @@
-<ion-tabs>
-  <ion-router-outlet></ion-router-outlet>
+<div class="mobile-shell">
+  <main class="mobile-shell-content">
+    <router-outlet></router-outlet>
+  </main>
 
-  <ion-tab-bar slot="bottom">
-    <ion-tab-button tab="heute" [routerLink]="['/tabs/heute']" routerLinkActive="tab-active">
+  <nav class="mobile-tab-bar">
+    <a class="mobile-tab-button" [routerLink]="['/tabs/heute']" routerLinkActive="tab-active">
       <ion-icon name="calendar-outline"></ion-icon>
-      <ion-label>Heute</ion-label>
-    </ion-tab-button>
+      <span>Heute</span>
+    </a>
 
-    <ion-tab-button
-      tab="stempeluhr"
-      [routerLink]="['/tabs/stempeluhr']"
-      routerLinkActive="tab-active"
-    >
+    <a class="mobile-tab-button" [routerLink]="['/tabs/stempeluhr']" routerLinkActive="tab-active">
       <ion-icon name="timer-outline"></ion-icon>
-      <ion-label>Stempeluhr</ion-label>
-    </ion-tab-button>
+      <span>Zeiterfassung</span>
+    </a>
 
-    <ion-tab-button
-      tab="foto-upload"
-      [routerLink]="['/tabs/foto-upload']"
-      routerLinkActive="tab-active"
-    >
+    <a class="mobile-tab-button" [routerLink]="['/tabs/foto-upload']" routerLinkActive="tab-active">
       <ion-icon name="camera-outline"></ion-icon>
-      <ion-label>Foto</ion-label>
-    </ion-tab-button>
-  </ion-tab-bar>
-</ion-tabs>
+      <span>Foto</span>
+    </a>
+  </nav>
+</div>

@@ -1,9 +1,63 @@
-ion-tab-bar {
-  --border: 1px solid var(--ion-color-step-150, #d8d8d8);
-  padding-bottom: env(safe-area-inset-bottom);
+.mobile-shell {
+  min-height: 100dvh;
+  background: var(--app-bg);
+  display: flex;
+  flex-direction: column;
 }
 
-ion-tab-button {
-  --color: #6b7280;
-  --color-selected: #f97316;
+.mobile-shell-content {
+  flex: 1;
+  min-height: 0;
+  padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+}
+
+.mobile-tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.98);
+  border-top: 1px solid var(--app-border);
+  box-shadow: 0 -8px 24px rgba(18, 24, 38, 0.08);
+  padding: 0.35rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.mobile-tab-button {
+  color: var(--app-text-muted);
+  text-decoration: none;
+  min-height: 3.2rem;
+  font-weight: 600;
+  font-size: 0.76rem;
+  border-radius: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+}
+
+.mobile-tab-button ion-icon {
+  font-size: 1.05rem;
+}
+
+.mobile-tab-button.tab-active {
+  position: relative;
+  color: var(--app-accent-strong);
+  background: linear-gradient(180deg, #fff 0%, #fff7ef 100%);
+}
+
+.mobile-tab-button.tab-active::after {
+  content: '';
+  position: absolute;
+  top: 0.22rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2rem;
+  height: 0.2rem;
+  border-radius: 999px;
+  background: var(--app-accent);
 }

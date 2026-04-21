@@ -1,35 +1,60 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Stempeluhr</ion-title>
-    <ion-button slot="end" fill="clear" (click)="logout()">Abmelden</ion-button>
+    <ion-title>Zeiterfassung</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="logout()">Abmelden</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div class="page-stempeluhr">
-    @if (user()) {
-      <p class="welcome">Hallo, {{ user()!.email }}</p>
-    }
+  <div class="app-page-grid page-stempeluhr">
+    <section class="app-hero">
+      <p class="app-hero-label">Zeiterfassung</p>
+      <h1 class="app-hero-title">{{ isActive ? 'Timer laeuft' : 'Bereit zum Stempeln' }}</h1>
+      <p class="app-hero-text">{{ user() ? ('Angemeldet als ' + user()!.email) : 'Nicht angemeldet' }}</p>
+    </section>
 
-    <ion-card class="uhr-card" [class.aktiv]="isActive">
+    <ion-card class="clock-card app-card" [class.clock-card--active]="isActive">
       <ion-card-content>
-        <div class="uhr-status">{{ isActive ? 'Aktiv' : 'Nicht gestempelt' }}</div>
-        <div class="laufzeit">{{ runtime() }}</div>
+        <div class="clock-state">{{ isActive ? 'Aktiv' : 'Nicht gestempelt' }}</div>
+        <div class="runtime">{{ runtime() }}</div>
+        <div class="object-field">
+          <label class="object-label" for="objectName">Objekt</label>
+          <input
+            #objectInput
+            id="objectName"
+            class="object-input"
+            type="text"
+            [value]="selectedObject()"
+            (input)="updateObject(objectInput.value)"
+            [disabled]="isActive"
+            placeholder="z. B. Musterstrasse 12"
+          />
+          <p class="object-hint">Optional: Freitext heute, spaeter Auswahl aus vordefinierten Objekten.</p>
+        </div>
 
         @if (isActive) {
-          <ion-button expand="block" color="danger" [disabled]="isLoading()" (click)="stop()">
+          <ion-button class="primary-action primary-action--danger" expand="block" [disabled]="isLoading()" (click)="stop()">
             Stoppen
           </ion-button>
         } @else {
-          <ion-button expand="block" color="success" [disabled]="isLoading()" (click)="start()">
+          <ion-button class="primary-action primary-action--start" expand="block" [disabled]="isLoading()" (click)="start()">
             Stempeln
           </ion-button>
         }
       </ion-card-content>
     </ion-card>
 
-    @if (message()) {
-      <p class="meldung">{{ message() }}</p>
-    }
   </div>
 </ion-content>
+
+<ion-toast
+  [isOpen]="toastOpen()"
+  [message]="statusMessage()"
+  [color]="toastColor()"
+  duration="5000"
+  position="top"
+  (didDismiss)="closeToast()"
+></ion-toast>
+

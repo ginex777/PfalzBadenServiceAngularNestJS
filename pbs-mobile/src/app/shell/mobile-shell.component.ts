@@ -1,13 +1,6 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
-import {
-  IonIcon,
-  IonLabel,
-  IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
-  IonTabs,
-} from '@ionic/angular/standalone';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline, calendarOutline, timerOutline } from 'ionicons/icons';
 
@@ -17,11 +10,7 @@ import { cameraOutline, calendarOutline, timerOutline } from 'ionicons/icons';
   imports: [
     RouterLink,
     RouterLinkActive,
-    IonTabs,
-    IonRouterOutlet,
-    IonTabBar,
-    IonTabButton,
-    IonLabel,
+    RouterOutlet,
     IonIcon,
   ],
   templateUrl: './mobile-shell.component.html',

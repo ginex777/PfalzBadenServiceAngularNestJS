@@ -1,40 +1,57 @@
 <ion-content [fullscreen]="true">
-  <div class="page-login">
-    <div class="card">
-      <div class="brand">
-        <span class="brand-name">PBS</span>
-        <span class="brand-sub">Mitarbeiter App</span>
+  <div class="app-page-grid page-login">
+    <div class="login-panel app-card">
+      <div class="login-intro">
+        <p class="login-badge">PBS Mobile</p>
+        <h1 class="login-title">Willkommen</h1>
+        <p class="login-subtitle">Melde dich an, um deinen Arbeitstag zu starten.</p>
       </div>
 
-      <form [formGroup]="form" (ngSubmit)="login()">
-        <ion-item class="form-item">
-          <ion-label position="stacked">E-Mail</ion-label>
-          <ion-input
+      <form class="login-form" [formGroup]="form" (ngSubmit)="login()">
+        <div class="input-block">
+          <label class="field-label" for="email">E-Mail</label>
+          <input
+            id="email"
+            class="form-input"
             type="email"
             formControlName="email"
             autocomplete="username"
             placeholder="name@firma.de"
-          ></ion-input>
-        </ion-item>
+          />
+          @if (showFieldError('email')) {
+            <p class="field-error">Bitte eine gueltige E-Mail eingeben.</p>
+          }
+        </div>
 
-        <ion-item class="form-item">
-          <ion-label position="stacked">Passwort</ion-label>
-          <ion-input
+        <div class="input-block">
+          <label class="field-label" for="password">Passwort</label>
+          <input
+            id="password"
+            class="form-input"
             type="password"
             formControlName="password"
             autocomplete="current-password"
-            placeholder="********"
-          ></ion-input>
-        </ion-item>
+            placeholder="Dein Passwort"
+          />
+          @if (showFieldError('password')) {
+            <p class="field-error">Passwort ist erforderlich.</p>
+          }
+        </div>
 
-        @if (errorMessage()) {
-          <ion-text color="danger" class="fehler-banner">{{ errorMessage() }}</ion-text>
-        }
-
-        <ion-button type="submit" expand="block" [disabled]="isLoading()">
+        <button type="submit" class="submit-button" [disabled]="isLoading()">
           {{ isLoading() ? 'Bitte warten...' : 'Anmelden' }}
-        </ion-button>
+        </button>
       </form>
     </div>
   </div>
 </ion-content>
+
+<ion-toast
+  [isOpen]="toastOpen()"
+  [message]="toastMessage()"
+  color="danger"
+  duration="5000"
+  position="top"
+  (didDismiss)="closeToast()"
+></ion-toast>
+

@@ -1,5 +1,5 @@
 ion-content {
-  --background: var(--primary);
+  --background: var(--app-bg);
 }
 
 .page-login {
@@ -7,58 +7,96 @@ ion-content {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
 }
 
-.card {
+.login-panel {
   width: 100%;
-  max-width: 360px;
-  background: var(--surface-glass);
-  backdrop-filter: var(--glass-blur-lg);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-xl);
+  max-width: 32rem;
+  border-radius: 1.25rem;
   padding: 1.5rem;
-  box-shadow: var(--shadow-xl);
+  background: var(--app-surface);
 }
 
-.brand {
-  text-align: center;
-  margin-bottom: 1.5rem;
+.login-intro {
+  margin-bottom: 1rem;
+  padding: 0.85rem;
+  border-radius: 0.95rem;
+  border: 1px solid #ffe1c5;
+  background: linear-gradient(180deg, #fffaf5 0%, #fff 100%);
 }
 
-.brand-name {
-  display: block;
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: var(--primary-solid);
+.login-badge {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--app-accent-strong);
+  font-weight: 700;
 }
 
-.brand-sub {
-  font-size: 0.875rem;
-  color: var(--gray-500);
+.login-title {
+  margin: 0.15rem 0;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  color: var(--app-text-strong);
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+.login-subtitle {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--app-text-muted);
 }
 
-.form-item {
-  --background: rgba(255, 255, 255, 0.65);
-  --border-color: var(--border-glass);
-  --border-radius: var(--radius-md);
-  --padding-start: 0.75rem;
-  --inner-padding-end: 0.75rem;
+.login-form {
+  display: grid;
+  gap: 0.875rem;
 }
 
-.fehler-banner {
-  display: block;
+.input-block {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.field-label {
   font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--app-text-strong);
 }
 
-ion-button {
-  margin-top: 0.5rem;
-  --border-radius: var(--radius-md);
-  --background: var(--primary-solid);
+.form-input {
+  width: 100%;
+  border: 1px solid var(--app-border);
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 0.9rem 0.95rem;
+  color: var(--app-text-strong);
+  min-height: 2.75rem;
+}
+
+.form-input:focus {
+  outline: 2px solid rgba(255, 122, 0, 0.22);
+  border-color: var(--app-accent);
+}
+
+.field-error {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #b42318;
+}
+
+.submit-button {
+  margin-top: 0.2rem;
+  border: 0;
+  min-height: 3rem;
+  border-radius: 0.95rem;
+  background: linear-gradient(135deg, #ff7a00, #ff9a2f);
+  color: #fff;
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(255, 122, 0, 0.28);
+}
+
+.submit-button:disabled {
+  opacity: 0.65;
+  box-shadow: none;
 }

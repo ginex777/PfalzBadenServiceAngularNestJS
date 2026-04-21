@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
   ConflictException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -14,6 +15,7 @@ import { LoginDto } from './dto/login.dto';
 import { SetupDto } from './dto/setup.dto';
 
 const BCRYPT_ROUNDS = 12;
+const MISSING_EMPLOYEE_MAPPING_CODE = 'MISSING_EMPLOYEE_MAPPING';
 
 @Injectable()
 export class AuthService {
@@ -70,6 +72,7 @@ export class AuthService {
     }
 
     const mitarbeiterId = await this._resolveMitarbeiterId(user.id, user.email);
+    this.ensureEmployeeMapping(user.rolle, mitarbeiterId, user.email);
     const tokens = await this._issueTokens(
       user.id,
       user.email,
@@ -100,9 +103,7 @@ export class AuthService {
   }
 
   async refresh(tokenHash: string) {
-    const stored = await this.prisma.refreshTokens.findUnique({
-      where: { token_hash: tokenHash },
-    });
+    const stored = await this.findStoredRefreshToken(tokenHash);
     if (!stored || stored.expires_at < new Date()) {
       throw new UnauthorizedException('Session abgelaufen');
     }
@@ -113,16 +114,20 @@ export class AuthService {
 
     // Rotate: delete old, issue new
     await this.prisma.refreshTokens.delete({
-      where: { token_hash: tokenHash },
+      where: { id: stored.id },
     });
     const mitarbeiterId = await this._resolveMitarbeiterId(user.id, user.email);
+    this.ensureEmployeeMapping(user.rolle, mitarbeiterId, user.email);
     return this._issueTokens(user.id, user.email, user.rolle, mitarbeiterId);
   }
 
   async logout(refreshTokenHash: string) {
-    await this.prisma.refreshTokens.deleteMany({
-      where: { token_hash: refreshTokenHash },
-    });
+    const stored = await this.findStoredRefreshToken(refreshTokenHash);
+    if (stored) {
+      await this.prisma.refreshTokens.delete({
+        where: { id: stored.id },
+      });
+    }
     return { message: 'Abgemeldet' };
   }
 
@@ -165,31 +170,84 @@ export class AuthService {
     userId: bigint,
     email: string,
   ): Promise<number | null> {
-    const linked = await this.prisma.mitarbeiter.findUnique({
+    try {
+      const linked = await this.prisma.mitarbeiter.findUnique({
+        where: { user_id: userId },
+        select: { id: true },
+      });
+      if (linked) return Number(linked.id);
+
+      const normalizedEmail = email.trim().toLowerCase();
+      if (!normalizedEmail) return null;
+
+      const match = await this.prisma.mitarbeiter.findFirst({
+        where: {
+          user_id: null,
+          email: { equals: normalizedEmail, mode: 'insensitive' },
+        },
+        orderBy: { id: 'asc' },
+        select: { id: true },
+      });
+      if (!match) return null;
+
+      const updated = await this.prisma.mitarbeiter.update({
+        where: { id: match.id },
+        data: { user_id: userId },
+        select: { id: true },
+      });
+      return Number(updated.id);
+    } catch (error) {
+      this.logger.warn(
+        `Mitarbeiter link resolution skipped for user ${userId.toString()}: ${error instanceof Error ? error.message : 'unknown error'}`,
+      );
+      return null;
+    }
+  }
+
+  private ensureEmployeeMapping(
+    role: string,
+    employeeId: number | null,
+    email: string,
+  ): void {
+    if (role !== 'mitarbeiter' || employeeId != null) return;
+    this.logger.warn(
+      `Blocked login due to missing mitarbeiter mapping for user ${email}`,
+    );
+    throw new ForbiddenException({
+      code: MISSING_EMPLOYEE_MAPPING_CODE,
+      message:
+        'Kein Mitarbeiterprofil zugeordnet. Bitte den Administrator kontaktieren.',
+    });
+  }
+
+  private async findStoredRefreshToken(rawToken: string) {
+    const refreshSecret = this.config.getOrThrow<string>('JWT_SECRET') + '-refresh';
+    let payloadUserId: string | null = null;
+
+    try {
+      const payload = this.jwt.verify<{ userId?: string; sub?: string }>(rawToken, {
+        secret: refreshSecret,
+      });
+      payloadUserId = payload.userId ?? payload.sub ?? null;
+    } catch {
+      return null;
+    }
+
+    if (!payloadUserId) return null;
+
+    const userId = BigInt(payloadUserId);
+    const candidates = await this.prisma.refreshTokens.findMany({
       where: { user_id: userId },
-      select: { id: true },
+      select: { id: true, user_id: true, token_hash: true, expires_at: true },
     });
-    if (linked) return Number(linked.id);
 
-    const normalizedEmail = email.trim().toLowerCase();
-    if (!normalizedEmail) return null;
+    for (const candidate of candidates) {
+      if (await bcrypt.compare(rawToken, candidate.token_hash)) {
+        return candidate;
+      }
+    }
 
-    const match = await this.prisma.mitarbeiter.findFirst({
-      where: {
-        user_id: null,
-        email: { equals: normalizedEmail, mode: 'insensitive' },
-      },
-      orderBy: { id: 'asc' },
-      select: { id: true },
-    });
-    if (!match) return null;
-
-    const updated = await this.prisma.mitarbeiter.update({
-      where: { id: match.id },
-      data: { user_id: userId },
-      select: { id: true },
-    });
-    return Number(updated.id);
+    return null;
   }
 
   async listUsers() {

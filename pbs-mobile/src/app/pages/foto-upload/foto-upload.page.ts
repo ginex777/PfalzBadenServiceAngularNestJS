@@ -1,16 +1,20 @@
 import { Component, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import {
   IonButton,
+  IonButtons,
   IonCard,
   IonCardContent,
   IonContent,
   IonHeader,
   IonTitle,
+  IonToast,
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { environment } from '../../../environments/environment';
+import { MobileAuthService } from '../../core/auth.service';
 
 function base64ToBlob(dataUrl: string, mimeType = 'image/jpeg'): Blob {
   const byteString = atob(dataUrl.split(',')[1]);
@@ -25,17 +29,26 @@ function base64ToBlob(dataUrl: string, mimeType = 'image/jpeg'): Blob {
 @Component({
   selector: 'app-foto-upload',
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, IonButton],
+  host: { class: 'ion-page' },
+  imports: [IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonCard, IonCardContent, IonToast],
   templateUrl: './foto-upload.page.html',
   styleUrl: './foto-upload.page.scss',
 })
 export class FotoUploadPage {
   private readonly http = inject(HttpClient);
+  private readonly auth = inject(MobileAuthService);
+  private readonly router = inject(Router);
 
   preview = signal<string | null>(null);
   isLoading = signal(false);
-  successMessage = signal('');
-  errorMessage = signal('');
+  toastMessage = signal('');
+  toastColor = signal<'success' | 'danger' | 'medium'>('medium');
+  toastOpen = signal(false);
+
+  protected async logout(): Promise<void> {
+    await this.auth.logout();
+    await this.router.navigate(['/login']);
+  }
 
   async takePhoto() {
     try {
@@ -46,10 +59,8 @@ export class FotoUploadPage {
         source: CameraSource.Camera,
       });
       this.preview.set(`data:image/jpeg;base64,${image.base64String}`);
-      this.successMessage.set('');
-      this.errorMessage.set('');
     } catch {
-      this.errorMessage.set('Kamera-Zugriff verweigert oder abgebrochen.');
+      this.showToast('Kamera-Zugriff verweigert oder abgebrochen.', 'danger');
     }
   }
 
@@ -62,10 +73,8 @@ export class FotoUploadPage {
         source: CameraSource.Photos,
       });
       this.preview.set(`data:image/jpeg;base64,${image.base64String}`);
-      this.successMessage.set('');
-      this.errorMessage.set('');
     } catch {
-      this.errorMessage.set('Galerie-Zugriff verweigert oder abgebrochen.');
+      this.showToast('Galerie-Zugriff verweigert oder abgebrochen.', 'danger');
     }
   }
 
@@ -74,7 +83,6 @@ export class FotoUploadPage {
     if (!b64) return;
 
     this.isLoading.set(true);
-    this.errorMessage.set('');
 
     const blob = base64ToBlob(b64);
     const form = new FormData();
@@ -84,19 +92,30 @@ export class FotoUploadPage {
       next: () => {
         this.isLoading.set(false);
         this.preview.set(null);
-        this.successMessage.set('Beleg erfolgreich hochgeladen!');
-        setTimeout(() => this.successMessage.set(''), 4000);
+        this.showToast('Beleg erfolgreich hochgeladen!', 'success');
       },
-      error: () => {
+      error: (error: { error?: { message?: string } }) => {
         this.isLoading.set(false);
-        this.errorMessage.set('Upload fehlgeschlagen. Bitte erneut versuchen.');
+        this.showToast(
+          error?.error?.message ?? 'Upload fehlgeschlagen. Bitte erneut versuchen.',
+          'danger',
+        );
       },
     });
   }
 
   discard() {
     this.preview.set(null);
-    this.successMessage.set('');
-    this.errorMessage.set('');
+    this.showToast('Vorschau verworfen.', 'medium');
+  }
+
+  protected closeToast(): void {
+    this.toastOpen.set(false);
+  }
+
+  private showToast(message: string, color: 'success' | 'danger' | 'medium'): void {
+    this.toastMessage.set(message);
+    this.toastColor.set(color);
+    this.toastOpen.set(true);
   }
 }

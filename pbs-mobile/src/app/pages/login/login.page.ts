@@ -1,13 +1,14 @@
 import { Component, signal, inject } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonButton, IonContent, IonInput, IonItem, IonLabel, IonText } from '@ionic/angular/standalone';
+import { IonContent, IonToast } from '@ionic/angular/standalone';
 import { MobileAuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [ReactiveFormsModule, IonContent, IonItem, IonLabel, IonInput, IonButton, IonText],
+  host: { class: 'ion-page' },
+  imports: [ReactiveFormsModule, IonContent, IonToast],
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',
 })
@@ -20,23 +21,49 @@ export class LoginPage {
     password: new FormControl('', [Validators.required]),
   });
 
-  errorMessage = signal('');
+  toastMessage = signal('');
+  toastOpen = signal(false);
   isLoading = signal(false);
 
   login() {
     if (this.form.invalid) {
-      this.errorMessage.set('Bitte E-Mail und Passwort eingeben.');
+      this.form.markAllAsTouched();
+      this.showToast('Bitte E-Mail und Passwort eingeben.');
       return;
     }
-    this.errorMessage.set('');
     this.isLoading.set(true);
     const { email, password } = this.form.getRawValue();
-    this.auth.login(email!, password!).subscribe({
+    this.auth.login(email ?? '', password ?? '').subscribe({
       next: () => this.router.navigate(['/tabs/heute']),
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err?.error?.message ?? 'Anmeldung fehlgeschlagen.');
+        this.showToast(this.resolveLoginErrorMessage(err));
       },
     });
+  }
+
+  protected closeToast(): void {
+    this.toastOpen.set(false);
+  }
+
+  protected showFieldError(controlName: 'email' | 'password'): boolean {
+    const control = this.form.controls[controlName];
+    return control.invalid && (control.dirty || control.touched);
+  }
+
+  private resolveLoginErrorMessage(error: unknown): string {
+    const apiError = (error as { error?: { code?: string; message?: string; statusCode?: number } })?.error;
+    if (apiError?.code === 'MISSING_EMPLOYEE_MAPPING') {
+      return 'Dein Benutzer ist noch keinem Mitarbeiterprofil zugeordnet. Bitte Admin kontaktieren.';
+    }
+    if (apiError?.statusCode === 401) {
+      return 'E-Mail oder Passwort sind nicht korrekt.';
+    }
+    return apiError?.message ?? 'Anmeldung fehlgeschlagen. Bitte erneut versuchen.';
+  }
+
+  private showToast(message: string): void {
+    this.toastMessage.set(message);
+    this.toastOpen.set(true);
   }
 }

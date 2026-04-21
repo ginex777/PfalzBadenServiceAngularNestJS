@@ -1,19 +1,126 @@
 ion-content {
-  --background: var(--bg);
+  --background: var(--app-bg);
 }
 
-.page-uebersicht {
+.page-overview {
   padding: 1rem;
+  display: grid;
+  gap: 0.9rem;
 }
 
-.gesamt-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.hero-card {
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: linear-gradient(140deg, #162138, #233555);
+  color: #fff;
+  padding: 1rem;
+  box-shadow: 0 14px 26px rgba(12, 23, 41, 0.25);
+}
+
+.hero-label {
+  margin: 0;
+  opacity: 0.85;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+
+.hero-title {
+  margin: 0.35rem 0;
+  font-size: 1.45rem;
+}
+
+.hero-text {
+  margin: 0 0 0.9rem;
+  opacity: 0.9;
+  font-size: 0.85rem;
+}
+
+.stats-row {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 0.75rem;
+}
+
+.stat-item {
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 0.7rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.stat-caption {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.88;
+}
+
+.hero-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.hero-action-btn {
+  --border-radius: 0.75rem;
+  height: 2.55rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.hero-action-btn--primary {
+  --background: linear-gradient(135deg, #ff7a00, #ff9a2f);
+}
+
+.hero-action-btn--secondary {
+  --color: var(--app-accent-strong);
+  --border-color: var(--app-accent-soft);
+}
+
+.overview-card {
+  margin: 0;
+  border: 1px solid var(--app-border);
+  border-radius: 0.95rem;
+  box-shadow: var(--app-shadow-soft);
+}
+
+.section-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--app-text-strong);
 }
 
 .hint {
-  text-align: center;
-  color: var(--gray-500);
-  padding: 1rem;
+  color: var(--app-text-muted);
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+}
+
+.state-card {
+  border-radius: 0.9rem;
+  border: 1px solid transparent;
+  padding: 0.8rem;
+}
+
+.state-card--error {
+  border-color: #fecdca;
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.inline-action {
+  margin-top: 0.5rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-decoration: underline;
+  font-weight: 700;
+  padding: 0;
+  min-height: unset;
 }

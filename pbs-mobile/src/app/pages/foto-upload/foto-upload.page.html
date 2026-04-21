@@ -1,27 +1,38 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Foto</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="logout()">Abmelden</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div class="page-foto">
+  <div class="app-page-grid page-foto">
+    <section class="app-hero">
+      <p class="app-hero-label">Dokumentation</p>
+      <h1 class="app-hero-title">Foto-Nachweis erfassen</h1>
+      <p class="app-hero-text">Nimm ein Bild auf oder waehle eins aus der Galerie und lade es direkt hoch.</p>
+    </section>
+
     @if (!preview()) {
-      <div class="btn-group">
-        <ion-button expand="block" (click)="takePhoto()">Foto aufnehmen</ion-button>
-        <ion-button expand="block" fill="outline" (click)="pickFromGallery()">
+      <div class="btn-group app-card">
+        <ion-button class="photo-action photo-action--primary" expand="block" (click)="takePhoto()">
+          Foto aufnehmen
+        </ion-button>
+        <ion-button class="photo-action photo-action--secondary" expand="block" fill="outline" (click)="pickFromGallery()">
           Aus Galerie waehlen
         </ion-button>
       </div>
     } @else {
-      <ion-card>
+      <ion-card class="preview-card app-card">
         <ion-card-content>
           <img [src]="preview()!" class="preview-img" alt="Vorschau" />
           <div class="preview-actions">
-            <ion-button expand="block" color="success" [disabled]="isLoading()" (click)="upload()">
+            <ion-button class="photo-action photo-action--primary" expand="block" [disabled]="isLoading()" (click)="upload()">
               {{ isLoading() ? 'Hochladen...' : 'Hochladen' }}
             </ion-button>
-            <ion-button expand="block" fill="outline" color="danger" (click)="discard()">
+            <ion-button class="photo-action photo-action--secondary" expand="block" fill="outline" (click)="discard()">
               Verwerfen
             </ion-button>
           </div>
@@ -29,11 +40,15 @@
       </ion-card>
     }
 
-    @if (successMessage()) {
-      <p class="success-banner">{{ successMessage() }}</p>
-    }
-    @if (errorMessage()) {
-      <p class="fehler-banner">{{ errorMessage() }}</p>
-    }
   </div>
 </ion-content>
+
+<ion-toast
+  [isOpen]="toastOpen()"
+  [message]="toastMessage()"
+  [color]="toastColor()"
+  duration="5000"
+  position="top"
+  (didDismiss)="closeToast()"
+></ion-toast>
+
