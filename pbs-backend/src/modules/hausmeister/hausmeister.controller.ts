@@ -11,6 +11,10 @@ import {
 } from '@nestjs/common';
 import { HausmeisterService } from './hausmeister.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import {
+  CreateHausmeisterEinsatzDto,
+  UpdateHausmeisterEinsatzDto,
+} from './dto/hausmeister.dto';
 
 @Controller('api/hausmeister')
 export class HausmeisterController {
@@ -23,12 +27,12 @@ export class HausmeisterController {
   ) {
     return this.service.einsaetzeFuerMitarbeiterLaden(mid);
   }
-  @Post() einsatzErstellen(@Body() b: Record<string, unknown>) {
+  @Post() einsatzErstellen(@Body() b: CreateHausmeisterEinsatzDto) {
     return this.service.einsatzErstellen(b);
   }
   @Put(':id') einsatzAktualisieren(
     @Param('id', ParseIntPipe) id: number,
-    @Body() b: Record<string, unknown>,
+    @Body() b: UpdateHausmeisterEinsatzDto,
   ) {
     return this.service.einsatzAktualisieren(id, b);
   }

@@ -35,7 +35,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // strip unknown fields
-      forbidNonWhitelisted: false, // don't throw on unknown — services cast internally
+      forbidNonWhitelisted: true, // don't throw on unknown — services cast internally
       transform: true, // auto-transform primitives (string → number etc.)
       transformOptions: { enableImplicitConversion: true },
     }),

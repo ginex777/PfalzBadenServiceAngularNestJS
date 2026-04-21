@@ -17,7 +17,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class RechnungPositionDto {
   @ApiProperty() @IsString() @IsNotEmpty() bez!: string;
-  @ApiPropertyOptional() @IsOptional() stunden?: number | string;
+  @ApiPropertyOptional() @IsOptional() @IsNumber() @Min(0) stunden?: number;
   @ApiPropertyOptional() @IsOptional() @IsNumber() einzelpreis?: number;
   @ApiProperty() @IsNumber() gesamtpreis!: number;
 }

@@ -3,6 +3,13 @@ import { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import {
+  CreateMitarbeiterDto,
+  CreateMitarbeiterStundenDto,
+  StempelStartDto,
+  UpdateMitarbeiterDto,
+  UpdateMitarbeiterStundenDto,
+} from './dto/mitarbeiter.dto';
 
 @Injectable()
 export class MitarbeiterService {
@@ -36,22 +43,22 @@ export class MitarbeiterService {
     };
   }
 
-  async mitarbeiterErstellen(d: Record<string, unknown>) {
+  async mitarbeiterErstellen(d: CreateMitarbeiterDto) {
     const m = await this.prisma.mitarbeiter.create({
       data: {
-        name: String(d['name'] ?? ''),
-        rolle: d['rolle'] ? String(d['rolle']) : null,
-        stundenlohn: new Prisma.Decimal(Number(d['stundenlohn'] ?? 0)),
-        email: d['email'] ? String(d['email']) : null,
-        tel: d['tel'] ? String(d['tel']) : null,
-        notiz: d['notiz'] ? String(d['notiz']) : null,
-        aktiv: d['aktiv'] !== false,
+        name: d.name,
+        rolle: d.rolle ?? null,
+        stundenlohn: new Prisma.Decimal(d.stundenlohn),
+        email: d.email ?? null,
+        tel: d.tel ?? null,
+        notiz: d.notiz ?? null,
+        aktiv: d.aktiv !== false,
       },
     });
     return { ...m, id: Number(m.id), stundenlohn: Number(m.stundenlohn) };
   }
 
-  async mitarbeiterAktualisieren(id: number, d: Record<string, unknown>) {
+  async mitarbeiterAktualisieren(id: number, d: UpdateMitarbeiterDto) {
     if (
       !(await this.prisma.mitarbeiter.findUnique({ where: { id: BigInt(id) } }))
     )
@@ -59,13 +66,13 @@ export class MitarbeiterService {
     const m = await this.prisma.mitarbeiter.update({
       where: { id: BigInt(id) },
       data: {
-        name: String(d['name'] ?? ''),
-        rolle: d['rolle'] ? String(d['rolle']) : null,
-        stundenlohn: new Prisma.Decimal(Number(d['stundenlohn'] ?? 0)),
-        email: d['email'] ? String(d['email']) : null,
-        tel: d['tel'] ? String(d['tel']) : null,
-        notiz: d['notiz'] ? String(d['notiz']) : null,
-        aktiv: Boolean(d['aktiv']),
+        name: d.name,
+        rolle: d.rolle ?? null,
+        stundenlohn: new Prisma.Decimal(d.stundenlohn),
+        email: d.email ?? null,
+        tel: d.tel ?? null,
+        notiz: d.notiz ?? null,
+        aktiv: d.aktiv ?? false,
       },
     });
     return { ...m, id: Number(m.id), stundenlohn: Number(m.stundenlohn) };
@@ -98,10 +105,10 @@ export class MitarbeiterService {
     }));
   }
 
-  async stundenErstellen(mitarbeiterId: number, d: Record<string, unknown>) {
+  async stundenErstellen(mitarbeiterId: number, d: CreateMitarbeiterStundenDto) {
     // FIXED: Auto-calculate wage if not provided
-    let lohn = Number(d['lohn'] ?? 0);
-    const zuschlag = Number(d['zuschlag'] ?? 0);
+    let lohn = d.lohn ?? 0;
+    const zuschlag = d.zuschlag ?? 0;
 
     if (lohn === 0) {
       // Auto-calculate from employee hourly rate
@@ -109,7 +116,7 @@ export class MitarbeiterService {
         where: { id: BigInt(mitarbeiterId) },
       });
       if (mitarbeiter) {
-        const stunden = Number(d['stunden'] ?? 0);
+        const stunden = d.stunden;
         lohn = Number(mitarbeiter.stundenlohn) * stunden;
       }
     }
@@ -117,14 +124,14 @@ export class MitarbeiterService {
     const s = await this.prisma.mitarbeiterStunden.create({
       data: {
         mitarbeiter: { connect: { id: BigInt(mitarbeiterId) } },
-        datum: new Date(String(d['datum'])),
-        stunden: new Prisma.Decimal(Number(d['stunden'])),
-        beschreibung: d['beschreibung'] ? String(d['beschreibung']) : null,
-        ort: d['ort'] ? String(d['ort']) : null,
+        datum: new Date(d.datum),
+        stunden: new Prisma.Decimal(d.stunden),
+        beschreibung: d.beschreibung ?? null,
+        ort: d.ort ?? null,
         lohn: new Prisma.Decimal(lohn),
         zuschlag: new Prisma.Decimal(zuschlag),
-        zuschlag_typ: d['zuschlag_typ'] ? String(d['zuschlag_typ']) : '',
-        bezahlt: Boolean(d['bezahlt']),
+        zuschlag_typ: d.zuschlag_typ ?? '',
+        bezahlt: d.bezahlt ?? false,
       },
     });
     return {
@@ -137,7 +144,10 @@ export class MitarbeiterService {
     };
   }
 
-  async stundenAktualisieren(stundenId: number, d: Record<string, unknown>) {
+  async stundenAktualisieren(
+    stundenId: number,
+    d: UpdateMitarbeiterStundenDto,
+  ) {
     if (
       !(await this.prisma.mitarbeiterStunden.findUnique({
         where: { id: BigInt(stundenId) },
@@ -147,14 +157,14 @@ export class MitarbeiterService {
     const s = await this.prisma.mitarbeiterStunden.update({
       where: { id: BigInt(stundenId) },
       data: {
-        datum: new Date(String(d['datum'])),
-        stunden: new Prisma.Decimal(Number(d['stunden'])),
-        beschreibung: d['beschreibung'] ? String(d['beschreibung']) : null,
-        ort: d['ort'] ? String(d['ort']) : null,
-        lohn: new Prisma.Decimal(Number(d['lohn'] ?? 0)),
-        zuschlag: new Prisma.Decimal(Number(d['zuschlag'] ?? 0)),
-        zuschlag_typ: d['zuschlag_typ'] ? String(d['zuschlag_typ']) : '',
-        bezahlt: Boolean(d['bezahlt']),
+        datum: new Date(d.datum),
+        stunden: new Prisma.Decimal(d.stunden),
+        beschreibung: d.beschreibung ?? null,
+        ort: d.ort ?? null,
+        lohn: new Prisma.Decimal(d.lohn ?? 0),
+        zuschlag: new Prisma.Decimal(d.zuschlag ?? 0),
+        zuschlag_typ: d.zuschlag_typ ?? '',
+        bezahlt: d.bezahlt ?? false,
       },
     });
     return {
@@ -182,7 +192,7 @@ export class MitarbeiterService {
 
   // ── Mobile Stempeluhr ─────────────────────────────────────────────────────
 
-  async stempelStart(mitarbeiterId: number, d: Record<string, unknown>) {
+  async stempelStart(mitarbeiterId: number, d: StempelStartDto) {
     // Close any open stempel first (safety)
     await this.prisma.stempel.updateMany({
       where: { mitarbeiter_id: BigInt(mitarbeiterId), stop: null },
@@ -192,7 +202,7 @@ export class MitarbeiterService {
       data: {
         mitarbeiter: { connect: { id: BigInt(mitarbeiterId) } },
         start: new Date(),
-        notiz: d['notiz'] ? String(d['notiz']) : null,
+        notiz: d.notiz ?? null,
       },
     });
     return {

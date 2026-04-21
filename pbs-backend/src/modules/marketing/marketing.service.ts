@@ -2,6 +2,10 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import {
+  CreateMarketingKontaktDto,
+  UpdateMarketingKontaktDto,
+} from './dto/marketing.dto';
 
 const VALID_STATUS = [
   'neu',
@@ -39,27 +43,25 @@ export class MarketingService {
     };
   }
 
-  async kontaktErstellen(d: Record<string, unknown>) {
+  async kontaktErstellen(d: CreateMarketingKontaktDto) {
     const r = await this.prisma.marketing.create({
       data: {
-        name: String(d['name'] ?? ''),
-        person: d['person'] ? String(d['person']) : null,
-        email: String(d['email'] ?? ''),
-        tel: d['tel'] ? String(d['tel']) : null,
-        strasse: d['strasse'] ? String(d['strasse']) : null,
-        ort: d['ort'] ? String(d['ort']) : null,
-        notiz: d['notiz'] ? String(d['notiz']) : null,
-        status: VALID_STATUS.includes(String(d['status']))
-          ? String(d['status'])
-          : 'neu',
-        status_notiz: d['status_notiz'] ? String(d['status_notiz']) : null,
-        datum: d['datum'] ? new Date(String(d['datum'])) : new Date(),
+        name: d.name,
+        person: d.person ?? null,
+        email: d.email,
+        tel: d.tel ?? null,
+        strasse: d.strasse ?? null,
+        ort: d.ort ?? null,
+        notiz: d.notiz ?? null,
+        status: d.status && VALID_STATUS.includes(d.status) ? d.status : 'neu',
+        status_notiz: d.status_notiz ?? null,
+        datum: d.datum ? new Date(d.datum) : new Date(),
       },
     });
     return { ...r, id: Number(r.id) };
   }
 
-  async kontaktAktualisieren(id: number, d: Record<string, unknown>) {
+  async kontaktAktualisieren(id: number, d: UpdateMarketingKontaktDto) {
     if (
       !(await this.prisma.marketing.findUnique({ where: { id: BigInt(id) } }))
     )
@@ -67,17 +69,15 @@ export class MarketingService {
     const r = await this.prisma.marketing.update({
       where: { id: BigInt(id) },
       data: {
-        name: String(d['name'] ?? ''),
-        person: d['person'] ? String(d['person']) : null,
-        email: String(d['email'] ?? ''),
-        tel: d['tel'] ? String(d['tel']) : null,
-        strasse: d['strasse'] ? String(d['strasse']) : null,
-        ort: d['ort'] ? String(d['ort']) : null,
-        notiz: d['notiz'] ? String(d['notiz']) : null,
-        status: VALID_STATUS.includes(String(d['status']))
-          ? String(d['status'])
-          : 'neu',
-        status_notiz: d['status_notiz'] ? String(d['status_notiz']) : null,
+        name: d.name,
+        person: d.person ?? null,
+        email: d.email,
+        tel: d.tel ?? null,
+        strasse: d.strasse ?? null,
+        ort: d.ort ?? null,
+        notiz: d.notiz ?? null,
+        status: d.status && VALID_STATUS.includes(d.status) ? d.status : 'neu',
+        status_notiz: d.status_notiz ?? null,
       },
     });
     return { ...r, id: Number(r.id) };

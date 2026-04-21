@@ -3,6 +3,10 @@ import { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import {
+  CreateHausmeisterEinsatzDto,
+  UpdateHausmeisterEinsatzDto,
+} from './dto/hausmeister.dto';
 
 @Injectable()
 export class HausmeisterService {
@@ -40,46 +44,44 @@ export class HausmeisterService {
     return rows.map((e) => this.mapEinsatz(e));
   }
 
-  async einsatzErstellen(d: Record<string, unknown>) {
+  async einsatzErstellen(d: CreateHausmeisterEinsatzDto) {
+    const taetigkeiten: Prisma.JsonArray = (d.taetigkeiten ?? []).map((entry) => entry);
     const e = await this.prisma.hausmeisterEinsaetze.create({
       data: {
-        mitarbeiter_id: d['mitarbeiter_id']
-          ? BigInt(Number(d['mitarbeiter_id']))
-          : null,
-        mitarbeiter_name: String(d['mitarbeiter_name'] ?? ''),
-        kunden_id: d['kunden_id'] ? BigInt(Number(d['kunden_id'])) : null,
-        kunden_name: d['kunden_name'] ? String(d['kunden_name']) : null,
-        datum: new Date(String(d['datum'])),
-        taetigkeiten: (d['taetigkeiten'] as Prisma.InputJsonValue) ?? [],
-        stunden_gesamt: new Prisma.Decimal(Number(d['stunden_gesamt'] ?? 0)),
-        notiz: d['notiz'] ? String(d['notiz']) : null,
-        abgeschlossen: Boolean(d['abgeschlossen']),
+        mitarbeiter_id: d.mitarbeiter_id ? BigInt(d.mitarbeiter_id) : null,
+        mitarbeiter_name: d.mitarbeiter_name,
+        kunden_id: d.kunden_id ? BigInt(d.kunden_id) : null,
+        kunden_name: d.kunden_name ?? null,
+        datum: new Date(d.datum),
+        taetigkeiten,
+        stunden_gesamt: new Prisma.Decimal(d.stunden_gesamt),
+        notiz: d.notiz ?? null,
+        abgeschlossen: d.abgeschlossen ?? false,
       },
     });
     return this.mapEinsatz(e);
   }
 
-  async einsatzAktualisieren(id: number, d: Record<string, unknown>) {
+  async einsatzAktualisieren(id: number, d: UpdateHausmeisterEinsatzDto) {
     if (
       !(await this.prisma.hausmeisterEinsaetze.findUnique({
         where: { id: BigInt(id) },
       }))
     )
       throw new NotFoundException();
+    const taetigkeiten: Prisma.JsonArray = (d.taetigkeiten ?? []).map((entry) => entry);
     const e = await this.prisma.hausmeisterEinsaetze.update({
       where: { id: BigInt(id) },
       data: {
-        mitarbeiter_id: d['mitarbeiter_id']
-          ? BigInt(Number(d['mitarbeiter_id']))
-          : null,
-        mitarbeiter_name: String(d['mitarbeiter_name'] ?? ''),
-        kunden_id: d['kunden_id'] ? BigInt(Number(d['kunden_id'])) : null,
-        kunden_name: d['kunden_name'] ? String(d['kunden_name']) : null,
-        datum: new Date(String(d['datum'])),
-        taetigkeiten: (d['taetigkeiten'] as Prisma.InputJsonValue) ?? [],
-        stunden_gesamt: new Prisma.Decimal(Number(d['stunden_gesamt'] ?? 0)),
-        notiz: d['notiz'] ? String(d['notiz']) : null,
-        abgeschlossen: Boolean(d['abgeschlossen']),
+        mitarbeiter_id: d.mitarbeiter_id ? BigInt(d.mitarbeiter_id) : null,
+        mitarbeiter_name: d.mitarbeiter_name,
+        kunden_id: d.kunden_id ? BigInt(d.kunden_id) : null,
+        kunden_name: d.kunden_name ?? null,
+        datum: new Date(d.datum),
+        taetigkeiten,
+        stunden_gesamt: new Prisma.Decimal(d.stunden_gesamt),
+        notiz: d.notiz ?? null,
+        abgeschlossen: d.abgeschlossen ?? false,
       },
     });
     return this.mapEinsatz(e);

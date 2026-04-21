@@ -35,7 +35,7 @@ export class PdfService {
   createMahnungPdf(id: number) {
     return this.mahnungGen.create(id);
   }
-  createEuerPdf(jahr: number, ergebnis: Record<string, unknown>) {
+  createEuerPdf(jahr: number, ergebnis: object) {
     return this.euerGen.create(jahr, ergebnis);
   }
   createHausmeisterEinsatzPdf(id: number) {

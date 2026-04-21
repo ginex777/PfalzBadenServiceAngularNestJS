@@ -11,6 +11,13 @@ import {
 } from '@nestjs/common';
 import { MitarbeiterService } from './mitarbeiter.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import {
+  CreateMitarbeiterDto,
+  CreateMitarbeiterStundenDto,
+  StempelStartDto,
+  UpdateMitarbeiterDto,
+  UpdateMitarbeiterStundenDto,
+} from './dto/mitarbeiter.dto';
 
 @Controller('api/mitarbeiter')
 export class MitarbeiterController {
@@ -18,12 +25,12 @@ export class MitarbeiterController {
   @Get() alleMitarbeiterLaden(@Query() pagination: PaginationDto) {
     return this.service.alleMitarbeiterLaden(pagination);
   }
-  @Post() mitarbeiterErstellen(@Body() b: Record<string, unknown>) {
+  @Post() mitarbeiterErstellen(@Body() b: CreateMitarbeiterDto) {
     return this.service.mitarbeiterErstellen(b);
   }
   @Put(':id') mitarbeiterAktualisieren(
     @Param('id', ParseIntPipe) id: number,
-    @Body() b: Record<string, unknown>,
+    @Body() b: UpdateMitarbeiterDto,
   ) {
     return this.service.mitarbeiterAktualisieren(id, b);
   }
@@ -35,13 +42,13 @@ export class MitarbeiterController {
   }
   @Post(':id/stunden') stundenErstellen(
     @Param('id', ParseIntPipe) id: number,
-    @Body() b: Record<string, unknown>,
+    @Body() b: CreateMitarbeiterStundenDto,
   ) {
     return this.service.stundenErstellen(id, b);
   }
   @Put('stunden/:id') stundenAktualisieren(
     @Param('id', ParseIntPipe) id: number,
-    @Body() b: Record<string, unknown>,
+    @Body() b: UpdateMitarbeiterStundenDto,
   ) {
     return this.service.stundenAktualisieren(id, b);
   }
@@ -53,7 +60,7 @@ export class MitarbeiterController {
   // ── Mobile Stempeluhr ────────────────────────────────────────────────────────
   @Post(':id/stempel/start') stempelStart(
     @Param('id', ParseIntPipe) id: number,
-    @Body() b: Record<string, unknown>,
+    @Body() b: StempelStartDto,
   ) {
     return this.service.stempelStart(id, b);
   }

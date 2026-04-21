@@ -1,6 +1,12 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
+import {
+  CreateWiederkehrendeAusgabeDto,
+  CreateWiederkehrendeRechnungDto,
+  UpdateWiederkehrendeAusgabeDto,
+  UpdateWiederkehrendeRechnungDto,
+} from './dto/wiederkehrend.dto';
 
 @Injectable()
 export class WiederkehrendService {
@@ -21,16 +27,16 @@ export class WiederkehrendService {
     }));
   }
 
-  async ausgabeErstellen(d: Record<string, unknown>) {
+  async ausgabeErstellen(d: CreateWiederkehrendeAusgabeDto) {
     const a = await this.prisma.wiederkehrendeAusgaben.create({
       data: {
-        name: String(d['name'] ?? ''),
-        kategorie: d['kategorie'] ? String(d['kategorie']) : 'Betriebsausgabe',
-        brutto: new Prisma.Decimal(Number(d['brutto'] ?? 0)),
-        mwst: new Prisma.Decimal(Number(d['mwst'] ?? 19)),
-        abzug: new Prisma.Decimal(Number(d['abzug'] ?? 100)),
-        belegnr: d['belegnr'] ? String(d['belegnr']) : null,
-        aktiv: d['aktiv'] !== false,
+        name: d.name,
+        kategorie: d.kategorie ?? 'Betriebsausgabe',
+        brutto: new Prisma.Decimal(d.brutto ?? 0),
+        mwst: new Prisma.Decimal(d.mwst ?? 19),
+        abzug: new Prisma.Decimal(d.abzug ?? 100),
+        belegnr: d.belegnr ?? null,
+        aktiv: d.aktiv !== false,
       },
     });
     return {
@@ -42,7 +48,7 @@ export class WiederkehrendService {
     };
   }
 
-  async ausgabeAktualisieren(id: number, d: Record<string, unknown>) {
+  async ausgabeAktualisieren(id: number, d: UpdateWiederkehrendeAusgabeDto) {
     if (
       !(await this.prisma.wiederkehrendeAusgaben.findUnique({
         where: { id: BigInt(id) },
@@ -52,13 +58,13 @@ export class WiederkehrendService {
     const a = await this.prisma.wiederkehrendeAusgaben.update({
       where: { id: BigInt(id) },
       data: {
-        name: String(d['name'] ?? ''),
-        kategorie: d['kategorie'] ? String(d['kategorie']) : 'Betriebsausgabe',
-        brutto: new Prisma.Decimal(Number(d['brutto'] ?? 0)),
-        mwst: new Prisma.Decimal(Number(d['mwst'] ?? 19)),
-        abzug: new Prisma.Decimal(Number(d['abzug'] ?? 100)),
-        belegnr: d['belegnr'] ? String(d['belegnr']) : null,
-        aktiv: Boolean(d['aktiv']),
+        name: d.name,
+        kategorie: d.kategorie ?? 'Betriebsausgabe',
+        brutto: new Prisma.Decimal(d.brutto ?? 0),
+        mwst: new Prisma.Decimal(d.mwst ?? 19),
+        abzug: new Prisma.Decimal(d.abzug ?? 100),
+        belegnr: d.belegnr ?? null,
+        aktiv: d.aktiv ?? false,
       },
     });
     return {
@@ -94,15 +100,21 @@ export class WiederkehrendService {
     }));
   }
 
-  async rechnungErstellen(d: Record<string, unknown>) {
+  async rechnungErstellen(d: CreateWiederkehrendeRechnungDto) {
+    const positionen: Prisma.JsonArray = d.positionen.map((position) => ({
+      bez: position.bez,
+      stunden: position.stunden ?? null,
+      einzelpreis: position.einzelpreis ?? null,
+      gesamtpreis: position.gesamtpreis,
+    }));
     const r = await this.prisma.wiederkehrendeRechnungen.create({
       data: {
-        kunden_id: d['kunden_id'] ? BigInt(Number(d['kunden_id'])) : null,
-        kunden_name: d['kunden_name'] ? String(d['kunden_name']) : null,
-        titel: String(d['titel'] ?? ''),
-        positionen: (d['positionen'] as Prisma.InputJsonValue) ?? [],
-        intervall: d['intervall'] ? String(d['intervall']) : 'monatlich',
-        aktiv: d['aktiv'] !== false,
+        kunden_id: d.kunden_id ? BigInt(d.kunden_id) : null,
+        kunden_name: d.kunden_name ?? null,
+        titel: d.titel,
+        positionen,
+        intervall: d.intervall ?? 'monatlich',
+        aktiv: d.aktiv !== false,
       },
     });
     return {
@@ -112,7 +124,7 @@ export class WiederkehrendService {
     };
   }
 
-  async rechnungAktualisieren(id: number, d: Record<string, unknown>) {
+  async rechnungAktualisieren(id: number, d: UpdateWiederkehrendeRechnungDto) {
     if (
       !(await this.prisma.wiederkehrendeRechnungen.findUnique({
         where: { id: BigInt(id) },
@@ -122,14 +134,19 @@ export class WiederkehrendService {
     const r = await this.prisma.wiederkehrendeRechnungen.update({
       where: { id: BigInt(id) },
       data: {
-        kunden_id: d['kunden_id'] ? BigInt(Number(d['kunden_id'])) : null,
-        kunden_name: d['kunden_name'] ? String(d['kunden_name']) : null,
-        titel: String(d['titel'] ?? ''),
-        positionen: (d['positionen'] as Prisma.InputJsonValue) ?? [],
-        intervall: d['intervall'] ? String(d['intervall']) : 'monatlich',
-        aktiv: Boolean(d['aktiv']),
-        letzte_erstellung: d['letzte_erstellung']
-          ? new Date(String(d['letzte_erstellung']))
+        kunden_id: d.kunden_id ? BigInt(d.kunden_id) : null,
+        kunden_name: d.kunden_name ?? null,
+        titel: d.titel,
+        positionen: d.positionen.map((position) => ({
+          bez: position.bez,
+          stunden: position.stunden ?? null,
+          einzelpreis: position.einzelpreis ?? null,
+          gesamtpreis: position.gesamtpreis,
+        })),
+        intervall: d.intervall ?? 'monatlich',
+        aktiv: d.aktiv ?? false,
+        letzte_erstellung: d.letzte_erstellung
+          ? new Date(d.letzte_erstellung)
           : null,
       },
     });

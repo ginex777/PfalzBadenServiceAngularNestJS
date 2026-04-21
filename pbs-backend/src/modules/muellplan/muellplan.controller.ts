@@ -16,6 +16,15 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import type { Response } from 'express';
 import { MuellplanService } from './muellplan.service';
+import {
+  ConfirmMuellplanPdfDto,
+  CopyMuellplanTermineDto,
+  CreateMuellplanTerminDto,
+  CreateMuellplanVorlageDto,
+  CreateObjektDto,
+  UpdateMuellplanTerminDto,
+  UpdateObjektDto,
+} from './dto/muellplan.dto';
 
 @Controller('api')
 export class MuellplanController {
@@ -24,12 +33,12 @@ export class MuellplanController {
   @Get('objekte') async objekteLaden() {
     return this.service.objekteLaden();
   }
-  @Post('objekte') async objektErstellen(@Body() b: Record<string, unknown>) {
+  @Post('objekte') async objektErstellen(@Body() b: CreateObjektDto) {
     return this.service.objektErstellen(b);
   }
   @Put('objekte/:id') async objektAktualisieren(
     @Param('id', ParseIntPipe) id: number,
-    @Body() b: Record<string, unknown>,
+    @Body() b: UpdateObjektDto,
   ) {
     return this.service.objektAktualisieren(id, b);
   }
@@ -49,17 +58,17 @@ export class MuellplanController {
   ) {
     return this.service.termineLaden(id);
   }
-  @Post('muellplan') async terminErstellen(@Body() b: Record<string, unknown>) {
+  @Post('muellplan') async terminErstellen(@Body() b: CreateMuellplanTerminDto) {
     return this.service.terminErstellen(b);
   }
   @Post('muellplan/copy') async termineKopieren(
-    @Body() b: { from_objekt_id: number; to_objekt_id: number },
+    @Body() b: CopyMuellplanTermineDto,
   ) {
     return this.service.termineKopieren(b.from_objekt_id, b.to_objekt_id);
   }
   @Put('muellplan/:id') async terminAktualisieren(
     @Param('id', ParseIntPipe) id: number,
-    @Body() b: Record<string, unknown>,
+    @Body() b: UpdateMuellplanTerminDto,
   ) {
     return this.service.terminAktualisieren(id, b);
   }
@@ -78,7 +87,7 @@ export class MuellplanController {
     return this.service.vorlageLaden(id);
   }
   @Post('muellplan-vorlagen') async vorlageErstellen(
-    @Body() b: Record<string, unknown>,
+    @Body() b: CreateMuellplanVorlageDto,
   ) {
     return this.service.vorlageErstellen(b);
   }
@@ -146,8 +155,7 @@ export class MuellplanController {
   @Post('muellplan-pdf/:objektId/confirm')
   async muellplanPdfBestaetigen(
     @Param('objektId', ParseIntPipe) objektId: number,
-    @Body()
-    b: { termine: { muellart: string; farbe: string; abholung: string }[] },
+    @Body() b: ConfirmMuellplanPdfDto,
   ) {
     return this.service.muellplanPdfBestaetigen(objektId, b.termine ?? []);
   }

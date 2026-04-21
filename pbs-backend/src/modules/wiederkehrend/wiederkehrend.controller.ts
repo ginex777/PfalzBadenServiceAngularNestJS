@@ -9,6 +9,12 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { WiederkehrendService } from './wiederkehrend.service';
+import {
+  CreateWiederkehrendeAusgabeDto,
+  CreateWiederkehrendeRechnungDto,
+  UpdateWiederkehrendeAusgabeDto,
+  UpdateWiederkehrendeRechnungDto,
+} from './dto/wiederkehrend.dto';
 
 @Controller('api')
 export class WiederkehrendController {
@@ -16,12 +22,14 @@ export class WiederkehrendController {
   @Get('wiederkehrend') ausgabenLaden() {
     return this.service.ausgabenLaden();
   }
-  @Post('wiederkehrend') ausgabeErstellen(@Body() b: Record<string, unknown>) {
+  @Post('wiederkehrend') ausgabeErstellen(
+    @Body() b: CreateWiederkehrendeAusgabeDto,
+  ) {
     return this.service.ausgabeErstellen(b);
   }
   @Put('wiederkehrend/:id') ausgabeAktualisieren(
     @Param('id', ParseIntPipe) id: number,
-    @Body() b: Record<string, unknown>,
+    @Body() b: UpdateWiederkehrendeAusgabeDto,
   ) {
     return this.service.ausgabeAktualisieren(id, b);
   }
@@ -34,13 +42,13 @@ export class WiederkehrendController {
     return this.service.rechnungenLaden();
   }
   @Post('wiederkehrend-rechnungen') rechnungErstellen(
-    @Body() b: Record<string, unknown>,
+    @Body() b: CreateWiederkehrendeRechnungDto,
   ) {
     return this.service.rechnungErstellen(b);
   }
   @Put('wiederkehrend-rechnungen/:id') rechnungAktualisieren(
     @Param('id', ParseIntPipe) id: number,
-    @Body() b: Record<string, unknown>,
+    @Body() b: UpdateWiederkehrendeRechnungDto,
   ) {
     return this.service.rechnungAktualisieren(id, b);
   }

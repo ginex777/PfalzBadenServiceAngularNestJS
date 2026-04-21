@@ -1,5 +1,14 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
+import { Prisma } from '@prisma/client';
+import {
+  CreateMuellplanTerminDto,
+  CreateMuellplanVorlageDto,
+  CreateObjektDto,
+  MuellplanVorlagenTerminDto,
+  UpdateMuellplanTerminDto,
+  UpdateObjektDto,
+} from './dto/muellplan.dto';
 
 @Injectable()
 export class MuellplanService {
@@ -19,18 +28,18 @@ export class MuellplanService {
     }));
   }
 
-  async objektErstellen(d: Record<string, unknown>) {
+  async objektErstellen(d: CreateObjektDto) {
     const r = await this.prisma.objekte.create({
       data: {
-        name: String(d['name'] ?? ''),
-        strasse: d['strasse'] ? String(d['strasse']) : null,
-        plz: d['plz'] ? String(d['plz']) : null,
-        ort: d['ort'] ? String(d['ort']) : null,
-        notiz: d['notiz'] ? String(d['notiz']) : null,
-        filter_typen: d['filter_typen'] ? String(d['filter_typen']) : '',
-        vorlage_id: d['vorlage_id'] ? BigInt(Number(d['vorlage_id'])) : null,
-        kunden: d['kunden_id']
-          ? { connect: { id: BigInt(Number(d['kunden_id'])) } }
+        name: d.name,
+        strasse: d.strasse ?? null,
+        plz: d.plz ?? null,
+        ort: d.ort ?? null,
+        notiz: d.notiz ?? null,
+        filter_typen: d.filter_typen ?? '',
+        vorlage_id: d.vorlage_id ? BigInt(d.vorlage_id) : null,
+        kunden: d.kunden_id
+          ? { connect: { id: BigInt(d.kunden_id) } }
           : undefined,
       },
     });
@@ -42,21 +51,21 @@ export class MuellplanService {
     };
   }
 
-  async objektAktualisieren(id: number, d: Record<string, unknown>) {
+  async objektAktualisieren(id: number, d: UpdateObjektDto) {
     if (!(await this.prisma.objekte.findUnique({ where: { id: BigInt(id) } })))
       throw new NotFoundException();
     const r = await this.prisma.objekte.update({
       where: { id: BigInt(id) },
       data: {
-        name: String(d['name'] ?? ''),
-        strasse: d['strasse'] ? String(d['strasse']) : null,
-        plz: d['plz'] ? String(d['plz']) : null,
-        ort: d['ort'] ? String(d['ort']) : null,
-        notiz: d['notiz'] ? String(d['notiz']) : null,
-        filter_typen: d['filter_typen'] ? String(d['filter_typen']) : '',
-        vorlage_id: d['vorlage_id'] ? BigInt(Number(d['vorlage_id'])) : null,
-        kunden: d['kunden_id']
-          ? { connect: { id: BigInt(Number(d['kunden_id'])) } }
+        name: d.name,
+        strasse: d.strasse ?? null,
+        plz: d.plz ?? null,
+        ort: d.ort ?? null,
+        notiz: d.notiz ?? null,
+        filter_typen: d.filter_typen ?? '',
+        vorlage_id: d.vorlage_id ? BigInt(d.vorlage_id) : null,
+        kunden: d.kunden_id
+          ? { connect: { id: BigInt(d.kunden_id) } }
           : { disconnect: true },
       },
     });
@@ -113,14 +122,14 @@ export class MuellplanService {
     }));
   }
 
-  async terminErstellen(d: Record<string, unknown>) {
+  async terminErstellen(d: CreateMuellplanTerminDto) {
     const r = await this.prisma.muellplan.create({
       data: {
-        objekte: { connect: { id: BigInt(Number(d['objekt_id'])) } },
-        muellart: String(d['muellart'] ?? ''),
-        farbe: d['farbe'] ? String(d['farbe']) : '#6366f1',
-        abholung: new Date(String(d['abholung'])),
-        erledigt: Boolean(d['erledigt']),
+        objekte: { connect: { id: BigInt(d.objekt_id) } },
+        muellart: d.muellart,
+        farbe: d.farbe ?? '#6366f1',
+        abholung: new Date(d.abholung),
+        erledigt: d.erledigt ?? false,
       },
     });
     return {
@@ -131,7 +140,7 @@ export class MuellplanService {
     };
   }
 
-  async terminAktualisieren(id: number, d: Record<string, unknown>) {
+  async terminAktualisieren(id: number, d: UpdateMuellplanTerminDto) {
     if (
       !(await this.prisma.muellplan.findUnique({ where: { id: BigInt(id) } }))
     )
@@ -139,10 +148,10 @@ export class MuellplanService {
     const r = await this.prisma.muellplan.update({
       where: { id: BigInt(id) },
       data: {
-        muellart: String(d['muellart'] ?? ''),
-        farbe: d['farbe'] ? String(d['farbe']) : '#6366f1',
-        abholung: new Date(String(d['abholung'])),
-        erledigt: Boolean(d['erledigt']),
+        muellart: d.muellart,
+        farbe: d.farbe ?? '#6366f1',
+        abholung: new Date(d.abholung),
+        erledigt: d.erledigt ?? false,
       },
     });
     return {
@@ -209,11 +218,16 @@ export class MuellplanService {
     return { ...v, id: Number(v.id), pdf_data: undefined };
   }
 
-  async vorlageErstellen(d: Record<string, unknown>) {
+  async vorlageErstellen(d: CreateMuellplanVorlageDto) {
+    const termine: Prisma.JsonArray = (d.termine ?? []).map((termin) => ({
+      muellart: termin.muellart,
+      farbe: termin.farbe ?? '#6366f1',
+      abholung: termin.abholung,
+    }));
     const v = await this.prisma.muellplanVorlagen.create({
       data: {
-        name: String(d['name'] ?? ''),
-        termine: (d['termine'] as object) ?? [],
+        name: d.name,
+        termine,
       },
     });
     return { id: Number(v.id), name: v.name, created_at: v.created_at };
@@ -276,7 +290,7 @@ export class MuellplanService {
 
   async muellplanPdfBestaetigen(
     objektId: number,
-    termine: { muellart: string; farbe: string; abholung: string }[],
+    termine: MuellplanVorlagenTerminDto[],
   ) {
     await this.prisma.muellplanPdf.updateMany({
       where: { objekt_id: BigInt(objektId) },

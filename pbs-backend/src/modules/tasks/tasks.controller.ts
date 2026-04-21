@@ -11,6 +11,11 @@ import {
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import {
+  CreateTaskDto,
+  ReorderTasksDto,
+  UpdateTaskDto,
+} from './dto/task.dto';
 
 @Controller('api/tasks')
 export class TasksController {
@@ -18,17 +23,15 @@ export class TasksController {
   @Get() alleTasksLaden(@Query() pagination: PaginationDto) {
     return this.service.alleTasksLaden(pagination);
   }
-  @Post('reorder') tasksNeuAnordnen(
-    @Body() b: { updates: { id: number; status: string; position: number }[] },
-  ) {
+  @Post('reorder') tasksNeuAnordnen(@Body() b: ReorderTasksDto) {
     return this.service.tasksNeuAnordnen(b.updates);
   }
-  @Post() taskErstellen(@Body() b: Record<string, unknown>) {
+  @Post() taskErstellen(@Body() b: CreateTaskDto) {
     return this.service.taskErstellen(b);
   }
   @Put(':id') taskAktualisieren(
     @Param('id', ParseIntPipe) id: number,
-    @Body() b: Record<string, unknown>,
+    @Body() b: UpdateTaskDto,
   ) {
     return this.service.taskAktualisieren(id, b);
   }

@@ -11,6 +11,14 @@ import {
 import type { Response } from 'express';
 import { PdfService } from './pdf.service';
 import { Public } from '../auth/decorators/public.decorator';
+import {
+  CreateAngebotPdfDto,
+  CreateEuerPdfDto,
+  CreateHausmeisterEinsatzPdfDto,
+  CreateHausmeisterMonatsnachweisPdfDto,
+  CreateMitarbeiterAbrechnungPdfDto,
+  CreateRechnungPdfDto,
+} from './dto/pdf.dto';
 
 @Controller('api/pdf')
 export class PdfController {
@@ -18,30 +26,30 @@ export class PdfController {
 
   // ── Neue JSON-basierte Endpunkte ─────────────────────────────────────────────
   @Post('rechnung')
-  async createRechnungPdf(@Body() body: { rechnung_id: number }) {
+  async createRechnungPdf(@Body() body: CreateRechnungPdfDto) {
     return this.service.createRechnungPdf(body.rechnung_id);
   }
 
   @Post('angebot')
-  async createAngebotPdf(@Body() body: { angebot_id: number }) {
+  async createAngebotPdf(@Body() body: CreateAngebotPdfDto) {
     return this.service.createAngebotPdf(body.angebot_id);
   }
 
   @Post('euer')
-  async createEuerPdf(
-    @Body() body: { jahr: number; ergebnis: Record<string, unknown> },
-  ) {
+  async createEuerPdf(@Body() body: CreateEuerPdfDto) {
     return this.service.createEuerPdf(body.jahr, body.ergebnis);
   }
 
   @Post('hausmeister/einsatz')
-  async createHausmeisterEinsatzPdf(@Body() body: { einsatz_id: number }) {
+  async createHausmeisterEinsatzPdf(
+    @Body() body: CreateHausmeisterEinsatzPdfDto,
+  ) {
     return this.service.createHausmeisterEinsatzPdf(body.einsatz_id);
   }
 
   @Post('hausmeister/monat')
   async createHausmeisterMonatsnachweisPdf(
-    @Body() body: { monat: string; mitarbeiter_name?: string },
+    @Body() body: CreateHausmeisterMonatsnachweisPdfDto,
   ) {
     return this.service.createHausmeisterMonatsnachweisPdf(
       body.monat,
@@ -51,7 +59,7 @@ export class PdfController {
 
   @Post('mitarbeiter/abrechnung')
   async createMitarbeiterAbrechnungPdf(
-    @Body() body: { mitarbeiter_id: number },
+    @Body() body: CreateMitarbeiterAbrechnungPdfDto,
   ) {
     return this.service.createMitarbeiterAbrechnungPdf(body.mitarbeiter_id);
   }

@@ -13,7 +13,7 @@ export class EuerPdfGenerator {
 
   async create(
     jahr: number,
-    ergebnis: Record<string, unknown>,
+    ergebnis: object,
   ): Promise<{ token: string; url: string }> {
     const firma = await this.render.loadFirma();
     const now = new Date().toLocaleString('de-DE', {

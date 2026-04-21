@@ -2,6 +2,11 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import {
+  CreateTaskDto,
+  TaskReorderUpdateDto,
+  UpdateTaskDto,
+} from './dto/task.dto';
 
 @Injectable()
 export class TasksService {
@@ -31,40 +36,40 @@ export class TasksService {
     };
   }
 
-  async taskErstellen(d: Record<string, unknown>) {
+  async taskErstellen(d: CreateTaskDto) {
     const maxPos = await this.prisma.tasks.aggregate({
-      where: { status: String(d['status'] ?? 'todo') },
+      where: { status: d.status ?? 'todo' },
       _max: { position: true },
     });
     const t = await this.prisma.tasks.create({
       data: {
-        titel: String(d['titel'] ?? ''),
-        beschreibung: d['beschreibung'] ? String(d['beschreibung']) : null,
-        datum: d['datum'] ? new Date(String(d['datum'])) : null,
-        bearbeiter: d['bearbeiter'] ? String(d['bearbeiter']) : null,
-        kategorie: d['kategorie'] ? String(d['kategorie']) : 'Sonstiges',
-        status: String(d['status'] ?? 'todo'),
-        prioritaet: String(d['prioritaet'] ?? 'mittel'),
+        titel: d.titel,
+        beschreibung: d.beschreibung ?? null,
+        datum: d.datum ? new Date(d.datum) : null,
+        bearbeiter: d.bearbeiter ?? null,
+        kategorie: d.kategorie ?? 'Sonstiges',
+        status: d.status ?? 'todo',
+        prioritaet: d.prioritaet ?? 'mittel',
         position: (maxPos._max.position ?? -1) + 1,
       },
     });
     return { ...t, id: Number(t.id) };
   }
 
-  async taskAktualisieren(id: number, d: Record<string, unknown>) {
+  async taskAktualisieren(id: number, d: UpdateTaskDto) {
     if (!(await this.prisma.tasks.findUnique({ where: { id: BigInt(id) } })))
       throw new NotFoundException();
     const t = await this.prisma.tasks.update({
       where: { id: BigInt(id) },
       data: {
-        titel: String(d['titel'] ?? ''),
-        beschreibung: d['beschreibung'] ? String(d['beschreibung']) : null,
-        datum: d['datum'] ? new Date(String(d['datum'])) : null,
-        bearbeiter: d['bearbeiter'] ? String(d['bearbeiter']) : null,
-        kategorie: d['kategorie'] ? String(d['kategorie']) : 'Sonstiges',
-        status: String(d['status'] ?? 'todo'),
-        prioritaet: String(d['prioritaet'] ?? 'mittel'),
-        position: Number(d['position'] ?? 0),
+        titel: d.titel,
+        beschreibung: d.beschreibung ?? null,
+        datum: d.datum ? new Date(d.datum) : null,
+        bearbeiter: d.bearbeiter ?? null,
+        kategorie: d.kategorie ?? 'Sonstiges',
+        status: d.status ?? 'todo',
+        prioritaet: d.prioritaet ?? 'mittel',
+        position: d.position ?? 0,
       },
     });
     return { ...t, id: Number(t.id) };
@@ -77,9 +82,7 @@ export class TasksService {
     return { ok: true };
   }
 
-  async tasksNeuAnordnen(
-    updates: { id: number; status: string; position: number }[],
-  ) {
+  async tasksNeuAnordnen(updates: TaskReorderUpdateDto[]) {
     await this.prisma.$transaction(
       updates.map((u) =>
         this.prisma.tasks.update({
