@@ -38,6 +38,10 @@ export class StempeluhrPage implements OnInit, OnDestroy {
   }
 
   start() {
+    if (!this.mitarbeiterId) {
+      this.meldung.set('Kein Mitarbeiterprofil mit dem Benutzer verknuepft');
+      return;
+    }
     this.laedt.set(true);
     this.stempel.start(this.mitarbeiterId).subscribe({
       next: (s) => {
@@ -54,6 +58,10 @@ export class StempeluhrPage implements OnInit, OnDestroy {
   }
 
   stop() {
+    if (!this.mitarbeiterId) {
+      this.meldung.set('Kein Mitarbeiterprofil mit dem Benutzer verknuepft');
+      return;
+    }
     this.laedt.set(true);
     this.stempel.stop(this.mitarbeiterId).subscribe({
       next: (s) => {

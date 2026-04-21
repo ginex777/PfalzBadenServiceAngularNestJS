@@ -69,7 +69,13 @@ export class AuthService {
       throw new UnauthorizedException('Ungültige Anmeldedaten');
     }
 
-    const tokens = await this._issueTokens(user.id, user.email, user.rolle);
+    const mitarbeiterId = await this._resolveMitarbeiterId(user.id, user.email);
+    const tokens = await this._issueTokens(
+      user.id,
+      user.email,
+      user.rolle,
+      mitarbeiterId,
+    );
 
     await this.audit.log(
       'users',
@@ -89,6 +95,7 @@ export class AuthService {
       email: user.email,
       vorname: user.vorname,
       nachname: user.nachname,
+      mitarbeiterId,
     };
   }
 
@@ -108,7 +115,8 @@ export class AuthService {
     await this.prisma.refreshTokens.delete({
       where: { token_hash: tokenHash },
     });
-    return this._issueTokens(user.id, user.email, user.rolle);
+    const mitarbeiterId = await this._resolveMitarbeiterId(user.id, user.email);
+    return this._issueTokens(user.id, user.email, user.rolle, mitarbeiterId);
   }
 
   async logout(refreshTokenHash: string) {
@@ -118,8 +126,19 @@ export class AuthService {
     return { message: 'Abgemeldet' };
   }
 
-  private async _issueTokens(userId: bigint, email: string, rolle: string) {
-    const payload = { sub: userId.toString(), email, rolle };
+  private async _issueTokens(
+    userId: bigint,
+    email: string,
+    rolle: string,
+    mitarbeiterId: number | null,
+  ) {
+    const payload = {
+      sub: userId.toString(), // legacy compatibility
+      userId: userId.toString(),
+      mitarbeiterId,
+      email,
+      rolle,
+    };
     const accessToken = this.jwt.sign(payload);
 
     const refreshSecret = this.config.getOrThrow<string>('JWT_SECRET');
@@ -140,6 +159,37 @@ export class AuthService {
     });
 
     return { accessToken, refreshToken: refreshRaw };
+  }
+
+  private async _resolveMitarbeiterId(
+    userId: bigint,
+    email: string,
+  ): Promise<number | null> {
+    const linked = await this.prisma.mitarbeiter.findUnique({
+      where: { user_id: userId },
+      select: { id: true },
+    });
+    if (linked) return Number(linked.id);
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) return null;
+
+    const match = await this.prisma.mitarbeiter.findFirst({
+      where: {
+        user_id: null,
+        email: { equals: normalizedEmail, mode: 'insensitive' },
+      },
+      orderBy: { id: 'asc' },
+      select: { id: true },
+    });
+    if (!match) return null;
+
+    const updated = await this.prisma.mitarbeiter.update({
+      where: { id: match.id },
+      data: { user_id: userId },
+      select: { id: true },
+    });
+    return Number(updated.id);
   }
 
   async listUsers() {

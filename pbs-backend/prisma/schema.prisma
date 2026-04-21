@@ -217,6 +217,7 @@ model MuellplanPdf {
 
 model Mitarbeiter {
   id          BigInt    @id @default(autoincrement())
+  user_id     BigInt?   @unique
   name        String    @db.VarChar(200)
   rolle       String?   @db.VarChar(100)
   stundenlohn Decimal   @default(0) @db.Decimal(8, 2)
@@ -229,6 +230,7 @@ model Mitarbeiter {
   stunden               MitarbeiterStunden[]
   hausmeister_einsaetze HausmeisterEinsaetze[]
   stempel               Stempel[]
+  user                  Users?                 @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@map("mitarbeiter")
 }
@@ -404,6 +406,7 @@ model Users {
   aktiv         Boolean  @default(true)
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
+  mitarbeiter   Mitarbeiter?
 
   @@map("users")
 }

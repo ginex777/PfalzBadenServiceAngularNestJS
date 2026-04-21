@@ -5,7 +5,9 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../core/database/prisma.service';
 
 export interface JwtPayload {
-  sub: string; // user id as string
+  sub?: string; // legacy user id as string
+  userId?: string;
+  mitarbeiterId?: number | null;
   email: string;
   rolle: string;
 }
@@ -26,8 +28,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
+    const userId = payload.userId ?? payload.sub;
+    if (!userId) throw new UnauthorizedException();
+
     const user = await this.prisma.users.findUnique({
-      where: { id: BigInt(payload.sub) },
+      where: { id: BigInt(userId) },
       select: {
         id: true,
         email: true,
@@ -42,6 +47,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       id: user.id,
       email: user.email,
       rolle: user.rolle,
+      mitarbeiterId: payload.mitarbeiterId ?? null,
       vorname: user.vorname,
       nachname: user.nachname,
       fullName:
