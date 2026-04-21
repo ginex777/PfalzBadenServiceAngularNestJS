@@ -4,6 +4,18 @@
 // Both pbs-webapp and pbs-backend import from here.
 // ============================================================
 
+export interface PaginationQuery {
+  page?: number;
+  pageSize?: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface Kunde {
   id: number;
   name: string;

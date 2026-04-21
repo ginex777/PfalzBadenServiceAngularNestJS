@@ -52,7 +52,7 @@ describe('RechnungenService', () => {
       };
       mockPrisma.$transaction.mockResolvedValue([[row], 1]);
 
-      const result = await service.findAll({ page: 1, limit: 100 });
+      const result = await service.findAll({ page: 1, pageSize: 100 });
 
       expect(result.data).toHaveLength(1);
       expect(result.data[0].id).toBe(1); // BigInt → Number
@@ -62,7 +62,7 @@ describe('RechnungenService', () => {
 
     it('gibt leere Liste zurück wenn keine Rechnungen', async () => {
       mockPrisma.$transaction.mockResolvedValue([[], 0]);
-      const result = await service.findAll({ page: 1, limit: 100 });
+      const result = await service.findAll({ page: 1, pageSize: 100 });
       expect(result.data).toEqual([]);
       expect(result.total).toBe(0);
     });

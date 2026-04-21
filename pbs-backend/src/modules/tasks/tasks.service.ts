@@ -17,13 +17,13 @@ export class TasksService {
   async alleTasksLaden(
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<Record<string, unknown>>> {
-    const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.tasks.findMany({
         orderBy: [{ status: 'asc' }, { position: 'asc' }, { id: 'asc' }],
         skip,
-        take: limit,
+        take: pageSize,
       }),
       this.prisma.tasks.count(),
     ]);
@@ -31,8 +31,7 @@ export class TasksService {
       data: rows.map((t) => ({ ...t, id: Number(t.id) })),
       total,
       page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      pageSize,
     };
   }
 

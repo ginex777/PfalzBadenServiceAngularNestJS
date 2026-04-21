@@ -30,6 +30,7 @@ import {
   BackupInfo,
   SettingsKey,
   Vertrag,
+  PaginatedResponse,
 } from '../models';
 
 export interface DatevValidierungsMeldung {
@@ -58,14 +59,6 @@ export interface DatevVorschauAntwort {
     zahllast: number;
   };
   warnings?: DatevValidierungsMeldung[];
-}
-
-interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
 }
 
 export interface SmtpSettings {
@@ -115,7 +108,7 @@ export class ApiService {
 
   // ── Kunden ──────────────────────────────────────────────────────────────
   loadCustomers(): Observable<Kunde[]> {
-    const params = new HttpParams().set('limit', '1000');
+    const params = new HttpParams().set('pageSize', '1000');
     return this.http
       .get<PaginatedResponse<Kunde>>(`${this.basis}/kunden`, { params })
       .pipe(map((r) => r.data));
@@ -132,7 +125,7 @@ export class ApiService {
 
   // ── Rechnungen ──────────────────────────────────────────────────────────
   loadInvoices(): Observable<Rechnung[]> {
-    const params = new HttpParams().set('limit', '1000');
+    const params = new HttpParams().set('pageSize', '1000');
     return this.http
       .get<PaginatedResponse<Rechnung>>(`${this.basis}/rechnungen`, { params })
       .pipe(map((r) => r.data));
@@ -149,7 +142,7 @@ export class ApiService {
 
   // ── Angebote ────────────────────────────────────────────────────────────
   loadOffers(): Observable<Angebot[]> {
-    const params = new HttpParams().set('limit', '1000');
+    const params = new HttpParams().set('pageSize', '1000');
     return this.http
       .get<PaginatedResponse<Angebot>>(`${this.basis}/angebote`, { params })
       .pipe(map((r) => r.data));
@@ -213,7 +206,7 @@ export class ApiService {
 
   // ── Marketing ───────────────────────────────────────────────────────────
   loadMarketingContacts(): Observable<MarketingKontakt[]> {
-    const params = new HttpParams().set('limit', '1000');
+    const params = new HttpParams().set('pageSize', '1000');
     return this.http
       .get<PaginatedResponse<MarketingKontakt>>(`${this.basis}/marketing`, { params })
       .pipe(map((r) => r.data));
@@ -233,7 +226,7 @@ export class ApiService {
 
   // ── Mitarbeiter ─────────────────────────────────────────────────────────
   loadEmployees(): Observable<Mitarbeiter[]> {
-    const params = new HttpParams().set('limit', '1000');
+    const params = new HttpParams().set('pageSize', '1000');
     return this.http
       .get<PaginatedResponse<Mitarbeiter>>(`${this.basis}/mitarbeiter`, { params })
       .pipe(map((r) => r.data));
@@ -362,7 +355,7 @@ export class ApiService {
 
   // ── Hausmeister ─────────────────────────────────────────────────────────
   loadServiceAssignments(): Observable<HausmeisterEinsatz[]> {
-    const params = new HttpParams().set('limit', '1000');
+    const params = new HttpParams().set('pageSize', '1000');
     return this.http
       .get<PaginatedResponse<HausmeisterEinsatz>>(`${this.basis}/hausmeister`, { params })
       .pipe(map((r) => r.data));
@@ -382,7 +375,7 @@ export class ApiService {
 
   // ── Tasks (Kanban) ──────────────────────────────────────────────────────
   loadTasks(): Observable<Task[]> {
-    const params = new HttpParams().set('limit', '1000');
+    const params = new HttpParams().set('pageSize', '1000');
     return this.http
       .get<PaginatedResponse<Task>>(`${this.basis}/tasks`, { params })
       .pipe(map((r) => r.data));
@@ -402,7 +395,7 @@ export class ApiService {
 
   // ── Belege ──────────────────────────────────────────────────────────────
   loadReceipts(jahr?: number): Observable<Beleg[]> {
-    let params = new HttpParams().set('limit', '1000');
+    let params = new HttpParams().set('pageSize', '1000');
     if (jahr) params = params.set('jahr', jahr);
     return this.http
       .get<PaginatedResponse<Beleg>>(`${this.basis}/belege`, { params })
@@ -448,13 +441,13 @@ export class ApiService {
 
   // ── Audit-Log ───────────────────────────────────────────────────────────
   loadAuditLogAll(): Observable<AuditLogEntry[]> {
-    const params = new HttpParams().set('limit', '1000');
+    const params = new HttpParams().set('pageSize', '1000');
     return this.http
       .get<PaginatedResponse<AuditLogEntry>>(`${this.basis}/audit/all`, { params })
       .pipe(map((r) => r.data));
   }
   loadAuditLogForTable(tabelle: string): Observable<AuditLogEntry[]> {
-    const params = new HttpParams().set('limit', '1000');
+    const params = new HttpParams().set('pageSize', '1000');
     return this.http
       .get<PaginatedResponse<AuditLogEntry>>(`${this.basis}/audit/${tabelle}/all`, { params })
       .pipe(map((r) => r.data));
@@ -575,7 +568,7 @@ export class ApiService {
 
   // ── Verträge ────────────────────────────────────────────────────────────
   loadContracts(kundenId?: number): Observable<Vertrag[]> {
-    let params = new HttpParams().set('limit', '1000');
+    let params = new HttpParams().set('pageSize', '1000');
     if (kundenId) params = params.set('kunden_id', kundenId);
     return this.http
       .get<PaginatedResponse<Vertrag>>(`${this.basis}/vertraege`, { params })

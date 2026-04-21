@@ -48,7 +48,7 @@ describe('AngeboteService', () => {
       };
       mockPrisma.$transaction.mockResolvedValue([[row], 1]);
 
-      const result = await service.findAll({ page: 1, limit: 100 });
+      const result = await service.findAll({ page: 1, pageSize: 100 });
 
       expect(result.data[0].id).toBe(5);
       expect(result.data[0].brutto).toBe(200);

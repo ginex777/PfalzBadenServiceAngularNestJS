@@ -8,13 +8,13 @@ export class AuditController {
 
   @Get('all')
   async findAll(@Query() pagination: PaginationDto) {
-    const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.auditLog.findMany({
         orderBy: { zeitstempel: 'desc' },
         skip,
-        take: limit,
+        take: pageSize,
       }),
       this.prisma.auditLog.count(),
     ]);
@@ -26,8 +26,7 @@ export class AuditController {
       })),
       total,
       page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      pageSize,
     };
   }
 
@@ -36,15 +35,15 @@ export class AuditController {
     @Param('tabelle') tabelle: string,
     @Query() pagination: PaginationDto,
   ) {
-    const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
     const where = { tabelle };
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.auditLog.findMany({
         where,
         orderBy: { zeitstempel: 'desc' },
         skip,
-        take: limit,
+        take: pageSize,
       }),
       this.prisma.auditLog.count({ where }),
     ]);
@@ -56,8 +55,7 @@ export class AuditController {
       })),
       total,
       page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      pageSize,
     };
   }
 

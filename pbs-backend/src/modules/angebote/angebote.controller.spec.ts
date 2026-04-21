@@ -31,10 +31,9 @@ describe('AngeboteController', () => {
       data: [],
       total: 0,
       page: 1,
-      limit: 100,
-      totalPages: 0,
+      pageSize: 100,
     });
-    await controller.findAll({ page: 1, limit: 100 });
+    await controller.findAll({ page: 1, pageSize: 100 });
     expect(mockService.findAll).toHaveBeenCalledTimes(1);
   });
 });

@@ -22,13 +22,13 @@ export class KundenService {
   async findAll(
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<Record<string, unknown>>> {
-    const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.kunden.findMany({
         orderBy: { name: 'asc' },
         skip,
-        take: limit,
+        take: pageSize,
       }),
       this.prisma.kunden.count(),
     ]);
@@ -36,8 +36,7 @@ export class KundenService {
       data: rows.map((r) => ({ ...r, id: Number(r.id) })),
       total,
       page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      pageSize,
     };
   }
 

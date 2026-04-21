@@ -18,13 +18,13 @@ export class AngeboteService {
   async findAll(
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<ReturnType<AngeboteService['mapAngebot']>>> {
-    const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.angebote.findMany({
         orderBy: [{ datum: 'desc' }, { id: 'desc' }],
         skip,
-        take: limit,
+        take: pageSize,
       }),
       this.prisma.angebote.count(),
     ]);
@@ -32,8 +32,7 @@ export class AngeboteService {
       data: rows.map((r) => this.mapAngebot(r)),
       total,
       page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      pageSize,
     };
   }
 

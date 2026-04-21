@@ -32,11 +32,10 @@ describe('KundenController', () => {
         data: [{ id: 1, name: 'Test' }],
         total: 1,
         page: 1,
-        limit: 100,
-        totalPages: 1,
+        pageSize: 100,
       };
       mockService.findAll.mockResolvedValue(kunden);
-      const result = await controller.findAll({ page: 1, limit: 100 });
+      const result = await controller.findAll({ page: 1, pageSize: 100 });
       expect(result).toBe(kunden);
     });
   });

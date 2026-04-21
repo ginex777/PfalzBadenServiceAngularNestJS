@@ -19,15 +19,15 @@ export class VertraegeService {
     pagination: PaginationDto,
     kundenId?: number,
   ): Promise<PaginatedResponse<ReturnType<VertraegeService['_map']>>> {
-    const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
     const where = kundenId ? { kunden_id: BigInt(kundenId) } : undefined;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.vertraege.findMany({
         where,
         orderBy: { created_at: 'desc' },
         skip,
-        take: limit,
+        take: pageSize,
       }),
       this.prisma.vertraege.count({ where }),
     ]);
@@ -35,8 +35,7 @@ export class VertraegeService {
       data: rows.map((v) => this._map(v)),
       total,
       page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      pageSize,
     };
   }
 

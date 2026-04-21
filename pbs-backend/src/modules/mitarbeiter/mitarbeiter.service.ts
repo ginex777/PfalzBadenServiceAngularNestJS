@@ -20,13 +20,13 @@ export class MitarbeiterService {
   async alleMitarbeiterLaden(
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<Record<string, unknown>>> {
-    const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.mitarbeiter.findMany({
         orderBy: { name: 'asc' },
         skip,
-        take: limit,
+        take: pageSize,
       }),
       this.prisma.mitarbeiter.count(),
     ]);
@@ -38,8 +38,7 @@ export class MitarbeiterService {
       })),
       total,
       page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      pageSize,
     };
   }
 

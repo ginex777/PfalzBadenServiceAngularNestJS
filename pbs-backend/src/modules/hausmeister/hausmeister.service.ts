@@ -17,13 +17,13 @@ export class HausmeisterService {
   async alleEinsaetzeLaden(
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<Record<string, unknown>>> {
-    const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.hausmeisterEinsaetze.findMany({
         orderBy: { datum: 'desc' },
         skip,
-        take: limit,
+        take: pageSize,
       }),
       this.prisma.hausmeisterEinsaetze.count(),
     ]);
@@ -31,8 +31,7 @@ export class HausmeisterService {
       data: rows.map((e) => this.mapEinsatz(e)),
       total,
       page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      pageSize,
     };
   }
 

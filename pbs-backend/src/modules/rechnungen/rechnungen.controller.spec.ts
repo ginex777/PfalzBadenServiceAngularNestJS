@@ -35,12 +35,11 @@ describe('RechnungenController', () => {
         ],
         total: 1,
         page: 1,
-        limit: 100,
-        totalPages: 1,
+        pageSize: 100,
       };
       mockService.findAll.mockResolvedValue(rechnungen);
 
-      const result = await controller.findAll({ page: 1, limit: 100 });
+      const result = await controller.findAll({ page: 1, pageSize: 100 });
 
       expect(result).toBe(rechnungen);
       expect(mockService.findAll).toHaveBeenCalledTimes(1);

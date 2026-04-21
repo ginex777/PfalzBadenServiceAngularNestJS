@@ -36,8 +36,8 @@ export class BelegeService {
     pagination: PaginationDto,
     jahr?: number,
   ): Promise<PaginatedResponse<BelegListItem>> {
-    const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
     const where = jahr ? { buchhaltung: { jahr } } : undefined;
     const include = {
       buchhaltung: { select: { name: true, brutto: true, kategorie: true } },
@@ -48,7 +48,7 @@ export class BelegeService {
         include,
         orderBy: { erstellt_am: 'desc' },
         skip,
-        take: limit,
+        take: pageSize,
       }),
       this.prisma.belege.count({ where }),
     ]);
@@ -72,8 +72,7 @@ export class BelegeService {
       })),
       total,
       page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      pageSize,
     };
   }
 
