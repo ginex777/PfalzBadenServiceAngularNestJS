@@ -260,7 +260,7 @@ export class ApiService {
 
   // ── Objekte ─────────────────────────────────────────────────────────────
   loadObjects(): Observable<Objekt[]> {
-    return this.http.get<Objekt[]>(`${this.basis}/objekte`);
+    return this.http.get<Objekt[]>(`${this.basis}/objekte/all`);
   }
   createObject(daten: Partial<Objekt>): Observable<Objekt> {
     return this.http.post<Objekt>(`${this.basis}/objekte`, daten);
@@ -292,7 +292,7 @@ export class ApiService {
 
   // ── Müllplan-Vorlagen ───────────────────────────────────────────────────
   loadGarbageTemplates(): Observable<MuellplanVorlage[]> {
-    return this.http.get<MuellplanVorlage[]>(`${this.basis}/muellplan-vorlagen`);
+    return this.http.get<MuellplanVorlage[]>(`${this.basis}/muellplan-vorlagen/all`);
   }
   loadGarbageTemplate(id: number): Observable<MuellplanVorlage> {
     return this.http.get<MuellplanVorlage>(`${this.basis}/muellplan-vorlagen/${id}`);
@@ -398,6 +398,26 @@ export class ApiService {
   }
 
   // ── Audit-Log ───────────────────────────────────────────────────────────
+  loadAuditLogTables(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.basis}/audit/tables`);
+  }
+
+  loadAuditLogPage(query: {
+    page: number;
+    pageSize: number;
+    q?: string;
+    aktion?: string;
+    tabelle?: string;
+  }): Observable<PaginatedResponse<AuditLogEntry>> {
+    let params = new HttpParams()
+      .set('page', String(query.page))
+      .set('pageSize', String(query.pageSize));
+    if (query.q) params = params.set('q', query.q);
+    if (query.aktion) params = params.set('aktion', query.aktion);
+    if (query.tabelle) params = params.set('tabelle', query.tabelle);
+    return this.http.get<PaginatedResponse<AuditLogEntry>>(`${this.basis}/audit/all`, { params });
+  }
+
   loadAuditLogAll(): Observable<AuditLogEntry[]> {
     const params = new HttpParams().set('pageSize', '1000');
     return this.http
@@ -432,7 +452,10 @@ export class ApiService {
 
   // ── Wiederkehrende Ausgaben ─────────────────────────────────────────────
   loadRecurringExpenses(): Observable<WiederkehrendeAusgabe[]> {
-    return this.http.get<WiederkehrendeAusgabe[]>(`${this.basis}/wiederkehrend`);
+    const params = new HttpParams().set('pageSize', '1000');
+    return this.http
+      .get<PaginatedResponse<WiederkehrendeAusgabe>>(`${this.basis}/wiederkehrend`, { params })
+      .pipe(map((r) => r.data));
   }
   createRecurringExpense(daten: Partial<WiederkehrendeAusgabe>): Observable<WiederkehrendeAusgabe> {
     return this.http.post<WiederkehrendeAusgabe>(`${this.basis}/wiederkehrend`, daten);
@@ -449,7 +472,12 @@ export class ApiService {
 
   // ── Wiederkehrende Rechnungen ───────────────────────────────────────────
   loadRecurringInvoices(): Observable<WiederkehrendeRechnung[]> {
-    return this.http.get<WiederkehrendeRechnung[]>(`${this.basis}/wiederkehrend-rechnungen`);
+    const params = new HttpParams().set('pageSize', '1000');
+    return this.http
+      .get<PaginatedResponse<WiederkehrendeRechnung>>(`${this.basis}/wiederkehrend-rechnungen`, {
+        params,
+      })
+      .pipe(map((r) => r.data));
   }
   createRecurringInvoice(
     daten: Partial<WiederkehrendeRechnung>,
@@ -520,8 +548,22 @@ export class ApiService {
       { mitarbeiter_id: mitarbeiterId },
     );
   }
+  loadPdfArchivePage(query?: {
+    page?: number;
+    pageSize?: number;
+    q?: string;
+    typ?: string;
+  }): Observable<PaginatedResponse<PdfArchiveEntry>> {
+    let params = new HttpParams()
+      .set('page', String(query?.page ?? 1))
+      .set('pageSize', String(query?.pageSize ?? 50));
+    if (query?.q) params = params.set('q', query.q);
+    if (query?.typ) params = params.set('typ', query.typ);
+    return this.http.get<PaginatedResponse<PdfArchiveEntry>>(`${this.basis}/pdf/archiv`, { params });
+  }
+
   loadPdfArchive(): Observable<PdfArchiveEntry[]> {
-    return this.http.get<PdfArchiveEntry[]>(`${this.basis}/pdf/archiv`);
+    return this.loadPdfArchivePage({ pageSize: 1000 }).pipe(map((r) => r.data));
   }
 
   // ── Verträge ────────────────────────────────────────────────────────────

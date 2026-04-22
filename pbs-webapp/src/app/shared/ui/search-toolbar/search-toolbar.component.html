@@ -16,20 +16,20 @@
     <input
       class="search-toolbar__input"
       type="search"
-      [placeholder]="platzhalter()"
-      [value]="suchbegriff()"
-      (input)="eingabeGeaendert($event)"
+      [placeholder]="placeholder()"
+      [value]="searchTerm()"
+      (input)="onInputChanged($event)"
       aria-label="Suche"
     />
   </div>
-  @if (aktionLabel()) {
+  @if (actionLabel()) {
     <button
       class="btn btn--primary"
-      *roleAllowed="aktionRollen()"
-      (click)="aktionAusfuehren()"
-      [disabled]="aktionDeaktiviert()"
+      *roleAllowed="actionRoles()"
+      (click)="triggerAction()"
+      [disabled]="actionDisabled()"
     >
-      {{ aktionLabel() }}
+      {{ actionLabel() }}
     </button>
   }
 </div>

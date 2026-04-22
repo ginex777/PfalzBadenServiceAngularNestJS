@@ -34,10 +34,12 @@ export class VertraegeController {
   findAll(
     @Query() pagination: PaginationDto,
     @Query('kunden_id') kundenId?: string,
+    @Query('q') q?: string,
   ) {
     return this.service.findAll(
       pagination,
       kundenId ? Number(kundenId) : undefined,
+      q,
     );
   }
 

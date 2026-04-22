@@ -35,10 +35,38 @@ export class BelegeService {
   async belegeLaden(
     pagination: PaginationDto,
     jahr?: number,
+    filter?: { q?: string; typ?: string },
   ): Promise<PaginatedResponse<BelegListItem>> {
     const { page, pageSize } = pagination;
     const skip = (page - 1) * pageSize;
-    const where = jahr ? { buchhaltung: { jahr } } : undefined;
+    const query = filter?.q?.trim();
+    const typ = filter?.typ?.trim();
+
+    const where =
+      jahr || typ || query
+        ? {
+            AND: [
+              jahr ? { buchhaltung: { jahr } } : {},
+              typ ? { typ } : {},
+              query
+                ? {
+                    OR: [
+                      { filename: { contains: query, mode: 'insensitive' as const } },
+                      { notiz: { contains: query, mode: 'insensitive' as const } },
+                      {
+                        buchhaltung: {
+                          OR: [
+                            { name: { contains: query, mode: 'insensitive' as const } },
+                            { kategorie: { contains: query, mode: 'insensitive' as const } },
+                          ],
+                        },
+                      },
+                    ],
+                  }
+                : {},
+            ],
+          }
+        : undefined;
     const include = {
       buchhaltung: { select: { name: true, brutto: true, kategorie: true } },
     } as const;
@@ -100,6 +128,8 @@ export class BelegeService {
   async belegeFuerBuchung(buchungId: number) {
     const rows = await this.prisma.belege.findMany({
       where: { buchhaltung_id: BigInt(buchungId) },
+      orderBy: { erstellt_am: 'desc' },
+      take: 1000,
     });
     return rows.map((b) => {
       const { data: _, ...rest } = b;

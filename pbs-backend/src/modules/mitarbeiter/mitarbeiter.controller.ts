@@ -26,8 +26,12 @@ export class MitarbeiterController {
   constructor(private readonly service: MitarbeiterService) {}
   @Get()
   @Roles('admin')
-  alleMitarbeiterLaden(@Query() pagination: PaginationDto) {
-    return this.service.alleMitarbeiterLaden(pagination);
+  alleMitarbeiterLaden(
+    @Query() pagination: PaginationDto,
+    @Query('q') q?: string,
+    @Query('aktiv') aktiv?: string,
+  ) {
+    return this.service.alleMitarbeiterLaden(pagination, { q, aktiv });
   }
   @Post()
   @Roles('admin')

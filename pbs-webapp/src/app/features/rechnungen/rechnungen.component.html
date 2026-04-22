@@ -30,11 +30,11 @@
 
   <div class="card">
     <app-search-toolbar
-      platzhalter="Rechnung suchen…"
-      aktionLabel="+ Neue Rechnung"
-      [aktionRollen]="['admin']"
-      [(suchbegriff)]="facade.suchbegriff"
-      (aktion)="onNeueRechnung()"
+      placeholder="Rechnung suchen…"
+      actionLabel="+ Neue Rechnung"
+      [actionRoles]="['admin']"
+      [(searchTerm)]="facade.suchbegriff"
+      (action)="onNeueRechnung()"
     />
 
     <app-rechnungen-tabelle

@@ -9,6 +9,8 @@ import { EuerPdfGenerator } from './generators/euer-pdf.generator';
 import { HausmeisterPdfGenerator } from './generators/hausmeister-pdf.generator';
 import { MitarbeiterPdfGenerator } from './generators/mitarbeiter-pdf.generator';
 import { VertragPdfGenerator } from './generators/vertrag-pdf.generator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class PdfService {
@@ -57,27 +59,78 @@ export class PdfService {
   }
 
   // ── Archiv ──────────────────────────────────────────────────────────────────
-  async getArchive() {
-    const rows = await this.prisma.pdfArchive.findMany({
-      select: {
-        id: true,
-        typ: true,
-        referenz_nr: true,
-        referenz_id: true,
-        empf: true,
-        titel: true,
-        datum: true,
-        filename: true,
-        erstellt_am: true,
-      },
-      orderBy: { erstellt_am: 'desc' },
-      take: 200,
-    });
-    return rows.map((r) => ({
-      ...r,
-      id: Number(r.id),
-      referenz_id: r.referenz_id ? Number(r.referenz_id) : null,
-    }));
+  async getArchive(
+    pagination: PaginationDto,
+    filter?: { q?: string; typ?: string },
+  ): Promise<
+    PaginatedResponse<{
+      id: number;
+      typ: string;
+      referenz_nr: string;
+      referenz_id: number | null;
+      empf: string | null;
+      titel: string | null;
+      datum: Date | null;
+      filename: string;
+      erstellt_am: Date;
+    }>
+  > {
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
+    const q = filter?.q?.trim();
+    const typ = filter?.typ?.trim();
+    const where =
+      q || typ
+        ? {
+            AND: [
+              typ ? { typ } : {},
+              q
+                ? {
+                    OR: [
+                      { referenz_nr: { contains: q, mode: 'insensitive' as const } },
+                      { empf: { contains: q, mode: 'insensitive' as const } },
+                      { titel: { contains: q, mode: 'insensitive' as const } },
+                      { filename: { contains: q, mode: 'insensitive' as const } },
+                    ],
+                  }
+                : {},
+            ],
+          }
+        : undefined;
+
+    const select = {
+      id: true,
+      typ: true,
+      referenz_nr: true,
+      referenz_id: true,
+      empf: true,
+      titel: true,
+      datum: true,
+      filename: true,
+      erstellt_am: true,
+    } as const;
+
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.pdfArchive.findMany({
+        where,
+        select,
+        orderBy: { erstellt_am: 'desc' },
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.pdfArchive.count({ where }),
+    ]);
+
+    return {
+      data: rows.map((r) => ({
+        ...r,
+        id: Number(r.id),
+        referenz_id: r.referenz_id ? Number(r.referenz_id) : null,
+      })),
+      total,
+      page,
+      pageSize,
+    };
   }
 
   async regenerateArchive(id: number): Promise<Buffer> {

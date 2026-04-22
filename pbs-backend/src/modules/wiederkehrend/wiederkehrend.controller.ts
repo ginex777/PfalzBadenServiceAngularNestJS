@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { WiederkehrendService } from './wiederkehrend.service';
 import {
@@ -16,13 +17,14 @@ import {
   UpdateWiederkehrendeRechnungDto,
 } from './dto/wiederkehrend.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Roles('admin', 'readonly')
 @Controller('api')
 export class WiederkehrendController {
   constructor(private readonly service: WiederkehrendService) {}
-  @Get('wiederkehrend') ausgabenLaden() {
-    return this.service.ausgabenLaden();
+  @Get('wiederkehrend') ausgabenLaden(@Query() pagination: PaginationDto) {
+    return this.service.ausgabenLaden(pagination);
   }
   @Post('wiederkehrend') ausgabeErstellen(
     @Body() b: CreateWiederkehrendeAusgabeDto,
@@ -40,8 +42,10 @@ export class WiederkehrendController {
   ) {
     return this.service.ausgabeLoeschen(id);
   }
-  @Get('wiederkehrend-rechnungen') rechnungenLaden() {
-    return this.service.rechnungenLaden();
+  @Get('wiederkehrend-rechnungen') rechnungenLaden(
+    @Query() pagination: PaginationDto,
+  ) {
+    return this.service.rechnungenLaden(pagination);
   }
   @Post('wiederkehrend-rechnungen') rechnungErstellen(
     @Body() b: CreateWiederkehrendeRechnungDto,

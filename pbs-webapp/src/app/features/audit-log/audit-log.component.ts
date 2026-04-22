@@ -1,20 +1,24 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuditLogFacade } from './audit-log.facade';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
 import { SkeletonRowsComponent } from '../../shared/ui/skeleton-rows/skeleton-rows.component';
+import { PaginierungComponent } from '../../shared/ui/paginierung/paginierung.component';
 import { AuditAktion, AKTION_LABELS, AKTION_KLASSEN, TABELLEN_LABELS } from './audit-log.models';
 
 @Component({
   selector: 'app-audit-log',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PageTitleComponent, EmptyStateComponent, SkeletonRowsComponent],
+  imports: [PageTitleComponent, EmptyStateComponent, SkeletonRowsComponent, PaginierungComponent],
   templateUrl: './audit-log.component.html',
   styleUrl: './audit-log.component.scss',
 })
 export class AuditLogComponent implements OnInit {
   protected readonly facade = inject(AuditLogFacade);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   protected readonly aktionLabels = AKTION_LABELS;
   protected readonly aktionKlassen = AKTION_KLASSEN;
   protected readonly tabellenLabels = TABELLEN_LABELS;
@@ -27,19 +31,47 @@ export class AuditLogComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.facade.ladeDaten();
+    this.facade.init();
+    this.route.queryParams.subscribe((params) => {
+      const page = params['page'] ? Number(params['page']) : 1;
+      const pageSize = params['pageSize'] ? Number(params['pageSize']) : 25;
+      const q = (params['q'] ?? '') as string;
+      const aktion = (params['aktion'] ?? 'alle') as AuditAktion;
+      const tabelle = (params['tabelle'] ?? '') as string;
+      this.facade.applyQuery({
+        page: Number.isFinite(page) ? page : 1,
+        pageSize: Number.isFinite(pageSize) ? pageSize : 25,
+        q,
+        aktion,
+        tabelle,
+      });
+    });
   }
 
-  protected suchbegriffGeaendert(event: Event): void {
-    this.facade.suchbegriffAktualisieren((event.target as HTMLInputElement).value);
+  protected onSearchTermChange(event: Event): void {
+    const q = (event.target as HTMLInputElement).value;
+    this.router.navigate([], { queryParams: { q: q || null, page: 1 }, queryParamsHandling: 'merge' });
   }
 
-  protected aktionFilterGeaendert(event: Event): void {
-    this.facade.filterSetzen((event.target as HTMLSelectElement).value as AuditAktion);
+  protected onActionChange(event: Event): void {
+    const aktion = (event.target as HTMLSelectElement).value as AuditAktion;
+    this.router.navigate([], {
+      queryParams: { aktion: aktion === 'alle' ? null : aktion, page: 1 },
+      queryParamsHandling: 'merge',
+    });
   }
 
-  protected tabelleFilterGeaendert(event: Event): void {
-    this.facade.tabelleFilterSetzen((event.target as HTMLSelectElement).value);
+  protected onTableChange(event: Event): void {
+    const tabelle = (event.target as HTMLSelectElement).value;
+    this.router.navigate([], { queryParams: { tabelle: tabelle || null, page: 1 }, queryParamsHandling: 'merge' });
+  }
+
+  protected onPageChange(page: number): void {
+    this.router.navigate([], { queryParams: { page }, queryParamsHandling: 'merge' });
+  }
+
+  protected onPageSizeChange(pageSize: number): void {
+    this.router.navigate([], { queryParams: { pageSize, page: 1 }, queryParamsHandling: 'merge' });
   }
 
   protected zeitstempelFormatieren(ts: string): string {

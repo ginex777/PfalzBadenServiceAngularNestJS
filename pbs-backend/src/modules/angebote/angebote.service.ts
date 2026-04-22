@@ -17,16 +17,49 @@ export class AngeboteService {
 
   async findAll(
     pagination: PaginationDto,
+    filter?: { q?: string; status?: string },
   ): Promise<PaginatedResponse<ReturnType<AngeboteService['mapAngebot']>>> {
     const { page, pageSize } = pagination;
     const skip = (page - 1) * pageSize;
+    const query = filter?.q?.trim();
+    const status = filter?.status?.trim();
+
+    const statusWhere =
+      status === 'offen'
+        ? { angenommen: false, abgelehnt: false }
+        : status === 'angenommen'
+          ? { angenommen: true }
+          : status === 'abgelehnt'
+            ? { abgelehnt: true }
+            : status === 'gesendet'
+              ? { gesendet: true }
+              : undefined;
+
+    const queryWhere =
+      query && query.length > 0
+        ? {
+            OR: [
+              { nr: { contains: query, mode: 'insensitive' as const } },
+              { empf: { contains: query, mode: 'insensitive' as const } },
+              { titel: { contains: query, mode: 'insensitive' as const } },
+            ],
+          }
+        : undefined;
+
+    const where =
+      statusWhere || queryWhere
+        ? {
+            AND: [statusWhere ?? {}, queryWhere ?? {}],
+          }
+        : undefined;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.angebote.findMany({
+        where,
         orderBy: [{ datum: 'desc' }, { id: 'desc' }],
         skip,
         take: pageSize,
       }),
-      this.prisma.angebote.count(),
+      this.prisma.angebote.count({ where }),
     ]);
     return {
       data: rows.map((r) => this.mapAngebot(r)),

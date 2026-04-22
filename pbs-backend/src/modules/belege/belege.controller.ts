@@ -26,10 +26,13 @@ export class BelegeController {
   @Get() belegeLaden(
     @Query() pagination: PaginationDto,
     @Query('jahr') jahr?: string,
+    @Query('q') q?: string,
+    @Query('typ') typ?: string,
   ) {
     return this.service.belegeLaden(
       pagination,
       jahr ? parseInt(jahr) : undefined,
+      { q, typ },
     );
   }
   @Get('buchhaltung/:buchId') belegeFuerBuchung(

@@ -18,10 +18,28 @@ export class VertraegeService {
   async findAll(
     pagination: PaginationDto,
     kundenId?: number,
+    q?: string,
   ): Promise<PaginatedResponse<ReturnType<VertraegeService['_map']>>> {
     const { page, pageSize } = pagination;
     const skip = (page - 1) * pageSize;
-    const where = kundenId ? { kunden_id: BigInt(kundenId) } : undefined;
+    const query = q?.trim();
+    const where =
+      kundenId || query
+        ? {
+            AND: [
+              kundenId ? { kunden_id: BigInt(kundenId) } : {},
+              query
+                ? {
+                    OR: [
+                      { kunden_name: { contains: query, mode: 'insensitive' as const } },
+                      { titel: { contains: query, mode: 'insensitive' as const } },
+                      { vorlage: { contains: query, mode: 'insensitive' as const } },
+                    ],
+                  }
+                : {},
+            ],
+          }
+        : undefined;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.vertraege.findMany({
         where,

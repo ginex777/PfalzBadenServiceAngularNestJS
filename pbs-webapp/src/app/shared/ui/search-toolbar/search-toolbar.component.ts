@@ -12,18 +12,18 @@ type UserRole = 'admin' | 'readonly' | 'mitarbeiter';
   styleUrl: './search-toolbar.component.scss',
 })
 export class SearchToolbarComponent {
-  readonly platzhalter = input<string>('Suchen…');
-  readonly aktionLabel = input<string>('');
-  readonly aktionDeaktiviert = input<boolean>(false);
-  readonly aktionRollen = input<readonly UserRole[] | null>(null);
-  readonly suchbegriff = model<string>('');
-  readonly aktion = output<void>();
+  readonly placeholder = input<string>('Suchen…');
+  readonly actionLabel = input<string>('');
+  readonly actionDisabled = input<boolean>(false);
+  readonly actionRoles = input<readonly UserRole[] | null>(null);
+  readonly searchTerm = model<string>('');
+  readonly action = output<void>();
 
-  protected eingabeGeaendert(event: Event): void {
-    this.suchbegriff.set((event.target as HTMLInputElement).value);
+  protected onInputChanged(event: Event): void {
+    this.searchTerm.set((event.target as HTMLInputElement).value);
   }
 
-  protected aktionAusfuehren(): void {
-    this.aktion.emit();
+  protected triggerAction(): void {
+    this.action.emit();
   }
 }

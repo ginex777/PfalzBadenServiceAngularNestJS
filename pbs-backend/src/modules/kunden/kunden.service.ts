@@ -21,16 +21,29 @@ export class KundenService {
 
   async findAll(
     pagination: PaginationDto,
+    q?: string,
   ): Promise<PaginatedResponse<Record<string, unknown>>> {
     const { page, pageSize } = pagination;
     const skip = (page - 1) * pageSize;
+    const query = q?.trim();
+    const where =
+      query && query.length > 0
+        ? {
+            OR: [
+              { name: { contains: query, mode: 'insensitive' as const } },
+              { ort: { contains: query, mode: 'insensitive' as const } },
+              { email: { contains: query, mode: 'insensitive' as const } },
+            ],
+          }
+        : undefined;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.kunden.findMany({
+        where,
         orderBy: { name: 'asc' },
         skip,
         take: pageSize,
       }),
-      this.prisma.kunden.count(),
+      this.prisma.kunden.count({ where }),
     ]);
     return {
       data: rows.map((r) => ({ ...r, id: Number(r.id) })),

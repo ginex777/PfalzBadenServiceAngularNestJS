@@ -19,16 +19,44 @@ export class MitarbeiterService {
 
   async alleMitarbeiterLaden(
     pagination: PaginationDto,
+    filter?: { q?: string; aktiv?: string },
   ): Promise<PaginatedResponse<Record<string, unknown>>> {
     const { page, pageSize } = pagination;
     const skip = (page - 1) * pageSize;
+    const query = filter?.q?.trim();
+    const aktiv =
+      filter?.aktiv === '1' || filter?.aktiv?.toLowerCase() === 'true'
+        ? true
+        : filter?.aktiv === '0' || filter?.aktiv?.toLowerCase() === 'false'
+          ? false
+          : undefined;
+
+    const where =
+      query || aktiv !== undefined
+        ? {
+            AND: [
+              aktiv !== undefined ? { aktiv } : {},
+              query
+                ? {
+                    OR: [
+                      { name: { contains: query, mode: 'insensitive' as const } },
+                      { email: { contains: query, mode: 'insensitive' as const } },
+                      { rolle: { contains: query, mode: 'insensitive' as const } },
+                      { tel: { contains: query, mode: 'insensitive' as const } },
+                    ],
+                  }
+                : {},
+            ],
+          }
+        : undefined;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.mitarbeiter.findMany({
+        where,
         orderBy: { name: 'asc' },
         skip,
         take: pageSize,
       }),
-      this.prisma.mitarbeiter.count(),
+      this.prisma.mitarbeiter.count({ where }),
     ]);
     return {
       data: rows.map((m) => ({
@@ -93,6 +121,7 @@ export class MitarbeiterService {
     const rows = await this.prisma.mitarbeiterStunden.findMany({
       where: { mitarbeiter_id: BigInt(mitarbeiterId) },
       orderBy: { datum: 'desc' },
+      take: 2000,
     });
     return rows.map((s) => ({
       ...s,

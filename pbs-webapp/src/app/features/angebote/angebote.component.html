@@ -3,11 +3,11 @@
 
   <div class="card">
     <app-search-toolbar
-      platzhalter="Angebot suchen…"
-      aktionLabel="+ Neues Angebot"
-      [aktionRollen]="['admin']"
-      [(suchbegriff)]="facade.suchbegriff"
-      (aktion)="onNeuesAngebot()"
+      placeholder="Angebot suchen…"
+      actionLabel="+ Neues Angebot"
+      [actionRoles]="['admin']"
+      [(searchTerm)]="facade.suchbegriff"
+      (action)="onNeuesAngebot()"
     />
 
     <app-angebote-tabelle

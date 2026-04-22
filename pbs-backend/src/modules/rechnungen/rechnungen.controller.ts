@@ -25,8 +25,12 @@ export class RechnungenController {
 
   @Get()
   @ApiOperation({ summary: 'Alle Rechnungen laden' })
-  findAll(@Query() pagination: PaginationDto) {
-    return this.service.findAll(pagination);
+  findAll(
+    @Query() pagination: PaginationDto,
+    @Query('q') q?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.service.findAll(pagination, { q, status });
   }
 
   @Post()

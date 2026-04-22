@@ -26,6 +26,7 @@ import {
   UpdateObjektDto,
 } from './dto/muellplan.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('api')
 export class MuellplanController {
@@ -33,8 +34,17 @@ export class MuellplanController {
 
   @Get('objekte')
   @Roles('admin', 'readonly')
-  async objekteLaden() {
-    return this.service.objekteLaden();
+  async objekteLaden(
+    @Query() pagination: PaginationDto,
+    @Query('q') q?: string,
+  ) {
+    return this.service.objekteLaden(pagination, q);
+  }
+
+  @Get('objekte/all')
+  @Roles('admin', 'readonly')
+  async objekteAlleLaden() {
+    return this.service.objekteAlleLaden();
   }
   @Post('objekte')
   @Roles('admin')
@@ -101,8 +111,17 @@ export class MuellplanController {
 
   @Get('muellplan-vorlagen')
   @Roles('admin')
-  async vorlagenLaden() {
-    return this.service.vorlagenLaden();
+  async vorlagenLaden(
+    @Query() pagination: PaginationDto,
+    @Query('q') q?: string,
+  ) {
+    return this.service.vorlagenLaden(pagination, q);
+  }
+
+  @Get('muellplan-vorlagen/all')
+  @Roles('admin')
+  async vorlagenAlleLaden() {
+    return this.service.vorlagenAlleLaden();
   }
   @Get('muellplan-vorlagen/:id')
   @Roles('admin')

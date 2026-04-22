@@ -23,16 +23,49 @@ export class RechnungenService {
 
   async findAll(
     pagination: PaginationDto,
+    filter?: { q?: string; status?: string },
   ): Promise<PaginatedResponse<ReturnType<RechnungenService['mapRechnung']>>> {
     const { page, pageSize } = pagination;
     const skip = (page - 1) * pageSize;
+    const query = filter?.q?.trim();
+    const status = filter?.status?.trim();
+    const heute = new Date();
+    heute.setHours(0, 0, 0, 0);
+
+    const statusWhere =
+      status === 'offen'
+        ? { bezahlt: false }
+        : status === 'bezahlt'
+          ? { bezahlt: true }
+          : status === 'ueberfaellig'
+            ? { bezahlt: false, frist: { lt: heute } }
+            : undefined;
+
+    const queryWhere =
+      query && query.length > 0
+        ? {
+            OR: [
+              { nr: { contains: query, mode: 'insensitive' as const } },
+              { empf: { contains: query, mode: 'insensitive' as const } },
+              { titel: { contains: query, mode: 'insensitive' as const } },
+            ],
+          }
+        : undefined;
+
+    const where =
+      statusWhere || queryWhere
+        ? {
+            AND: [statusWhere ?? {}, queryWhere ?? {}],
+          }
+        : undefined;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.rechnungen.findMany({
+        where,
         orderBy: [{ datum: 'desc' }, { id: 'desc' }],
         skip,
         take: pageSize,
       }),
-      this.prisma.rechnungen.count(),
+      this.prisma.rechnungen.count({ where }),
     ]);
     return {
       data: rows.map((r) => this.mapRechnung(r)),

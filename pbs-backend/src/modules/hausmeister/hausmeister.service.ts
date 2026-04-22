@@ -16,16 +16,51 @@ export class HausmeisterService {
 
   async alleEinsaetzeLaden(
     pagination: PaginationDto,
+    filter?: { q?: string; mitarbeiter?: string; monat?: string },
   ): Promise<PaginatedResponse<Record<string, unknown>>> {
     const { page, pageSize } = pagination;
     const skip = (page - 1) * pageSize;
+
+    const query = filter?.q?.trim();
+    const mitarbeiter = filter?.mitarbeiter?.trim();
+    const monat = filter?.monat?.trim();
+
+    const monatRange =
+      monat && /^\d{4}-\d{2}$/.test(monat)
+        ? (() => {
+            const [y, m] = monat.split('-').map(Number);
+            const start = new Date(y, m - 1, 1);
+            const end = new Date(y, m, 1);
+            return { start, end };
+          })()
+        : null;
+
+    const where =
+      query || mitarbeiter || monatRange
+        ? {
+            AND: [
+              mitarbeiter ? { mitarbeiter_name: mitarbeiter } : {},
+              monatRange ? { datum: { gte: monatRange.start, lt: monatRange.end } } : {},
+              query
+                ? {
+                    OR: [
+                      { mitarbeiter_name: { contains: query, mode: 'insensitive' as const } },
+                      { kunden_name: { contains: query, mode: 'insensitive' as const } },
+                      { notiz: { contains: query, mode: 'insensitive' as const } },
+                    ],
+                  }
+                : {},
+            ],
+          }
+        : undefined;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.hausmeisterEinsaetze.findMany({
+        where,
         orderBy: { datum: 'desc' },
         skip,
         take: pageSize,
       }),
-      this.prisma.hausmeisterEinsaetze.count(),
+      this.prisma.hausmeisterEinsaetze.count({ where }),
     ]);
     return {
       data: rows.map((e) => this.mapEinsatz(e)),
@@ -39,6 +74,7 @@ export class HausmeisterService {
     const rows = await this.prisma.hausmeisterEinsaetze.findMany({
       where: { mitarbeiter_id: BigInt(mitarbeiterId) },
       orderBy: { datum: 'desc' },
+      take: 1000,
     });
     return rows.map((e) => this.mapEinsatz(e));
   }

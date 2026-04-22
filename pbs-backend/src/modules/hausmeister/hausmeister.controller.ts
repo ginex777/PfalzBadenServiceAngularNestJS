@@ -21,8 +21,13 @@ import { Roles } from '../auth/decorators/roles.decorator';
 @Controller('api/hausmeister')
 export class HausmeisterController {
   constructor(private readonly service: HausmeisterService) {}
-  @Get() alleEinsaetzeLaden(@Query() pagination: PaginationDto) {
-    return this.service.alleEinsaetzeLaden(pagination);
+  @Get() alleEinsaetzeLaden(
+    @Query() pagination: PaginationDto,
+    @Query('q') q?: string,
+    @Query('mitarbeiter') mitarbeiter?: string,
+    @Query('monat') monat?: string,
+  ) {
+    return this.service.alleEinsaetzeLaden(pagination, { q, mitarbeiter, monat });
   }
   @Get('mitarbeiter/:mid') einsaetzeFuerMitarbeiter(
     @Param('mid', ParseIntPipe) mid: number,

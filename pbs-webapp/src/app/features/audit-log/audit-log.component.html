@@ -6,41 +6,31 @@
       class="form-input toolbar__search"
       type="search"
       placeholder="Suchen…"
-      [value]="facade.suchbegriff()"
-      (input)="suchbegriffGeaendert($event)"
+      [value]="facade.searchTerm()"
+      (input)="onSearchTermChange($event)"
     />
-    <select
-      class="form-select"
-      class="select-auto"
-      [value]="facade.aktiverAktionFilter()"
-      (change)="aktionFilterGeaendert($event)"
-    >
+
+    <select class="form-select select-auto" [value]="facade.actionFilter()" (change)="onActionChange($event)">
       @for (opt of aktionOptionen; track opt.id) {
         <option [value]="opt.id">{{ opt.label }}</option>
       }
     </select>
-    <select
-      class="form-select"
-      class="select-auto"
-      [value]="facade.aktiveTabelleFilter()"
-      (change)="tabelleFilterGeaendert($event)"
-    >
+
+    <select class="form-select select-auto" [value]="facade.tableFilter()" (change)="onTableChange($event)">
       <option value="">Alle Tabellen</option>
-      @for (t of facade.eindeutigeTabellen(); track t) {
+      @for (t of facade.tables(); track t) {
         <option [value]="t">{{ tabelleLabel(t) }}</option>
       }
     </select>
-    <button class="btn btn-sm" (click)="facade.ladeDaten()">Aktualisieren</button>
-    <span class="anzahl">{{ facade.gefilterteEintraege().length }} Einträge</span>
+
+    <button class="btn btn-sm" (click)="facade.load()">Aktualisieren</button>
+    <span class="anzahl">{{ facade.total() }} Einträge</span>
   </div>
 
-  @if (facade.laedt()) {
+  @if (facade.isLoading()) {
     <app-skeleton-rows [anzahl]="8" />
-  } @else if (!facade.gefilterteEintraege().length) {
-    <app-empty-state
-      titel="Keine Einträge gefunden"
-      beschreibung="Alle Datenänderungen werden hier protokolliert."
-    />
+  } @else if (!facade.entries().length) {
+    <app-empty-state titel="Keine Einträge gefunden" beschreibung="Alle Datenänderungen werden hier protokolliert." />
   } @else {
     <div class="card">
       <div class="tabelle-scroll">
@@ -49,7 +39,6 @@
             <tr>
               <th>Zeitstempel</th>
               <th>Benutzer</th>
-              <th>Name</th>
               <th>Tabelle</th>
               <th>ID</th>
               <th>Aktion</th>
@@ -58,10 +47,9 @@
             </tr>
           </thead>
           <tbody>
-            @for (e of facade.seitenEintraege(); track e.id) {
+            @for (e of facade.entries(); track e.id) {
               <tr>
                 <td class="td-zeit">{{ zeitstempelFormatieren(e.zeitstempel) }}</td>
-                <td class="td-nutzer">{{ e.nutzer || '–' }}</td>
                 <td class="td-nutzer">{{ e.nutzer || '–' }}</td>
                 <td>
                   <span class="tabelle-badge">{{ tabelleLabel(e.tabelle) }}</span>
@@ -80,31 +68,14 @@
         </table>
       </div>
 
-      <!-- Pagination -->
-      @if (facade.gesamtSeiten() > 1) {
-        <div class="pagination">
-          <button
-            class="btn btn-sm"
-            [disabled]="facade.aktuelleSeite() <= 1"
-            (click)="facade.seiteZurueck()"
-          >
-            Zurück
-          </button>
-          <span class="pagination-info">
-            Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{
-              facade.seitenEintraege().length
-            }}
-            von {{ facade.gefilterteEintraege().length }} Einträgen)
-          </span>
-          <button
-            class="btn btn-sm"
-            [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()"
-            (click)="facade.seiteVor()"
-          >
-            Weiter
-          </button>
-        </div>
-      }
+      <app-paginierung
+        [page]="facade.page()"
+        [pageSize]="facade.pageSize()"
+        [total]="facade.total()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
     </div>
   }
 </div>
+

@@ -7,12 +7,14 @@ import {
   Param,
   ParseIntPipe,
   Res,
+  Query,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { PdfService } from './pdf.service';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AllowReadonlyWrite } from '../auth/decorators/allow-readonly-write.decorator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 import {
   CreateAngebotPdfDto,
   CreateEuerPdfDto,
@@ -100,8 +102,12 @@ export class PdfController {
   // ── Archiv ───────────────────────────────────────────────────────────────────
   @Get('archiv')
   @Roles('admin', 'readonly')
-  getArchive() {
-    return this.service.getArchive();
+  getArchive(
+    @Query() pagination: PaginationDto,
+    @Query('q') q?: string,
+    @Query('typ') typ?: string,
+  ) {
+    return this.service.getArchive(pagination, { q, typ });
   }
 
   @Get('archiv/:id/regenerate')

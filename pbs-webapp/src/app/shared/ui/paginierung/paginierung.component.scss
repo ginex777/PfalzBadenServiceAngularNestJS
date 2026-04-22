@@ -1,0 +1,40 @@
+.paginierung {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--gray-600);
+    font-size: 13px;
+  }
+
+  &__select {
+    padding: 6px 10px;
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-sm);
+    background: var(--surface-glass);
+    color: var(--gray-800);
+    font-size: 13px;
+    outline: none;
+  }
+
+  &__range,
+  &__page {
+    color: var(--gray-600);
+    font-size: 13px;
+  }
+}
+

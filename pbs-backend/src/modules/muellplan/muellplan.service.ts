@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, Objekte, MuellplanVorlagen } from '@prisma/client';
 import {
   CreateMuellplanTerminDto,
   CreateMuellplanVorlageDto,
@@ -9,6 +9,8 @@ import {
   UpdateMuellplanTerminDto,
   UpdateObjektDto,
 } from './dto/muellplan.dto';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class MuellplanService {
@@ -16,16 +18,46 @@ export class MuellplanService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async objekteLaden() {
+  async objekteLaden(
+    pagination: PaginationDto,
+    q?: string,
+  ): Promise<PaginatedResponse<ReturnType<MuellplanService['mapObjekt']>>> {
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
+    const where =
+      q && q.trim()
+        ? {
+            OR: [
+              { name: { contains: q.trim(), mode: 'insensitive' as const } },
+              { ort: { contains: q.trim(), mode: 'insensitive' as const } },
+              { strasse: { contains: q.trim(), mode: 'insensitive' as const } },
+            ],
+          }
+        : undefined;
+
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.objekte.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.objekte.count({ where }),
+    ]);
+    return {
+      data: rows.map((r) => this.mapObjekt(r)),
+      total,
+      page,
+      pageSize,
+    };
+  }
+
+  async objekteAlleLaden() {
     const rows = await this.prisma.objekte.findMany({
       orderBy: { name: 'asc' },
+      take: 5000,
     });
-    return rows.map((r) => ({
-      ...r,
-      id: Number(r.id),
-      kunden_id: r.kunden_id ? Number(r.kunden_id) : null,
-      vorlage_id: r.vorlage_id ? Number(r.vorlage_id) : null,
-    }));
+    return rows.map((r) => this.mapObjekt(r));
   }
 
   async objektErstellen(d: CreateObjektDto) {
@@ -94,6 +126,7 @@ export class MuellplanService {
     const rows = await this.prisma.muellplan.findMany({
       where: { objekt_id: BigInt(objektId) },
       orderBy: { abholung: 'asc' },
+      take: 5000,
     });
     return rows.map((r) => ({
       ...r,
@@ -174,9 +207,11 @@ export class MuellplanService {
   async termineKopieren(fromObjektId: number, toObjektId: number) {
     const source = await this.prisma.muellplan.findMany({
       where: { objekt_id: BigInt(fromObjektId) },
+      take: 5000,
     });
     const existing = await this.prisma.muellplan.findMany({
       where: { objekt_id: BigInt(toObjektId) },
+      take: 5000,
     });
     const existingSet = new Set(
       existing.map(
@@ -202,12 +237,44 @@ export class MuellplanService {
     return { ok: true, added };
   }
 
-  async vorlagenLaden() {
+  async vorlagenLaden(
+    pagination: PaginationDto,
+    q?: string,
+  ): Promise<
+    PaginatedResponse<ReturnType<MuellplanService['mapVorlageListItem']>>
+  > {
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
+    const where =
+      q && q.trim()
+        ? { name: { contains: q.trim(), mode: 'insensitive' as const } }
+        : undefined;
+    const select = { id: true, name: true, pdf_name: true, created_at: true } as const;
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.muellplanVorlagen.findMany({
+        where,
+        select,
+        orderBy: { name: 'asc' },
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.muellplanVorlagen.count({ where }),
+    ]);
+    return {
+      data: rows.map((r) => this.mapVorlageListItem(r)),
+      total,
+      page,
+      pageSize,
+    };
+  }
+
+  async vorlagenAlleLaden() {
     const rows = await this.prisma.muellplanVorlagen.findMany({
       select: { id: true, name: true, pdf_name: true, created_at: true },
       orderBy: { name: 'asc' },
+      take: 5000,
     });
-    return rows.map((r) => ({ ...r, id: Number(r.id) }));
+    return rows.map((r) => this.mapVorlageListItem(r));
   }
 
   async vorlageLaden(id: number) {
@@ -298,6 +365,7 @@ export class MuellplanService {
     });
     const existing = await this.prisma.muellplan.findMany({
       where: { objekt_id: BigInt(objektId) },
+      take: 5000,
     });
     const existingSet = new Set(
       existing.map(
@@ -329,5 +397,20 @@ export class MuellplanService {
       orderBy: { created_at: 'desc' },
     });
     return r ? { ...r, id: Number(r.id) } : null;
+  }
+
+  private mapObjekt(r: Objekte) {
+    return {
+      ...r,
+      id: Number(r.id),
+      kunden_id: r.kunden_id ? Number(r.kunden_id) : null,
+      vorlage_id: r.vorlage_id ? Number(r.vorlage_id) : null,
+    };
+  }
+
+  private mapVorlageListItem(
+    r: Pick<MuellplanVorlagen, 'id' | 'name' | 'pdf_name' | 'created_at'>,
+  ) {
+    return { ...r, id: Number(r.id) };
   }
 }

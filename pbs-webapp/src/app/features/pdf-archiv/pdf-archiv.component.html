@@ -6,15 +6,12 @@
       class="form-input toolbar__search"
       type="search"
       placeholder="Suchen…"
-      [value]="facade.suchbegriff()"
-      (input)="suchbegriffGeaendert($event)"
+      [value]="facade.searchTerm()"
+      (input)="onSearchTermChange($event)"
     />
+
     <div class="filter-btns">
-      <select
-        class="filter-select"
-        [value]="facade.aktiverFilter()"
-        (change)="filterSelectGeaendert($event)"
-      >
+      <select class="filter-select" [value]="facade.activeFilter()" (change)="onFilterChange($event)">
         <option value="alle">Alle Typen</option>
         <option value="rechnung">Rechnungen</option>
         <option value="angebot">Angebote</option>
@@ -23,23 +20,18 @@
         <option value="muellplan">Müllplan</option>
       </select>
     </div>
-    <span class="anzahl">{{ facade.gefilterteEintraege().length }} Dokumente</span>
-    <button
-      class="btn btn-sm btn-danger"
-      [disabled]="facade.loeschenLaedt()"
-      (click)="facade.alleLoeschen()"
-    >
-      {{ facade.loeschenLaedt() ? 'Leert…' : 'Protokoll leeren' }}
+
+    <span class="anzahl">{{ facade.total() }} Dokumente</span>
+
+    <button class="btn btn-sm btn-danger" [disabled]="facade.isClearing()" (click)="facade.clearLog()">
+      {{ facade.isClearing() ? 'Leert…' : 'Protokoll leeren' }}
     </button>
   </div>
 
-  @if (facade.laedt()) {
+  @if (facade.isLoading()) {
     <app-skeleton-rows [anzahl]="6" />
-  } @else if (!facade.gefilterteEintraege().length) {
-    <app-empty-state
-      titel="Keine PDFs gefunden"
-      beschreibung="Generierte PDFs erscheinen hier automatisch."
-    />
+  } @else if (!facade.entries().length) {
+    <app-empty-state titel="Keine PDFs gefunden" beschreibung="Generierte PDFs erscheinen hier automatisch." />
   } @else {
     <div class="card">
       <div class="tabelle-scroll">
@@ -56,7 +48,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (e of facade.seitenEintraege(); track e.id) {
+            @for (e of facade.entries(); track e.id) {
               <tr>
                 <td>
                   <span class="typ-badge">{{ typLabels[e.typ] || e.typ }}</span>
@@ -67,11 +59,8 @@
                 <td>{{ datumFormatieren(e.datum) }}</td>
                 <td class="grau-text">{{ datumFormatieren(e.erstellt_am) }}</td>
                 <td>
-                  <button class="btn btn-sm" (click)="facade.pdfOeffnen(e.id)">Öffnen</button>
-                  <button
-                    class="btn btn-sm btn-danger btn-ml"
-                    (click)="facade.eintragLoeschen(e.id)"
-                  >
+                  <button class="btn btn-sm" (click)="facade.openPdf(e.id)">Öffnen</button>
+                  <button class="btn btn-sm btn-danger btn-ml" (click)="facade.deleteEntry(e.id)">
                     Löschen
                   </button>
                 </td>
@@ -82,29 +71,13 @@
       </div>
     </div>
 
-    @if (facade.gesamtSeiten() > 1) {
-      <div class="pagination">
-        <button
-          class="btn btn-sm"
-          [disabled]="facade.aktuelleSeite() <= 1"
-          (click)="facade.seiteZurueck()"
-        >
-          ← Zurück
-        </button>
-        <span class="pagination-info"
-          >Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{
-            facade.gefilterteEintraege().length
-          }}
-          Dokumente)</span
-        >
-        <button
-          class="btn btn-sm"
-          [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()"
-          (click)="facade.seiteVor()"
-        >
-          Weiter →
-        </button>
-      </div>
-    }
+    <app-paginierung
+      [page]="facade.page()"
+      [pageSize]="facade.pageSize()"
+      [total]="facade.total()"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    />
   }
 </div>
+

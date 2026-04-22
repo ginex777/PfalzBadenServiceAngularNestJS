@@ -2,15 +2,20 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../core/api/api.service';
 import { BrowserService } from '../../core/services/browser.service';
-import { PdfArchiveEntry } from '../../core/models';
+import { PaginatedResponse, PdfArchiveEntry } from '../../core/models';
 
 @Injectable({ providedIn: 'root' })
 export class PdfArchivService {
   private readonly api = inject(ApiService);
   private readonly browser = inject(BrowserService);
 
-  alleLaden(): Observable<PdfArchiveEntry[]> {
-    return this.api.loadPdfArchive();
+  seiteLaden(query: {
+    page: number;
+    pageSize: number;
+    q?: string;
+    typ?: string;
+  }): Observable<PaginatedResponse<PdfArchiveEntry>> {
+    return this.api.loadPdfArchivePage(query);
   }
 
   eintragLoeschen(id: number): Observable<void> {

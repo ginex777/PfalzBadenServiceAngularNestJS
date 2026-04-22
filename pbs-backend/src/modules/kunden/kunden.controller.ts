@@ -25,8 +25,8 @@ export class KundenController {
 
   @Get()
   @ApiOperation({ summary: 'Alle Kunden laden' })
-  findAll(@Query() pagination: PaginationDto) {
-    return this.service.findAll(pagination);
+  findAll(@Query() pagination: PaginationDto, @Query('q') q?: string) {
+    return this.service.findAll(pagination, q);
   }
 
   @Post()

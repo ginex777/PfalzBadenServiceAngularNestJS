@@ -1,12 +1,14 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, WiederkehrendeAusgaben, WiederkehrendeRechnungen } from '@prisma/client';
 import {
   CreateWiederkehrendeAusgabeDto,
   CreateWiederkehrendeRechnungDto,
   UpdateWiederkehrendeAusgabeDto,
   UpdateWiederkehrendeRechnungDto,
 } from './dto/wiederkehrend.dto';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class WiederkehrendService {
@@ -14,17 +16,29 @@ export class WiederkehrendService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async ausgabenLaden() {
-    const rows = await this.prisma.wiederkehrendeAusgaben.findMany({
-      orderBy: { name: 'asc' },
-    });
-    return rows.map((a) => ({
-      ...a,
-      id: Number(a.id),
-      brutto: Number(a.brutto),
-      mwst: Number(a.mwst),
-      abzug: Number(a.abzug),
-    }));
+  async ausgabenLaden(
+    pagination: PaginationDto,
+  ): Promise<
+    PaginatedResponse<
+      ReturnType<WiederkehrendService['mapWiederkehrendeAusgabe']>
+    >
+  > {
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.wiederkehrendeAusgaben.findMany({
+        orderBy: { name: 'asc' },
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.wiederkehrendeAusgaben.count(),
+    ]);
+    return {
+      data: rows.map((a) => this.mapWiederkehrendeAusgabe(a)),
+      total,
+      page,
+      pageSize,
+    };
   }
 
   async ausgabeErstellen(d: CreateWiederkehrendeAusgabeDto) {
@@ -89,15 +103,29 @@ export class WiederkehrendService {
     return { ok: true };
   }
 
-  async rechnungenLaden() {
-    const rows = await this.prisma.wiederkehrendeRechnungen.findMany({
-      orderBy: { titel: 'asc' },
-    });
-    return rows.map((r) => ({
-      ...r,
-      id: Number(r.id),
-      kunden_id: r.kunden_id ? Number(r.kunden_id) : null,
-    }));
+  async rechnungenLaden(
+    pagination: PaginationDto,
+  ): Promise<
+    PaginatedResponse<
+      ReturnType<WiederkehrendService['mapWiederkehrendeRechnung']>
+    >
+  > {
+    const { page, pageSize } = pagination;
+    const skip = (page - 1) * pageSize;
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.wiederkehrendeRechnungen.findMany({
+        orderBy: { titel: 'asc' },
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.wiederkehrendeRechnungen.count(),
+    ]);
+    return {
+      data: rows.map((r) => this.mapWiederkehrendeRechnung(r)),
+      total,
+      page,
+      pageSize,
+    };
   }
 
   async rechnungErstellen(d: CreateWiederkehrendeRechnungDto) {
@@ -168,5 +196,25 @@ export class WiederkehrendService {
       where: { id: BigInt(id) },
     });
     return { ok: true };
+  }
+
+  private mapWiederkehrendeAusgabe(a: WiederkehrendeAusgaben) {
+    return {
+      ...a,
+      id: Number(a.id),
+      brutto: Number(a.brutto),
+      mwst: Number(a.mwst),
+      abzug: Number(a.abzug),
+    };
+  }
+
+  private mapWiederkehrendeRechnung(
+    r: WiederkehrendeRechnungen,
+  ) {
+    return {
+      ...r,
+      id: Number(r.id),
+      kunden_id: r.kunden_id ? Number(r.kunden_id) : null,
+    };
   }
 }
