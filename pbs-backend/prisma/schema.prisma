@@ -119,22 +119,6 @@ model GesperrteMonat {
   @@map("gesperrte_monate")
 }
 
-model Marketing {
-  id           BigInt    @id @default(autoincrement())
-  name         String    @db.VarChar(200)
-  person       String?   @db.VarChar(200)
-  email        String    @db.VarChar(254)
-  tel          String?   @db.VarChar(50)
-  strasse      String?
-  ort          String?
-  notiz        String?
-  status       String    @default("neu") @db.VarChar(20)
-  status_notiz String?
-  datum        DateTime? @default(now()) @db.Date
-
-  @@map("marketing")
-}
-
 model PdfArchive {
   id          BigInt    @id @default(autoincrement())
   typ         String    @db.VarChar(50)
@@ -354,22 +338,6 @@ model Benachrichtigungen {
   erstellt_am DateTime @default(now())
 
   @@map("benachrichtigungen")
-}
-
-model Tasks {
-  id           BigInt    @id @default(autoincrement())
-  titel        String    @db.VarChar(200)
-  beschreibung String?
-  datum        DateTime? @db.Date
-  bearbeiter   String?   @db.VarChar(100)
-  kategorie    String    @default("Sonstiges") @db.VarChar(100)
-  status       String    @default("todo") @db.VarChar(20)
-  prioritaet   String    @default("mittel") @db.VarChar(20)
-  position     Int       @default(0)
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
-
-  @@map("tasks")
 }
 
 model Vertraege {

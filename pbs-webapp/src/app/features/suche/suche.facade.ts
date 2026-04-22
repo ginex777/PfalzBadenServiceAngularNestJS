@@ -16,7 +16,6 @@ export class SucheFacade {
     rechnungen: [],
     angebote: [],
     kunden: [],
-    marketing: [],
     hausmeister: [],
   });
 
@@ -27,7 +26,6 @@ export class SucheFacade {
         rechnungen: [],
         angebote: [],
         kunden: [],
-        marketing: [],
         hausmeister: [],
         gesamt: 0,
       };
@@ -50,12 +48,6 @@ export class SucheFacade {
         (k.email ?? '').toLowerCase().includes(q) ||
         (k.ort ?? '').toLowerCase().includes(q),
     );
-    const marketing = d.marketing.filter(
-      (m) =>
-        m.name.toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q) ||
-        (m.person ?? '').toLowerCase().includes(q),
-    );
     const hausmeister = d.hausmeister.filter(
       (e) =>
         e.mitarbeiter_name.toLowerCase().includes(q) ||
@@ -66,10 +58,9 @@ export class SucheFacade {
       rechnungen,
       angebote,
       kunden,
-      marketing,
       hausmeister,
       gesamt:
-        rechnungen.length + angebote.length + kunden.length + marketing.length + hausmeister.length,
+        rechnungen.length + angebote.length + kunden.length + hausmeister.length,
     };
   });
 
@@ -99,9 +90,6 @@ export class SucheFacade {
   }
   zuKunde(id: number): void {
     this.router.navigate(['/kunden'], { queryParams: { id } });
-  }
-  zuMarketing(id: number): void {
-    this.router.navigate(['/marketing'], { queryParams: { id } });
   }
   zuHausmeister(): void {
     this.router.navigate(['/hausmeister']);

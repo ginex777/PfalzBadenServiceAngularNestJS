@@ -103,20 +103,6 @@ export interface VstPaid {
   datum?: string;
 }
 
-export interface MarketingKontakt {
-  id: number;
-  name: string;
-  person?: string;
-  email: string;
-  tel?: string;
-  strasse?: string;
-  ort?: string;
-  notiz?: string;
-  status: 'neu' | 'gesendet' | 'interesse' | 'kein-interesse' | 'angebot';
-  status_notiz?: string;
-  datum?: string;
-}
-
 export interface Mitarbeiter {
   id: number;
   name: string;
@@ -196,26 +182,6 @@ export interface HausmeisterEinsatz {
 export interface Taetigkeit {
   beschreibung: string;
   stunden: number;
-}
-
-export interface Task {
-  id: number;
-  titel: string;
-  beschreibung?: string;
-  datum?: string;
-  bearbeiter?: string;
-  kategorie: string;
-  status: 'todo' | 'inprogress' | 'done' | 'blocked';
-  prioritaet: 'hoch' | 'mittel' | 'niedrig';
-  position: number;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface TaskReorderUpdate {
-  id: number;
-  status: Task['status'];
-  position: number;
 }
 
 export interface Beleg {

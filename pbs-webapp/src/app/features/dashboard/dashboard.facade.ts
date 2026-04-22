@@ -36,7 +36,7 @@ const TABELLE_ROUTE: Record<string, string> = {
   kunden: '/kunden',
   mitarbeiter: '/mitarbeiter',
   hausmeister_einsaetze: '/hausmeister',
-  aufgaben: '/aufgaben',
+  aufgaben: '/audit-log',
   belege: '/belege',
   vertraege: '/vertraege',
 };

@@ -45,9 +45,8 @@ export const routes: Routes = [
   },
   {
     path: 'marketing',
-    canActivate: [authGuard, roleGuard(['admin'])],
-    loadComponent: () =>
-      import('./features/marketing/marketing.component').then((m) => m.MarketingComponent),
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
   },
   {
     path: 'einstellungen',
@@ -69,9 +68,8 @@ export const routes: Routes = [
   },
   {
     path: 'aufgaben',
-    canActivate: [authGuard, roleGuard(['admin', 'mitarbeiter'])],
-    loadComponent: () =>
-      import('./features/kanban/kanban.component').then((m) => m.KanbanComponent),
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
   },
   {
     path: 'mitarbeiter',

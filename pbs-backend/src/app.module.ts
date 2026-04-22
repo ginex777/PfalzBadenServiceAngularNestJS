@@ -12,11 +12,9 @@ import { KundenModule } from './modules/kunden/kunden.module';
 import { RechnungenModule } from './modules/rechnungen/rechnungen.module';
 import { AngeboteModule } from './modules/angebote/angebote.module';
 import { BuchhaltungModule } from './modules/buchhaltung/buchhaltung.module';
-import { MarketingModule } from './modules/marketing/marketing.module';
 import { MitarbeiterModule } from './modules/mitarbeiter/mitarbeiter.module';
 import { MuellplanModule } from './modules/muellplan/muellplan.module';
 import { HausmeisterModule } from './modules/hausmeister/hausmeister.module';
-import { TasksModule } from './modules/tasks/tasks.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { BenachrichtigungenModule } from './modules/benachrichtigungen/benachrichtigungen.module';
@@ -43,11 +41,9 @@ import { HealthController } from './health.controller';
     RechnungenModule,
     AngeboteModule,
     BuchhaltungModule,
-    MarketingModule,
     MitarbeiterModule,
     MuellplanModule,
     HausmeisterModule,
-    TasksModule,
     SettingsModule,
     AuditModule,
     BenachrichtigungenModule,

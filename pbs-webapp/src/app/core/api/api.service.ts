@@ -10,15 +10,12 @@ import {
   BuchhaltungJahr,
   VstPaid,
   GesperrterMonat,
-  MarketingKontakt,
   Mitarbeiter,
   MitarbeiterStunden,
   Objekt,
   MuellplanTermin,
   MuellplanVorlage,
   HausmeisterEinsatz,
-  Task,
-  TaskReorderUpdate,
   Beleg,
   AuditLogEntry,
   Benachrichtigung,
@@ -204,26 +201,6 @@ export class ApiService {
     return this.http.delete<void>(`${this.basis}/gesperrte-monate/${jahr}/${monat}`);
   }
 
-  // ── Marketing ───────────────────────────────────────────────────────────
-  loadMarketingContacts(): Observable<MarketingKontakt[]> {
-    const params = new HttpParams().set('pageSize', '1000');
-    return this.http
-      .get<PaginatedResponse<MarketingKontakt>>(`${this.basis}/marketing`, { params })
-      .pipe(map((r) => r.data));
-  }
-  createMarketingContact(daten: Partial<MarketingKontakt>): Observable<MarketingKontakt> {
-    return this.http.post<MarketingKontakt>(`${this.basis}/marketing`, daten);
-  }
-  updateMarketingContact(
-    id: number,
-    daten: Partial<MarketingKontakt>,
-  ): Observable<MarketingKontakt> {
-    return this.http.put<MarketingKontakt>(`${this.basis}/marketing/${id}`, daten);
-  }
-  deleteMarketingContact(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.basis}/marketing/${id}`);
-  }
-
   // ── Mitarbeiter ─────────────────────────────────────────────────────────
   loadEmployees(): Observable<Mitarbeiter[]> {
     const params = new HttpParams().set('pageSize', '1000');
@@ -374,25 +351,6 @@ export class ApiService {
   }
 
   // ── Tasks (Kanban) ──────────────────────────────────────────────────────
-  loadTasks(): Observable<Task[]> {
-    const params = new HttpParams().set('pageSize', '1000');
-    return this.http
-      .get<PaginatedResponse<Task>>(`${this.basis}/tasks`, { params })
-      .pipe(map((r) => r.data));
-  }
-  createTask(daten: Partial<Task>): Observable<Task> {
-    return this.http.post<Task>(`${this.basis}/tasks`, daten);
-  }
-  updateTask(id: number, daten: Partial<Task>): Observable<Task> {
-    return this.http.put<Task>(`${this.basis}/tasks/${id}`, daten);
-  }
-  deleteTask(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.basis}/tasks/${id}`);
-  }
-  reorderTasks(aktualisierungen: TaskReorderUpdate[]): Observable<void> {
-    return this.http.post<void>(`${this.basis}/tasks/reorder`, { updates: aktualisierungen });
-  }
-
   // ── Belege ──────────────────────────────────────────────────────────────
   loadReceipts(jahr?: number): Observable<Beleg[]> {
     let params = new HttpParams().set('pageSize', '1000');
@@ -608,16 +566,6 @@ export class ApiService {
   }
   deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.basis}/auth/users/${id}`);
-  }
-
-  // ── Marketing Vorlage ───────────────────────────────────────────────────
-  loadMarketingTemplate(): Observable<{ betreff?: string; text?: string }> {
-    return this.http.get<{ betreff?: string; text?: string }>(
-      `${this.basis}/settings/marketing_template`,
-    );
-  }
-  saveMarketingTemplate(daten: { betreff: string; text: string }): Observable<void> {
-    return this.http.post<void>(`${this.basis}/settings/marketing_template`, daten);
   }
 
   // ── PDF-Archiv (Delete) ─────────────────────────────────────────────────

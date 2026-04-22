@@ -13,7 +13,6 @@ export class SucheService {
         rechnungen: this.api.loadInvoices(),
         angebote: this.api.loadOffers(),
         kunden: this.api.loadCustomers(),
-        marketing: this.api.loadMarketingContacts(),
         hausmeister: this.api.loadServiceAssignments(),
       }).subscribe({
         next: (d) => {

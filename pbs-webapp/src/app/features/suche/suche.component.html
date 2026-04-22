@@ -1,7 +1,7 @@
 <div class="page-wrap">
   <app-page-title
     titel="Globale Suche"
-    untertitel="Rechnungen, Angebote, Kunden und Kontakte durchsuchen"
+    untertitel="Rechnungen, Angebote und Kunden durchsuchen"
   />
 
   <div class="suche-eingabe-wrapper">
@@ -93,26 +93,6 @@
                 @if (k.email) {
                   <span class="ergebnis-sub-inline">{{ k.email }}</span>
                 }
-              </div>
-            </div>
-          }
-        </div>
-      }
-
-      <!-- Marketing -->
-      @if (facade.ergebnisse().marketing.length) {
-        <div class="ergebnis-gruppe">
-          <h3 class="gruppe-titel">
-            Marketing-Kontakte ({{ facade.ergebnisse().marketing.length }})
-          </h3>
-          @for (m of facade.ergebnisse().marketing; track m.id) {
-            <div class="ergebnis-karte" (click)="facade.zuMarketing(m.id)">
-              <div class="ergebnis-kopf">
-                <span class="ergebnis-name">{{ m.name }}</span>
-                @if (m.person) {
-                  <span class="ergebnis-sub-inline">{{ m.person }}</span>
-                }
-                <span class="ergebnis-sub-inline">{{ m.email }}</span>
               </div>
             </div>
           }
