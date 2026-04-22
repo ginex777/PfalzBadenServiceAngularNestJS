@@ -32,6 +32,7 @@
     <app-search-toolbar
       platzhalter="Rechnung suchen…"
       aktionLabel="+ Neue Rechnung"
+      [aktionRollen]="['admin']"
       [(suchbegriff)]="facade.suchbegriff"
       (aktion)="onNeueRechnung()"
     />

@@ -25,79 +25,109 @@ import {
   UpdateMuellplanTerminDto,
   UpdateObjektDto,
 } from './dto/muellplan.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('api')
 export class MuellplanController {
   constructor(private readonly service: MuellplanService) {}
 
-  @Get('objekte') async objekteLaden() {
+  @Get('objekte')
+  @Roles('admin', 'readonly')
+  async objekteLaden() {
     return this.service.objekteLaden();
   }
-  @Post('objekte') async objektErstellen(@Body() b: CreateObjektDto) {
+  @Post('objekte')
+  @Roles('admin')
+  async objektErstellen(@Body() b: CreateObjektDto) {
     return this.service.objektErstellen(b);
   }
-  @Put('objekte/:id') async objektAktualisieren(
+  @Put('objekte/:id')
+  @Roles('admin')
+  async objektAktualisieren(
     @Param('id', ParseIntPipe) id: number,
     @Body() b: UpdateObjektDto,
   ) {
     return this.service.objektAktualisieren(id, b);
   }
-  @Delete('objekte/:id') async objektLoeschen(
+  @Delete('objekte/:id')
+  @Roles('admin')
+  async objektLoeschen(
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.service.objektLoeschen(id);
   }
 
-  @Get('muellplan-upcoming') async anstehendeTermineLaden(
+  @Get('muellplan-upcoming')
+  @Roles('admin', 'mitarbeiter')
+  async anstehendeTermineLaden(
     @Query('limit') limit?: string,
   ) {
     return this.service.anstehendeTermineLaden(limit ? parseInt(limit) : 5);
   }
-  @Get('muellplan/:objektId') async termineLaden(
+  @Get('muellplan/:objektId')
+  @Roles('admin', 'mitarbeiter')
+  async termineLaden(
     @Param('objektId', ParseIntPipe) id: number,
   ) {
     return this.service.termineLaden(id);
   }
-  @Post('muellplan') async terminErstellen(@Body() b: CreateMuellplanTerminDto) {
+  @Post('muellplan')
+  @Roles('admin')
+  async terminErstellen(@Body() b: CreateMuellplanTerminDto) {
     return this.service.terminErstellen(b);
   }
-  @Post('muellplan/copy') async termineKopieren(
+  @Post('muellplan/copy')
+  @Roles('admin')
+  async termineKopieren(
     @Body() b: CopyMuellplanTermineDto,
   ) {
     return this.service.termineKopieren(b.from_objekt_id, b.to_objekt_id);
   }
-  @Put('muellplan/:id') async terminAktualisieren(
+  @Put('muellplan/:id')
+  @Roles('admin')
+  async terminAktualisieren(
     @Param('id', ParseIntPipe) id: number,
     @Body() b: UpdateMuellplanTerminDto,
   ) {
     return this.service.terminAktualisieren(id, b);
   }
-  @Delete('muellplan/:id') async terminLoeschen(
+  @Delete('muellplan/:id')
+  @Roles('admin')
+  async terminLoeschen(
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.service.terminLoeschen(id);
   }
 
-  @Get('muellplan-vorlagen') async vorlagenLaden() {
+  @Get('muellplan-vorlagen')
+  @Roles('admin')
+  async vorlagenLaden() {
     return this.service.vorlagenLaden();
   }
-  @Get('muellplan-vorlagen/:id') async vorlageLaden(
+  @Get('muellplan-vorlagen/:id')
+  @Roles('admin')
+  async vorlageLaden(
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.service.vorlageLaden(id);
   }
-  @Post('muellplan-vorlagen') async vorlageErstellen(
+  @Post('muellplan-vorlagen')
+  @Roles('admin')
+  async vorlageErstellen(
     @Body() b: CreateMuellplanVorlageDto,
   ) {
     return this.service.vorlageErstellen(b);
   }
-  @Delete('muellplan-vorlagen/:id') async vorlageLoeschen(
+  @Delete('muellplan-vorlagen/:id')
+  @Roles('admin')
+  async vorlageLoeschen(
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.service.vorlageLoeschen(id);
   }
 
   @Post('muellplan-vorlagen/:id/pdf')
+  @Roles('admin')
   @UseInterceptors(
     FileInterceptor('pdf', {
       storage: memoryStorage(),
@@ -113,6 +143,7 @@ export class MuellplanController {
   }
 
   @Get('muellplan-vorlagen/:id/pdf')
+  @Roles('admin')
   async vorlagePdfLaden(
     @Param('id', ParseIntPipe) id: number,
     @Res() res: Response,
@@ -127,6 +158,7 @@ export class MuellplanController {
   }
 
   @Post('muellplan-pdf/:objektId')
+  @Roles('admin')
   @UseInterceptors(
     FileInterceptor('pdf', {
       storage: memoryStorage(),
@@ -153,6 +185,7 @@ export class MuellplanController {
   }
 
   @Post('muellplan-pdf/:objektId/confirm')
+  @Roles('admin', 'mitarbeiter')
   async muellplanPdfBestaetigen(
     @Param('objektId', ParseIntPipe) objektId: number,
     @Body() b: ConfirmMuellplanPdfDto,
@@ -161,6 +194,7 @@ export class MuellplanController {
   }
 
   @Get('muellplan-pdf/:objektId')
+  @Roles('admin', 'mitarbeiter')
   async muellplanPdfMetadaten(
     @Param('objektId', ParseIntPipe) objektId: number,
   ) {

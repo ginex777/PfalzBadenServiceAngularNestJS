@@ -17,6 +17,17 @@ const guestGuard = () => {
   return router.createUrlTree(['/tabs/heute']);
 };
 
+const roleGuard = (allowedRoles: readonly string[]) => {
+  return () => {
+    const auth = inject(MobileAuthService);
+    const router = inject(Router);
+    const role = auth.currentUser()?.rolle;
+    if (!role) return router.createUrlTree(['/login']);
+    if (allowedRoles.includes(role)) return true;
+    return router.createUrlTree(['/tabs/heute']);
+  };
+};
+
 export const routes: Routes = [
   { path: '', redirectTo: 'tabs/heute', pathMatch: 'full' },
   {
@@ -37,10 +48,12 @@ export const routes: Routes = [
       },
       {
         path: 'stempeluhr',
+        canActivate: [roleGuard(['admin', 'mitarbeiter'])],
         loadComponent: () => import('./pages/stempeluhr/stempeluhr.page').then((m) => m.StempeluhrPage),
       },
       {
         path: 'foto-upload',
+        canActivate: [roleGuard(['admin', 'mitarbeiter'])],
         loadComponent: () => import('./pages/foto-upload/foto-upload.page').then((m) => m.FotoUploadPage),
       },
     ],

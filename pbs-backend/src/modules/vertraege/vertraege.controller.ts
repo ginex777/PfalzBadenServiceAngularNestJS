@@ -16,10 +16,13 @@ import { Request, Response } from 'express';
 import { VertraegeService } from './vertraege.service';
 import { PdfService } from '../pdf/pdf.service';
 import { Public } from '../auth/decorators/public.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { AllowReadonlyWrite } from '../auth/decorators/allow-readonly-write.decorator';
 import { CreateVertragDto, UpdateVertragDto } from './dto/vertrag.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('Vertraege')
+@Roles('admin', 'readonly')
 @Controller('api/vertraege')
 export class VertraegeController {
   constructor(
@@ -66,6 +69,7 @@ export class VertraegeController {
 
   /** Generate PDF and return a short-lived download token */
   @Post(':id/pdf')
+  @AllowReadonlyWrite()
   async pdfErstellen(@Param('id', ParseIntPipe) id: number) {
     return this.pdf.createVertragPdf(id);
   }

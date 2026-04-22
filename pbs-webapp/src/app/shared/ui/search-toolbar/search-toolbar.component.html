@@ -23,7 +23,12 @@
     />
   </div>
   @if (aktionLabel()) {
-    <button class="btn btn--primary" (click)="aktionAusfuehren()" [disabled]="aktionDeaktiviert()">
+    <button
+      class="btn btn--primary"
+      *roleAllowed="aktionRollen()"
+      (click)="aktionAusfuehren()"
+      [disabled]="aktionDeaktiviert()"
+    >
       {{ aktionLabel() }}
     </button>
   }

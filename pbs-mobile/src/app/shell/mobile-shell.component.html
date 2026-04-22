@@ -9,14 +9,16 @@
       <span>Heute</span>
     </a>
 
-    <a class="mobile-tab-button" [routerLink]="['/tabs/stempeluhr']" routerLinkActive="tab-active">
-      <ion-icon name="timer-outline"></ion-icon>
-      <span>Zeiterfassung</span>
-    </a>
+    @if (showOperativeTabs()) {
+      <a class="mobile-tab-button" [routerLink]="['/tabs/stempeluhr']" routerLinkActive="tab-active">
+        <ion-icon name="timer-outline"></ion-icon>
+        <span>Zeiterfassung</span>
+      </a>
 
-    <a class="mobile-tab-button" [routerLink]="['/tabs/foto-upload']" routerLinkActive="tab-active">
-      <ion-icon name="camera-outline"></ion-icon>
-      <span>Foto</span>
-    </a>
+      <a class="mobile-tab-button" [routerLink]="['/tabs/foto-upload']" routerLinkActive="tab-active">
+        <ion-icon name="camera-outline"></ion-icon>
+        <span>Foto</span>
+      </a>
+    }
   </nav>
 </div>

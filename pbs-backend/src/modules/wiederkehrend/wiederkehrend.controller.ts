@@ -15,7 +15,9 @@ import {
   UpdateWiederkehrendeAusgabeDto,
   UpdateWiederkehrendeRechnungDto,
 } from './dto/wiederkehrend.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 
+@Roles('admin', 'readonly')
 @Controller('api')
 export class WiederkehrendController {
   constructor(private readonly service: WiederkehrendService) {}

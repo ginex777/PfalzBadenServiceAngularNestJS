@@ -14,9 +14,11 @@ import { ApiTags, ApiSecurity, ApiOperation } from '@nestjs/swagger';
 import { KundenService } from './kunden.service';
 import { CreateKundeDto, UpdateKundeDto } from './dto/kunde.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Kunden')
 @ApiSecurity('x-nutzer')
+@Roles('admin', 'readonly')
 @Controller('api/kunden')
 export class KundenController {
   constructor(private readonly service: KundenService) {}

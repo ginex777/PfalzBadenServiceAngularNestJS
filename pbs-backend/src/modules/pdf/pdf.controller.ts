@@ -11,6 +11,8 @@ import {
 import type { Response } from 'express';
 import { PdfService } from './pdf.service';
 import { Public } from '../auth/decorators/public.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { AllowReadonlyWrite } from '../auth/decorators/allow-readonly-write.decorator';
 import {
   CreateAngebotPdfDto,
   CreateEuerPdfDto,
@@ -26,21 +28,28 @@ export class PdfController {
 
   // ── Neue JSON-basierte Endpunkte ─────────────────────────────────────────────
   @Post('rechnung')
+  @Roles('admin', 'readonly')
+  @AllowReadonlyWrite()
   async createRechnungPdf(@Body() body: CreateRechnungPdfDto) {
     return this.service.createRechnungPdf(body.rechnung_id);
   }
 
   @Post('angebot')
+  @Roles('admin', 'readonly')
+  @AllowReadonlyWrite()
   async createAngebotPdf(@Body() body: CreateAngebotPdfDto) {
     return this.service.createAngebotPdf(body.angebot_id);
   }
 
   @Post('euer')
+  @Roles('admin', 'readonly')
+  @AllowReadonlyWrite()
   async createEuerPdf(@Body() body: CreateEuerPdfDto) {
     return this.service.createEuerPdf(body.jahr, body.ergebnis);
   }
 
   @Post('hausmeister/einsatz')
+  @Roles('admin', 'mitarbeiter')
   async createHausmeisterEinsatzPdf(
     @Body() body: CreateHausmeisterEinsatzPdfDto,
   ) {
@@ -48,6 +57,7 @@ export class PdfController {
   }
 
   @Post('hausmeister/monat')
+  @Roles('admin', 'mitarbeiter')
   async createHausmeisterMonatsnachweisPdf(
     @Body() body: CreateHausmeisterMonatsnachweisPdfDto,
   ) {
@@ -58,6 +68,7 @@ export class PdfController {
   }
 
   @Post('mitarbeiter/abrechnung')
+  @Roles('admin')
   async createMitarbeiterAbrechnungPdf(
     @Body() body: CreateMitarbeiterAbrechnungPdfDto,
   ) {
@@ -88,11 +99,13 @@ export class PdfController {
 
   // ── Archiv ───────────────────────────────────────────────────────────────────
   @Get('archiv')
+  @Roles('admin', 'readonly')
   getArchive() {
     return this.service.getArchive();
   }
 
   @Get('archiv/:id/regenerate')
+  @Roles('admin')
   async regenerateArchive(
     @Param('id', ParseIntPipe) id: number,
     @Res() res: Response,
@@ -104,16 +117,19 @@ export class PdfController {
   }
 
   @Delete('archiv/cleanup')
+  @Roles('admin')
   cleanArchive() {
     return this.service.cleanArchive();
   }
 
   @Delete('archiv/:id')
+  @Roles('admin')
   deleteArchiveEntry(@Param('id', ParseIntPipe) id: number) {
     return this.service.deleteArchiveEntry(id);
   }
 
   @Delete('cache')
+  @Roles('admin')
   clearCache() {
     return this.service.clearCache();
   }

@@ -1,6 +1,7 @@
 import { Controller, Get, Query, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { PrismaService } from '../../core/database/prisma.service';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 function calcTax(brutto: number, mwst: number) {
   const ust = brutto - brutto / (1 + mwst / 100);
@@ -188,6 +189,7 @@ const DATEV_COLUMNS = [
 ];
 
 @Controller('api/datev')
+@Roles('admin', 'readonly')
 export class DatevController {
   constructor(private readonly prisma: PrismaService) {}
 

@@ -1,7 +1,9 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
+import { Roles } from '../auth/decorators/roles.decorator';
 
+@Roles('admin')
 @Controller('api/backup')
 export class BackupController {
   private lastBackupTime: string | null = null;

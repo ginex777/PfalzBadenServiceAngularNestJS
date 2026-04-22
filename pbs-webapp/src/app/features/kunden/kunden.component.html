@@ -6,6 +6,7 @@
 
   <!-- Formular -->
   <app-kunden-formular
+    *roleAllowed="['admin']"
     [bearbeiteterKunde]="facade.bearbeiteterKunde()"
     (gespeichert)="speichern($event)"
     (abgebrochen)="bearbeitungAbbrechen()"

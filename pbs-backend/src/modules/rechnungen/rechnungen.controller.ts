@@ -14,9 +14,11 @@ import { ApiTags, ApiSecurity, ApiOperation } from '@nestjs/swagger';
 import { RechnungenService } from './rechnungen.service';
 import { CreateRechnungDto, UpdateRechnungDto } from './dto/rechnung.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Rechnungen')
 @ApiSecurity('x-nutzer')
+@Roles('admin', 'readonly')
 @Controller('api/rechnungen')
 export class RechnungenController {
   constructor(private readonly service: RechnungenService) {}

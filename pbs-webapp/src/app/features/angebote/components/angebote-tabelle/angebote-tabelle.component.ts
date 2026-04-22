@@ -8,12 +8,13 @@ import {
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { ConfirmModalComponent } from '../../../../shared/ui/confirm-modal/confirm-modal.component';
 import { waehrungFormatieren, datumFormatieren } from '../../../../core/utils/format.utils';
+import { RoleAllowedDirective } from '../../../../core/directives/role-allowed.directive';
 
 @Component({
   selector: 'app-angebote-tabelle',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [StatusBadgeComponent, EmptyStateComponent, ConfirmModalComponent],
+  imports: [StatusBadgeComponent, EmptyStateComponent, ConfirmModalComponent, RoleAllowedDirective],
   templateUrl: './angebote-tabelle.component.html',
   styleUrl: './angebote-tabelle.component.scss',
 })

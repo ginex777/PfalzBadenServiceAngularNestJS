@@ -8,6 +8,7 @@ import { SearchToolbarComponent } from '../../shared/ui/search-toolbar/search-to
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { Kunde } from '../../core/models';
 import { KundenFormularDaten } from './kunden.models';
+import { RoleAllowedDirective } from '../../core/directives/role-allowed.directive';
 
 @Component({
   selector: 'app-kunden',
@@ -20,6 +21,7 @@ import { KundenFormularDaten } from './kunden.models';
     ConfirmModalComponent,
     SearchToolbarComponent,
     PageTitleComponent,
+    RoleAllowedDirective,
   ],
   templateUrl: './kunden.component.html',
   styleUrl: './kunden.component.scss',

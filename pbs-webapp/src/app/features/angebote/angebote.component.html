@@ -5,6 +5,7 @@
     <app-search-toolbar
       platzhalter="Angebot suchen…"
       aktionLabel="+ Neues Angebot"
+      [aktionRollen]="['admin']"
       [(suchbegriff)]="facade.suchbegriff"
       (aktion)="onNeuesAngebot()"
     />

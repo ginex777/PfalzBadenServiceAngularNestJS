@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import * as nodemailer from 'nodemailer';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 interface SmtpConfig {
   host: string;
@@ -18,6 +19,7 @@ interface SmtpConfig {
 }
 
 @Controller('api/email')
+@Roles('admin')
 export class EmailController {
   constructor(private readonly prisma: PrismaService) {}
 

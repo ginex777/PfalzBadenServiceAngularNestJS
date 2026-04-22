@@ -49,7 +49,7 @@
   />
 } @else {
   @if (ausgewaehlt().size > 0) {
-    <div class="bulk-aktionen">
+    <div class="bulk-aktionen" *roleAllowed="['admin']">
       <span class="bulk-aktionen__info">{{ ausgewaehlt().size }} ausgewählt</span>
       <button class="btn btn-sm btn-action--success" (click)="onBulkAlsGezahlt()">
         Als bezahlt markieren
@@ -66,7 +66,7 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th class="col-check">
+          <th class="col-check" *roleAllowed="['admin']">
             <input
               type="checkbox"
               [checked]="alleAusgewaehlt()"
@@ -139,7 +139,7 @@
             [class.row--ueberfaellig]="istUeberfaellig(rechnung)"
             [class.row--ausgewaehlt]="rechnung.id !== null && rechnung.id !== undefined && ausgewaehlt().has(rechnung.id)"
           >
-            <td class="col-check">
+            <td class="col-check" *roleAllowed="['admin']">
               <input
                 type="checkbox"
                 [checked]="rechnung.id !== null && rechnung.id !== undefined && ausgewaehlt().has(rechnung.id)"
@@ -166,21 +166,23 @@
             <td><app-status-badge [status]="statusTyp(rechnung)" /></td>
             <td class="actions-cell">
               <button class="btn-action" (click)="pdfGenerieren.emit(rechnung)">PDF</button>
-              <button class="btn-action" (click)="kopieren.emit(rechnung)">Kopie</button>
+              <button class="btn-action" *roleAllowed="['admin']" (click)="kopieren.emit(rechnung)">Kopie</button>
               <button
                 class="btn-action"
+                *roleAllowed="['admin']"
                 (click)="mahnung.emit(rechnung)"
                 title="Mahnungen verwalten"
               >
                 Mahnung
               </button>
               @if (!rechnung.bezahlt) {
-                <button class="btn-action btn-action--success" (click)="alsGezahlt.emit(rechnung)">
+                <button class="btn-action btn-action--success" *roleAllowed="['admin']" (click)="alsGezahlt.emit(rechnung)">
                   Bezahlt
                 </button>
-                <button class="btn-action" (click)="bearbeiten.emit(rechnung)">Bearbeiten</button>
+                <button class="btn-action" *roleAllowed="['admin']" (click)="bearbeiten.emit(rechnung)">Bearbeiten</button>
                 <button
                   class="btn-action btn-action--danger"
+                  *roleAllowed="['admin']"
                   (click)="loeschenBestaetigen(rechnung.id!)"
                 >
                   Löschen

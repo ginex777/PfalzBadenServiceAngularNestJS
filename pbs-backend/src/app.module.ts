@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { VertraegeModule } from './modules/vertraege/vertraege.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
+import { ReadonlyWriteBlockGuard } from './modules/auth/guards/readonly-write-block.guard';
 import { DatabaseModule } from './core/database/database.module';
 import { KundenModule } from './modules/kunden/kunden.module';
 import { RechnungenModule } from './modules/rechnungen/rechnungen.module';
@@ -65,6 +66,7 @@ import { HealthController } from './health.controller';
   providers: [
     // Global JWT guard — all routes protected unless @Public() is applied
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: ReadonlyWriteBlockGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })

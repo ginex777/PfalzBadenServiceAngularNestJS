@@ -18,41 +18,59 @@ import {
   UpdateMitarbeiterDto,
   UpdateMitarbeiterStundenDto,
 } from './dto/mitarbeiter.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 
+@Roles('admin', 'mitarbeiter')
 @Controller('api/mitarbeiter')
 export class MitarbeiterController {
   constructor(private readonly service: MitarbeiterService) {}
-  @Get() alleMitarbeiterLaden(@Query() pagination: PaginationDto) {
+  @Get()
+  @Roles('admin')
+  alleMitarbeiterLaden(@Query() pagination: PaginationDto) {
     return this.service.alleMitarbeiterLaden(pagination);
   }
-  @Post() mitarbeiterErstellen(@Body() b: CreateMitarbeiterDto) {
+  @Post()
+  @Roles('admin')
+  mitarbeiterErstellen(@Body() b: CreateMitarbeiterDto) {
     return this.service.mitarbeiterErstellen(b);
   }
-  @Put(':id') mitarbeiterAktualisieren(
+  @Put(':id')
+  @Roles('admin')
+  mitarbeiterAktualisieren(
     @Param('id', ParseIntPipe) id: number,
     @Body() b: UpdateMitarbeiterDto,
   ) {
     return this.service.mitarbeiterAktualisieren(id, b);
   }
-  @Delete(':id') mitarbeiterLoeschen(@Param('id', ParseIntPipe) id: number) {
+  @Delete(':id')
+  @Roles('admin')
+  mitarbeiterLoeschen(@Param('id', ParseIntPipe) id: number) {
     return this.service.mitarbeiterLoeschen(id);
   }
-  @Get(':id/stunden') stundenLaden(@Param('id', ParseIntPipe) id: number) {
+  @Get(':id/stunden')
+  @Roles('admin')
+  stundenLaden(@Param('id', ParseIntPipe) id: number) {
     return this.service.stundenLaden(id);
   }
-  @Post(':id/stunden') stundenErstellen(
+  @Post(':id/stunden')
+  @Roles('admin')
+  stundenErstellen(
     @Param('id', ParseIntPipe) id: number,
     @Body() b: CreateMitarbeiterStundenDto,
   ) {
     return this.service.stundenErstellen(id, b);
   }
-  @Put('stunden/:id') stundenAktualisieren(
+  @Put('stunden/:id')
+  @Roles('admin')
+  stundenAktualisieren(
     @Param('id', ParseIntPipe) id: number,
     @Body() b: UpdateMitarbeiterStundenDto,
   ) {
     return this.service.stundenAktualisieren(id, b);
   }
-  @Delete('stunden/:id') stundenLoeschen(
+  @Delete('stunden/:id')
+  @Roles('admin')
+  stundenLoeschen(
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.service.stundenLoeschen(id);

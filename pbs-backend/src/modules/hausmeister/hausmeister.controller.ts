@@ -15,7 +15,9 @@ import {
   CreateHausmeisterEinsatzDto,
   UpdateHausmeisterEinsatzDto,
 } from './dto/hausmeister.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 
+@Roles('admin', 'mitarbeiter')
 @Controller('api/hausmeister')
 export class HausmeisterController {
   constructor(private readonly service: HausmeisterService) {}

@@ -21,6 +21,36 @@ interface NavGroup {
   items: NavItem[];
 }
 
+type UserRole = 'admin' | 'readonly' | 'mitarbeiter';
+
+const NAV_ACCESS: Record<string, readonly UserRole[]> = {
+  '/dashboard': ['admin', 'readonly', 'mitarbeiter'],
+  '/suche': ['admin', 'readonly', 'mitarbeiter'],
+
+  '/kunden': ['admin', 'readonly'],
+  '/rechnungen': ['admin', 'readonly'],
+  '/angebote': ['admin', 'readonly'],
+  '/wiederkehrende-rechnungen': ['admin', 'readonly'],
+  '/marketing': ['admin'],
+
+  '/buchhaltung': ['admin', 'readonly'],
+  '/belege': ['admin', 'readonly'],
+  '/euer': ['admin', 'readonly'],
+  '/fixkosten': ['admin', 'readonly'],
+  '/datev': ['admin', 'readonly'],
+
+  '/muellplan': ['admin', 'mitarbeiter'],
+  '/hausmeister': ['admin', 'mitarbeiter'],
+  '/aufgaben': ['admin', 'mitarbeiter'],
+
+  '/mitarbeiter': ['admin'],
+  '/vertraege': ['admin', 'readonly'],
+  '/pdf-archiv': ['admin', 'readonly'],
+  '/audit-log': ['admin', 'readonly'],
+  '/einstellungen': ['admin'],
+  '/benutzerverwaltung': ['admin'],
+};
+
 const NAV_GRUPPEN: NavGroup[] = [
   {
     id: 'uebersicht',
@@ -93,9 +123,19 @@ export class SidebarComponent {
   readonly darkMode = input(false);
   readonly darkModeGeaendert = output<void>();
 
-  protected readonly navGruppen = NAV_GRUPPEN;
   protected readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+
+  protected readonly navGruppen = computed(() => {
+    const user = this.authService.currentUser();
+    if (!user) return [];
+
+    const role = user.rolle as UserRole;
+    return NAV_GRUPPEN.map((g) => ({
+      ...g,
+      items: g.items.filter((i) => (NAV_ACCESS[i.path] ?? []).includes(role)),
+    })).filter((g) => g.items.length > 0);
+  });
 
   /** Which groups are currently open (multi-expand) */
   protected readonly offeneGruppen = signal<Set<string>>(new Set([this._initialGroup()]));

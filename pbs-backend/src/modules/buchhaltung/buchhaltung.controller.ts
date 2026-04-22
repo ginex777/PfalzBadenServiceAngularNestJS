@@ -16,8 +16,10 @@ import {
   VstDto,
   MonatSperrenDto,
 } from './dto/buchhaltung.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Buchhaltung')
+@Roles('admin', 'readonly')
 @Controller('api')
 export class BuchhaltungController {
   constructor(private readonly service: BuchhaltungService) {}

@@ -1,7 +1,9 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 
+@Roles('admin', 'readonly')
 @Controller('api/audit')
 export class AuditController {
   constructor(private readonly prisma: PrismaService) {}

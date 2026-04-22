@@ -10,7 +10,7 @@
 
   <!-- Grouped navigation -->
   <ul class="sidebar__nav" role="list">
-    @for (gruppe of navGruppen; track gruppe.id) {
+    @for (gruppe of navGruppen(); track gruppe.id) {
       <li class="sidebar__group" [class.sidebar__group--offen]="istOffen(gruppe.id)">
         <!-- Group toggle button -->
         <button

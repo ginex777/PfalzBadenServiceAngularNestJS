@@ -5,12 +5,13 @@ import { KundeUmsatz } from '../../kunden.models';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SkeletonRowsComponent } from '../../../../shared/ui/skeleton-rows/skeleton-rows.component';
 import { waehrungFormatieren } from '../../../../core/utils/format.utils';
+import { RoleAllowedDirective } from '../../../../core/directives/role-allowed.directive';
 
 @Component({
   selector: 'app-kunden-tabelle',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EmptyStateComponent, RouterLink, SkeletonRowsComponent],
+  imports: [EmptyStateComponent, RoleAllowedDirective, RouterLink, SkeletonRowsComponent],
   templateUrl: './kunden-tabelle.component.html',
   styleUrl: './kunden-tabelle.component.scss',
 })

@@ -10,8 +10,11 @@ import {
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { MahnungenService } from './mahnungen.service';
 import { CreateMahnungDto } from './dto/mahnung.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { AllowReadonlyWrite } from '../auth/decorators/allow-readonly-write.decorator';
 
 @ApiTags('Mahnungen')
+@Roles('admin', 'readonly')
 @Controller('api/mahnungen')
 export class MahnungenController {
   constructor(private readonly service: MahnungenService) {}
@@ -42,6 +45,7 @@ export class MahnungenController {
 
   @Post(':id/pdf')
   @ApiOperation({ summary: 'Mahnung-PDF erstellen' })
+  @AllowReadonlyWrite()
   createPdf(@Param('id', ParseIntPipe) id: number) {
     return this.service.createPdf(id);
   }

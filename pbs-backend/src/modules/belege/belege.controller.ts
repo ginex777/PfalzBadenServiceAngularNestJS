@@ -16,7 +16,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { BelegeService } from './belege.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 
+@Roles('admin', 'readonly')
 @Controller('api/belege')
 export class BelegeController {
   constructor(private readonly service: BelegeService) {}

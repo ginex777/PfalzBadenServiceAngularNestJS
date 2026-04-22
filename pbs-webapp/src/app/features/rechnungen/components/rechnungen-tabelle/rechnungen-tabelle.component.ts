@@ -18,12 +18,13 @@ import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-sta
 import { ConfirmModalComponent } from '../../../../shared/ui/confirm-modal/confirm-modal.component';
 import { waehrungFormatieren, datumFormatieren, MONATE } from '../../../../core/utils/format.utils';
 import { MS_PER_DAY } from '../../../../core/constants';
+import { RoleAllowedDirective } from '../../../../core/directives/role-allowed.directive';
 
 @Component({
   selector: 'app-rechnungen-tabelle',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [StatusBadgeComponent, EmptyStateComponent, ConfirmModalComponent],
+  imports: [StatusBadgeComponent, EmptyStateComponent, ConfirmModalComponent, RoleAllowedDirective],
   templateUrl: './rechnungen-tabelle.component.html',
   styleUrl: './rechnungen-tabelle.component.scss',
 })
