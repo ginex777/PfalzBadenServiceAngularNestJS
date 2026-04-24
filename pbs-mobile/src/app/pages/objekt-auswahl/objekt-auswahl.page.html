@@ -1,0 +1,83 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Objekt auswaehlen</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="app-page-grid objekt-auswahl-page">
+    <section class="app-hero">
+      <p class="app-hero-label">Kontext</p>
+      <h1 class="app-hero-title">Wo arbeitest du gerade?</h1>
+      <p class="app-hero-text">
+        Das Objekt gilt fuer alle Aktionen (Muell, Checklisten, Foto, Zeiterfassung).
+      </p>
+    </section>
+
+    @if (context.objectsError()) {
+      <ion-card class="app-card">
+        <ion-card-content>
+          <div class="state-title">Fehler</div>
+          <div class="state-text">{{ context.objectsError() }}</div>
+          <ion-button expand="block" fill="outline" (click)="retry()">Neu laden</ion-button>
+        </ion-card-content>
+      </ion-card>
+    } @else if (context.objectsLoading()) {
+      <ion-card class="app-card">
+        <ion-card-content class="loading-row">
+          <ion-spinner name="crescent" aria-label="Objekte werden geladen"></ion-spinner>
+          <div>
+            <div class="state-title">Objekte werden geladen</div>
+            <div class="state-text">Einen Moment bitte…</div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    } @else if (objects().length === 0) {
+      <ion-card class="app-card">
+        <ion-card-content>
+          <div class="state-title">Keine Objekte</div>
+          <div class="state-text">Es sind keine aktiven Objekte verfuegbar.</div>
+        </ion-card-content>
+      </ion-card>
+    } @else {
+      <ion-card class="app-card search-card">
+        <ion-card-content>
+          <ion-item lines="none" class="search-item">
+            <ion-label position="stacked">Suche</ion-label>
+            <ion-input
+              [value]="query()"
+              (ionInput)="updateQuery($event.detail.value)"
+              placeholder="Name, Ort, Strasse, Kunde…"
+              inputmode="search"
+              clearInput="true"
+            ></ion-input>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="app-card list-card">
+        <ion-card-content>
+          <ion-list lines="inset" class="objects-list">
+            @for (obj of filteredObjects(); track obj.id) {
+              <ion-item
+                button="true"
+                detail="false"
+                class="object-row"
+                [class.object-row--selected]="obj.id === selectedObjectId()"
+                (click)="selectObject(obj.id)"
+              >
+                <ion-label>
+                  <h3>{{ obj.name }}</h3>
+                  @if (formatLine2(obj)) {
+                    <p>{{ formatLine2(obj) }}</p>
+                  }
+                </ion-label>
+              </ion-item>
+            }
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    }
+  </div>
+</ion-content>
+

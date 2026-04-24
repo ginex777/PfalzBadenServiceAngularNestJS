@@ -2,6 +2,12 @@ ion-content {
   --background: var(--app-bg);
 }
 
+.context-toolbar {
+  --padding-start: var(--app-space-3);
+  --padding-end: var(--app-space-3);
+  --min-height: 3.25rem;
+}
+
 .page-foto {
   min-height: 100%;
 }

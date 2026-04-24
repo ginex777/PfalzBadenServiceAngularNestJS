@@ -171,7 +171,9 @@ export class NachweiseService {
     const row = await this.prisma.nachweise.create({
       data: {
         objekte: { connect: { id: BigInt(dto.objectId) } },
-        mitarbeiter: employeeId ? { connect: { id: BigInt(employeeId) } } : undefined,
+        mitarbeiter: employeeId
+          ? { connect: { id: BigInt(employeeId) } }
+          : undefined,
         filename: file.originalname,
         mimetype: file.mimetype,
         filesize: file.size,

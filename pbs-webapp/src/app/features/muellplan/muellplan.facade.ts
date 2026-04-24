@@ -1,13 +1,11 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+﻿import { Injectable, inject, signal, computed } from '@angular/core';
 import { MuellplanService } from './muellplan.service';
 import { BrowserService } from '../../core/services/browser.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Objekt, MuellplanTermin, MuellplanVorlage, Kunde } from '../../core/models';
+import { Objekt, MuellplanTermin, MuellplanVorlage } from '../../core/models';
 import {
-  MuellplanFormularDaten,
   TerminFormularDaten,
   VorlageFormularDaten,
-  LEERES_OBJEKT_FORMULAR,
   LEERER_TERMIN,
   LEERE_VORLAGE,
 } from './muellplan.models';
@@ -22,25 +20,20 @@ export class MuellplanFacade {
   readonly laedt = signal(false);
   readonly objekte = signal<Objekt[]>([]);
   readonly vorlagen = signal<MuellplanVorlage[]>([]);
-  readonly kunden = signal<Kunde[]>([]);
   readonly aktuellesObjekt = signal<Objekt | null>(null);
   readonly termine = signal<MuellplanTermin[]>([]);
   readonly anstehendeTermine = signal<MuellplanTermin[]>([]);
-  readonly objektFormularSichtbar = signal(false);
   readonly terminFormularSichtbar = signal(false);
   readonly vorlagenModalSichtbar = signal(false);
   readonly vorlageFormularSichtbar = signal(false);
   readonly vorlageAnwendenSichtbar = signal(false);
   readonly bearbeiteterTermin = signal<MuellplanTermin | null>(null);
-  readonly bearbeitetesObjekt = signal<Objekt | null>(null);
-  readonly loeschKandidat = signal<number | null>(null);
-  readonly objektFormularDaten = signal<MuellplanFormularDaten>({ ...LEERES_OBJEKT_FORMULAR });
   readonly terminFormularDaten = signal<TerminFormularDaten>({ ...LEERER_TERMIN });
   readonly vorlageFormularDaten = signal<VorlageFormularDaten>({ ...LEERE_VORLAGE });
   readonly vorlageAnwendenId = signal<number | null>(null);
   readonly vorlageVorschau = signal<{ datum: string; muellart: string; farbe: string }[]>([]);
 
-  // ── Termine kopieren ──────────────────────────────────────────────────────
+  // â”€â”€ Termine kopieren â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly kopierenModalSichtbar = signal(false);
   readonly kopierenVonObjektId = signal<number | null>(null);
 
@@ -74,10 +67,16 @@ export class MuellplanFacade {
   ladeDaten(): void {
     this.laedt.set(true);
     this.service.allesDatenLaden().subscribe({
-      next: ({ objekte, vorlagen, kunden }) => {
-        this.objekte.set(objekte);
+      next: ({ objekte, vorlagen }) => {
+        const activeObjects = objekte.filter((o) => (o.status ?? 'AKTIV') !== 'INAKTIV');
+        this.objekte.set(activeObjects);
         this.vorlagen.set(vorlagen);
-        this.kunden.set(kunden);
+
+        const current = this.aktuellesObjekt();
+        if (current && (current.status ?? 'AKTIV') === 'INAKTIV') {
+          this.aktuellesObjekt.set(null);
+          this.termine.set([]);
+        }
         this.laedt.set(false);
       },
       error: () => {
@@ -92,80 +91,11 @@ export class MuellplanFacade {
   }
 
   objektAuswaehlen(objekt: Objekt): void {
+    if ((objekt.status ?? 'AKTIV') === 'INAKTIV') return;
     this.aktuellesObjekt.set(objekt);
     this.service.termineLaden(objekt.id).subscribe({
       next: (t) => this.termine.set(t),
       error: () => this.termine.set([]),
-    });
-  }
-
-  objektFormularOeffnen(objekt?: Objekt): void {
-    this.bearbeitetesObjekt.set(objekt ?? null);
-    this.objektFormularDaten.set(
-      objekt
-        ? {
-            name: objekt.name,
-            strasse: objekt.strasse ?? '',
-            plz: objekt.plz ?? '',
-            ort: objekt.ort ?? '',
-            notiz: objekt.notiz ?? '',
-            kunden_id: objekt.kunden_id ?? null,
-          }
-        : { ...LEERES_OBJEKT_FORMULAR },
-    );
-    this.objektFormularSichtbar.set(true);
-  }
-
-  objektFormularSchliessen(): void {
-    this.objektFormularSichtbar.set(false);
-    this.bearbeitetesObjekt.set(null);
-  }
-
-  objektSpeichern(): void {
-    const daten = this.objektFormularDaten();
-    if (!daten.name) {
-      this.toast.error('Bitte Name eingeben.');
-      return;
-    }
-    const editId = this.bearbeitetesObjekt()?.id;
-    const payload: Partial<Objekt> = { ...daten, kunden_id: daten.kunden_id ?? undefined };
-    const anfrage = editId
-      ? this.service.updateObject(editId, payload)
-      : this.service.createObject(payload);
-    anfrage.subscribe({
-      next: (gespeichert) => {
-        if (editId)
-          this.objekte.update((list) => list.map((o) => (o.id === editId ? gespeichert : o)));
-        else this.objekte.update((list) => [...list, gespeichert]);
-        this.objektFormularSchliessen();
-      },
-      error: () => this.toast.error('Objekt konnte nicht gespeichert werden.'),
-    });
-  }
-
-  deleteObjectBestaetigen(id: number): void {
-    this.loeschKandidat.set(id);
-  }
-  loeschenAbbrechen(): void {
-    this.loeschKandidat.set(null);
-  }
-
-  deleteObjectAusfuehren(): void {
-    const id = this.loeschKandidat();
-    if (id === null) return;
-    this.service.deleteObject(id).subscribe({
-      next: () => {
-        this.objekte.update((list) => list.filter((o) => o.id !== id));
-        if (this.aktuellesObjekt()?.id === id) {
-          this.aktuellesObjekt.set(null);
-          this.termine.set([]);
-        }
-        this.loeschKandidat.set(null);
-      },
-      error: () => {
-        this.toast.error('Objekt konnte nicht gelöscht werden.');
-        this.loeschKandidat.set(null);
-      },
     });
   }
 
@@ -192,7 +122,7 @@ export class MuellplanFacade {
     const daten = this.terminFormularDaten();
     const objekt = this.aktuellesObjekt();
     if (!objekt || !daten.muellart || !daten.abholung) {
-      this.toast.error('Müllart und Datum sind Pflichtfelder.');
+      this.toast.error('MÃ¼llart und Datum sind Pflichtfelder.');
       return;
     }
     const editId = this.bearbeiteterTermin()?.id;
@@ -214,7 +144,7 @@ export class MuellplanFacade {
   terminLoeschen(id: number): void {
     this.service.terminLoeschen(id).subscribe({
       next: () => this.termine.update((list) => list.filter((t) => t.id !== id)),
-      error: () => this.toast.error('Termin konnte nicht gelöscht werden.'),
+      error: () => this.toast.error('Termin konnte nicht gelÃ¶scht werden.'),
     });
   }
 
@@ -237,7 +167,7 @@ export class MuellplanFacade {
     });
   }
 
-  // ── Vorlagen ─────────────────────────────────────────────────────────────
+  // â”€â”€ Vorlagen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   vorlagenModalOeffnen(): void {
     this.vorlagenModalSichtbar.set(true);
   }
@@ -284,13 +214,13 @@ export class MuellplanFacade {
   vorlageLoeschen(id: number): void {
     this.service.vorlageLoeschen(id).subscribe({
       next: () => this.vorlagen.update((list) => list.filter((v) => v.id !== id)),
-      error: () => this.toast.error('Vorlage konnte nicht gelöscht werden.'),
+      error: () => this.toast.error('Vorlage konnte nicht gelÃ¶scht werden.'),
     });
   }
 
   vorlageAnwendenOeffnen(): void {
     if (!this.aktuellesObjekt()) {
-      this.toast.error('Bitte zuerst ein Objekt auswählen.');
+      this.toast.error('Bitte zuerst ein Objekt auswÃ¤hlen.');
       return;
     }
     this.vorlageAnwendenId.set(this.aktuellesObjekt()?.vorlage_id ?? null);
@@ -305,7 +235,7 @@ export class MuellplanFacade {
     const vorlageId = this.vorlageAnwendenId();
     const objekt = this.aktuellesObjekt();
     if (!objekt || !vorlageId) {
-      this.toast.error('Bitte eine Vorlage auswählen.');
+      this.toast.error('Bitte eine Vorlage auswÃ¤hlen.');
       return;
     }
     const vorlage = this.vorlagen().find((v) => v.id === vorlageId);
@@ -326,7 +256,7 @@ export class MuellplanFacade {
     );
 
     this.service.updateObject(objekt.id, { ...objekt, vorlage_id: vorlageId }).subscribe({
-      next: (aktualisiert) => {
+      next: (aktualisiert: Objekt) => {
         this.aktuellesObjekt.set(aktualisiert);
         this.objekte.update((list) => list.map((o) => (o.id === objekt.id ? aktualisiert : o)));
       },
@@ -362,13 +292,6 @@ export class MuellplanFacade {
     this.terminFormularDaten.update((d) => ({ ...d, [feld]: wert }));
   }
 
-  objektFormularFeldAktualisieren<K extends keyof MuellplanFormularDaten>(
-    feld: K,
-    wert: MuellplanFormularDaten[K],
-  ): void {
-    this.objektFormularDaten.update((d) => ({ ...d, [feld]: wert }));
-  }
-
   vorlageFormularFeldAktualisieren<K extends keyof VorlageFormularDaten>(
     feld: K,
     wert: VorlageFormularDaten[K],
@@ -376,10 +299,10 @@ export class MuellplanFacade {
     this.vorlageFormularDaten.update((d) => ({ ...d, [feld]: wert }));
   }
 
-  // ── Termine kopieren ──────────────────────────────────────────────────────
+  // â”€â”€ Termine kopieren â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   kopierenModalOeffnen(): void {
     if (!this.aktuellesObjekt()) {
-      this.toast.error('Bitte zuerst ein Objekt auswählen.');
+      this.toast.error('Bitte zuerst ein Objekt auswÃ¤hlen.');
       return;
     }
     this.kopierenVonObjektId.set(null);
@@ -395,7 +318,7 @@ export class MuellplanFacade {
     const vonId = this.kopierenVonObjektId();
     const zielObjekt = this.aktuellesObjekt();
     if (!vonId || !zielObjekt) {
-      this.toast.error('Bitte ein Quell-Objekt auswählen.');
+      this.toast.error('Bitte ein Quell-Objekt auswÃ¤hlen.');
       return;
     }
     this.service.termineKopieren(vonId, zielObjekt.id).subscribe({
@@ -413,7 +336,7 @@ export class MuellplanFacade {
   monatsabschlussPdfGenerieren(): void {
     const objekt = this.aktuellesObjekt();
     if (!objekt) {
-      this.toast.error('Bitte zuerst ein Objekt auswählen.');
+      this.toast.error('Bitte zuerst ein Objekt auswÃ¤hlen.');
       return;
     }
     this.service
@@ -421,7 +344,7 @@ export class MuellplanFacade {
       .catch(() => this.toast.error('PDF konnte nicht erstellt werden.'));
   }
 
-  // ── Vorlage PDF ───────────────────────────────────────────────────────────
+  // â”€â”€ Vorlage PDF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   vorlagePdfHochladen(vorlageId: number, file: File): void {
     this.service.vorlagePdfHochladen(vorlageId, file).subscribe({
       next: (res) => {

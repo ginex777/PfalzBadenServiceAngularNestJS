@@ -18,6 +18,7 @@ const TABS: readonly OperativTab[] = [
   { path: 'mobile-rueckmeldungen', label: 'Mobile Rückmeldungen', roles: ['admin', 'readonly', 'mitarbeiter'] },
   { path: 'nachweise', label: 'Nachweise', roles: ['admin', 'readonly', 'mitarbeiter'] },
   { path: 'checklisten', label: 'Checklisten', roles: ['admin', 'readonly', 'mitarbeiter'] },
+  { path: 'aufgaben', label: 'Aufgaben', roles: ['admin', 'readonly'] },
 ];
 
 @Component({

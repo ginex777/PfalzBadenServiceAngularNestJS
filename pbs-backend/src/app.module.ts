@@ -29,6 +29,8 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { NachweiseModule } from './modules/nachweise/nachweise.module';
 import { ChecklistenModule } from './modules/checklisten/checklisten.module';
 import { MobileFeedbackModule } from './modules/mobile-feedback/mobile-feedback.module';
+import { ObjekteModule } from './modules/objekte/objekte.module';
+import { TasksModule } from './modules/tasks/tasks.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -41,6 +43,7 @@ import { HealthController } from './health.controller';
 
     DatabaseModule,
     KundenModule,
+    ObjekteModule,
     RechnungenModule,
     AngeboteModule,
     BuchhaltungModule,
@@ -57,6 +60,7 @@ import { HealthController } from './health.controller';
     NachweiseModule,
     ChecklistenModule,
     MobileFeedbackModule,
+    TasksModule,
     DatevModule,
     BackupModule,
     EmailModule,

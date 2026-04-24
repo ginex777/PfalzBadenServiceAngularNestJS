@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { PdfRenderService } from '../pdf-render.service';
 import { PdfTokenService } from '../pdf-token.service';
@@ -20,7 +24,8 @@ function asArray<T>(value: unknown): T[] {
 function formatValue(value: unknown): string {
   if (value === null || value === undefined) return '—';
   if (typeof value === 'boolean') return value ? 'Ja' : 'Nein';
-  if (typeof value === 'number') return Number.isFinite(value) ? String(value) : '—';
+  if (typeof value === 'number')
+    return Number.isFinite(value) ? String(value) : '—';
   if (typeof value === 'string') return value.trim() || '—';
   return '—';
 }
@@ -52,7 +57,8 @@ export class ChecklistePdfGenerator {
         mitarbeiter_id: true,
       },
     });
-    if (!row) throw new NotFoundException(`Submission ${submissionId} nicht gefunden`);
+    if (!row)
+      throw new NotFoundException(`Submission ${submissionId} nicht gefunden`);
 
     if (auth.role === 'mitarbeiter') {
       if (auth.employeeId == null) {
@@ -62,9 +68,13 @@ export class ChecklistePdfGenerator {
             'Kein Mitarbeiter-Mapping vorhanden. Bitte Admin kontaktieren (User \u2194 Mitarbeiter zuordnen).',
         });
       }
-      const rowEmployeeId = row.mitarbeiter_id ? Number(row.mitarbeiter_id) : null;
+      const rowEmployeeId = row.mitarbeiter_id
+        ? Number(row.mitarbeiter_id)
+        : null;
       if (rowEmployeeId !== auth.employeeId) {
-        throw new NotFoundException(`Submission ${submissionId} nicht gefunden`);
+        throw new NotFoundException(
+          `Submission ${submissionId} nicht gefunden`,
+        );
       }
     }
 
@@ -125,7 +135,8 @@ export class ChecklistePdfGenerator {
       objekt: {
         id: Number(row.objekt.id),
         name: row.objekt.name,
-        address: `${row.objekt.strasse ?? ''} ${row.objekt.ort ?? ''}`.trim() || null,
+        address:
+          `${row.objekt.strasse ?? ''} ${row.objekt.ort ?? ''}`.trim() || null,
       },
       mitarbeiter: row.mitarbeiter
         ? { id: Number(row.mitarbeiter.id), name: row.mitarbeiter.name }
@@ -136,10 +147,11 @@ export class ChecklistePdfGenerator {
     const html = this.render.renderTemplate('checkliste.hbs', context);
     const pdf = await this.render.createPdfWithHeaderFooter(html, firma);
     const safeObject = row.objekt.name.replace(/\s+/g, '_').slice(0, 40);
-    const filename = `Checkliste_${templateName.replace(/\s+/g, '_')}_Objekt_${safeObject}_${datum}.pdf`.slice(
-      0,
-      100,
-    );
+    const filename =
+      `Checkliste_${templateName.replace(/\s+/g, '_')}_Objekt_${safeObject}_${datum}.pdf`.slice(
+        0,
+        100,
+      );
 
     await this.prisma.pdfArchive.create({
       data: {
@@ -157,4 +169,3 @@ export class ChecklistePdfGenerator {
     return this.token.createToken(pdf, filename);
   }
 }
-

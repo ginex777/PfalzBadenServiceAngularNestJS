@@ -12,9 +12,9 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { MobileAuthService } from '../../core/auth.service';
-import { OperationalContextService } from '../../core/operational-context.service';
+import { ObjectContextService } from '../../core/object-context.service';
 import { StempelService } from '../../core/stempel.service';
-import { ObjektAuswahlComponent } from '../../shared/ui/objekt-auswahl/objekt-auswahl.component';
+import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-kontext.component';
 
 @Component({
   selector: 'app-stempeluhr',
@@ -30,7 +30,7 @@ import { ObjektAuswahlComponent } from '../../shared/ui/objekt-auswahl/objekt-au
     IonCard,
     IonCardContent,
     IonToast,
-    ObjektAuswahlComponent,
+    ObjektKontextComponent,
   ],
   templateUrl: './stempeluhr.page.html',
   styleUrl: './stempeluhr.page.scss',
@@ -38,7 +38,7 @@ import { ObjektAuswahlComponent } from '../../shared/ui/objekt-auswahl/objekt-au
 export class StempeluhrPage implements OnInit, OnDestroy {
   private readonly auth = inject(MobileAuthService);
   private readonly stampService = inject(StempelService);
-  protected readonly context = inject(OperationalContextService);
+  protected readonly context = inject(ObjectContextService);
   private readonly router = inject(Router);
 
   readonly user = this.auth.currentUser;
@@ -63,12 +63,17 @@ export class StempeluhrPage implements OnInit, OnDestroy {
   ngOnInit() {
     this.timer = setInterval(() => this.updateRuntime(), 1000);
     this.context.ensureObjectsLoaded();
+    this.restoreActiveStamp();
   }
 
   ngOnDestroy() {
     if (this.timer) {
       clearInterval(this.timer);
     }
+  }
+
+  ionViewWillEnter(): void {
+    this.restoreActiveStamp();
   }
 
   get isActive(): boolean {
@@ -164,6 +169,27 @@ export class StempeluhrPage implements OnInit, OnDestroy {
     this.statusTone.set(tone);
     this.statusMessage.set(message);
     this.toastOpen.set(true);
+  }
+
+  private restoreActiveStamp(): void {
+    const employeeId = this.employeeId;
+    if (!employeeId) return;
+
+    this.stampService.getTimeEntries(employeeId).subscribe({
+      next: (entries) => {
+        const open = entries.find((e) => e.stop == null) ?? null;
+        if (!open) {
+          this.openStamp.set(null);
+          this.runtime.set('00:00:00');
+          return;
+        }
+
+        this.openStamp.set({ id: open.id, start: new Date(open.start) });
+        if (open.objekt_id != null) {
+          this.context.setSelectedObjectId(open.objekt_id);
+        }
+      },
+    });
   }
 
   protected updateNote(value: string): void {

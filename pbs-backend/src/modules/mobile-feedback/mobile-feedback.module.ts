@@ -7,4 +7,3 @@ import { MobileFeedbackService } from './mobile-feedback.service';
   providers: [MobileFeedbackService],
 })
 export class MobileFeedbackModule {}
-

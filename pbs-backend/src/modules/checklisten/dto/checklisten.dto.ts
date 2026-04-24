@@ -142,4 +142,3 @@ export class ChecklistSubmissionListQueryDto extends PaginationDto {
   @Min(1)
   templateId?: number;
 }
-

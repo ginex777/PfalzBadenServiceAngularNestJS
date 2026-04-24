@@ -31,7 +31,8 @@ export class ReadonlyWriteBlockGuard implements CanActivate {
     );
     if (allow) return true;
 
-    throw new ForbiddenException('Readonly: Schreibaktionen sind nicht erlaubt');
+    throw new ForbiddenException(
+      'Readonly: Schreibaktionen sind nicht erlaubt',
+    );
   }
 }
-

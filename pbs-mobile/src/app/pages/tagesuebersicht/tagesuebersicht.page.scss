@@ -2,6 +2,12 @@ ion-content {
   --background: var(--app-bg);
 }
 
+.context-toolbar {
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+  --min-height: 3.25rem;
+}
+
 .page-overview {
   padding: 1rem;
   display: grid;

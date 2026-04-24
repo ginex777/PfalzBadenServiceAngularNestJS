@@ -1,0 +1,28 @@
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.detail-header__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.loading {
+  padding: 12px;
+  color: var(--gray-600);
+}
+
+.readonly-hint {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--gray-700);
+  font-size: 12px;
+}
+

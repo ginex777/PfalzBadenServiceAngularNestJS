@@ -1,27 +1,22 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs/operators';
-import { WasteObject, WastePlanService } from './waste-plan.service';
-
-const STORAGE_KEY = 'pbs-mobile.selectedObjectId';
-
-function readStoredObjectId(): number | null {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return null;
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-}
+import { ObjectListItem, ObjectsService } from './objects.service';
 
 @Injectable({ providedIn: 'root' })
-export class OperationalContextService {
-  private readonly wastePlan = inject(WastePlanService);
+export class ObjectContextService {
+  private readonly objectsApi = inject(ObjectsService);
 
-  readonly objects = signal<WasteObject[]>([]);
+  readonly objects = signal<ObjectListItem[]>([]);
   readonly objectsLoading = signal(false);
   readonly objectsError = signal<string | null>(null);
 
-  readonly selectedObjectId = signal<number | null>(readStoredObjectId());
+  readonly selectedObjectId = signal<number | null>(null);
   readonly selectedObject = computed(
     () => this.objects().find((o) => o.id === this.selectedObjectId()) ?? null,
+  );
+
+  readonly activeObjects = computed(() =>
+    this.objects().filter((o) => (o.status ?? 'AKTIV') !== 'INAKTIV'),
   );
 
   ensureObjectsLoaded(): void {
@@ -30,15 +25,12 @@ export class OperationalContextService {
 
     this.objectsLoading.set(true);
     this.objectsError.set(null);
-    this.wastePlan
-      .getObjectsAll()
+    this.objectsApi
+      .getAll()
       .pipe(finalize(() => this.objectsLoading.set(false)))
       .subscribe({
         next: (rows) => {
           this.objects.set(rows);
-          if (this.selectedObjectId() == null && rows.length > 0) {
-            this.setSelectedObjectId(rows[0]!.id);
-          }
         },
         error: () => {
           this.objects.set([]);
@@ -47,14 +39,13 @@ export class OperationalContextService {
       });
   }
 
+  reloadObjects(): void {
+    if (this.objectsLoading()) return;
+    this.objects.set([]);
+    this.ensureObjectsLoaded();
+  }
+
   setSelectedObjectId(objectId: number | null): void {
-    if (objectId == null) {
-      this.selectedObjectId.set(null);
-      localStorage.removeItem(STORAGE_KEY);
-      return;
-    }
     this.selectedObjectId.set(objectId);
-    localStorage.setItem(STORAGE_KEY, String(objectId));
   }
 }
-

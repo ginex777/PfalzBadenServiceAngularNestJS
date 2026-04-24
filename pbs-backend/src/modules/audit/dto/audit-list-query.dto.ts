@@ -18,4 +18,3 @@ export class AuditListQueryDto extends PaginationDto {
   @IsString()
   tabelle?: string;
 }
-

@@ -102,4 +102,3 @@ export class UpdateWiederkehrendeRechnungDto extends CreateWiederkehrendeRechnun
   @IsDateString()
   letzte_erstellung?: string;
 }
-

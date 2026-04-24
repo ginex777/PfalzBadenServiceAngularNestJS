@@ -1,0 +1,83 @@
+@if (errorMessage()) {
+  <app-error-state
+    [message]="errorMessage()!"
+    actionLabel="Neu laden"
+    (action)="reload.emit()"
+  />
+} @else if (isLoading()) {
+  <app-skeleton-rows [anzahl]="8" />
+} @else if (!hasData()) {
+  <app-empty-state
+    titel="Keine Aufgaben gefunden"
+    beschreibung="Passen Sie die Filter an, um Aufgaben aus Müllplan, Checklisten und Zeiterfassung zu sehen."
+  />
+} @else {
+  <div class="table-wrap">
+    <table class="table aufgaben-table" role="grid">
+      <thead>
+        <tr>
+          <th>Aufgabe</th>
+          <th>Typ</th>
+          <th>Kunde</th>
+          <th>Objekt</th>
+          <th>Person</th>
+          <th>Status</th>
+          <th class="col-due">Fällig</th>
+          <th class="col-done">Erledigt</th>
+          <th class="col-duration">Dauer</th>
+          <th class="col-indicators"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of tasks(); track t.id) {
+          <tr class="row-click" (click)="select(t)">
+            <td class="col-title">
+              <div class="title">{{ t.title }}</div>
+              <div class="sub">{{ formatDateTime(t.createdAt) }}</div>
+            </td>
+            <td><app-aufgaben-typ-badge [type]="t.type" /></td>
+            <td class="muted">{{ t.customerName ?? '–' }}</td>
+            <td class="muted">{{ t.objectName }}</td>
+            <td class="muted">{{ personLabel(t) }}</td>
+            <td><app-aufgaben-status-badge [status]="t.status" /></td>
+            <td class="col-due">{{ formatDate(t.dueAt) }}</td>
+            <td class="col-done">{{ formatDate(t.completedAt) }}</td>
+            <td class="col-duration">{{ formatDuration(t.durationMinutes) }}</td>
+            <td class="col-indicators">
+              @if (hasComment(t)) {
+                <span class="indicator indicator--comment" title="Kommentar vorhanden" aria-label="Kommentar vorhanden">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M7 10h10v2H7v-2Zm0-4h10v2H7V6Zm15-2a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H9l-5 4v-4H3a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3h19Zm0 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3v1.586L8.586 18H22a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1Z"
+                    />
+                  </svg>
+                </span>
+              }
+              @if (hasPhoto(t)) {
+                <span class="indicator indicator--photo" title="Foto vorhanden" aria-label="Foto vorhanden">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M9 3h6l1.5 2H20a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3.5L9 3Zm11 4H4v12h16V7Zm-8 2a5 5 0 1 1 0 10a5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6a3 3 0 0 0 0-6Z"
+                    />
+                  </svg>
+                </span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pager">
+    <app-paginierung
+      [page]="page()"
+      [pageSize]="pageSize()"
+      [total]="total()"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    />
+  </div>
+}

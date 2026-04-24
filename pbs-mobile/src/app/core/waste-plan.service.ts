@@ -34,11 +34,6 @@ export class WastePlanService {
   private readonly http = inject(HttpClient);
   private readonly apiConfig = inject(MobileApiConfigService);
 
-  getObjectsAll() {
-    const baseUrl = this.apiConfig.apiBaseUrl();
-    return this.http.get<WasteObject[]>(`${baseUrl}/api/objekte/all`);
-  }
-
   getPickupsForObject(objectId: number) {
     const baseUrl = this.apiConfig.apiBaseUrl();
     return this.http.get<WastePickup[]>(`${baseUrl}/api/muellplan/${objectId}`);

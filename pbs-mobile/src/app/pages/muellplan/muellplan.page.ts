@@ -11,15 +11,14 @@ import {
   IonList,
   IonRefresher,
   IonRefresherContent,
-  IonSelect,
-  IonSelectOption,
   IonTitle,
   IonToolbar,
   IonToast,
 } from '@ionic/angular/standalone';
 import { forkJoin } from 'rxjs';
-import { OperationalContextService } from '../../core/operational-context.service';
+import { ObjectContextService } from '../../core/object-context.service';
 import { WastePlanService, UpcomingWastePickup, WastePickup } from '../../core/waste-plan.service';
+import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-kontext.component';
 
 @Component({
   selector: 'app-muellplan',
@@ -35,26 +34,22 @@ import { WastePlanService, UpcomingWastePickup, WastePickup } from '../../core/w
     IonCardContent,
     IonItem,
     IonLabel,
-    IonSelect,
-    IonSelectOption,
     IonList,
     IonBadge,
     IonRefresher,
     IonRefresherContent,
     IonToast,
+    ObjektKontextComponent,
   ],
   templateUrl: './muellplan.page.html',
   styleUrl: './muellplan.page.scss',
 })
 export class MuellplanPage implements OnInit {
   private readonly wastePlan = inject(WastePlanService);
-  protected readonly context = inject(OperationalContextService);
+  protected readonly context = inject(ObjectContextService);
 
-  protected readonly objects = this.context.objects;
   protected readonly selectedObjectId = this.context.selectedObjectId;
-  protected readonly selectedObject = computed(
-    () => this.objects().find((o) => o.id === this.selectedObjectId()) ?? null,
-  );
+  protected readonly selectedObject = this.context.selectedObject;
 
   protected readonly upcomingPickups = signal<UpcomingWastePickup[]>([]);
   protected readonly objectPickups = signal<WastePickup[]>([]);
@@ -87,15 +82,6 @@ export class MuellplanPage implements OnInit {
 
   protected handleRefresh(event: CustomEvent): void {
     this.reloadAll(() => (event.target as HTMLIonRefresherElement).complete());
-  }
-
-  protected selectObject(value: unknown): void {
-    const parsed = typeof value === 'number' ? value : value != null ? Number(value) : NaN;
-    if (!Number.isFinite(parsed)) {
-      this.context.setSelectedObjectId(null);
-      return;
-    }
-    this.context.setSelectedObjectId(parsed);
   }
 
   protected pickupColor(color: string): string {

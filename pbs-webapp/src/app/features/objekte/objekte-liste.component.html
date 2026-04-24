@@ -1,0 +1,121 @@
+<div class="page-wrap">
+  <app-page-title titel="Objekte" untertitel="Verwaltung â€” Standorte & Stammdaten" />
+
+  <div class="card">
+    <div class="header-row">
+      <div class="header-row__left">
+        <h3 class="section-title">Alle Objekte</h3>
+        <div class="header-row__meta">{{ total() }} Eintrag(e)</div>
+      </div>
+
+      <div class="header-row__right" *roleAllowed="['admin']">
+        <button class="btn btn-sm btn-primary" (click)="navigateToNew()">+ Objekt</button>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <div class="form-field form-field--wide">
+        <label class="form-hint">Suche</label>
+        <input
+          class="form-input"
+          type="search"
+          placeholder="Name, Adresse, Kundeâ€¦"
+          [value]="searchTerm()"
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      <div class="form-field form-field--narrow-200">
+        <label class="form-hint">Status</label>
+        <select class="form-input" [value]="statusFilter()" (change)="onStatusFilter($event)">
+          <option value="ALL">Alle</option>
+          <option value="AKTIV">Aktiv</option>
+          <option value="INAKTIV">Inaktiv</option>
+        </select>
+      </div>
+
+      <div class="form-field form-field--narrow-260">
+        <label class="form-hint">Kunde</label>
+        <select class="form-input" [value]="customerFilter()" (change)="onCustomerFilter($event)">
+          @for (opt of customerOptions(); track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    @if (error()) {
+      <app-error-state
+        [message]="error()!"
+        actionLabel="Neu laden"
+        (action)="load()"
+      />
+    } @else if (isLoading()) {
+      <div class="loading-skeleton" aria-label="LÃ¤dtâ€¦">
+        @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {
+          <div class="loading-skeleton__row"></div>
+        }
+      </div>
+    } @else if (!pageObjects().length) {
+      <app-empty-state
+        titel="Keine Objekte gefunden"
+        beschreibung="Passen Sie Filter an oder legen Sie ein neues Objekt in der Verwaltung an."
+        [aktionLabel]="canEdit() ? '+ Objekt anlegen' : ''"
+        (aktion)="navigateToNew()"
+      />
+    } @else {
+      <div class="table-wrap">
+        <table class="table objekte-table" role="grid">
+          <thead>
+            <tr>
+              <th>Objekt</th>
+              <th>Adresse</th>
+              <th>Kunde</th>
+              <th class="col-status">Status</th>
+              <th class="col-actions" *roleAllowed="['admin']"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (o of pageObjects(); track o.id) {
+              <tr class="row-click" (click)="navigateToDetail(o.id)">
+                <td class="col-name">
+                  <div class="name">{{ o.name }}</div>
+                  @if (o.notiz) {
+                    <div class="sub">{{ o.notiz }}</div>
+                  }
+                </td>
+                <td class="col-address">{{ formatAddress(o) || 'â€”' }}</td>
+                <td class="col-customer">{{ o.kunden_name || 'â€”' }}</td>
+                <td class="col-status">
+                  <app-status-badge [status]="statusBadge(o.status)" />
+                </td>
+                <td class="col-actions" *roleAllowed="['admin']" (click)="$event.stopPropagation()">
+                  <button class="btn-action" (click)="navigateToDetail(o.id)">Bearbeiten</button>
+                  @if ((o.status ?? 'AKTIV') !== 'INAKTIV') {
+                    <button
+                      class="btn-action btn-action--danger"
+                      (click)="deactivateFromList(o.id)"
+                    >
+                      Deaktivieren
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pager">
+        <app-paginierung
+          [page]="page()"
+          [pageSize]="pageSize()"
+          [total]="total()"
+          (pageChange)="onPageChange($event)"
+          (pageSizeChange)="onPageSizeChange($event)"
+        />
+      </div>
+    }
+  </div>
+</div>
+

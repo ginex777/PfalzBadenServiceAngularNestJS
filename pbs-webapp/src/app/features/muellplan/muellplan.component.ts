@@ -9,16 +9,14 @@ import {
 import { MuellplanFacade } from './muellplan.facade';
 import { ObjektListeComponent } from './components/objekt-liste/objekt-liste.component';
 import { TerminKalenderComponent } from './components/termin-kalender/termin-kalender.component';
-import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import {
-  MuellplanFormularDaten,
   TerminAnzeige,
   TerminFormularDaten,
   VorlageFormularDaten,
 } from './muellplan.models';
 import { datumFormatieren } from '../../core/utils/format.utils';
-import { MuellplanVorlage, Objekt } from '../../core/models';
+import { MuellplanVorlage } from '../../core/models';
 
 @Component({
   selector: 'app-muellplan',
@@ -27,7 +25,6 @@ import { MuellplanVorlage, Objekt } from '../../core/models';
   imports: [
     ObjektListeComponent,
     TerminKalenderComponent,
-    ConfirmModalComponent,
     PageTitleComponent,
   ],
   templateUrl: './muellplan.component.html',
@@ -119,23 +116,13 @@ export class MuellplanComponent implements OnInit {
     );
   });
 
-  protected terminErledigtAendern(event: { id: number; erledigt: boolean }): void {
-    this.facade.setTerminErledigt(event.id, event.erledigt);
-  }
-
-  protected objektLoeschenBestaetigen(objekt: Objekt): void {
-    this.facade.deleteObjectBestaetigen(objekt.id);
+  protected terminErledigtAendern(event: { id: number; done: boolean }): void {
+    this.facade.setTerminErledigt(event.id, event.done);
   }
 
   protected terminMonatFilterGeaendert(event: Event): void {
     const val = (event.target as HTMLSelectElement).value;
     this.facade.terminMonatFilter.set(val === '' ? '' : (parseInt(val) as number));
-  }
-
-  protected objektFeldGeaendert(feld: keyof MuellplanFormularDaten, event: Event): void {
-    const el = event.target as HTMLInputElement | HTMLSelectElement;
-    const wert = feld === 'kunden_id' ? (el.value ? parseInt(el.value) : null) : el.value;
-    this.facade.objektFormularFeldAktualisieren(feld, wert as never);
   }
 
   protected terminFeldGeaendert(feld: keyof TerminFormularDaten, event: Event): void {
@@ -156,12 +143,5 @@ export class MuellplanComponent implements OnInit {
 
   protected fmtDatum(s: string): string {
     return datumFormatieren(s);
-  }
-
-  protected adresseFormatieren(objekt: { strasse?: string; plz?: string; ort?: string }): string {
-    const teile = [objekt.strasse, [objekt.plz, objekt.ort].filter(Boolean).join(' ')].filter(
-      Boolean,
-    );
-    return teile.join(', ');
   }
 }

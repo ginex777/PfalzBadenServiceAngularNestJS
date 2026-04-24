@@ -221,13 +221,17 @@ export class AuthService {
   }
 
   private async findStoredRefreshToken(rawToken: string) {
-    const refreshSecret = this.config.getOrThrow<string>('JWT_SECRET') + '-refresh';
+    const refreshSecret =
+      this.config.getOrThrow<string>('JWT_SECRET') + '-refresh';
     let payloadUserId: string | null = null;
 
     try {
-      const payload = this.jwt.verify<{ userId?: string; sub?: string }>(rawToken, {
-        secret: refreshSecret,
-      });
+      const payload = this.jwt.verify<{ userId?: string; sub?: string }>(
+        rawToken,
+        {
+          secret: refreshSecret,
+        },
+      );
       payloadUserId = payload.userId ?? payload.sub ?? null;
     } catch {
       return null;

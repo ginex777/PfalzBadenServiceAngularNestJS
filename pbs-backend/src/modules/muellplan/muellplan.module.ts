@@ -3,9 +3,10 @@ import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { MuellplanController } from './muellplan.controller';
 import { MuellplanService } from './muellplan.service';
+import { TasksModule } from '../tasks/tasks.module';
 
 @Module({
-  imports: [MulterModule.register({ storage: memoryStorage() })],
+  imports: [MulterModule.register({ storage: memoryStorage() }), TasksModule],
   controllers: [MuellplanController],
   providers: [MuellplanService],
 })

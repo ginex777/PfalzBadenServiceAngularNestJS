@@ -95,10 +95,17 @@ export class PdfService {
               q
                 ? {
                     OR: [
-                      { referenz_nr: { contains: q, mode: 'insensitive' as const } },
+                      {
+                        referenz_nr: {
+                          contains: q,
+                          mode: 'insensitive' as const,
+                        },
+                      },
                       { empf: { contains: q, mode: 'insensitive' as const } },
                       { titel: { contains: q, mode: 'insensitive' as const } },
-                      { filename: { contains: q, mode: 'insensitive' as const } },
+                      {
+                        filename: { contains: q, mode: 'insensitive' as const },
+                      },
                     ],
                   }
                 : {},

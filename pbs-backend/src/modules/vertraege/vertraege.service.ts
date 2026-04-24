@@ -31,9 +31,24 @@ export class VertraegeService {
               query
                 ? {
                     OR: [
-                      { kunden_name: { contains: query, mode: 'insensitive' as const } },
-                      { titel: { contains: query, mode: 'insensitive' as const } },
-                      { vorlage: { contains: query, mode: 'insensitive' as const } },
+                      {
+                        kunden_name: {
+                          contains: query,
+                          mode: 'insensitive' as const,
+                        },
+                      },
+                      {
+                        titel: {
+                          contains: query,
+                          mode: 'insensitive' as const,
+                        },
+                      },
+                      {
+                        vorlage: {
+                          contains: query,
+                          mode: 'insensitive' as const,
+                        },
+                      },
                     ],
                   }
                 : {},

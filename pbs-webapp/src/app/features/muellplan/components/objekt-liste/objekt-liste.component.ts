@@ -11,13 +11,10 @@ import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-sta
   styleUrl: './objekt-liste.component.scss',
 })
 export class ObjektListeComponent {
-  readonly objekte = input.required<Objekt[]>();
-  readonly aktuellesObjekt = input<Objekt | null>(null);
+  readonly objects = input.required<Objekt[]>();
+  readonly currentObject = input<Objekt | null>(null);
 
-  readonly auswaehlen = output<Objekt>();
-  readonly bearbeiten = output<Objekt>();
-  readonly loeschen = output<number>();
-  readonly neuAnlegen = output<void>();
+  readonly select = output<Objekt>();
 
   protected adresseFormatieren(obj: Objekt): string {
     return [obj.strasse, obj.plz, obj.ort].filter((v) => !!v).join(' ');

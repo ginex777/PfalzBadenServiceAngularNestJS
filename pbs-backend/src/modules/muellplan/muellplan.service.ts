@@ -1,126 +1,24 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
-import { Prisma, Objekte, MuellplanVorlagen } from '@prisma/client';
+import { Prisma, MuellplanVorlagen } from '@prisma/client';
 import {
   CreateMuellplanTerminDto,
   CreateMuellplanVorlageDto,
-  CreateObjektDto,
   MuellplanVorlagenTerminDto,
   UpdateMuellplanTerminDto,
-  UpdateObjektDto,
 } from './dto/muellplan.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import { TasksService } from '../tasks/tasks.service';
 
 @Injectable()
 export class MuellplanService {
   private readonly logger = new Logger(MuellplanService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
-
-  async objekteLaden(
-    pagination: PaginationDto,
-    q?: string,
-  ): Promise<PaginatedResponse<ReturnType<MuellplanService['mapObjekt']>>> {
-    const { page, pageSize } = pagination;
-    const skip = (page - 1) * pageSize;
-    const where =
-      q && q.trim()
-        ? {
-            OR: [
-              { name: { contains: q.trim(), mode: 'insensitive' as const } },
-              { ort: { contains: q.trim(), mode: 'insensitive' as const } },
-              { strasse: { contains: q.trim(), mode: 'insensitive' as const } },
-            ],
-          }
-        : undefined;
-
-    const [rows, total] = await this.prisma.$transaction([
-      this.prisma.objekte.findMany({
-        where,
-        orderBy: { name: 'asc' },
-        skip,
-        take: pageSize,
-      }),
-      this.prisma.objekte.count({ where }),
-    ]);
-    return {
-      data: rows.map((r) => this.mapObjekt(r)),
-      total,
-      page,
-      pageSize,
-    };
-  }
-
-  async objekteAlleLaden() {
-    const rows = await this.prisma.objekte.findMany({
-      orderBy: { name: 'asc' },
-      take: 5000,
-    });
-    return rows.map((r) => this.mapObjekt(r));
-  }
-
-  async objektErstellen(d: CreateObjektDto) {
-    const r = await this.prisma.objekte.create({
-      data: {
-        name: d.name,
-        strasse: d.strasse ?? null,
-        plz: d.plz ?? null,
-        ort: d.ort ?? null,
-        notiz: d.notiz ?? null,
-        filter_typen: d.filter_typen ?? '',
-        vorlage_id: d.vorlage_id ? BigInt(d.vorlage_id) : null,
-        kunden: d.kunden_id
-          ? { connect: { id: BigInt(d.kunden_id) } }
-          : undefined,
-      },
-    });
-    return {
-      ...r,
-      id: Number(r.id),
-      kunden_id: r.kunden_id ? Number(r.kunden_id) : null,
-      vorlage_id: r.vorlage_id ? Number(r.vorlage_id) : null,
-    };
-  }
-
-  async objektAktualisieren(id: number, d: UpdateObjektDto) {
-    if (!(await this.prisma.objekte.findUnique({ where: { id: BigInt(id) } })))
-      throw new NotFoundException();
-    const r = await this.prisma.objekte.update({
-      where: { id: BigInt(id) },
-      data: {
-        name: d.name,
-        strasse: d.strasse ?? null,
-        plz: d.plz ?? null,
-        ort: d.ort ?? null,
-        notiz: d.notiz ?? null,
-        filter_typen: d.filter_typen ?? '',
-        vorlage_id: d.vorlage_id ? BigInt(d.vorlage_id) : null,
-        kunden: d.kunden_id
-          ? { connect: { id: BigInt(d.kunden_id) } }
-          : { disconnect: true },
-      },
-    });
-    return {
-      ...r,
-      id: Number(r.id),
-      kunden_id: r.kunden_id ? Number(r.kunden_id) : null,
-      vorlage_id: r.vorlage_id ? Number(r.vorlage_id) : null,
-    };
-  }
-
-  async objektLoeschen(id: number) {
-    if (!(await this.prisma.objekte.findUnique({ where: { id: BigInt(id) } })))
-      throw new NotFoundException();
-    await this.prisma.muellplan.deleteMany({
-      where: { objekt_id: BigInt(id) },
-    });
-    await this.prisma.muellplanPdf.deleteMany({
-      where: { objekt_id: BigInt(id) },
-    });
-    await this.prisma.objekte.delete({ where: { id: BigInt(id) } });
-    return { ok: true };
-  }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tasksService: TasksService,
+  ) {}
 
   async termineLaden(objektId: number) {
     const rows = await this.prisma.muellplan.findMany({
@@ -165,6 +63,9 @@ export class MuellplanService {
         erledigt: d.erledigt ?? false,
       },
     });
+
+    await this.tasksService.upsertFromMuellplan(Number(r.id));
+
     return {
       ...r,
       id: Number(r.id),
@@ -187,6 +88,9 @@ export class MuellplanService {
         erledigt: d.erledigt ?? false,
       },
     });
+
+    await this.tasksService.upsertFromMuellplan(id);
+
     return {
       ...r,
       id: Number(r.id),
@@ -200,6 +104,8 @@ export class MuellplanService {
       !(await this.prisma.muellplan.findUnique({ where: { id: BigInt(id) } }))
     )
       throw new NotFoundException();
+
+    await this.tasksService.deleteByMuellplanId(id);
     await this.prisma.muellplan.delete({ where: { id: BigInt(id) } });
     return { ok: true };
   }
@@ -249,7 +155,12 @@ export class MuellplanService {
       q && q.trim()
         ? { name: { contains: q.trim(), mode: 'insensitive' as const } }
         : undefined;
-    const select = { id: true, name: true, pdf_name: true, created_at: true } as const;
+    const select = {
+      id: true,
+      name: true,
+      pdf_name: true,
+      created_at: true,
+    } as const;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.muellplanVorlagen.findMany({
         where,
@@ -413,15 +324,6 @@ export class MuellplanService {
       orderBy: { created_at: 'desc' },
     });
     return r ? { ...r, id: Number(r.id) } : null;
-  }
-
-  private mapObjekt(r: Objekte) {
-    return {
-      ...r,
-      id: Number(r.id),
-      kunden_id: r.kunden_id ? Number(r.kunden_id) : null,
-      vorlage_id: r.vorlage_id ? Number(r.vorlage_id) : null,
-    };
   }
 
   private mapVorlageListItem(

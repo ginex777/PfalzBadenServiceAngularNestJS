@@ -1,6 +1,10 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
-import { Prisma, WiederkehrendeAusgaben, WiederkehrendeRechnungen } from '@prisma/client';
+import {
+  Prisma,
+  WiederkehrendeAusgaben,
+  WiederkehrendeRechnungen,
+} from '@prisma/client';
 import {
   CreateWiederkehrendeAusgabeDto,
   CreateWiederkehrendeRechnungDto,
@@ -208,9 +212,7 @@ export class WiederkehrendService {
     };
   }
 
-  private mapWiederkehrendeRechnung(
-    r: WiederkehrendeRechnungen,
-  ) {
+  private mapWiederkehrendeRechnung(r: WiederkehrendeRechnungen) {
     return {
       ...r,
       id: Number(r.id),

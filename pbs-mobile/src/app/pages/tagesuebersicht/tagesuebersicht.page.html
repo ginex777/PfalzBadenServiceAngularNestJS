@@ -1,9 +1,12 @@
-<ion-header>
+﻿<ion-header>
   <ion-toolbar>
     <ion-title>Heute</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="clear" (click)="logout()">Abmelden</ion-button>
     </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar class="context-toolbar">
+    <app-objekt-kontext />
   </ion-toolbar>
 </ion-header>
 
@@ -23,21 +26,11 @@
           <strong>{{ openEntry() ? 'Aktiv' : 'Inaktiv' }}</strong>
         </div>
       </div>
-      <div class="hero-context">
-        <app-objekt-auswahl
-          label="Objekt (Kontext)"
-          [objects]="context.objects()"
-          [selectedObjectId]="context.selectedObjectId()"
-          [disabled]="context.objectsLoading()"
-          (selectedObjectIdChange)="context.setSelectedObjectId($event)"
-        />
-        @if (context.objectsError()) {
-          <div class="app-state-banner app-state-banner--error">{{ context.objectsError() }}</div>
-        }
-        @if (!canUseOperativeActions()) {
-          <p class="hero-context-hint">Bitte Objekt auswÃ¤hlen, bevor du operative Aktionen startest.</p>
-        }
-      </div>
+
+      @if (context.objectsError()) {
+        <div class="app-state-banner app-state-banner--error">{{ context.objectsError() }}</div>
+      }
+
       <div class="hero-actions">
         <ion-button
           class="hero-action-btn hero-action-btn--primary"
@@ -58,7 +51,7 @@
       </div>
     </section>
 
-      <ion-card class="overview-card">
+    <ion-card class="overview-card">
       <ion-card-content>
         <h3 class="section-title">Stempelstatus</h3>
         @if (isLoading()) {
@@ -71,9 +64,9 @@
           <ion-badge color="medium">Inaktiv</ion-badge>
         }
       </ion-card-content>
-      </ion-card>
+    </ion-card>
 
-      <ion-card class="overview-card">
+    <ion-card class="overview-card">
       <ion-card-content>
         <h3 class="section-title">Anstehende Muelldienst-Termine</h3>
         @if (isLoading()) {
@@ -96,9 +89,9 @@
           </ion-list>
         }
       </ion-card-content>
-      </ion-card>
+    </ion-card>
 
-      <ion-card class="overview-card">
+    <ion-card class="overview-card">
       <ion-card-content>
         <h3 class="section-title">Eintraege heute</h3>
 
@@ -124,7 +117,7 @@
           </ion-list>
         }
       </ion-card-content>
-      </ion-card>
+    </ion-card>
   </div>
 </ion-content>
 
@@ -136,4 +129,3 @@
   position="top"
   (didDismiss)="closeToast()"
 ></ion-toast>
-

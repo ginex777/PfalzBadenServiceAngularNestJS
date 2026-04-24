@@ -7,6 +7,7 @@ import {
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../core/database/prisma.service';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import { TasksService } from '../tasks/tasks.service';
 import type {
   ChecklistFieldDto,
   ChecklistFieldType,
@@ -46,8 +47,7 @@ export interface ChecklistSubmissionListItem {
   note: string | null;
 }
 
-export interface ChecklistSubmissionDetail
-  extends ChecklistSubmissionListItem {
+export interface ChecklistSubmissionDetail extends ChecklistSubmissionListItem {
   templateSnapshot: unknown;
   answers: unknown;
 }
@@ -80,19 +80,30 @@ function parseJsonFields(raw: unknown): ChecklistFieldDto[] {
   if (!Array.isArray(raw)) return [];
   const result: ChecklistFieldDto[] = [];
   for (const item of raw) {
-    if (typeof item !== 'object' || item === null || Array.isArray(item)) continue;
+    if (typeof item !== 'object' || item === null || Array.isArray(item))
+      continue;
     const rec = item as Record<string, unknown>;
-    const fieldId = typeof rec['fieldId'] === 'string' ? rec['fieldId'].trim() : '';
+    const fieldId =
+      typeof rec['fieldId'] === 'string' ? rec['fieldId'].trim() : '';
     const label = typeof rec['label'] === 'string' ? rec['label'].trim() : '';
     const type = rec['type'];
     if (!fieldId || !label) continue;
-    if (type !== 'boolean' && type !== 'text' && type !== 'number' && type !== 'select') continue;
+    if (
+      type !== 'boolean' &&
+      type !== 'text' &&
+      type !== 'number' &&
+      type !== 'select'
+    )
+      continue;
 
-    const helperText = typeof rec['helperText'] === 'string' ? rec['helperText'] : undefined;
-    const required = typeof rec['required'] === 'boolean' ? rec['required'] : undefined;
+    const helperText =
+      typeof rec['helperText'] === 'string' ? rec['helperText'] : undefined;
+    const required =
+      typeof rec['required'] === 'boolean' ? rec['required'] : undefined;
     const optionsRaw = rec['options'];
     const options =
-      Array.isArray(optionsRaw) && optionsRaw.every((o) => typeof o === 'string')
+      Array.isArray(optionsRaw) &&
+      optionsRaw.every((o) => typeof o === 'string')
         ? (optionsRaw as string[])
         : undefined;
 
@@ -218,7 +229,10 @@ export function validateAndNormalizeAnswers(params: {
 export class ChecklistenService {
   private readonly logger = new Logger(ChecklistenService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tasksService: TasksService,
+  ) {}
 
   async templatesAllActive(): Promise<ChecklistTemplateListItem[]> {
     await this.ensureDefaultTemplates();
@@ -274,7 +288,9 @@ export class ChecklistenService {
     return this.mapTemplate(row);
   }
 
-  async templateCreate(dto: CreateChecklistTemplateDto): Promise<ChecklistTemplateListItem> {
+  async templateCreate(
+    dto: CreateChecklistTemplateDto,
+  ): Promise<ChecklistTemplateListItem> {
     const row = await this.prisma.checklistenTemplates.create({
       data: {
         name: dto.name.trim(),
@@ -296,14 +312,16 @@ export class ChecklistenService {
     if (!current) throw new NotFoundException('Template nicht gefunden');
 
     const nextVersion =
-      dto.fields || dto.name || dto.description ? current.version + 1 : current.version;
+      dto.fields || dto.name || dto.description
+        ? current.version + 1
+        : current.version;
 
     const row = await this.prisma.checklistenTemplates.update({
       where: { id: BigInt(id) },
       data: {
         name: dto.name != null ? dto.name.trim() : undefined,
         description:
-          dto.description != null ? (dto.description.trim() || null) : undefined,
+          dto.description != null ? dto.description.trim() || null : undefined,
         fields: dto.fields ? toJsonFields(dto.fields) : undefined,
         is_active: dto.isActive ?? undefined,
         version: nextVersion,
@@ -407,7 +425,9 @@ export class ChecklistenService {
             'Kein Mitarbeiter-Mapping vorhanden. Bitte Admin kontaktieren (User \u2194 Mitarbeiter zuordnen).',
         });
       }
-      const rowEmployeeId = row.mitarbeiter_id ? Number(row.mitarbeiter_id) : null;
+      const rowEmployeeId = row.mitarbeiter_id
+        ? Number(row.mitarbeiter_id)
+        : null;
       if (rowEmployeeId !== auth.employeeId) {
         throw new NotFoundException('Submission nicht gefunden');
       }
@@ -417,8 +437,14 @@ export class ChecklistenService {
       id: Number(row.id),
       submittedAt: row.submitted_at,
       object: { id: Number(row.objekt.id), name: row.objekt.name },
-      template: { id: Number(row.template.id), name: row.template.name, version: row.template.version },
-      employee: row.mitarbeiter ? { id: Number(row.mitarbeiter.id), name: row.mitarbeiter.name } : null,
+      template: {
+        id: Number(row.template.id),
+        name: row.template.name,
+        version: row.template.version,
+      },
+      employee: row.mitarbeiter
+        ? { id: Number(row.mitarbeiter.id), name: row.mitarbeiter.name }
+        : null,
       createdByEmail: row.created_by_email,
       createdByName: row.created_by_name,
       note: row.note,
@@ -515,6 +541,8 @@ export class ChecklistenService {
       },
     });
 
+    await this.tasksService.upsertFromChecklistSubmission(Number(row.id));
+
     return { id: Number(row.id) };
   }
 
@@ -558,9 +586,24 @@ export class ChecklistenService {
         isActive: true,
         fields: [
           { fieldId: 'area', label: 'Bereich', type: 'text', required: true },
-          { fieldId: 'cleared', label: 'Geräumt', type: 'boolean', required: true },
-          { fieldId: 'salted', label: 'Gestreut', type: 'boolean', required: true },
-          { fieldId: 'hazards', label: 'Gefahrenstellen / Hinweise', type: 'text', required: false },
+          {
+            fieldId: 'cleared',
+            label: 'Geräumt',
+            type: 'boolean',
+            required: true,
+          },
+          {
+            fieldId: 'salted',
+            label: 'Gestreut',
+            type: 'boolean',
+            required: true,
+          },
+          {
+            fieldId: 'hazards',
+            label: 'Gefahrenstellen / Hinweise',
+            type: 'text',
+            required: false,
+          },
         ],
       },
       {
@@ -568,8 +611,18 @@ export class ChecklistenService {
         description: 'Nachweis für regelmäßige Pflegearbeiten.',
         isActive: true,
         fields: [
-          { fieldId: 'tasks', label: 'Arbeiten durchgeführt', type: 'text', required: true },
-          { fieldId: 'wasteRemoved', label: 'Grünschnitt entsorgt', type: 'boolean', required: false },
+          {
+            fieldId: 'tasks',
+            label: 'Arbeiten durchgeführt',
+            type: 'text',
+            required: true,
+          },
+          {
+            fieldId: 'wasteRemoved',
+            label: 'Grünschnitt entsorgt',
+            type: 'boolean',
+            required: false,
+          },
           { fieldId: 'note', label: 'Notiz', type: 'text', required: false },
         ],
       },
@@ -578,10 +631,30 @@ export class ChecklistenService {
         description: 'Kurzprotokoll für die Sicht-/Funktionskontrolle.',
         isActive: true,
         fields: [
-          { fieldId: 'cabinClean', label: 'Kabine sauber', type: 'boolean', required: true },
-          { fieldId: 'doorsOk', label: 'Türen / Schließung ok', type: 'boolean', required: true },
-          { fieldId: 'alarmOk', label: 'Notruf/Alarm ok', type: 'boolean', required: true },
-          { fieldId: 'issues', label: 'Auffälligkeiten', type: 'text', required: false },
+          {
+            fieldId: 'cabinClean',
+            label: 'Kabine sauber',
+            type: 'boolean',
+            required: true,
+          },
+          {
+            fieldId: 'doorsOk',
+            label: 'Türen / Schließung ok',
+            type: 'boolean',
+            required: true,
+          },
+          {
+            fieldId: 'alarmOk',
+            label: 'Notruf/Alarm ok',
+            type: 'boolean',
+            required: true,
+          },
+          {
+            fieldId: 'issues',
+            label: 'Auffälligkeiten',
+            type: 'text',
+            required: false,
+          },
         ],
       },
     ];

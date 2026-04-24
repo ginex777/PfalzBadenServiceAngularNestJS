@@ -6,6 +6,30 @@ datasource db {
   provider = "postgresql"
 }
 
+enum ObjektStatus {
+  AKTIV
+  INAKTIV
+}
+
+enum TaskType {
+  MUELL
+  CHECKLISTE
+  REINIGUNG
+  KONTROLLE
+  REPARATUR
+  ZEITERFASSUNG
+  SONSTIGES
+}
+
+enum TaskStatus {
+  OFFEN
+  IN_BEARBEITUNG
+  ERLEDIGT
+  UEBERFAELLIG
+  GEPRUEFT
+  ABGELEHNT
+}
+
 model Kunden {
   id         BigInt    @id @default(autoincrement())
   name       String    @db.VarChar(200)
@@ -23,6 +47,7 @@ model Kunden {
   hausmeister_einsaetze     HausmeisterEinsaetze[]
   wiederkehrende_rechnungen WiederkehrendeRechnungen[]
   vertraege                 Vertraege[]
+  tasks                     Tasks[]
 
   @@map("kunden")
 }
@@ -146,9 +171,11 @@ model Objekte {
   id           BigInt    @id @default(autoincrement())
   name         String    @db.VarChar(200)
   strasse      String?
+  hausnummer   String?   @db.VarChar(20)
   plz          String?   @db.VarChar(10)
   ort          String?   @db.VarChar(100)
   notiz        String?
+  status       ObjektStatus @default(AKTIV)
   filter_typen String?   @default("")
   vorlage_id   BigInt?
   kunden_id    BigInt?
@@ -160,7 +187,10 @@ model Objekte {
   stempel       Stempel[]
   nachweise     Nachweise[]
   checklisten_submissions ChecklistenSubmissions[]
+  tasks         Tasks[]
 
+  @@index([kunden_id])
+  @@index([status])
   @@map("objekte")
 }
 
@@ -219,6 +249,7 @@ model Mitarbeiter {
   stempel               Stempel[]
   nachweise             Nachweise[]
   checklisten_submissions ChecklistenSubmissions[]
+  tasks                   Tasks[]
   user                  Users?                 @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@map("mitarbeiter")
@@ -321,6 +352,41 @@ model Stempel {
   @@map("stempel")
 }
 
+model Tasks {
+  id                    BigInt     @id @default(autoincrement())
+  title                 String     @db.VarChar(200)
+  type                  TaskType
+  status                TaskStatus @default(OFFEN)
+  object_id             BigInt
+  customer_id           BigInt?
+  user_id               BigInt?
+  employee_id           BigInt?
+  due_at                DateTime?  @db.Date
+  completed_at          DateTime?
+  duration_minutes      Int?
+  comment               String?
+  photo_url             String?    @db.VarChar(500)
+
+  muellplan_id           BigInt?   @unique
+  checklist_submission_id BigInt?  @unique
+  stempel_id             BigInt?   @unique
+
+  created_at            DateTime   @default(now())
+  updated_at            DateTime   @updatedAt
+
+  object   Objekte     @relation(fields: [object_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customer Kunden?     @relation(fields: [customer_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  user     Users?      @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  employee Mitarbeiter? @relation(fields: [employee_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([object_id, created_at])
+  @@index([customer_id, created_at])
+  @@index([status])
+  @@index([type])
+  @@index([due_at])
+  @@map("aufgaben")
+}
+
 model WiederkehrendeAusgaben {
   id         BigInt    @id @default(autoincrement())
   name       String    @db.VarChar(200)
@@ -382,6 +448,7 @@ model Users {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
   mitarbeiter   Mitarbeiter?
+  tasks         Tasks[]
 
   @@map("users")
 }

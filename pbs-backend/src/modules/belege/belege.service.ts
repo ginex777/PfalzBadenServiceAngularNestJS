@@ -51,13 +51,33 @@ export class BelegeService {
               query
                 ? {
                     OR: [
-                      { filename: { contains: query, mode: 'insensitive' as const } },
-                      { notiz: { contains: query, mode: 'insensitive' as const } },
+                      {
+                        filename: {
+                          contains: query,
+                          mode: 'insensitive' as const,
+                        },
+                      },
+                      {
+                        notiz: {
+                          contains: query,
+                          mode: 'insensitive' as const,
+                        },
+                      },
                       {
                         buchhaltung: {
                           OR: [
-                            { name: { contains: query, mode: 'insensitive' as const } },
-                            { kategorie: { contains: query, mode: 'insensitive' as const } },
+                            {
+                              name: {
+                                contains: query,
+                                mode: 'insensitive' as const,
+                              },
+                            },
+                            {
+                              kategorie: {
+                                contains: query,
+                                mode: 'insensitive' as const,
+                              },
+                            },
                           ],
                         },
                       },

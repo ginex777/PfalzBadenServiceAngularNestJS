@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
 import { ApiService } from '../../core/api/api.service';
-import { Objekt, MuellplanTermin, MuellplanVorlage, Kunde } from '../../core/models';
+import { Objekt, MuellplanTermin, MuellplanVorlage } from '../../core/models';
 
 @Injectable({ providedIn: 'root' })
 export class MuellplanService {
@@ -10,13 +10,11 @@ export class MuellplanService {
   allesDatenLaden(): Observable<{
     objekte: Objekt[];
     vorlagen: MuellplanVorlage[];
-    kunden: Kunde[];
   }> {
     return new Observable((observer) => {
       forkJoin({
         objekte: this.api.loadObjects(),
         vorlagen: this.api.loadGarbageTemplates(),
-        kunden: this.api.loadCustomers(),
       }).subscribe({
         next: (d) => {
           observer.next(d);
@@ -34,14 +32,8 @@ export class MuellplanService {
     return this.api.loadUpcomingGarbageTerms(5);
   }
 
-  createObject(daten: Partial<Objekt>): Observable<Objekt> {
-    return this.api.createObject(daten);
-  }
   updateObject(id: number, daten: Partial<Objekt>): Observable<Objekt> {
     return this.api.updateObject(id, daten);
-  }
-  deleteObject(id: number): Observable<void> {
-    return this.api.deleteObject(id);
   }
 
   terminErstellen(daten: Partial<MuellplanTermin>): Observable<MuellplanTermin> {

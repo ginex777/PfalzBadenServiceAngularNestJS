@@ -10,8 +10,6 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonSelect,
-  IonSelectOption,
   IonSpinner,
   IonTextarea,
   IonTitle,
@@ -20,8 +18,9 @@ import {
 } from '@ionic/angular/standalone';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { MobileAuthService } from '../../core/auth.service';
-import { OperationalContextService } from '../../core/operational-context.service';
+import { ObjectContextService } from '../../core/object-context.service';
 import { EvidenceService } from '../../core/evidence.service';
+import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-kontext.component';
 
 function base64ToBlob(dataUrl: string, mimeType = 'image/jpeg'): Blob {
   const byteString = atob(dataUrl.split(',')[1]);
@@ -49,11 +48,10 @@ function base64ToBlob(dataUrl: string, mimeType = 'image/jpeg'): Blob {
     IonList,
     IonItem,
     IonLabel,
-    IonSelect,
-    IonSelectOption,
     IonTextarea,
     IonSpinner,
     IonToast,
+    ObjektKontextComponent,
   ],
   templateUrl: './foto-upload.page.html',
   styleUrl: './foto-upload.page.scss',
@@ -61,12 +59,9 @@ function base64ToBlob(dataUrl: string, mimeType = 'image/jpeg'): Blob {
 export class FotoUploadPage {
   private readonly auth = inject(MobileAuthService);
   private readonly router = inject(Router);
-  protected readonly context = inject(OperationalContextService);
+  protected readonly context = inject(ObjectContextService);
   private readonly evidence = inject(EvidenceService);
 
-  // Template aliases (keeps pages consistent while we migrate to shared UI building blocks)
-  protected readonly objects = this.context.objects;
-  protected readonly objectsLoading = this.context.objectsLoading;
   protected readonly selectedObjectId = this.context.selectedObjectId;
   protected readonly note = signal('');
   protected readonly previewDataUrl = signal<string | null>(null);
@@ -157,16 +152,6 @@ export class FotoUploadPage {
 
   protected closeToast(): void {
     this.toastOpen.set(false);
-  }
-
-  protected onObjectChanged(ev: CustomEvent<{ value: number | string | null }>): void {
-    const value = ev.detail.value;
-    if (value == null) {
-      this.context.setSelectedObjectId(null);
-      return;
-    }
-    const parsed = typeof value === 'number' ? value : Number(value);
-    this.context.setSelectedObjectId(Number.isFinite(parsed) ? parsed : null);
   }
 
   protected onNoteChanged(ev: CustomEvent<{ value?: string | null }>): void {

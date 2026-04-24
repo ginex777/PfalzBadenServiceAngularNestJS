@@ -1,14 +1,14 @@
-<!-- Objekt-Header -->
+﻿<!-- Objekt-Header -->
 <div class="detail-header">
   <div class="detail-header__info">
-    <span class="detail-header__name">{{ objekt().name }}</span>
-    <span class="detail-header__adresse">{{ adresseFormatieren(objekt()) }}</span>
-    @if (aktiveVorlage()) {
-      <span class="vorlage-badge">✓ {{ aktiveVorlage()!.name }}</span>
+    <span class="detail-header__name">{{ object().name }}</span>
+    <span class="detail-header__adresse">{{ adresseFormatieren(object()) }}</span>
+    @if (activeTemplate()) {
+      <span class="vorlage-badge">✓ {{ activeTemplate()!.name }}</span>
     }
   </div>
   <div class="detail-header__actions">
-    <select class="filter-select" [value]="monatFilter() ?? ''" (change)="onMonatFilter($event)">
+    <select class="filter-select" [value]="monthFilter() ?? ''" (change)="onMonatFilter($event)">
       <option value="">Alle Monate</option>
       @for (monat of monate; track $index) {
         <option [value]="$index">{{ monat }}</option>
@@ -17,44 +17,40 @@
     <label class="btn btn-sm vergangene-toggle">
       <input
         type="checkbox"
-        [checked]="vergangeneAusblenden()"
-        (change)="vergangeneToggle.emit($any($event.target).checked)"
+        [checked]="hidePast()"
+        (change)="hidePastChange.emit($any($event.target).checked)"
       />
       Vergangene
     </label>
-    <button class="btn btn-sm btn-primary" (click)="terminHinzufuegen.emit()">+ Termin</button>
+    <button class="btn btn-sm btn-primary" (click)="addTerm.emit()">+ Termin</button>
     <button
       class="btn btn-sm"
-      [class.btn-filter-aktiv]="hatAktivenFilter()"
-      (click)="filterOeffnen.emit()"
+      [class.btn-filter-aktiv]="hasActiveFilter()"
+      (click)="openFilter.emit()"
     >
       Filter
     </button>
-    <button class="btn btn-sm" (click)="vorlageAnwenden.emit()">Vorlage anwenden</button>
-    <button class="btn btn-sm" (click)="pdfErstellen.emit()">Monatsabschluss</button>
-    <button class="btn btn-sm" (click)="bearbeiten.emit()">Bearbeiten</button>
-    <button class="btn btn-sm btn-danger" (click)="loeschen.emit()">Löschen</button>
+    <button class="btn btn-sm" (click)="applyTemplate.emit()">Vorlage anwenden</button>
+    <button class="btn btn-sm" (click)="createPdf.emit()">Monatsabschluss</button>
   </div>
 </div>
 
 <!-- Nächste Termine -->
-@if (naechsteTermine().length > 0) {
+@if (nextTerms().length > 0) {
   <div class="naechste-termine">
     <span class="naechste-termine__label">Nächste:</span>
-    @for (t of naechsteTermine(); track t.id) {
+    @for (t of nextTerms(); track t.id) {
       <div class="naechster-termin" [class]="'naechster-termin--' + t.status">
         <span class="termin-punkt" [style.background]="t.farbe"></span>
         {{ t.muellart }} — {{ naechsterLabel(t) }}
-        <span class="naechster-termin__abholung"
-          >(Abholung {{ datumFormatieren(t.abholungAnzeige) }})</span
-        >
+        <span class="naechster-termin__abholung">(Abholung {{ datumFormatieren(t.abholungAnzeige) }})</span>
       </div>
     }
   </div>
 }
 
 <!-- Termin-Tabelle -->
-@if (termine().length === 0) {
+@if (terms().length === 0) {
   <div class="termin-leer">Keine Termine</div>
 } @else {
   <div class="termin-tabelle-wrap">
@@ -102,13 +98,11 @@
                       ? 'Erst ab ' + datumFormatieren(t.rausstellen) + ' abhakbar'
                       : ''
                   "
-                  (change)="
-                    terminErledigt.emit({ id: t.id, erledigt: $any($event.target).checked })
-                  "
+                  (change)="termDoneChange.emit({ id: t.id, done: $any($event.target).checked })"
                 />
               </td>
               <td class="col-aktion">
-                <button class="btn-action btn-action-danger" (click)="terminLoeschen.emit(t.id)">
+                <button class="btn-action btn-action-danger" (click)="deleteTerm.emit(t.id)">
                   Löschen
                 </button>
               </td>

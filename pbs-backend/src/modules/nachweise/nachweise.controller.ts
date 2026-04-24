@@ -19,7 +19,12 @@ import { EvidenceListQueryDto, UploadEvidenceDto } from './dto/nachweise.dto';
 import { NachweiseService } from './nachweise.service';
 
 type AuthRequest = Request & {
-  user?: { email: string; rolle: string; fullName?: string; mitarbeiterId?: number | null };
+  user?: {
+    email: string;
+    rolle: string;
+    fullName?: string;
+    mitarbeiterId?: number | null;
+  };
 };
 
 @Controller('api/nachweise')
@@ -83,4 +88,3 @@ export class NachweiseController {
     });
   }
 }
-

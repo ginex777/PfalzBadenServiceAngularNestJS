@@ -1,0 +1,124 @@
+<div class="filter-card">
+  <div class="filter-row filter-row--primary">
+    <div class="form-field form-field--wide">
+      <label class="form-hint">Suche</label>
+      <input
+        class="form-input"
+        type="search"
+        placeholder="Titel, Kommentar…"
+        [value]="filters().q"
+        (input)="onSearch($event)"
+      />
+    </div>
+
+    <div class="form-field form-field--narrow-200">
+      <label class="form-hint">Status</label>
+      <select class="form-input" [value]="filters().status.at(0) ?? ''" (change)="onStatusChange($event)">
+        <option value="">Alle</option>
+        @for (opt of statusOptions(); track opt.status) {
+          <option [value]="opt.status">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field form-field--narrow-200">
+      <label class="form-hint">Typ</label>
+      <select class="form-input" [value]="filters().type.at(0) ?? ''" (change)="onTypeChange($event)">
+        <option value="">Alle</option>
+        @for (opt of typeOptions(); track opt.type) {
+          <option [value]="opt.type">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field form-field--narrow-260">
+      <label class="form-hint">Kunde</label>
+      <select class="form-input" [value]="filters().customerId ?? ''" (change)="onCustomerChange($event)">
+        @for (opt of customerOptions(); track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field form-field--narrow-260">
+      <label class="form-hint">Objekt</label>
+      <select class="form-input" [value]="filters().objectId ?? ''" (change)="onObjectChange($event)">
+        @for (opt of objectOptions(); track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field form-field--narrow-240">
+      <label class="form-hint">Mitarbeiter</label>
+      <select class="form-input" [value]="filters().employeeId ?? ''" (change)="onEmployeeChange($event)">
+        @for (opt of employeeOptions(); track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field form-field--narrow-240">
+      <label class="form-hint">User</label>
+      <select class="form-input" [value]="filters().userId ?? ''" (change)="onUserChange($event)">
+        @for (opt of userOptions(); track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-row__actions">
+      <button class="btn btn-sm" type="button" (click)="onReset()">Zurücksetzen</button>
+    </div>
+  </div>
+
+  <div class="filter-row filter-row--secondary">
+    <div class="filter-block">
+      <div class="filter-block__title">Zeitraum (Erstellt)</div>
+      <div class="filter-block__fields">
+        <div class="form-field">
+          <label class="form-hint">Von</label>
+          <input
+            class="form-input"
+            type="date"
+            [value]="filters().createdFrom"
+            (change)="onCreatedFromChange($event)"
+          />
+        </div>
+        <div class="form-field">
+          <label class="form-hint">Bis</label>
+          <input
+            class="form-input"
+            type="date"
+            [value]="filters().createdTo"
+            (change)="onCreatedToChange($event)"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-block">
+      <div class="filter-block__title">Fälligkeit</div>
+      <div class="filter-block__fields">
+        <div class="form-field">
+          <label class="form-hint">Von</label>
+          <input
+            class="form-input"
+            type="date"
+            [value]="filters().dueFrom"
+            (change)="onDueFromChange($event)"
+          />
+        </div>
+        <div class="form-field">
+          <label class="form-hint">Bis</label>
+          <input
+            class="form-input"
+            type="date"
+            [value]="filters().dueTo"
+            (change)="onDueToChange($event)"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

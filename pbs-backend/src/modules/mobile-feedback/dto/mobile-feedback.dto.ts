@@ -9,4 +9,3 @@ export class MobileFeedbackQueryDto extends PaginationDto {
   @Min(1)
   objectId?: number;
 }
-

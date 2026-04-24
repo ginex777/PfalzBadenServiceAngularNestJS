@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MuellplanService } from './muellplan.service';
 import { PrismaService } from '../../core/database/prisma.service';
+import { TasksService } from '../tasks/tasks.service';
 
 const mockPrisma = {};
 
@@ -12,6 +13,7 @@ describe('MuellplanService', () => {
       providers: [
         MuellplanService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: TasksService, useValue: {} },
       ],
     }).compile();
 

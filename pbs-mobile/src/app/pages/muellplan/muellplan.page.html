@@ -1,6 +1,9 @@
-<ion-header>
+﻿<ion-header>
   <ion-toolbar>
     <ion-title>Muellplan</ion-title>
+  </ion-toolbar>
+  <ion-toolbar class="context-toolbar">
+    <app-objekt-kontext />
   </ion-toolbar>
 </ion-header>
 
@@ -8,49 +11,22 @@
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
+
   <div class="muellplan-page">
     <section class="muellplan-hero">
       <p class="muellplan-hero-label">Uebersicht</p>
       <h1 class="muellplan-hero-title">Welche Abholung steht als naechstes an?</h1>
-      <p class="muellplan-hero-text">
-        Objekt waehlen und Termine sehen – mit klaren States fuer Loading, Empty und Fehler.
-      </p>
+      <p class="muellplan-hero-text">Termine fuer das aktuelle Objekt plus eine Vorschau fuer alle Objekte.</p>
     </section>
 
     <ion-card class="muellplan-card">
       <ion-card-content>
         <div class="card-head">
-          <h3 class="section-title">Objekt</h3>
+          <h3 class="section-title">Termine fuer das Objekt</h3>
           @if (selectedObject()) {
             <p class="section-subtitle">{{ selectedObject()!.name }}</p>
           }
         </div>
-
-        @if (isLoading()) {
-          <p class="hint">Lade Objekte...</p>
-        } @else if (objects().length === 0) {
-          <p class="hint">Keine Objekte gefunden.</p>
-        } @else {
-          <ion-item class="object-select" lines="none">
-            <ion-label position="stacked">Objekt auswaehlen</ion-label>
-            <ion-select
-              [value]="selectedObjectId()"
-              interface="popover"
-              placeholder="Objekt waehlen"
-              (ionChange)="selectObject($event.detail.value)"
-            >
-              @for (obj of objects(); track obj.id) {
-                <ion-select-option [value]="obj.id">{{ obj.name }}</ion-select-option>
-              }
-            </ion-select>
-          </ion-item>
-        }
-      </ion-card-content>
-    </ion-card>
-
-    <ion-card class="muellplan-card">
-      <ion-card-content>
-        <h3 class="section-title">Termine fuer das Objekt</h3>
 
         @if (isLoading() || isLoadingPickups()) {
           <p class="hint">Lade Termine...</p>
@@ -114,4 +90,3 @@
   position="top"
   (didDismiss)="closeToast()"
 ></ion-toast>
-

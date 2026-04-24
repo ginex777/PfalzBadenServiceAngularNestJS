@@ -72,6 +72,12 @@ export const routes: Routes = [
             (m) => m.MobileRueckmeldungenComponent,
           ),
       },
+      {
+        path: 'aufgaben',
+        canActivate: [roleGuard(['admin', 'readonly'])],
+        loadComponent: () =>
+          import('./features/aufgaben/aufgaben.component').then((m) => m.AufgabenComponent),
+      },
     ],
   },
   {
@@ -151,6 +157,17 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard(['admin', 'readonly'])],
     children: [
       { path: '', redirectTo: 'kunden', pathMatch: 'full' },
+      {
+        path: 'objekte',
+        loadComponent: () =>
+          import('./features/objekte/objekte-liste.component').then((m) => m.ObjekteListeComponent),
+      },
+      {
+        path: 'objekte/:id',
+        loadComponent: () =>
+          import('./features/objekte/objekt-detail.component').then((m) => m.ObjektDetailComponent),
+        canDeactivate: [unsavedChangesGuard],
+      },
       {
         path: 'kunden',
         loadComponent: () =>

@@ -19,7 +19,10 @@ export class PaginationDto {
   @Max(1000)
   pageSize: number = 50;
 
-  @ApiPropertyOptional({ deprecated: true, description: 'Use pageSize instead' })
+  @ApiPropertyOptional({
+    deprecated: true,
+    description: 'Use pageSize instead',
+  })
   @IsOptional()
   @Type(() => Number)
   @IsInt()

@@ -2,6 +2,12 @@ ion-content {
   --background: var(--app-bg);
 }
 
+.context-toolbar {
+  --padding-start: var(--app-space-3);
+  --padding-end: var(--app-space-3);
+  --min-height: 3.25rem;
+}
+
 .muellplan-page {
   padding: var(--app-space-3);
   display: grid;
@@ -75,12 +81,6 @@ ion-content {
   font-size: 0.85rem;
 }
 
-.object-select {
-  --background: transparent;
-  --padding-start: 0;
-  --inner-padding-end: 0;
-}
-
 .color-dot {
   width: 0.7rem;
   height: 0.7rem;
@@ -90,4 +90,3 @@ ion-content {
   box-shadow: 0 8px 14px rgba(18, 24, 38, 0.08);
   flex: none;
 }
-

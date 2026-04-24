@@ -1,8 +1,14 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import { TasksService } from '../tasks/tasks.service';
 import {
   CreateMitarbeiterDto,
   CreateMitarbeiterStundenDto,
@@ -15,7 +21,10 @@ import {
 export class MitarbeiterService {
   private readonly logger = new Logger(MitarbeiterService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tasksService: TasksService,
+  ) {}
 
   async alleMitarbeiterLaden(
     pagination: PaginationDto,
@@ -39,10 +48,24 @@ export class MitarbeiterService {
               query
                 ? {
                     OR: [
-                      { name: { contains: query, mode: 'insensitive' as const } },
-                      { email: { contains: query, mode: 'insensitive' as const } },
-                      { rolle: { contains: query, mode: 'insensitive' as const } },
-                      { tel: { contains: query, mode: 'insensitive' as const } },
+                      {
+                        name: { contains: query, mode: 'insensitive' as const },
+                      },
+                      {
+                        email: {
+                          contains: query,
+                          mode: 'insensitive' as const,
+                        },
+                      },
+                      {
+                        rolle: {
+                          contains: query,
+                          mode: 'insensitive' as const,
+                        },
+                      },
+                      {
+                        tel: { contains: query, mode: 'insensitive' as const },
+                      },
                     ],
                   }
                 : {},
@@ -133,7 +156,10 @@ export class MitarbeiterService {
     }));
   }
 
-  async stundenErstellen(mitarbeiterId: number, d: CreateMitarbeiterStundenDto) {
+  async stundenErstellen(
+    mitarbeiterId: number,
+    d: CreateMitarbeiterStundenDto,
+  ) {
     // FIXED: Auto-calculate wage if not provided
     let lohn = d.lohn ?? 0;
     const zuschlag = d.zuschlag ?? 0;
@@ -236,7 +262,8 @@ export class MitarbeiterService {
     if (!objektExists) {
       throw new BadRequestException({
         code: 'INVALID_OBJECT',
-        message: 'Objekt existiert nicht. Bitte ein gueltiges Objekt auswaehlen.',
+        message:
+          'Objekt existiert nicht. Bitte ein gueltiges Objekt auswaehlen.',
       });
     }
 
@@ -274,6 +301,9 @@ export class MitarbeiterService {
       where: { id: open.id },
       data: { stop, dauer_minuten: dauerMinuten },
     });
+
+    await this.tasksService.upsertFromTimeEntry(Number(s.id));
+
     return {
       id: Number(s.id),
       mitarbeiter_id: Number(s.mitarbeiter_id),

@@ -23,6 +23,7 @@ const NAV_ACCESS: Record<string, readonly UserRole[]> = {
   '/finanzen/buchhaltung': ['admin', 'readonly'],
 
   '/verwaltung/kunden': ['admin', 'readonly'],
+  '/verwaltung/objekte': ['admin', 'readonly'],
   '/verwaltung/mitarbeiter': ['admin'],
   '/verwaltung/vertraege': ['admin', 'readonly'],
   '/verwaltung/pdf-archiv': ['admin', 'readonly'],
@@ -65,6 +66,7 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
     rootPath: '/verwaltung',
     links: [
       { path: '/verwaltung/kunden', label: 'Kunden', roles: NAV_ACCESS['/verwaltung/kunden'] ?? [] },
+      { path: '/verwaltung/objekte', label: 'Objekte', roles: NAV_ACCESS['/verwaltung/objekte'] ?? [] },
       { path: '/verwaltung/mitarbeiter', label: 'Mitarbeiter', roles: NAV_ACCESS['/verwaltung/mitarbeiter'] ?? [] },
       { path: '/verwaltung/vertraege', label: 'Verträge', roles: NAV_ACCESS['/verwaltung/vertraege'] ?? [] },
       { path: '/verwaltung/pdf-archiv', label: 'PDF-Archiv', roles: NAV_ACCESS['/verwaltung/pdf-archiv'] ?? [] },

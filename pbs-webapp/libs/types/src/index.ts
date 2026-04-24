@@ -142,15 +142,22 @@ export interface MitarbeiterStunden {
   bezahlt: boolean;
 }
 
+export type ObjectStatus = 'AKTIV' | 'INAKTIV';
+
 export interface Objekt {
   id: number;
   name: string;
   strasse?: string;
+  hausnummer?: string;
   plz?: string;
   ort?: string;
   notiz?: string;
   kunden_id?: number;
+  kunden_name?: string;
   vorlage_id?: number;
+  filter_typen?: string;
+  status?: ObjectStatus;
+  created_at?: string;
 }
 
 export interface MuellplanTermin {

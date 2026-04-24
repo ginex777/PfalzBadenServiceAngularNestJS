@@ -1,9 +1,12 @@
-<ion-header>
+﻿<ion-header>
   <ion-toolbar>
     <ion-title>Zeiterfassung</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="clear" (click)="logout()">Abmelden</ion-button>
     </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar class="context-toolbar">
+    <app-objekt-kontext [disabled]="isActive" />
   </ion-toolbar>
 </ion-header>
 
@@ -20,17 +23,13 @@
         <div class="clock-state">{{ isActive ? 'Aktiv' : 'Nicht gestempelt' }}</div>
         <div class="runtime">{{ runtime() }}</div>
 
+        @if (context.objectsError()) {
+          <div class="app-state-banner app-state-banner--error">{{ context.objectsError() }}</div>
+        }
+
         <div class="object-field">
-          <app-objekt-auswahl
-            label="Objekt (pflicht)"
-            [objects]="context.objects()"
-            [selectedObjectId]="context.selectedObjectId()"
-            [disabled]="isActive"
-            (selectedObjectIdChange)="context.setSelectedObjectId($event)"
-          />
-          @if (context.objectsError()) {
-            <div class="app-state-banner app-state-banner--error">{{ context.objectsError() }}</div>
-          }
+          <div class="object-label">Objekt (Pflicht)</div>
+          <div class="object-value">{{ context.selectedObject()?.name }}</div>
           <p class="object-hint">Wird fuer Auswertungen und Nachweise pro Objekt verwendet.</p>
         </div>
 
@@ -46,21 +45,30 @@
             [disabled]="isActive"
             placeholder="z. B. Keller, Hausflur, Hof"
           />
-          <p class="object-hint">Temporärer Freitext-Fallback (später ggf. deaktiviert).</p>
+          <p class="object-hint">Temporarer Freitext-Fallback (spaeter ggf. deaktiviert).</p>
         </div>
 
         @if (isActive) {
-          <ion-button class="primary-action primary-action--danger" expand="block" [disabled]="isLoading()" (click)="stop()">
+          <ion-button
+            class="primary-action primary-action--danger"
+            expand="block"
+            [disabled]="isLoading()"
+            (click)="stop()"
+          >
             Stoppen
           </ion-button>
         } @else {
-          <ion-button class="primary-action primary-action--start" expand="block" [disabled]="!canStart()" (click)="start()">
+          <ion-button
+            class="primary-action primary-action--start"
+            expand="block"
+            [disabled]="!canStart()"
+            (click)="start()"
+          >
             Stempeln
           </ion-button>
         }
       </ion-card-content>
     </ion-card>
-
   </div>
 </ion-content>
 
@@ -72,4 +80,3 @@
   position="top"
   (didDismiss)="closeToast()"
 ></ion-toast>
-

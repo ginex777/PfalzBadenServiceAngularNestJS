@@ -74,9 +74,7 @@ export class MitarbeiterController {
   }
   @Delete('stunden/:id')
   @Roles('admin')
-  stundenLoeschen(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  stundenLoeschen(@Param('id', ParseIntPipe) id: number) {
     return this.service.stundenLoeschen(id);
   }
   // ── Mobile Stempeluhr ────────────────────────────────────────────────────────

@@ -3,51 +3,13 @@ import {
   IsArray,
   IsBoolean,
   IsDateString,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  IsNotEmpty,
   Min,
   ValidateNested,
 } from 'class-validator';
-
-export class CreateObjektDto {
-  @IsString()
-  @IsNotEmpty()
-  name!: string;
-
-  @IsOptional()
-  @IsString()
-  strasse?: string;
-
-  @IsOptional()
-  @IsString()
-  plz?: string;
-
-  @IsOptional()
-  @IsString()
-  ort?: string;
-
-  @IsOptional()
-  @IsString()
-  notiz?: string;
-
-  @IsOptional()
-  @IsString()
-  filter_typen?: string;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  vorlage_id?: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  kunden_id?: number;
-}
-
-export class UpdateObjektDto extends CreateObjektDto {}
 
 export class CreateMuellplanTerminDto {
   @IsNumber()
@@ -128,4 +90,3 @@ export class ConfirmMuellplanPdfDto {
   @Type(() => MuellplanVorlagenTerminDto)
   termine!: MuellplanVorlagenTerminDto[];
 }
-

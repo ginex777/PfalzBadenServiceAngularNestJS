@@ -1,0 +1,48 @@
+.objekt-kontext {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.1rem 0.15rem;
+}
+
+.objekt-kontext__text {
+  min-width: 0;
+}
+
+.objekt-kontext__label {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--app-text-muted);
+}
+
+.objekt-kontext__title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--app-text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.objekt-kontext__sub {
+  font-size: 0.78rem;
+  color: var(--app-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.objekt-kontext__empty {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--app-text-muted);
+}
+
+.objekt-kontext__btn {
+  --color: var(--app-accent-strong);
+  font-weight: 800;
+}
+

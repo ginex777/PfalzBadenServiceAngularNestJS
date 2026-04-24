@@ -22,7 +22,12 @@ import {
 import { ChecklistenService } from './checklisten.service';
 
 type AuthRequest = Request & {
-  user?: { email: string; rolle: string; fullName?: string; mitarbeiterId?: number | null };
+  user?: {
+    email: string;
+    rolle: string;
+    fullName?: string;
+    mitarbeiterId?: number | null;
+  };
 };
 
 @Controller('api/checklisten')
@@ -70,7 +75,10 @@ export class ChecklistenController {
   // Submissions
   @Get('submissions')
   @Roles('admin', 'readonly', 'mitarbeiter')
-  submissionsList(@Query() query: ChecklistSubmissionListQueryDto, @Req() req: AuthRequest) {
+  submissionsList(
+    @Query() query: ChecklistSubmissionListQueryDto,
+    @Req() req: AuthRequest,
+  ) {
     const user = req.user;
     if (!user) throw new BadRequestException('Missing auth context');
     return this.service.submissionsList(query, {
@@ -81,7 +89,10 @@ export class ChecklistenController {
 
   @Get('submissions/:id')
   @Roles('admin', 'readonly', 'mitarbeiter')
-  submissionGet(@Param('id', ParseIntPipe) id: number, @Req() req: AuthRequest) {
+  submissionGet(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthRequest,
+  ) {
     const user = req.user;
     if (!user) throw new BadRequestException('Missing auth context');
     return this.service.submissionGet(id, {
@@ -92,7 +103,10 @@ export class ChecklistenController {
 
   @Post('submissions')
   @Roles('admin', 'mitarbeiter')
-  submissionCreate(@Body() dto: CreateChecklistSubmissionDto, @Req() req: AuthRequest) {
+  submissionCreate(
+    @Body() dto: CreateChecklistSubmissionDto,
+    @Req() req: AuthRequest,
+  ) {
     const user = req.user;
     if (!user) throw new BadRequestException('Missing auth context');
     return this.service.submissionCreate(dto, {
@@ -105,4 +119,3 @@ export class ChecklistenController {
     });
   }
 }
-

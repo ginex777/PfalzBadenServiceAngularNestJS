@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { IonItem, IonLabel, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
-import { WasteObject } from '../../../core/waste-plan.service';
+import { ObjectListItem } from '../../../core/objects.service';
 
 function readUnknownValue(event: Event): unknown {
   if (!(event instanceof CustomEvent)) return undefined;
@@ -19,7 +19,7 @@ function readUnknownValue(event: Event): unknown {
   styleUrl: './objekt-auswahl.component.scss',
 })
 export class ObjektAuswahlComponent {
-  readonly objects = input<WasteObject[]>([]);
+  readonly objects = input<ObjectListItem[]>([]);
   readonly selectedObjectId = input<number | null>(null);
   readonly disabled = input(false);
   readonly label = input('Objekt');
@@ -36,4 +36,3 @@ export class ObjektAuswahlComponent {
     this.selectedObjectIdChange.emit(objectId);
   }
 }
-

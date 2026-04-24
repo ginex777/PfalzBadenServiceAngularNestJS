@@ -1,0 +1,61 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { ObjekteService } from './objekte.service';
+import {
+  CreateObjektDto,
+  ListObjekteQueryDto,
+  UpdateObjektDto,
+} from './dto/objekte.dto';
+
+@ApiTags('Objekte')
+@ApiSecurity('x-nutzer')
+@Roles('admin', 'readonly')
+@Controller('api/objekte')
+export class ObjekteController {
+  constructor(private readonly service: ObjekteService) {}
+
+  @Get()
+  @ApiOperation({ summary: 'Alle Objekte laden' })
+  findAll(@Query() query: ListObjekteQueryDto) {
+    return this.service.findAll(query, query.q, query.customerId);
+  }
+
+  @Get('all')
+  @ApiOperation({ summary: 'Alle Objekte (unpaginated) laden' })
+  @Roles('admin', 'readonly', 'mitarbeiter')
+  findAllUnpaginated(@Query() query: ListObjekteQueryDto) {
+    return this.service.findAllUnpaginated(query.customerId);
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'Objekt erstellen' })
+  @Roles('admin')
+  create(@Body() dto: CreateObjektDto) {
+    return this.service.create(dto);
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Objekt aktualisieren' })
+  @Roles('admin')
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateObjektDto) {
+    return this.service.update(id, dto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Objekt löschen/deaktivieren' })
+  @Roles('admin')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.service.remove(id);
+  }
+}

@@ -35,9 +35,16 @@ export class AuditController {
               q
                 ? {
                     OR: [
-                      { tabelle: { contains: q, mode: 'insensitive' as const } },
+                      {
+                        tabelle: { contains: q, mode: 'insensitive' as const },
+                      },
                       { nutzer: { contains: q, mode: 'insensitive' as const } },
-                      { nutzer_name: { contains: q, mode: 'insensitive' as const } },
+                      {
+                        nutzer_name: {
+                          contains: q,
+                          mode: 'insensitive' as const,
+                        },
+                      },
                     ],
                   }
                 : {},
@@ -84,7 +91,12 @@ export class AuditController {
                 ? {
                     OR: [
                       { nutzer: { contains: q, mode: 'insensitive' as const } },
-                      { nutzer_name: { contains: q, mode: 'insensitive' as const } },
+                      {
+                        nutzer_name: {
+                          contains: q,
+                          mode: 'insensitive' as const,
+                        },
+                      },
                     ],
                   }
                 : {},

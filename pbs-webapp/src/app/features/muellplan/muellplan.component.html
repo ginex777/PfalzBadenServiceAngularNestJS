@@ -1,5 +1,5 @@
-<div class="page-wrap">
-  <app-page-title titel="MÃ¼llplan" untertitel="Objekte, Termine & Vorlagen" />
+﻿<div class="page-wrap">
+  <app-page-title titel="MÃƒÂ¼llplan" untertitel="Objekte, Termine & Vorlagen" />
 
   <div class="two-col">
     <!-- Left: objects -->
@@ -7,20 +7,14 @@
       <div class="card-header">
         <h3 class="section-title">Objekte</h3>
         <div class="btn-group--sm">
-          <button class="btn btn-sm btn-primary" (click)="facade.objektFormularOeffnen()">
-            + Objekt
-          </button>
           <button class="btn btn-sm" (click)="facade.vorlagenModalOeffnen()">Vorlagen</button>
         </div>
       </div>
 
       <app-objekt-liste
-        [objekte]="facade.objekte()"
-        [aktuellesObjekt]="facade.aktuellesObjekt()"
-        (auswaehlen)="facade.objektAuswaehlen($event)"
-        (bearbeiten)="facade.objektFormularOeffnen($event)"
-        (loeschen)="facade.deleteObjectBestaetigen($event)"
-        (neuAnlegen)="facade.objektFormularOeffnen()"
+        [objects]="facade.objekte()"
+        [currentObject]="facade.aktuellesObjekt()"
+        (select)="facade.objektAuswaehlen($event)"
       />
 
       @if (facade.anstehendeTermine().length) {
@@ -42,26 +36,24 @@
     <div class="card">
       @if (facade.aktuellesObjekt()) {
         <app-termin-kalender
-          [objekt]="facade.aktuellesObjekt()!"
-          [termine]="terminAnzeige()"
-          [naechsteTermine]="naechsteTermine()"
-          [aktiveVorlage]="aktiveVorlage()"
-          [monatFilter]="monatFilter()"
-          [vergangeneAusblenden]="facade.vergangeneAusblenden()"
-          [hatAktivenFilter]="hatAktivenFilter()"
-          (terminHinzufuegen)="facade.terminFormularOeffnen()"
-          (terminErledigt)="terminErledigtAendern($event)"
-          (terminLoeschen)="facade.terminLoeschen($event)"
-          (bearbeiten)="facade.objektFormularOeffnen(facade.aktuellesObjekt()!)"
-          (loeschen)="objektLoeschenBestaetigen(facade.aktuellesObjekt()!)"
-          (pdfErstellen)="facade.monatsabschlussPdfGenerieren()"
-          (vorlageAnwenden)="facade.vorlageAnwendenOeffnen()"
-          (filterOeffnen)="filterModalOffen.set(true)"
-          (monatFilterAendern)="facade.terminMonatFilter.set($event === null ? '' : $event)"
-          (vergangeneToggle)="facade.vergangeneAusblenden.set($event)"
+          [object]="facade.aktuellesObjekt()!"
+          [terms]="terminAnzeige()"
+          [nextTerms]="naechsteTermine()"
+          [activeTemplate]="aktiveVorlage()"
+          [monthFilter]="monatFilter()"
+          [hidePast]="facade.vergangeneAusblenden()"
+          [hasActiveFilter]="hatAktivenFilter()"
+          (addTerm)="facade.terminFormularOeffnen()"
+          (termDoneChange)="terminErledigtAendern($event)"
+          (deleteTerm)="facade.terminLoeschen($event)"
+          (createPdf)="facade.monatsabschlussPdfGenerieren()"
+          (applyTemplate)="facade.vorlageAnwendenOeffnen()"
+          (openFilter)="filterModalOffen.set(true)"
+          (monthFilterChange)="facade.terminMonatFilter.set($event === null ? '' : $event)"
+          (hidePastChange)="facade.vergangeneAusblenden.set($event)"
         />
       } @else {
-        <div class="leer-hinweis">Bitte links ein Objekt auswÃ¤hlen.</div>
+        <div class="leer-hinweis">Bitte links ein Objekt auswÃƒÂ¤hlen.</div>
       }
     </div>
   </div>
@@ -74,7 +66,7 @@
       <h3 class="modal-title modal-title--sm">Filter</h3>
       <div class="filter-row mb-sm">
         <div class="form-field form-field--flex">
-          <label class="form-hint">MÃ¼llart</label>
+          <label class="form-hint">MÃƒÂ¼llart</label>
           <input
             class="form-input"
             type="text"
@@ -116,91 +108,9 @@
             facade.vergangeneAusblenden.set(false)
           "
         >
-          ZurÃ¼cksetzen
+          ZurÃƒÂ¼cksetzen
         </button>
         <button class="btn btn-primary" (click)="filterModalOffen.set(false)">Fertig</button>
-      </div>
-    </div>
-  </div>
-}
-
-<!-- Objekt modal -->
-@if (facade.objektFormularSichtbar()) {
-  <div class="modal-overlay" (click)="facade.objektFormularSchliessen()">
-    <div class="modal modal--lg" (click)="$event.stopPropagation()">
-      <div class="modal-header-row">
-        <h3 class="modal-title">Objekt</h3>
-        <button class="btn btn-sm" (click)="facade.objektFormularSchliessen()">SchlieÃŸen</button>
-      </div>
-
-      <div class="form-row mb-sm">
-        <div class="form-field form-field--wide">
-          <label>Name *</label>
-          <input
-            class="form-input"
-            type="text"
-            [value]="facade.objektFormularDaten().name"
-            (input)="objektFeldGeaendert('name', $event)"
-          />
-        </div>
-        <div class="form-field">
-          <label>Kunde</label>
-          <select
-            class="form-input"
-            [value]="facade.objektFormularDaten().kunden_id ?? ''"
-            (change)="objektFeldGeaendert('kunden_id', $event)"
-          >
-            <option value="">(kein Kunde)</option>
-            @for (k of facade.kunden(); track k.id) {
-              <option [value]="k.id">{{ k.name }}</option>
-            }
-          </select>
-        </div>
-      </div>
-
-      <div class="form-row mb-sm">
-        <div class="form-field">
-          <label>StraÃŸe</label>
-          <input
-            class="form-input"
-            type="text"
-            [value]="facade.objektFormularDaten().strasse"
-            (input)="objektFeldGeaendert('strasse', $event)"
-          />
-        </div>
-        <div class="form-field form-field--narrow-100">
-          <label>PLZ</label>
-          <input
-            class="form-input"
-            type="text"
-            [value]="facade.objektFormularDaten().plz"
-            (input)="objektFeldGeaendert('plz', $event)"
-          />
-        </div>
-        <div class="form-field">
-          <label>Ort</label>
-          <input
-            class="form-input"
-            type="text"
-            [value]="facade.objektFormularDaten().ort"
-            (input)="objektFeldGeaendert('ort', $event)"
-          />
-        </div>
-      </div>
-
-      <div class="form-field">
-        <label>Notiz</label>
-        <textarea
-          class="form-input"
-          rows="3"
-          [value]="facade.objektFormularDaten().notiz"
-          (input)="objektFeldGeaendert('notiz', $event)"
-        ></textarea>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn" (click)="facade.objektFormularSchliessen()">Abbrechen</button>
-        <button class="btn btn-primary" (click)="facade.objektSpeichern()">Speichern</button>
       </div>
     </div>
   </div>
@@ -212,12 +122,12 @@
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header-row">
         <h3 class="modal-title">Termin</h3>
-        <button class="btn btn-sm" (click)="facade.terminFormularSchliessen()">SchlieÃŸen</button>
+        <button class="btn btn-sm" (click)="facade.terminFormularSchliessen()">SchlieÃƒÅ¸en</button>
       </div>
 
       <div class="form-row mb-sm">
         <div class="form-field">
-          <label>MÃ¼llart *</label>
+          <label>MÃƒÂ¼llart *</label>
           <input
             class="form-input"
             type="text"
@@ -264,7 +174,7 @@
           <button class="btn btn-sm btn-primary" (click)="facade.vorlageFormularOeffnen()">
             + Vorlage
           </button>
-          <button class="btn btn-sm" (click)="facade.vorlagenModalSchliessen()">SchlieÃŸen</button>
+          <button class="btn btn-sm" (click)="facade.vorlagenModalSchliessen()">SchlieÃƒÅ¸en</button>
         </div>
       </div>
 
@@ -280,7 +190,7 @@
                 <button class="btn btn-sm" (click)="facade.vorlagePdfOeffnen(v.id)">PDF</button>
               }
               <button class="btn btn-sm btn-danger" (click)="facade.vorlageLoeschen(v.id)">
-                LÃ¶schen
+                LÃƒÂ¶schen
               </button>
             </div>
           }
@@ -296,7 +206,7 @@
     <div class="modal modal--lg" (click)="$event.stopPropagation()">
       <div class="modal-header-row">
         <h3 class="modal-title">Vorlage erstellen</h3>
-        <button class="btn btn-sm" (click)="facade.vorlageFormularSchliessen()">SchlieÃŸen</button>
+        <button class="btn btn-sm" (click)="facade.vorlageFormularSchliessen()">SchlieÃƒÅ¸en</button>
       </div>
 
       <div class="form-row mb-sm">
@@ -343,7 +253,7 @@
           <div class="vorschau-liste">
             @for (t of facade.vorlageVorschau().slice(0, 20); track t.datum + t.muellart) {
               <span class="muell-badge" [style.background]="t.farbe"
-                >{{ t.muellart }} â€” {{ fmtDatum(t.datum) }}</span
+                >{{ t.muellart }} Ã¢â‚¬â€ {{ fmtDatum(t.datum) }}</span
               >
             }
           </div>
@@ -375,13 +285,13 @@
             )
           "
         >
-          <option value="">Bitte wÃ¤hlenâ€¦</option>
+          <option value="">Bitte wÃƒÂ¤hlenÃ¢â‚¬Â¦</option>
           @for (v of facade.vorlagen(); track v.id) {
             <option [value]="v.id">{{ v.name }}</option>
           }
         </select>
         <div class="form-hint">
-          Erstellt Termine fÃ¼r das aktuelle Jahr und speichert die Vorlage am Objekt.
+          Erstellt Termine fÃƒÂ¼r das aktuelle Jahr und speichert die Vorlage am Objekt.
         </div>
       </div>
 
@@ -393,13 +303,3 @@
   </div>
 }
 
-<!-- Objekt lÃ¶schen confirm -->
-@if (facade.loeschKandidat() !== null) {
-  <app-confirm-modal
-    titel="Objekt löschen"
-    nachricht="Dieses Objekt wirklich löschen?"
-    bestaetigenLabel="Löschen"
-    (bestaetigt)="facade.deleteObjectAusfuehren()"
-    (abgebrochen)="facade.loeschenAbbrechen()"
-  />
-}

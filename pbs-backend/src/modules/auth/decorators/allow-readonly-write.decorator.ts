@@ -9,4 +9,3 @@ export const ALLOW_READONLY_WRITE_KEY = 'allowReadonlyWrite';
  */
 export const AllowReadonlyWrite = () =>
   SetMetadata(ALLOW_READONLY_WRITE_KEY, true);
-

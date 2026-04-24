@@ -1,0 +1,95 @@
+<div class="form-grid">
+  <div class="form-field form-field--wide">
+    <label>Name *</label>
+    <input
+      class="form-input"
+      type="text"
+      [disabled]="disabled()"
+      [value]="value().name"
+      (input)="onText('name', $event)"
+    />
+  </div>
+
+  <div class="form-field form-field--narrow-260">
+    <label>Status</label>
+    <select
+      class="form-input"
+      [disabled]="disabled()"
+      [value]="value().status"
+      (change)="onSelect('status', $event)"
+    >
+      <option value="AKTIV">Aktiv</option>
+      <option value="INAKTIV">Inaktiv</option>
+    </select>
+  </div>
+
+  <div class="form-field form-field--wide">
+    <label>StraÃŸe *</label>
+    <input
+      class="form-input"
+      type="text"
+      [disabled]="disabled()"
+      [value]="value().street"
+      (input)="onText('street', $event)"
+    />
+  </div>
+
+  <div class="form-field form-field--narrow-120">
+    <label>Nr.</label>
+    <input
+      class="form-input"
+      type="text"
+      [disabled]="disabled()"
+      [value]="value().houseNumber"
+      (input)="onText('houseNumber', $event)"
+    />
+  </div>
+
+  <div class="form-field form-field--narrow-160">
+    <label>PLZ *</label>
+    <input
+      class="form-input"
+      type="text"
+      [disabled]="disabled()"
+      [value]="value().postalCode"
+      (input)="onText('postalCode', $event)"
+    />
+  </div>
+
+  <div class="form-field form-field--wide">
+    <label>Ort *</label>
+    <input
+      class="form-input"
+      type="text"
+      [disabled]="disabled()"
+      [value]="value().city"
+      (input)="onText('city', $event)"
+    />
+  </div>
+
+  <div class="form-field form-field--wide">
+    <label>Kunde *</label>
+    <select
+      class="form-input"
+      [disabled]="disabled()"
+      [value]="value().customerId"
+      (change)="onSelect('customerId', $event)"
+    >
+      <option value="">Bitte wÃ¤hlenâ€¦</option>
+      @for (c of customers(); track c.id) {
+        <option [value]="c.id">{{ c.name }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="form-field form-field--wide">
+    <label>Notiz</label>
+    <textarea
+      class="form-input"
+      rows="4"
+      [disabled]="disabled()"
+      [value]="value().note"
+      (input)="onText('note', $event)"
+    ></textarea>
+  </div>
+</div>

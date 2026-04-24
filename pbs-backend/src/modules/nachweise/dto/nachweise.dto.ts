@@ -21,4 +21,3 @@ export class EvidenceListQueryDto extends PaginationDto {
   @Min(1)
   objectId?: number;
 }
-

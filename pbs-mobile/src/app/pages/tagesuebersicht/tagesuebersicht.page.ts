@@ -18,10 +18,10 @@ import {
 } from '@ionic/angular/standalone';
 import { forkJoin, of } from 'rxjs';
 import { MobileAuthService } from '../../core/auth.service';
-import { OperationalContextService } from '../../core/operational-context.service';
+import { ObjectContextService } from '../../core/object-context.service';
 import { StempelService, StempelEintrag } from '../../core/stempel.service';
 import { WastePlanService, UpcomingWastePickup } from '../../core/waste-plan.service';
-import { ObjektAuswahlComponent } from '../../shared/ui/objekt-auswahl/objekt-auswahl.component';
+import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-kontext.component';
 
 @Component({
   selector: 'app-tagesuebersicht',
@@ -42,7 +42,7 @@ import { ObjektAuswahlComponent } from '../../shared/ui/objekt-auswahl/objekt-au
     IonLabel,
     IonBadge,
     IonToast,
-    ObjektAuswahlComponent,
+    ObjektKontextComponent,
   ],
   templateUrl: './tagesuebersicht.page.html',
   styleUrl: './tagesuebersicht.page.scss',
@@ -52,7 +52,7 @@ export class TagesuebersichtPage implements OnInit {
   private readonly router = inject(Router);
   private readonly stempel = inject(StempelService);
   private readonly wastePlanService = inject(WastePlanService);
-  protected readonly context = inject(OperationalContextService);
+  protected readonly context = inject(ObjectContextService);
 
   protected readonly todayEntries = signal<StempelEintrag[]>([]);
   protected readonly upcomingPickups = signal<UpcomingWastePickup[]>([]);
@@ -140,7 +140,7 @@ export class TagesuebersichtPage implements OnInit {
 
   protected openTimeClock(): void {
     if (!this.canUseOperativeActions()) {
-      this.showToast('Bitte zuerst ein Objekt auswÃ¤hlen.');
+      this.showToast('Bitte zuerst ein Objekt auswaehlen.');
       return;
     }
     void this.router.navigate(['/tabs/stempeluhr']);
@@ -148,7 +148,7 @@ export class TagesuebersichtPage implements OnInit {
 
   protected openPhotoUpload(): void {
     if (!this.canUseOperativeActions()) {
-      this.showToast('Bitte zuerst ein Objekt auswÃ¤hlen.');
+      this.showToast('Bitte zuerst ein Objekt auswaehlen.');
       return;
     }
     void this.router.navigate(['/tabs/foto-upload']);

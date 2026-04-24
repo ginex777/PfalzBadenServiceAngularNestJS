@@ -22,30 +22,28 @@ interface MonatsGruppe {
   styleUrl: './termin-kalender.component.scss',
 })
 export class TerminKalenderComponent {
-  readonly objekt = input.required<Objekt>();
-  readonly termine = input.required<TerminAnzeige[]>();
-  readonly naechsteTermine = input<TerminAnzeige[]>([]);
-  readonly aktiveVorlage = input<MuellplanVorlage | null>(null);
-  readonly monatFilter = input<number | null>(null);
-  readonly vergangeneAusblenden = input<boolean>(false);
-  readonly hatAktivenFilter = input<boolean>(false);
+  readonly object = input.required<Objekt>();
+  readonly terms = input.required<TerminAnzeige[]>();
+  readonly nextTerms = input<TerminAnzeige[]>([]);
+  readonly activeTemplate = input<MuellplanVorlage | null>(null);
+  readonly monthFilter = input<number | null>(null);
+  readonly hidePast = input<boolean>(false);
+  readonly hasActiveFilter = input<boolean>(false);
 
-  readonly terminHinzufuegen = output<void>();
-  readonly terminErledigt = output<{ id: number; erledigt: boolean }>();
-  readonly terminLoeschen = output<number>();
-  readonly bearbeiten = output<void>();
-  readonly loeschen = output<void>();
-  readonly pdfErstellen = output<void>();
-  readonly vorlageAnwenden = output<void>();
-  readonly filterOeffnen = output<void>();
-  readonly monatFilterAendern = output<number | null>();
-  readonly vergangeneToggle = output<boolean>();
+  readonly addTerm = output<void>();
+  readonly termDoneChange = output<{ id: number; done: boolean }>();
+  readonly deleteTerm = output<number>();
+  readonly createPdf = output<void>();
+  readonly applyTemplate = output<void>();
+  readonly openFilter = output<void>();
+  readonly monthFilterChange = output<number | null>();
+  readonly hidePastChange = output<boolean>();
 
   protected readonly monate = MONATE;
 
   protected readonly monatsGruppen = computed((): MonatsGruppe[] => {
     const byMonth: Record<number, MonatsGruppe> = {};
-    for (const t of this.termine()) {
+    for (const t of this.terms()) {
       const [y, m] = t.abholung.split('-').map(Number);
       const key = y * 100 + m;
       if (!byMonth[key]) {
@@ -93,6 +91,6 @@ export class TerminKalenderComponent {
 
   protected onMonatFilter(event: Event): void {
     const val = (event.target as HTMLSelectElement).value;
-    this.monatFilterAendern.emit(val === '' ? null : parseInt(val));
+    this.monthFilterChange.emit(val === '' ? null : parseInt(val));
   }
 }

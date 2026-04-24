@@ -27,7 +27,11 @@ export class HausmeisterController {
     @Query('mitarbeiter') mitarbeiter?: string,
     @Query('monat') monat?: string,
   ) {
-    return this.service.alleEinsaetzeLaden(pagination, { q, mitarbeiter, monat });
+    return this.service.alleEinsaetzeLaden(pagination, {
+      q,
+      mitarbeiter,
+      monat,
+    });
   }
   @Get('mitarbeiter/:mid') einsaetzeFuerMitarbeiter(
     @Param('mid', ParseIntPipe) mid: number,

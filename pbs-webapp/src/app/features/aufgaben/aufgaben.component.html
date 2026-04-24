@@ -1,0 +1,55 @@
+<div class="page-wrap">
+  <app-page-title titel="Aufgaben" untertitel="Zentrale Übersicht: Müllplan, Checklisten, Zeiterfassung" />
+
+  <div class="stack">
+    <app-aufgaben-filter
+      [filters]="filters()"
+      [customers]="customers()"
+      [objects]="objects()"
+      [employees]="employees()"
+      [users]="users()"
+      (filtersChange)="onFiltersChange($event)"
+      (reset)="onResetFilters()"
+    />
+
+    <div class="summary-row">
+      <div class="summary-row__left">
+        <div class="summary-title">Alle Aufgaben</div>
+        <div class="summary-meta">{{ total() }} Eintrag(e)</div>
+      </div>
+      <div class="summary-row__right">
+        <button class="btn btn-sm" type="button" (click)="reload()">Aktualisieren</button>
+      </div>
+    </div>
+
+    <app-aufgaben-liste
+      [tasks]="tasks()"
+      [total]="total()"
+      [page]="page()"
+      [pageSize]="pageSize()"
+      [isLoading]="isLoading()"
+      [errorMessage]="errorMessage()"
+      (reload)="reload()"
+      (taskSelected)="onTaskSelected($event)"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    />
+  </div>
+
+  <app-drawer
+    position="right"
+    ariaLabel="Aufgabe Details"
+    [isOpen]="isDrawerOpen()"
+    (closed)="closeDrawer()"
+  >
+    @if (selectedTask()) {
+      <app-aufgabe-detail
+        [task]="selectedTask()!"
+        [canEdit]="canEdit()"
+        (close)="closeDrawer()"
+        (taskUpdated)="onTaskUpdated($event)"
+      />
+    }
+  </app-drawer>
+</div>
+

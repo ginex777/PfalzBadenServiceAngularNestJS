@@ -15,4 +15,3 @@ import { NachweiseService } from './nachweise.service';
   providers: [NachweiseService],
 })
 export class NachweiseModule {}
-

@@ -1,7 +1,8 @@
-import { Routes } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, Routes } from '@angular/router';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MobileAuthService } from './core/auth.service';
+import { ObjectContextService } from './core/object-context.service';
 
 const authGuard = () => {
   const auth = inject(MobileAuthService);
@@ -28,6 +29,13 @@ const roleGuard = (allowedRoles: readonly string[]) => {
   };
 };
 
+const objectContextGuard = (_route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+  const context = inject(ObjectContextService);
+  const router = inject(Router);
+  if (context.selectedObjectId() != null) return true;
+  return router.createUrlTree(['/objekt-auswahl'], { queryParams: { returnUrl: state.url } });
+};
+
 export const routes: Routes = [
   { path: '', redirectTo: 'tabs/heute', pathMatch: 'full' },
   {
@@ -36,8 +44,15 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/login/login.page').then((m) => m.LoginPage),
   },
   {
+    path: 'objekt-auswahl',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/objekt-auswahl/objekt-auswahl.page').then((m) => m.ObjektAuswahlPage),
+  },
+  {
     path: 'tabs',
     canActivate: [authGuard],
+    canActivateChild: [objectContextGuard],
     loadComponent: () => import('./shell/mobile-shell.component').then((m) => m.MobileShellComponent),
     children: [
       { path: '', redirectTo: 'heute', pathMatch: 'full' },

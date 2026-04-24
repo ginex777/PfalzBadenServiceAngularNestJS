@@ -1,17 +1,15 @@
-@if (!objekte().length) {
+﻿@if (!objects().length) {
   <app-empty-state
     titel="Keine Objekte vorhanden"
-    beschreibung="Legen Sie Ihr erstes Betreuungsobjekt an."
-    aktionLabel="+ Erstes Objekt anlegen"
-    (aktion)="neuAnlegen.emit()"
+    beschreibung="Legen Sie ein Objekt in der Verwaltung an, damit es hier auswählbar ist."
   />
 } @else {
   <div class="objekt-grid">
-    @for (obj of objekte(); track obj.id) {
+    @for (obj of objects(); track obj.id) {
       <div
         class="objekt-karte"
-        [class.aktiv]="aktuellesObjekt()?.id === obj.id"
-        (click)="auswaehlen.emit(obj)"
+        [class.aktiv]="currentObject()?.id === obj.id"
+        (click)="select.emit(obj)"
       >
         <div class="objekt-name">{{ obj.name }}</div>
         @if (obj.strasse || obj.ort) {
@@ -19,18 +17,6 @@
             {{ adresseFormatieren(obj) }}
           </div>
         }
-        <div class="objekt-aktionen" (click)="$event.stopPropagation()">
-          <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(obj)">
-            Bearbeiten
-          </button>
-          <button
-            class="btn-action btn-action--danger"
-            title="Löschen"
-            (click)="loeschen.emit(obj.id)"
-          >
-            Löschen
-          </button>
-        </div>
       </div>
     }
   </div>

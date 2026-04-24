@@ -1,0 +1,23 @@
+<div class="objekt-kontext">
+  <div class="objekt-kontext__text">
+    <div class="objekt-kontext__label">Objekt</div>
+    @if (objectTitle()) {
+      <div class="objekt-kontext__title">{{ objectTitle() }}</div>
+      @if (objectSubtitle()) {
+        <div class="objekt-kontext__sub">{{ objectSubtitle() }}</div>
+      }
+    } @else {
+      <div class="objekt-kontext__empty">Kein Objekt gewaehlt</div>
+    }
+  </div>
+
+  <ion-button
+    class="objekt-kontext__btn"
+    fill="clear"
+    size="small"
+    [disabled]="disabled()"
+    (click)="changeObject()"
+  >
+    @if (objectTitle()) { Wechseln } @else { Auswaehlen }
+  </ion-button>
+</div>

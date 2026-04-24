@@ -21,9 +21,7 @@ import {
   CopyMuellplanTermineDto,
   CreateMuellplanTerminDto,
   CreateMuellplanVorlageDto,
-  CreateObjektDto,
   UpdateMuellplanTerminDto,
-  UpdateObjektDto,
 } from './dto/muellplan.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -32,53 +30,14 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 export class MuellplanController {
   constructor(private readonly service: MuellplanService) {}
 
-  @Get('objekte')
-  @Roles('admin', 'readonly')
-  async objekteLaden(
-    @Query() pagination: PaginationDto,
-    @Query('q') q?: string,
-  ) {
-    return this.service.objekteLaden(pagination, q);
-  }
-
-  @Get('objekte/all')
-  @Roles('admin', 'readonly', 'mitarbeiter')
-  async objekteAlleLaden() {
-    return this.service.objekteAlleLaden();
-  }
-  @Post('objekte')
-  @Roles('admin')
-  async objektErstellen(@Body() b: CreateObjektDto) {
-    return this.service.objektErstellen(b);
-  }
-  @Put('objekte/:id')
-  @Roles('admin')
-  async objektAktualisieren(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() b: UpdateObjektDto,
-  ) {
-    return this.service.objektAktualisieren(id, b);
-  }
-  @Delete('objekte/:id')
-  @Roles('admin')
-  async objektLoeschen(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
-    return this.service.objektLoeschen(id);
-  }
-
   @Get('muellplan-upcoming')
   @Roles('admin', 'mitarbeiter')
-  async anstehendeTermineLaden(
-    @Query('limit') limit?: string,
-  ) {
+  async anstehendeTermineLaden(@Query('limit') limit?: string) {
     return this.service.anstehendeTermineLaden(limit ? parseInt(limit) : 5);
   }
   @Get('muellplan/:objektId')
   @Roles('admin', 'mitarbeiter')
-  async termineLaden(
-    @Param('objektId', ParseIntPipe) id: number,
-  ) {
+  async termineLaden(@Param('objektId', ParseIntPipe) id: number) {
     return this.service.termineLaden(id);
   }
   @Post('muellplan')
@@ -88,9 +47,7 @@ export class MuellplanController {
   }
   @Post('muellplan/copy')
   @Roles('admin')
-  async termineKopieren(
-    @Body() b: CopyMuellplanTermineDto,
-  ) {
+  async termineKopieren(@Body() b: CopyMuellplanTermineDto) {
     return this.service.termineKopieren(b.from_objekt_id, b.to_objekt_id);
   }
   @Put('muellplan/:id')
@@ -103,9 +60,7 @@ export class MuellplanController {
   }
   @Delete('muellplan/:id')
   @Roles('admin')
-  async terminLoeschen(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  async terminLoeschen(@Param('id', ParseIntPipe) id: number) {
     return this.service.terminLoeschen(id);
   }
 
@@ -125,23 +80,17 @@ export class MuellplanController {
   }
   @Get('muellplan-vorlagen/:id')
   @Roles('admin')
-  async vorlageLaden(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  async vorlageLaden(@Param('id', ParseIntPipe) id: number) {
     return this.service.vorlageLaden(id);
   }
   @Post('muellplan-vorlagen')
   @Roles('admin')
-  async vorlageErstellen(
-    @Body() b: CreateMuellplanVorlageDto,
-  ) {
+  async vorlageErstellen(@Body() b: CreateMuellplanVorlageDto) {
     return this.service.vorlageErstellen(b);
   }
   @Delete('muellplan-vorlagen/:id')
   @Roles('admin')
-  async vorlageLoeschen(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  async vorlageLoeschen(@Param('id', ParseIntPipe) id: number) {
     return this.service.vorlageLoeschen(id);
   }
 

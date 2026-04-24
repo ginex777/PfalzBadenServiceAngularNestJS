@@ -1,0 +1,61 @@
+<div class="page-wrap">
+  <app-page-title [titel]="title()" [untertitel]="subtitle()" />
+
+  <div class="card">
+    <div class="detail-header">
+      <button class="btn btn-sm" (click)="backToList()">â† ZurÃ¼ck</button>
+
+      <div class="detail-header__actions">
+        <button
+          class="btn btn-sm btn-primary"
+          *roleAllowed="['admin']"
+          [disabled]="isLoading()"
+          (click)="save()"
+        >
+          Speichern
+        </button>
+
+        @if (mode() === 'edit' && (existingObject()?.status ?? 'AKTIV') !== 'INAKTIV') {
+          <button
+            class="btn btn-sm btn-danger"
+            *roleAllowed="['admin']"
+            [disabled]="isLoading()"
+            (click)="openDeactivateConfirm()"
+          >
+            Deaktivieren
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (error()) {
+      <app-error-state [message]="error()!" actionLabel="Neu laden" (action)="load()" />
+    } @else if (isLoading() && !customers().length) {
+      <div class="loading">LÃ¤dtâ€¦</div>
+    } @else {
+      <app-objekt-formular
+        [value]="form()"
+        [customers]="customers()"
+        [disabled]="!canEdit()"
+        (valueChange)="onFormChange($event)"
+      />
+
+      @if (!canEdit()) {
+        <div class="readonly-hint">
+          <strong>Read-only:</strong> Nur Admins kÃ¶nnen Objekte bearbeiten.
+        </div>
+      }
+    }
+  </div>
+</div>
+
+@if (confirmDeactivateOpen()) {
+  <app-confirm-modal
+    titel="Objekt deaktivieren"
+    nachricht="Dieses Objekt wirklich deaktivieren? Es bleibt fÃ¼r Historie erhalten, ist aber nicht mehr auswÃ¤hlbar."
+    bestaetigenLabel="Deaktivieren"
+    (bestaetigt)="confirmDeactivate()"
+    (abgebrochen)="cancelDeactivate()"
+  />
+}
+

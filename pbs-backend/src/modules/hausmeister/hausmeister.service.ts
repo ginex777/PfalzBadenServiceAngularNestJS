@@ -40,13 +40,30 @@ export class HausmeisterService {
         ? {
             AND: [
               mitarbeiter ? { mitarbeiter_name: mitarbeiter } : {},
-              monatRange ? { datum: { gte: monatRange.start, lt: monatRange.end } } : {},
+              monatRange
+                ? { datum: { gte: monatRange.start, lt: monatRange.end } }
+                : {},
               query
                 ? {
                     OR: [
-                      { mitarbeiter_name: { contains: query, mode: 'insensitive' as const } },
-                      { kunden_name: { contains: query, mode: 'insensitive' as const } },
-                      { notiz: { contains: query, mode: 'insensitive' as const } },
+                      {
+                        mitarbeiter_name: {
+                          contains: query,
+                          mode: 'insensitive' as const,
+                        },
+                      },
+                      {
+                        kunden_name: {
+                          contains: query,
+                          mode: 'insensitive' as const,
+                        },
+                      },
+                      {
+                        notiz: {
+                          contains: query,
+                          mode: 'insensitive' as const,
+                        },
+                      },
                     ],
                   }
                 : {},
@@ -80,7 +97,9 @@ export class HausmeisterService {
   }
 
   async einsatzErstellen(d: CreateHausmeisterEinsatzDto) {
-    const taetigkeiten: Prisma.JsonArray = (d.taetigkeiten ?? []).map((entry) => entry);
+    const taetigkeiten: Prisma.JsonArray = (d.taetigkeiten ?? []).map(
+      (entry) => entry,
+    );
     const e = await this.prisma.hausmeisterEinsaetze.create({
       data: {
         mitarbeiter_id: d.mitarbeiter_id ? BigInt(d.mitarbeiter_id) : null,
@@ -104,7 +123,9 @@ export class HausmeisterService {
       }))
     )
       throw new NotFoundException();
-    const taetigkeiten: Prisma.JsonArray = (d.taetigkeiten ?? []).map((entry) => entry);
+    const taetigkeiten: Prisma.JsonArray = (d.taetigkeiten ?? []).map(
+      (entry) => entry,
+    );
     const e = await this.prisma.hausmeisterEinsaetze.update({
       where: { id: BigInt(id) },
       data: {

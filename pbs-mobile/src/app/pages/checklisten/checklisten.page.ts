@@ -22,7 +22,8 @@ import {
 } from '@ionic/angular/standalone';
 import { MobileAuthService } from '../../core/auth.service';
 import { ChecklistField, ChecklistService, ChecklistTemplate } from '../../core/checklist.service';
-import { OperationalContextService } from '../../core/operational-context.service';
+import { ObjectContextService } from '../../core/object-context.service';
+import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-kontext.component';
 
 type AnswerValue = string | number | boolean | null;
 
@@ -49,6 +50,7 @@ type AnswerValue = string | number | boolean | null;
     IonInput,
     IonToggle,
     IonToast,
+    ObjektKontextComponent,
   ],
   templateUrl: './checklisten.page.html',
   styleUrl: './checklisten.page.scss',
@@ -56,16 +58,14 @@ type AnswerValue = string | number | boolean | null;
 export class ChecklistenPage implements OnInit {
   private readonly auth = inject(MobileAuthService);
   private readonly router = inject(Router);
-  protected readonly context = inject(OperationalContextService);
+  protected readonly context = inject(ObjectContextService);
   private readonly checklist = inject(ChecklistService);
 
-  readonly objects = this.context.objects;
   readonly templates = signal<ChecklistTemplate[]>([]);
   readonly selectedObjectId = this.context.selectedObjectId;
   readonly selectedTemplateId = signal<number | null>(null);
   readonly note = signal('');
 
-  readonly objectsLoading = this.context.objectsLoading;
   readonly templatesLoading = signal(false);
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -124,11 +124,6 @@ export class ChecklistenPage implements OnInit {
     });
   }
 
-  protected onObjectChanged(value: unknown): void {
-    const parsed = typeof value === 'number' ? value : value != null ? Number(value) : NaN;
-    this.context.setSelectedObjectId(Number.isFinite(parsed) ? parsed : null);
-  }
-
   protected onTemplateChanged(value: unknown): void {
     const parsed = typeof value === 'number' ? value : value != null ? Number(value) : NaN;
     this.selectedTemplateId.set(Number.isFinite(parsed) ? parsed : null);
@@ -182,7 +177,7 @@ export class ChecklistenPage implements OnInit {
     const objectId = this.selectedObjectId();
     const template = this.selectedTemplate();
     if (!objectId || !template) {
-      this.setToast('error', 'Bitte Objekt und Checkliste auswählen.');
+      this.setToast('error', 'Bitte Objekt und Checkliste auswaehlen.');
       return;
     }
 

@@ -1,0 +1,91 @@
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+}
+
+.aufgaben-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--surface);
+}
+
+.aufgaben-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.aufgaben-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.04);
+}
+
+.row-click {
+  cursor: pointer;
+}
+
+.col-title .title {
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.col-title .sub {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  margin-top: 0.15rem;
+}
+
+.muted {
+  color: var(--gray-600);
+}
+
+.col-due,
+.col-done,
+.col-duration {
+  white-space: nowrap;
+}
+
+.col-indicators {
+  text-align: right;
+  white-space: nowrap;
+  width: 68px;
+}
+
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--gray-700);
+  margin-left: 0.25rem;
+}
+
+.indicator svg {
+  width: 14px;
+  height: 14px;
+}
+
+.indicator--comment {
+  border-color: rgba(59, 130, 246, 0.45);
+  background: rgba(59, 130, 246, 0.12);
+  color: rgb(29, 78, 216);
+}
+
+.indicator--photo {
+  border-color: rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.12);
+  color: rgb(4, 120, 87);
+}
+
+.pager {
+  margin-top: 0.85rem;
+  display: flex;
+  justify-content: flex-end;
+}

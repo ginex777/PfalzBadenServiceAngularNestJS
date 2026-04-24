@@ -1,0 +1,122 @@
+<div class="drawer">
+  <div class="drawer__header">
+    <div class="drawer__title">
+      <div class="title-row">
+        <h3>{{ task().title }}</h3>
+      </div>
+      <div class="meta-row">
+        <app-aufgaben-typ-badge [type]="task().type" />
+        <app-aufgaben-status-badge [status]="task().status" />
+      </div>
+    </div>
+
+    <button class="btn-icon" type="button" title="Schließen" (click)="close.emit()">✕</button>
+  </div>
+
+  <div class="drawer__body">
+    <div class="section">
+      <div class="section__title">Kontext</div>
+      <div class="kv">
+        <div class="kv__row">
+          <div class="kv__k">Kunde</div>
+          <div class="kv__v">{{ task().customerName ?? '–' }}</div>
+        </div>
+        <div class="kv__row">
+          <div class="kv__k">Objekt</div>
+          <div class="kv__v">{{ task().objectName }}</div>
+        </div>
+        <div class="kv__row">
+          <div class="kv__k">Person</div>
+          <div class="kv__v">{{ person() }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section__title">Status</div>
+      <div class="status-row">
+        <select
+          class="form-input"
+          [disabled]="!canEdit() || isSaving()"
+          [value]="editedStatus()"
+          (change)="onStatusChange($event)"
+        >
+          @for (opt of statusOptions(); track opt.status) {
+            <option [value]="opt.status">{{ opt.label }}</option>
+          }
+        </select>
+        <button
+          class="btn btn-primary"
+          type="button"
+          [disabled]="!canEdit() || isSaving() || editedStatus() === task().status"
+          (click)="saveStatus()"
+        >
+          @if (isSaving()) { Speichert… } @else { Speichern }
+        </button>
+      </div>
+      @if (!canEdit()) {
+        <div class="hint">Nur Admins können den Status ändern.</div>
+      }
+    </div>
+
+    <div class="section">
+      <div class="section__title">Daten</div>
+      <div class="kv">
+        <div class="kv__row">
+          <div class="kv__k">Erstellt</div>
+          <div class="kv__v">{{ task().createdAt | date: 'dd.MM.yyyy HH:mm' }}</div>
+        </div>
+        <div class="kv__row">
+          <div class="kv__k">Fällig</div>
+          <div class="kv__v">{{ task().dueAt ? (task().dueAt | date: 'dd.MM.yyyy') : '–' }}</div>
+        </div>
+        <div class="kv__row">
+          <div class="kv__k">Erledigt am</div>
+          <div class="kv__v">{{ task().completedAt ? (task().completedAt | date: 'dd.MM.yyyy HH:mm') : '–' }}</div>
+        </div>
+        <div class="kv__row">
+          <div class="kv__k">Dauer</div>
+          <div class="kv__v">{{ formatDuration(task().durationMinutes) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section__title">Kommentar</div>
+      @if (hasComment()) {
+        <div class="note">{{ task().comment }}</div>
+      } @else {
+        <div class="hint">Kein Kommentar.</div>
+      }
+    </div>
+
+    <div class="section">
+      <div class="section__title">Foto</div>
+      @if (hasPhoto()) {
+        <button class="btn" type="button" (click)="openPhoto()">Foto öffnen</button>
+        <div class="hint hint--mono">{{ task().photoUrl }}</div>
+      } @else {
+        <div class="hint">Kein Foto.</div>
+      }
+    </div>
+
+    <div class="section">
+      <div class="section__title">Quelle</div>
+      <div class="kv">
+        <div class="kv__row">
+          <div class="kv__k">Müllplan</div>
+          <div class="kv__v">{{ task().source.muellplanId ?? '–' }}</div>
+        </div>
+        <div class="kv__row">
+          <div class="kv__k">Checkliste</div>
+          <div class="kv__v">{{ task().source.checklistSubmissionId ?? '–' }}</div>
+        </div>
+        <div class="kv__row">
+          <div class="kv__k">Zeiterfassung</div>
+          <div class="kv__v">{{ task().source.timeEntryId ?? '–' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
