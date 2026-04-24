@@ -2,8 +2,6 @@ import { Component, computed, effect, inject, OnInit, signal } from '@angular/co
 import { DatePipe } from '@angular/common';
 import {
   IonBadge,
-  IonButton,
-  IonButtons,
   IonCard,
   IonCardContent,
   IonContent,
@@ -11,6 +9,8 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonRefresher,
+  IonRefresherContent,
   IonSelect,
   IonSelectOption,
   IonTitle,
@@ -30,8 +30,6 @@ import { WastePlanService, UpcomingWastePickup, WastePickup } from '../../core/w
     IonHeader,
     IonToolbar,
     IonTitle,
-    IonButtons,
-    IonButton,
     IonContent,
     IonCard,
     IonCardContent,
@@ -41,6 +39,8 @@ import { WastePlanService, UpcomingWastePickup, WastePickup } from '../../core/w
     IonSelectOption,
     IonList,
     IonBadge,
+    IonRefresher,
+    IonRefresherContent,
     IonToast,
   ],
   templateUrl: './muellplan.page.html',
@@ -79,11 +79,14 @@ export class MuellplanPage implements OnInit {
 
   ngOnInit(): void {
     this.context.ensureObjectsLoaded();
-    this.loadInitial();
   }
 
-  protected refresh(): void {
-    this.loadInitial();
+  ionViewWillEnter(): void {
+    this.reloadAll();
+  }
+
+  protected handleRefresh(event: CustomEvent): void {
+    this.reloadAll(() => (event.target as HTMLIonRefresherElement).complete());
   }
 
   protected selectObject(value: unknown): void {
@@ -92,7 +95,6 @@ export class MuellplanPage implements OnInit {
       this.context.setSelectedObjectId(null);
       return;
     }
-
     this.context.setSelectedObjectId(parsed);
   }
 
@@ -112,37 +114,47 @@ export class MuellplanPage implements OnInit {
     );
   }
 
-  private loadInitial(): void {
+  private reloadAll(onComplete?: () => void): void {
     this.isLoading.set(true);
-    this.isLoadingPickups.set(false);
+    // Reset guard so effect will reload pickups for current object
+    this.lastLoadedObjectId.set(null);
 
-    forkJoin({
-      upcoming: this.wastePlan.getUpcoming(14),
-    }).subscribe({
+    forkJoin({ upcoming: this.wastePlan.getUpcoming(14) }).subscribe({
       next: ({ upcoming }) => {
         this.upcomingPickups.set(upcoming);
-        if (this.selectedObjectId() == null) this.isLoading.set(false);
+        const objectId = this.selectedObjectId();
+        if (objectId == null) {
+          this.isLoading.set(false);
+          onComplete?.();
+        } else {
+          this.loadPickupsForObject(objectId, () => {
+            this.isLoading.set(false);
+            onComplete?.();
+          });
+        }
       },
       error: () => {
         this.isLoading.set(false);
+        onComplete?.();
         this.showToast('Muellplan konnte nicht geladen werden. Bitte erneut versuchen.');
       },
     });
   }
 
-  private loadPickupsForObject(objectId: number): void {
+  private loadPickupsForObject(objectId: number, onComplete?: () => void): void {
     this.isLoadingPickups.set(true);
+    this.lastLoadedObjectId.set(objectId);
 
     this.wastePlan.getPickupsForObject(objectId).subscribe({
       next: (pickups) => {
         this.objectPickups.set(pickups);
         this.isLoadingPickups.set(false);
-        this.isLoading.set(false);
+        onComplete?.();
       },
       error: () => {
         this.objectPickups.set([]);
         this.isLoadingPickups.set(false);
-        this.isLoading.set(false);
+        onComplete?.();
         this.showToast('Termine konnten nicht geladen werden. Bitte erneut versuchen.');
       },
     });

@@ -96,23 +96,12 @@ export class ShellComponent implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   protected onKeydown(e: KeyboardEvent): void {
-    // Ctrl+K / Cmd+K -> globale Suche (immer aktiv)
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-      e.preventDefault();
-      this.router.navigate(['/suche']);
-      return;
-    }
-
     const target = e.target;
     const tag = target instanceof HTMLElement ? target.tagName : '';
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
 
     switch (e.key) {
-      case '/':
-        e.preventDefault();
-        this.router.navigate(['/suche']);
-        break;
       case 'n':
         this.router.navigate(['/rechnungen'], { state: { neueRechnung: true } });
         break;

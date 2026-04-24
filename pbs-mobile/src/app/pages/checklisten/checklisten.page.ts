@@ -89,6 +89,10 @@ export class ChecklistenPage implements OnInit {
   readonly toastTone = signal<'success' | 'error' | 'info'>('info');
 
   ngOnInit(): void {
+    this.context.ensureObjectsLoaded();
+  }
+
+  ionViewWillEnter(): void {
     this.loadData();
   }
 
@@ -103,8 +107,6 @@ export class ChecklistenPage implements OnInit {
 
   private loadData(): void {
     this.errorMessage.set(null);
-    this.context.ensureObjectsLoaded();
-
     this.templatesLoading.set(true);
     this.checklist.getTemplatesAll().subscribe({
       next: (templates) => {
@@ -124,7 +126,7 @@ export class ChecklistenPage implements OnInit {
 
   protected onObjectChanged(value: unknown): void {
     const parsed = typeof value === 'number' ? value : value != null ? Number(value) : NaN;
-    this.selectedObjectId.set(Number.isFinite(parsed) ? parsed : null);
+    this.context.setSelectedObjectId(Number.isFinite(parsed) ? parsed : null);
   }
 
   protected onTemplateChanged(value: unknown): void {

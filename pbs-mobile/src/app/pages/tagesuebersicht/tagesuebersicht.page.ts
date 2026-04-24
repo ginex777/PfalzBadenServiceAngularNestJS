@@ -71,6 +71,9 @@ export class TagesuebersichtPage implements OnInit {
 
   ngOnInit(): void {
     this.context.ensureObjectsLoaded();
+  }
+
+  ionViewWillEnter(): void {
     this.loadDashboardData();
   }
 

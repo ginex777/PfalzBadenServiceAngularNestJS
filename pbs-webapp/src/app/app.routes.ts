@@ -18,17 +18,19 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
-      {
-        path: 'suche',
-        loadComponent: () => import('./features/suche/suche.component').then((m) => m.SucheComponent),
-      },
     ],
   },
   {
     path: 'operativ',
     canActivate: [authGuard, roleGuard(['admin', 'readonly', 'mitarbeiter'])],
+    loadComponent: () =>
+      import('./features/operativ/operativ-shell.component').then((m) => m.OperativShellComponent),
     children: [
-      { path: '', redirectTo: 'nachweise', pathMatch: 'full' },
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/operativ/operativ-landing.component').then((m) => m.OperativLandingComponent),
+      },
       {
         path: 'muellplan',
         canActivate: [roleGuard(['admin', 'mitarbeiter'])],
@@ -90,39 +92,58 @@ export const routes: Routes = [
         canDeactivate: [unsavedChangesGuard],
       },
       {
-        path: 'wiederkehrende-rechnungen',
-        loadComponent: () =>
-          import('./features/wiederkehrende-rechnungen/wiederkehrende-rechnungen.component').then(
-            (m) => m.WiederkehrendeRechnungenComponent,
-          ),
-      },
-      {
         path: 'buchhaltung',
         loadComponent: () =>
-          import('./features/buchhaltung/buchhaltung.component').then((m) => m.BuchhaltungComponent),
-        canDeactivate: [unsavedChangesGuard],
-      },
-      {
-        path: 'belege',
-        loadComponent: () =>
-          import('./features/belege/belege.component').then((m) => m.BelegeComponent),
-      },
-      {
-        path: 'euer',
-        loadComponent: () => import('./features/euer/euer.component').then((m) => m.EuerComponent),
-      },
-      {
-        path: 'fixkosten',
-        loadComponent: () =>
-          import('./features/wiederkehrende-ausgaben/wiederkehrende-ausgaben.component').then(
-            (m) => m.WiederkehrendeAusgabenComponent,
+          import('./features/buchhaltung/buchhaltung-shell.component').then(
+            (m) => m.BuchhaltungShellComponent,
           ),
+        children: [
+          { path: '', redirectTo: 'uebersicht', pathMatch: 'full' },
+          {
+            path: 'uebersicht',
+            loadComponent: () =>
+              import('./features/buchhaltung/buchhaltung.component').then(
+                (m) => m.BuchhaltungComponent,
+              ),
+            canDeactivate: [unsavedChangesGuard],
+          },
+          {
+            path: 'fixkosten',
+            loadComponent: () =>
+              import('./features/wiederkehrende-ausgaben/wiederkehrende-ausgaben.component').then(
+                (m) => m.WiederkehrendeAusgabenComponent,
+              ),
+          },
+          {
+            path: 'wiederkehrende-rechnungen',
+            loadComponent: () =>
+              import(
+                './features/wiederkehrende-rechnungen/wiederkehrende-rechnungen.component'
+              ).then((m) => m.WiederkehrendeRechnungenComponent),
+          },
+          {
+            path: 'datev',
+            loadComponent: () =>
+              import('./features/datev/datev.component').then((m) => m.DatevComponent),
+          },
+          {
+            path: 'euer',
+            loadComponent: () =>
+              import('./features/euer/euer.component').then((m) => m.EuerComponent),
+          },
+          {
+            path: 'belege',
+            loadComponent: () =>
+              import('./features/belege/belege.component').then((m) => m.BelegeComponent),
+          },
+        ],
       },
-      {
-        path: 'datev',
-        loadComponent: () =>
-          import('./features/datev/datev.component').then((m) => m.DatevComponent),
-      },
+      // Legacy sibling routes → redirect into buchhaltung shell
+      { path: 'wiederkehrende-rechnungen', redirectTo: 'buchhaltung/wiederkehrende-rechnungen', pathMatch: 'full' },
+      { path: 'belege', redirectTo: 'buchhaltung/belege', pathMatch: 'full' },
+      { path: 'euer', redirectTo: 'buchhaltung/euer', pathMatch: 'full' },
+      { path: 'fixkosten', redirectTo: 'buchhaltung/fixkosten', pathMatch: 'full' },
+      { path: 'datev', redirectTo: 'buchhaltung/datev', pathMatch: 'full' },
     ],
   },
   {
@@ -184,7 +205,7 @@ export const routes: Routes = [
 
   // Compatibility redirects (old URLs)
   { path: 'dashboard', redirectTo: 'uebersicht', pathMatch: 'full' },
-  { path: 'suche', redirectTo: 'uebersicht/suche', pathMatch: 'full' },
+  { path: 'suche', redirectTo: 'uebersicht', pathMatch: 'full' },
 
   { path: 'rechnungen', redirectTo: 'finanzen/rechnungen', pathMatch: 'full' },
   { path: 'angebote', redirectTo: 'finanzen/angebote', pathMatch: 'full' },

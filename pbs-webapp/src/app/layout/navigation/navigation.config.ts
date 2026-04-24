@@ -15,24 +15,12 @@ export interface NavigationGroup {
 
 const NAV_ACCESS: Record<string, readonly UserRole[]> = {
   '/uebersicht': ['admin', 'readonly', 'mitarbeiter'],
-  '/uebersicht/suche': ['admin', 'readonly', 'mitarbeiter'],
 
-  '/operativ/muellplan': ['admin', 'mitarbeiter'],
-  '/operativ/hausmeister': ['admin', 'mitarbeiter'],
-  '/operativ/stempeluhr': ['admin', 'mitarbeiter'],
-  '/operativ/foto-upload': ['admin', 'mitarbeiter'],
-  '/operativ/mobile-rueckmeldungen': ['admin', 'readonly', 'mitarbeiter'],
-  '/operativ/nachweise': ['admin', 'readonly', 'mitarbeiter'],
-  '/operativ/checklisten': ['admin', 'readonly', 'mitarbeiter'],
+  '/operativ': ['admin', 'readonly', 'mitarbeiter'],
 
   '/finanzen/rechnungen': ['admin', 'readonly'],
   '/finanzen/angebote': ['admin', 'readonly'],
-  '/finanzen/wiederkehrende-rechnungen': ['admin', 'readonly'],
   '/finanzen/buchhaltung': ['admin', 'readonly'],
-  '/finanzen/belege': ['admin', 'readonly'],
-  '/finanzen/euer': ['admin', 'readonly'],
-  '/finanzen/fixkosten': ['admin', 'readonly'],
-  '/finanzen/datev': ['admin', 'readonly'],
 
   '/verwaltung/kunden': ['admin', 'readonly'],
   '/verwaltung/mitarbeiter': ['admin'],
@@ -51,7 +39,6 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
     rootPath: '/uebersicht',
     links: [
       { path: '/uebersicht', label: 'Dashboard', roles: NAV_ACCESS['/uebersicht'] ?? [] },
-      { path: '/uebersicht/suche', label: 'Suche', roles: NAV_ACCESS['/uebersicht/suche'] ?? [] },
     ],
   },
   {
@@ -59,17 +46,7 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
     label: 'Operativ',
     rootPath: '/operativ',
     links: [
-      { path: '/operativ/muellplan', label: 'Müllplan', roles: NAV_ACCESS['/operativ/muellplan'] ?? [] },
-      { path: '/operativ/hausmeister', label: 'Hausmeister', roles: NAV_ACCESS['/operativ/hausmeister'] ?? [] },
-      { path: '/operativ/stempeluhr', label: 'Stempeluhr', roles: NAV_ACCESS['/operativ/stempeluhr'] ?? [] },
-      { path: '/operativ/foto-upload', label: 'Foto Upload', roles: NAV_ACCESS['/operativ/foto-upload'] ?? [] },
-      {
-        path: '/operativ/mobile-rueckmeldungen',
-        label: 'Mobile Rückmeldungen',
-        roles: NAV_ACCESS['/operativ/mobile-rueckmeldungen'] ?? [],
-      },
-      { path: '/operativ/nachweise', label: 'Nachweise', roles: NAV_ACCESS['/operativ/nachweise'] ?? [] },
-      { path: '/operativ/checklisten', label: 'Checklisten', roles: NAV_ACCESS['/operativ/checklisten'] ?? [] },
+      { path: '/operativ', label: 'Operativ', roles: NAV_ACCESS['/operativ'] ?? [] },
     ],
   },
   {
@@ -79,16 +56,7 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
     links: [
       { path: '/finanzen/rechnungen', label: 'Rechnungen', roles: NAV_ACCESS['/finanzen/rechnungen'] ?? [] },
       { path: '/finanzen/angebote', label: 'Angebote', roles: NAV_ACCESS['/finanzen/angebote'] ?? [] },
-      {
-        path: '/finanzen/wiederkehrende-rechnungen',
-        label: 'Wiederk. Rechnungen',
-        roles: NAV_ACCESS['/finanzen/wiederkehrende-rechnungen'] ?? [],
-      },
       { path: '/finanzen/buchhaltung', label: 'Buchhaltung', roles: NAV_ACCESS['/finanzen/buchhaltung'] ?? [] },
-      { path: '/finanzen/belege', label: 'Belege', roles: NAV_ACCESS['/finanzen/belege'] ?? [] },
-      { path: '/finanzen/euer', label: 'EÜR', roles: NAV_ACCESS['/finanzen/euer'] ?? [] },
-      { path: '/finanzen/fixkosten', label: 'Fixkosten', roles: NAV_ACCESS['/finanzen/fixkosten'] ?? [] },
-      { path: '/finanzen/datev', label: 'DATEV Export', roles: NAV_ACCESS['/finanzen/datev'] ?? [] },
     ],
   },
   {

@@ -1,13 +1,13 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Muellplan</ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="refresh()">Aktualisieren</ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <div class="muellplan-page">
     <section class="muellplan-hero">
       <p class="muellplan-hero-label">Uebersicht</p>
