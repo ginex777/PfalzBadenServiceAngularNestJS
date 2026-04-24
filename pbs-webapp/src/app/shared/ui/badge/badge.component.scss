@@ -1,0 +1,38 @@
+.app-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 var(--app-space-2);
+  border-radius: var(--app-radius-full);
+  font-size: var(--app-text-xs);
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  border: 1px solid var(--app-color-border);
+  background: var(--app-color-surface);
+  color: var(--app-color-muted);
+}
+
+.app-badge--primary {
+  border-color: color-mix(in srgb, var(--app-color-primary) 28%, transparent);
+  background: color-mix(in srgb, var(--app-color-primary) 10%, var(--app-color-surface));
+  color: var(--app-color-primary-ink);
+}
+
+.app-badge--success {
+  border-color: color-mix(in srgb, var(--app-color-success) 28%, transparent);
+  background: color-mix(in srgb, var(--app-color-success) 10%, var(--app-color-surface));
+  color: var(--app-color-success);
+}
+
+.app-badge--warning {
+  border-color: color-mix(in srgb, var(--app-color-warning) 28%, transparent);
+  background: color-mix(in srgb, var(--app-color-warning) 12%, var(--app-color-surface));
+  color: var(--app-color-warning);
+}
+
+.app-badge--danger {
+  border-color: color-mix(in srgb, var(--app-color-danger) 28%, transparent);
+  background: color-mix(in srgb, var(--app-color-danger) 10%, var(--app-color-surface));
+  color: var(--app-color-danger);
+}
+

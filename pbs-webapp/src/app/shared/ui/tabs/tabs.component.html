@@ -1,0 +1,18 @@
+<div class="app-tabs" role="tablist">
+  @for (tab of tabs(); track tab.id) {
+    <button
+      type="button"
+      class="app-tabs__tab"
+      [class.app-tabs__tab--active]="tab.id === activeId()"
+      role="tab"
+      [attr.aria-selected]="tab.id === activeId()"
+      (click)="select(tab.id)"
+    >
+      <span>{{ tab.label }}</span>
+      @if (tab.badge) {
+        <span class="app-tabs__badge">{{ tab.badge }}</span>
+      }
+    </button>
+  }
+</div>
+

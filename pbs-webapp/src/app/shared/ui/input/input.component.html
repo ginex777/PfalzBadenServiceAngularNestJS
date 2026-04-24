@@ -1,0 +1,23 @@
+<label class="app-field">
+  @if (label()) {
+    <span class="app-field__label">{{ label() }}</span>
+  }
+  <input
+    class="app-field__control"
+    [attr.type]="type()"
+    [attr.placeholder]="placeholder()"
+    [attr.autocomplete]="autocomplete()"
+    [attr.inputmode]="inputMode()"
+    [attr.name]="name()"
+    [disabled]="isDisabled()"
+    [value]="value()"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+  />
+  @if (error()) {
+    <span class="app-field__help app-field__help--error">{{ error() }}</span>
+  } @else if (hint()) {
+    <span class="app-field__help">{{ hint() }}</span>
+  }
+</label>
+

@@ -1,0 +1,7 @@
+@if (isOpen()) {
+  <div class="app-drawer__overlay" (click)="close()" aria-hidden="true"></div>
+  <aside class="app-drawer app-drawer--{{ position() }}" [attr.aria-label]="ariaLabel()">
+    <ng-content />
+  </aside>
+}
+

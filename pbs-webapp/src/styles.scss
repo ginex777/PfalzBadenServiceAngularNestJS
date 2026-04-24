@@ -4,7 +4,7 @@
    Trends: Bento Box, Neomorphism 2.0, Glassmorphism, AI-First
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300..800&family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
   /* ── 2026 Handwerker Color System ─────────────────────────── */
@@ -112,7 +112,7 @@
   /* Layout - Responsive Grid System */
   --sidebar-w: 280px;
   --sidebar-w-sm: 240px;
-  --content-max: 1400px;
+  --content-max: 1680px;
   --bento-gap: 16px;
   --bento-gap-sm: 12px;
 
@@ -129,7 +129,79 @@
 
   /* Typography Scale - 2026 Refined */
   --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-sans: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* ============================================================
+     Phase 3 Alias Contract (MANDATORY for touched features)
+     Token families: --app-space-*, --app-radius-*, --app-color-*,
+     --app-shadow-*, --app-font-*, --app-text-*
+     ============================================================ */
+
+  /* Space */
+  --app-space-0: 0px;
+  --app-space-1: 4px;
+  --app-space-2: 8px;
+  --app-space-3: 12px;
+  --app-space-4: 16px;
+  --app-space-5: 20px;
+  --app-space-6: 24px;
+  --app-space-7: 32px;
+  --app-space-8: 40px;
+  --app-space-9: 48px;
+
+  /* Radius */
+  --app-radius-sm: var(--radius-sm);
+  --app-radius-md: var(--radius);
+  --app-radius-lg: var(--radius-md);
+  --app-radius-xl: var(--radius-lg);
+  --app-radius-2xl: var(--radius-xl);
+  --app-radius-full: var(--radius-full);
+
+  /* Color */
+  --app-color-bg: var(--bg);
+  --app-color-surface: var(--surface);
+  --app-color-surface-raised: var(--surface-raised);
+  --app-color-border: var(--border);
+  --app-color-border-strong: var(--border-strong);
+  --app-color-text: var(--gray-900);
+  --app-color-muted: var(--gray-600);
+  --app-color-primary: var(--primary-solid);
+  --app-color-primary-hover: var(--primary-hover);
+  --app-color-primary-ink: var(--primary-solid);
+  --app-color-accent: var(--accent);
+  --app-color-success: var(--success);
+  --app-color-warning: var(--warning);
+  --app-color-danger: var(--danger);
+
+  /* Shadow */
+  --app-shadow-xs: var(--shadow-xs);
+  --app-shadow-sm: var(--shadow-sm);
+  --app-shadow-md: var(--shadow-md);
+  --app-shadow-lg: var(--shadow-lg);
+  --app-shadow-xl: var(--shadow-xl);
+
+  /* Font */
+  --app-font-sans: var(--font-sans);
+  --app-font-mono: var(--font-mono);
+
+  /* Text */
+  --app-text-xs: 13px;
+  --app-text-sm: 14px;
+  --app-text-md: 15px;
+  --app-text-lg: 19px;
+  --app-text-xl: 23px;
+
+  /* Motion */
+  --app-motion-fast: var(--transition-fast);
+  --app-motion: var(--transition);
+  --app-motion-slow: var(--transition-slow);
+
+  /* Layout + z-index */
+  --app-layout-max: var(--content-max);
+  --app-z-sticky: var(--z-sticky);
+  --app-z-overlay: 800;
+  --app-z-drawer: 850;
+  --app-z-modal: var(--z-modal);
 
   /* Z-Index Scale */
   --z-dropdown: 100;
@@ -159,7 +231,7 @@ html,
 body {
   height: 100%;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: var(--app-text-md);
   line-height: 1.6;
   color: var(--gray-700);
   background: var(--bg);
@@ -1607,8 +1679,9 @@ th.sortable {
 /* ── Page Layout - 2026 Enhanced ─────────────────────────── */
 .page-wrap {
   padding: 32px 36px;
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
   position: relative;
 
   @media (max-width: 1024px) {
@@ -1624,8 +1697,9 @@ th.sortable {
 
 .page-content {
   padding: 36px 40px;
-  max-width: var(--content-max);
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
   position: relative;
 
   @media (max-width: 1024px) {
@@ -3440,6 +3514,7 @@ th.sortable {
   /* Hide navigation and interactive chrome */
   .shell__sidebar,
   .shell__mobile-header,
+  .header-nav,
   .shell__topbar,
   .filter-bar,
   .bulk-aktionen,

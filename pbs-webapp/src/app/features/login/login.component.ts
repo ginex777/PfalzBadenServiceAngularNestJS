@@ -82,7 +82,7 @@ export class LoginComponent implements OnInit {
   }
 
   private _redirect() {
-    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/uebersicht';
     this.router.navigateByUrl(returnUrl);
   }
 }

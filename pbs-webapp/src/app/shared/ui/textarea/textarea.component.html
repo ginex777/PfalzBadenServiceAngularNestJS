@@ -1,0 +1,21 @@
+<label class="app-field">
+  @if (label()) {
+    <span class="app-field__label">{{ label() }}</span>
+  }
+  <textarea
+    class="app-field__control app-field__control--textarea"
+    [attr.placeholder]="placeholder()"
+    [attr.rows]="rows()"
+    [attr.name]="name()"
+    [disabled]="isDisabled()"
+    [value]="value()"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+  ></textarea>
+  @if (error()) {
+    <span class="app-field__help app-field__help--error">{{ error() }}</span>
+  } @else if (hint()) {
+    <span class="app-field__help">{{ hint() }}</span>
+  }
+</label>
+

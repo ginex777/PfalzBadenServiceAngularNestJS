@@ -1,5 +1,4 @@
 <nav class="sidebar" aria-label="Hauptnavigation">
-  <!-- Logo -->
   <div class="sidebar__logo">
     <div class="sidebar__logo-icon">P</div>
     <div>
@@ -8,20 +7,18 @@
     </div>
   </div>
 
-  <!-- Grouped navigation -->
   <ul class="sidebar__nav" role="list">
-    @for (gruppe of navGruppen(); track gruppe.id) {
-      <li class="sidebar__group" [class.sidebar__group--offen]="istOffen(gruppe.id)">
-        <!-- Group toggle button -->
+    @for (group of navGroups(); track group.id) {
+      <li class="sidebar__group" [class.sidebar__group--offen]="isOpen(group.id)">
         <button
           class="sidebar__group-btn"
-          (click)="toggleGruppe(gruppe.id)"
-          [attr.aria-expanded]="istOffen(gruppe.id)"
+          (click)="toggleGroup(group.id)"
+          [attr.aria-expanded]="isOpen(group.id)"
           type="button"
         >
-          <span class="sidebar__group-label">{{ gruppe.label }}</span>
-          @if (gruppe.id === 'uebersicht' && notifAnzahl() > 0) {
-            <span class="sidebar__notif-badge">{{ notifAnzahl() }}</span>
+          <span class="sidebar__group-label">{{ group.label }}</span>
+          @if (group.id === 'uebersicht' && notificationCount() > 0) {
+            <span class="sidebar__notif-badge">{{ notificationCount() }}</span>
           }
           <svg
             class="sidebar__chevron"
@@ -37,18 +34,17 @@
           </svg>
         </button>
 
-        <!-- Sub-items (animated via max-height) -->
-        @if (istOffen(gruppe.id)) {
+        @if (isOpen(group.id)) {
           <ul class="sidebar__sub" role="list">
-            @for (item of gruppe.items; track item.path) {
+            @for (link of group.links; track link.path) {
               <li>
                 <a
                   class="sidebar__link"
-                  [routerLink]="item.path"
+                  [routerLink]="link.path"
                   routerLinkActive="sidebar__link--aktiv"
-                  (click)="navigiertZu()"
+                  (click)="onNavigate()"
                 >
-                  {{ item.label }}
+                  {{ link.label }}
                 </a>
               </li>
             }
@@ -58,7 +54,6 @@
     }
   </ul>
 
-  <!-- Footer -->
   <div class="sidebar__footer">
     <div class="sidebar__nutzer-btn">
       <svg
@@ -73,14 +68,17 @@
         <circle cx="12" cy="8" r="4" />
         <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
       </svg>
-      {{ nutzerAnzeige() }}
+      {{ userDisplayName() }}
     </div>
+
     <button
       class="sidebar__theme-btn"
-      (click)="darkModeGeaendert.emit()"
-      [title]="darkMode() ? 'Light Mode' : 'Dark Mode'"
+      type="button"
+      (click)="darkModeChange.emit()"
+      [title]="isDarkMode() ? 'Light Mode' : 'Dark Mode'"
     >
-      {{ darkMode() ? '☀ Light' : '◑ Dark' }}
+      {{ isDarkMode() ? 'Light Mode' : 'Dark Mode' }}
     </button>
   </div>
 </nav>
+

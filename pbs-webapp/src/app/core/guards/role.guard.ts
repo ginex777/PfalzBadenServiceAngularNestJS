@@ -13,7 +13,6 @@ export const roleGuard = (allowedRoles: readonly UserRole[]): CanActivateFn => {
     if (!user) return router.createUrlTree(['/login']);
 
     if (allowedRoles.includes(user.rolle)) return true;
-    return router.createUrlTree(['/dashboard']);
+    return router.createUrlTree(['/uebersicht']);
   };
 };
-

@@ -1,0 +1,88 @@
+<header class="header-nav" role="banner">
+  <div class="header-nav__inner">
+    <div class="header-nav__left">
+      <button
+        class="header-nav__burger"
+        type="button"
+        (click)="onMobileMenu()"
+        aria-label="Navigation öffnen"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a class="header-nav__brand" routerLink="/uebersicht" (click)="onNavigate()">
+        <span class="header-nav__mark" aria-hidden="true">P</span>
+        <span class="header-nav__brand-text">
+          <span class="header-nav__brand-title">PBS</span>
+          <span class="header-nav__brand-sub">Buchhaltung</span>
+        </span>
+      </a>
+
+      <nav class="header-nav__nav" aria-label="Hauptnavigation">
+        <ul class="header-nav__groups" role="list">
+          @for (group of navGroups(); track group.id) {
+            <li class="header-nav__group">
+              <button
+                class="header-nav__group-btn"
+                type="button"
+                (click)="toggleGroup(group.id)"
+                [attr.aria-expanded]="openGroupId() === group.id"
+              >
+                <span>{{ group.label }}</span>
+                @if (group.id === 'uebersicht' && hasNotifications()) {
+                  <span class="header-nav__dot" aria-label="Neue Benachrichtigungen"></span>
+                }
+                <svg
+                  class="header-nav__chevron"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+
+              @if (openGroupId() === group.id) {
+                <div class="header-nav__menu" role="menu">
+                  @for (link of group.links; track link.path) {
+                    <a
+                      class="header-nav__link"
+                      [routerLink]="link.path"
+                      routerLinkActive="header-nav__link--active"
+                      (click)="onNavigate()"
+                      role="menuitem"
+                    >
+                      {{ link.label }}
+                    </a>
+                  }
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      </nav>
+    </div>
+
+    <div class="header-nav__right">
+      <div class="header-nav__user" [title]="userDisplayName()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+        </svg>
+        <span class="header-nav__user-text">{{ userDisplayName() }}</span>
+      </div>
+
+      <button class="header-nav__theme" type="button" (click)="onThemeToggle()">
+        <span class="header-nav__theme-label">{{ isDarkMode() ? 'Light' : 'Dark' }}</span>
+      </button>
+    </div>
+  </div>
+</header>

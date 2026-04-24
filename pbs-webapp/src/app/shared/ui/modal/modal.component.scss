@@ -1,0 +1,66 @@
+.app-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--app-z-overlay);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+}
+
+.app-modal {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(640px, calc(100vw - var(--app-space-6)));
+  max-height: calc(100vh - var(--app-space-6));
+  z-index: var(--app-z-modal);
+  background: var(--app-color-surface);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-xl);
+  box-shadow: var(--app-shadow-xl);
+  overflow: auto;
+}
+
+.app-modal--sm {
+  width: min(440px, calc(100vw - var(--app-space-6)));
+}
+
+.app-modal--lg {
+  width: min(880px, calc(100vw - var(--app-space-6)));
+}
+
+.app-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--app-space-5) var(--app-space-5) var(--app-space-3);
+  border-bottom: 1px solid var(--app-color-border);
+}
+
+.app-modal__title {
+  margin: 0;
+  font-size: var(--app-text-lg);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.app-modal__close {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--app-radius-md);
+  border: 1px solid var(--app-color-border);
+  background: var(--app-color-surface);
+  cursor: pointer;
+  color: var(--app-color-muted);
+  font-size: 22px;
+  line-height: 1;
+
+  &:hover {
+    background: var(--app-color-surface-raised);
+    border-color: var(--app-color-border-strong);
+  }
+}
+
+.app-modal__body {
+  padding: var(--app-space-5);
+}
+

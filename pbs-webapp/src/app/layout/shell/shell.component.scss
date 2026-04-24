@@ -1,180 +1,49 @@
 .shell {
+  min-height: 100dvh;
+  background: var(--app-color-bg);
+  color: var(--app-color-text);
   display: flex;
-  height: 100dvh;
-  overflow: hidden;
-  background: var(--bg);
+  flex-direction: column;
+}
 
-  &__overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(2px);
-    z-index: 40;
-    display: none;
+.shell__main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
 
-    @media (max-width: 768px) {
-      display: block;
-    }
-  }
-
-  &__sidebar {
-    position: relative;
-    z-index: 50;
-    flex-shrink: 0;
-
-    @media (max-width: 768px) {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
-      transform: translateX(-100%);
-      transition: transform var(--transition-slow);
-      box-shadow: var(--shadow-xl);
-
-      &--offen {
-        transform: translateX(0);
-      }
-    }
-  }
-
-  &__main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    min-width: 0;
-  }
-
-  &__mobile-header {
-    display: none;
-    align-items: center;
-    gap: 12px;
-    padding: 0 16px;
-    height: 52px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-
-    @media (max-width: 768px) {
-      display: flex;
-    }
-  }
-
-  &__menu-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-sm);
-    color: var(--gray-500);
-    transition:
-      background var(--transition),
-      color var(--transition);
-
-    &:hover {
-      background: var(--gray-100);
-      color: var(--gray-800);
-    }
-  }
-
-  &__mobile-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--gray-900);
-    letter-spacing: -0.01em;
-  }
-
-  &__content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0;
-  }
+.shell__content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0;
 }
 
 .notif-banner {
-  background: var(--gray-900);
-  color: #fff;
-  padding: 10px 20px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--app-space-4);
   flex-wrap: wrap;
-  font-size: 13px;
-  flex-shrink: 0;
-  z-index: 10;
+  padding: var(--app-space-3) var(--app-space-5);
+  background: var(--app-color-text);
+  color: var(--app-color-surface);
+  border-bottom: 1px solid color-mix(in srgb, var(--app-color-text) 75%, transparent);
+}
 
-  &__content {
-    flex: 1;
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
+.notif-banner__content {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--app-space-3);
+  flex: 1;
+  min-width: 0;
 }
 
 .notif-item {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 4px;
-  padding: 2px 8px;
-  font-size: 12px;
+  background: color-mix(in srgb, #fff 12%, transparent);
+  border-radius: var(--app-radius-full);
+  padding: 2px var(--app-space-2);
+  font-size: var(--app-text-xs);
 }
 
-/* ── Nutzer-Wechsler ───────────────────────────────────── */
-.nutzer-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-left: auto;
-  padding: 4px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  font-size: 12px;
-  color: var(--gray-600);
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-
-  &:hover {
-    background: var(--primary-light);
-    color: var(--primary-dark);
-    border-color: var(--primary);
-  }
-}
-
-.nutzer-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 200;
-}
-
-.nutzer-modal {
-  position: fixed;
-  top: 56px;
-  right: 16px;
-  z-index: 201;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-lg);
-  padding: 16px;
-  min-width: 240px;
-}
-
-.nutzer-input {
-  width: 100%;
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg);
-  font-size: 13px;
-  color: var(--text);
-  outline: none;
-
-  &:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-muted);
-  }
-}

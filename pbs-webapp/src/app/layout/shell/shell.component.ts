@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   inject,
   signal,
@@ -9,17 +10,28 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HeaderNavComponent } from '../header-nav/header-nav.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { DrawerComponent } from '../../shared/ui/drawer/drawer.component';
 import { ToastComponent } from '../../shared/ui/toast/toast.component';
 import { OnboardingComponent } from '../../features/onboarding/onboarding.component';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { Benachrichtigung } from '../../core/models';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, SidebarComponent, ToastComponent, OnboardingComponent],
+  imports: [
+    RouterOutlet,
+    HeaderNavComponent,
+    DrawerComponent,
+    SidebarComponent,
+    ToastComponent,
+    OnboardingComponent,
+  ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
 })
@@ -27,13 +39,14 @@ export class ShellComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   protected readonly authService = inject(AuthService);
+  protected readonly themeService = inject(ThemeService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly mobileSidebarOffen = signal(false);
-  protected readonly ungeleseneNotifs = signal<Benachrichtigung[]>([]);
-  protected readonly notifBannerSichtbar = signal(false);
-  protected readonly darkMode = signal(false);
+  protected readonly isMobileNavOpen = signal(false);
+  protected readonly unreadNotifications = signal<Benachrichtigung[]>([]);
+  protected readonly isNotificationBannerVisible = signal(false);
 
-  protected readonly nutzerAnzeige = computed(() => {
+  protected readonly userDisplayName = computed(() => {
     const user = this.authService.currentUser();
     if (!user) return '';
     if (user.vorname && user.nachname) return `${user.vorname} ${user.nachname}`;
@@ -41,62 +54,57 @@ export class ShellComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.notifenLaden();
-    const gespeichert = localStorage.getItem('pbs-theme');
-    if (gespeichert === 'dark') this.darkModeAktivieren(true);
+    this.loadNotifications();
   }
 
-  private notifenLaden(): void {
-    this.http.get<Benachrichtigung[]>('/api/benachrichtigungen').subscribe({
-      next: (notifs) => {
-        const ungelesen = notifs.filter((n) => !n.gelesen);
-        if (ungelesen.length > 0) {
-          this.ungeleseneNotifs.set(ungelesen);
-          this.notifBannerSichtbar.set(true);
-        }
-      },
-      error: () => {},
-    });
+  private loadNotifications(): void {
+    this.http
+      .get<Benachrichtigung[]>('/api/benachrichtigungen')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (notifications) => {
+          const unread = notifications.filter((n) => !n.gelesen);
+          if (unread.length > 0) {
+            this.unreadNotifications.set(unread);
+            this.isNotificationBannerVisible.set(true);
+          }
+        },
+        error: () => {},
+      });
   }
 
-  protected alleGelesenMarkieren(): void {
-    this.http.post('/api/benachrichtigungen/alle-lesen', {}).subscribe({
-      next: () => {
-        this.notifBannerSichtbar.set(false);
-        this.ungeleseneNotifs.set([]);
-      },
-      error: () => {},
-    });
+  protected markAllNotificationsRead(): void {
+    this.http
+      .post('/api/benachrichtigungen/alle-lesen', {})
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.isNotificationBannerVisible.set(false);
+          this.unreadNotifications.set([]);
+        },
+        error: () => {},
+      });
   }
 
-  protected mobileSidebarUmschalten(): void {
-    this.mobileSidebarOffen.update((offen) => !offen);
+  protected toggleMobileNav(): void {
+    this.isMobileNavOpen.update((isOpen) => !isOpen);
   }
 
-  protected mobileSidebarSchliessen(): void {
-    this.mobileSidebarOffen.set(false);
-  }
-
-  protected darkModeUmschalten(): void {
-    this.darkModeAktivieren(!this.darkMode());
-  }
-
-  private darkModeAktivieren(aktiv: boolean): void {
-    this.darkMode.set(aktiv);
-    document.documentElement.setAttribute('data-theme', aktiv ? 'dark' : 'light');
-    localStorage.setItem('pbs-theme', aktiv ? 'dark' : 'light');
+  protected closeMobileNav(): void {
+    this.isMobileNavOpen.set(false);
   }
 
   @HostListener('document:keydown', ['$event'])
   protected onKeydown(e: KeyboardEvent): void {
-    // Ctrl+K / Cmd+K → globale Suche (immer aktiv)
+    // Ctrl+K / Cmd+K -> globale Suche (immer aktiv)
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault();
       this.router.navigate(['/suche']);
       return;
     }
 
-    const tag = (e.target as HTMLElement).tagName;
+    const target = e.target;
+    const tag = target instanceof HTMLElement ? target.tagName : '';
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
 

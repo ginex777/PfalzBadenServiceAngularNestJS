@@ -1,81 +1,41 @@
-<div class="shell" [class.shell--no-sidebar]="!authService.isLoggedIn()">
+<div class="shell" [class.shell--unauthenticated]="!authService.isLoggedIn()">
   @if (authService.isLoggedIn()) {
-    <!-- Mobile Overlay -->
-    @if (mobileSidebarOffen()) {
-      <div class="shell__overlay" (click)="mobileSidebarSchliessen()" aria-hidden="true"></div>
-    }
+    <app-header-nav
+      [userDisplayName]="userDisplayName()"
+      [notificationCount]="unreadNotifications().length"
+      [isDarkMode]="themeService.isDark()"
+      (mobileMenuToggle)="toggleMobileNav()"
+      (themeToggle)="themeService.toggle()"
+    />
 
-    <!-- Sidebar -->
-    <aside
-      class="shell__sidebar"
-      [class.shell__sidebar--offen]="mobileSidebarOffen()"
-      aria-label="Seitennavigation"
+    <app-drawer
+      [isOpen]="isMobileNavOpen()"
+      ariaLabel="Navigation"
+      position="left"
+      (closed)="closeMobileNav()"
     >
       <app-sidebar
-        (geschlossen)="mobileSidebarSchliessen()"
-        [notifAnzahl]="ungeleseneNotifs().length"
-        [darkMode]="darkMode()"
-        (darkModeGeaendert)="darkModeUmschalten()"
+        (closed)="closeMobileNav()"
+        [notificationCount]="unreadNotifications().length"
+        [isDarkMode]="themeService.isDark()"
+        (darkModeChange)="themeService.toggle()"
       />
-    </aside>
+    </app-drawer>
   }
 
-  <!-- Hauptbereich -->
   <div class="shell__main">
-    @if (authService.isLoggedIn()) {
-      <!-- Benachrichtigungs-Banner -->
-      @if (notifBannerSichtbar()) {
-        <div class="notif-banner" role="alert">
-          <div class="notif-banner__content">
-            <strong>{{ ungeleseneNotifs().length }} Benachrichtigung(en)</strong>
-            @for (n of ungeleseneNotifs().slice(0, 5); track n.id) {
-              <span class="notif-item">{{ n.titel }}</span>
-            }
-          </div>
-          <button class="btn btn-sm" (click)="alleGelesenMarkieren()">OK, verstanden</button>
+    @if (authService.isLoggedIn() && isNotificationBannerVisible()) {
+      <div class="notif-banner" role="alert">
+        <div class="notif-banner__content">
+          <strong>{{ unreadNotifications().length }} Benachrichtigung(en)</strong>
+          @for (n of unreadNotifications().slice(0, 5); track n.id) {
+            <span class="notif-item">{{ n.titel }}</span>
+          }
         </div>
-      }
-
-      <!-- Mobile Header -->
-      <header class="shell__mobile-header">
-        <button
-          class="shell__menu-btn btn btn--ghost btn--icon"
-          (click)="mobileSidebarUmschalten()"
-          [attr.aria-expanded]="mobileSidebarOffen()"
-          aria-label="Navigation öffnen"
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-        </button>
-        <span class="shell__mobile-title">PBS Buchhaltung</span>
-        <span class="nutzer-btn">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-          </svg>
-          {{ nutzerAnzeige() }}
-        </span>
-      </header>
+        <button class="btn btn-sm" (click)="markAllNotificationsRead()">OK, verstanden</button>
+      </div>
     }
 
-    <!-- Router-Outlet -->
     <main class="shell__content" id="main-content">
       <router-outlet />
     </main>
@@ -84,3 +44,4 @@
 
 <app-toast />
 <app-onboarding />
+
