@@ -359,6 +359,12 @@ export class MuellplanService {
     objektId: number,
     termine: MuellplanVorlagenTerminDto[],
   ) {
+    const objectRow = await this.prisma.objekte.findUnique({
+      where: { id: BigInt(objektId) },
+      select: { id: true, name: true },
+    });
+    if (!objectRow) throw new NotFoundException('Objekt nicht gefunden');
+
     await this.prisma.muellplanPdf.updateMany({
       where: { objekt_id: BigInt(objektId) },
       data: { verified: true },
@@ -387,6 +393,16 @@ export class MuellplanService {
         added++;
       }
     }
+
+    await this.prisma.benachrichtigungen.create({
+      data: {
+        typ: 'MOBILE_WASTEPLAN_CONFIRM',
+        titel: `MÃ¼llplan bestÃ¤tigt: ${objectRow.name}`,
+        nachricht: added > 0 ? `${added} Termine Ã¼bernommen.` : undefined,
+        link: `/muellplan`,
+        gelesen: false,
+      },
+    });
     return { ok: true, added };
   }
 

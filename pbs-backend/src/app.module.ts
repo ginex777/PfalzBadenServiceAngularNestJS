@@ -26,6 +26,9 @@ import { DatevModule } from './modules/datev/datev.module';
 import { BackupModule } from './modules/backup/backup.module';
 import { EmailModule } from './modules/email/email.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { NachweiseModule } from './modules/nachweise/nachweise.module';
+import { ChecklistenModule } from './modules/checklisten/checklisten.module';
+import { MobileFeedbackModule } from './modules/mobile-feedback/mobile-feedback.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -51,6 +54,9 @@ import { HealthController } from './health.controller';
     MahnungenModule,
     PdfModule,
     BelegeModule,
+    NachweiseModule,
+    ChecklistenModule,
+    MobileFeedbackModule,
     DatevModule,
     BackupModule,
     EmailModule,

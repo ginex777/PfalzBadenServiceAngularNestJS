@@ -47,6 +47,10 @@ export const routes: Routes = [
           import('./pages/tagesuebersicht/tagesuebersicht.page').then((m) => m.TagesuebersichtPage),
       },
       {
+        path: 'muellplan',
+        loadComponent: () => import('./pages/muellplan/muellplan.page').then((m) => m.MuellplanPage),
+      },
+      {
         path: 'stempeluhr',
         canActivate: [roleGuard(['admin', 'mitarbeiter'])],
         loadComponent: () => import('./pages/stempeluhr/stempeluhr.page').then((m) => m.StempeluhrPage),
@@ -56,10 +60,18 @@ export const routes: Routes = [
         canActivate: [roleGuard(['admin', 'mitarbeiter'])],
         loadComponent: () => import('./pages/foto-upload/foto-upload.page').then((m) => m.FotoUploadPage),
       },
+      {
+        path: 'checklisten',
+        canActivate: [roleGuard(['admin', 'mitarbeiter'])],
+        loadComponent: () =>
+          import('./pages/checklisten/checklisten.page').then((m) => m.ChecklistenPage),
+      },
     ],
   },
   { path: 'stempeluhr', redirectTo: 'tabs/stempeluhr', pathMatch: 'full' },
   { path: 'tagesuebersicht', redirectTo: 'tabs/heute', pathMatch: 'full' },
+  { path: 'muellplan', redirectTo: 'tabs/muellplan', pathMatch: 'full' },
   { path: 'foto-upload', redirectTo: 'tabs/foto-upload', pathMatch: 'full' },
+  { path: 'checklisten', redirectTo: 'tabs/checklisten', pathMatch: 'full' },
   { path: '**', redirectTo: 'tabs/heute' },
 ];

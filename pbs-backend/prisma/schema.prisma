@@ -157,6 +157,9 @@ model Objekte {
   kunden        Kunden?        @relation(fields: [kunden_id], references: [id])
   muellplan     Muellplan[]
   muellplan_pdf MuellplanPdf[]
+  stempel       Stempel[]
+  nachweise     Nachweise[]
+  checklisten_submissions ChecklistenSubmissions[]
 
   @@map("objekte")
 }
@@ -214,6 +217,8 @@ model Mitarbeiter {
   stunden               MitarbeiterStunden[]
   hausmeister_einsaetze HausmeisterEinsaetze[]
   stempel               Stempel[]
+  nachweise             Nachweise[]
+  checklisten_submissions ChecklistenSubmissions[]
   user                  Users?                 @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@map("mitarbeiter")
@@ -303,6 +308,7 @@ model WiederkehrendeRechnungen {
 model Stempel {
   id             BigInt    @id @default(autoincrement())
   mitarbeiter_id BigInt
+  objekt_id      BigInt?
   start          DateTime
   stop           DateTime?
   dauer_minuten  Int?
@@ -310,6 +316,7 @@ model Stempel {
   created_at     DateTime  @default(now())
 
   mitarbeiter Mitarbeiter @relation(fields: [mitarbeiter_id], references: [id])
+  objekte     Objekte?    @relation(fields: [objekt_id], references: [id])
 
   @@map("stempel")
 }
@@ -406,4 +413,62 @@ model Belege {
   buchhaltung Buchhaltung? @relation(fields: [buchhaltung_id], references: [id])
 
   @@map("belege")
+}
+
+model Nachweise {
+  id                BigInt   @id @default(autoincrement())
+  objekt_id         BigInt
+  mitarbeiter_id    BigInt?
+  filename          String   @db.VarChar(255)
+  mimetype          String   @db.VarChar(100)
+  filesize          Int
+  data              Bytes
+  sha256            String   @unique @db.VarChar(64)
+  notiz             String?
+  erstellt_am       DateTime @default(now())
+  erstellt_von      String   @default("system") @db.VarChar(100)
+  erstellt_von_name String?  @db.VarChar(200)
+
+  objekte      Objekte      @relation(fields: [objekt_id], references: [id])
+  mitarbeiter  Mitarbeiter? @relation(fields: [mitarbeiter_id], references: [id])
+
+  @@index([objekt_id, erstellt_am])
+  @@map("nachweise")
+}
+
+model ChecklistenTemplates {
+  id          BigInt   @id @default(autoincrement())
+  name        String   @db.VarChar(200)
+  description String?
+  version     Int      @default(1)
+  fields      Json     @default("[]")
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  submissions ChecklistenSubmissions[]
+
+  @@map("checklisten_templates")
+}
+
+model ChecklistenSubmissions {
+  id                BigInt   @id @default(autoincrement())
+  template_id        BigInt
+  objekt_id          BigInt
+  mitarbeiter_id     BigInt?
+  created_by_email   String   @db.VarChar(254)
+  created_by_name    String?  @db.VarChar(200)
+  submitted_at       DateTime @default(now())
+  template_snapshot  Json
+  answers            Json
+  note               String?
+
+  template    ChecklistenTemplates @relation(fields: [template_id], references: [id])
+  objekt      Objekte             @relation(fields: [objekt_id], references: [id])
+  mitarbeiter Mitarbeiter?        @relation(fields: [mitarbeiter_id], references: [id])
+
+  @@index([objekt_id, submitted_at])
+  @@index([template_id, submitted_at])
+  @@index([mitarbeiter_id, submitted_at])
+  @@map("checklisten_submissions")
 }

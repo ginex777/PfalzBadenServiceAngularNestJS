@@ -15,26 +15,98 @@
       <p class="app-hero-text">Nimm ein Bild auf oder waehle eins aus der Galerie und lade es direkt hoch.</p>
     </section>
 
-    @if (!preview()) {
-      <div class="btn-group app-card">
-        <ion-button class="photo-action photo-action--primary" expand="block" (click)="takePhoto()">
-          Foto aufnehmen
-        </ion-button>
-        <ion-button class="photo-action photo-action--secondary" expand="block" fill="outline" (click)="pickFromGallery()">
-          Aus Galerie waehlen
-        </ion-button>
+    <ion-card class="app-card form-card">
+      <ion-card-content>
+        <ion-list class="form-list" lines="full">
+          <ion-item class="form-item" [disabled]="objectsLoading()">
+            <ion-label position="stacked">Objekt</ion-label>
+            @if (objectsLoading()) {
+              <div class="inline-spinner" slot="end">
+                <ion-spinner name="crescent" aria-label="Objekte werden geladen"></ion-spinner>
+              </div>
+            }
+            <ion-select
+              interface="popover"
+              [value]="selectedObjectId()"
+              (ionChange)="onObjectChanged($event)"
+              placeholder="Objekt auswaehlen"
+            >
+              @for (o of objects(); track o.id) {
+                <ion-select-option [value]="o.id">
+                  {{ o.name }} @if (o.strasse || o.ort) { — {{ o.strasse ?? '' }} {{ o.ort ?? '' }} }
+                </ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="form-item" lines="none">
+            <ion-label position="stacked">Notiz (optional)</ion-label>
+            <ion-textarea
+              [value]="note()"
+              (ionInput)="onNoteChanged($event)"
+              placeholder="z. B. Vorher / Nachher, Schaden, Besonderheit…"
+              autoGrow="true"
+              rows="3"
+            ></ion-textarea>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    @if (!previewDataUrl()) {
+      <div class="app-card photo-empty">
+        <div class="photo-empty-inner">
+          <div class="photo-empty-title">Noch kein Foto</div>
+          <div class="photo-empty-text">Nimm ein Foto auf oder waehle eins aus der Galerie.</div>
+        </div>
+        <div class="btn-group">
+          <ion-button class="photo-action photo-action--primary" expand="block" (click)="takePhoto()">
+            Foto aufnehmen
+          </ion-button>
+          <ion-button
+            class="photo-action photo-action--secondary"
+            expand="block"
+            fill="outline"
+            (click)="pickFromGallery()"
+          >
+            Aus Galerie waehlen
+          </ion-button>
+        </div>
       </div>
     } @else {
       <ion-card class="preview-card app-card">
         <ion-card-content>
-          <img [src]="preview()!" class="preview-img" alt="Vorschau" />
+          <img [src]="previewDataUrl()!" class="preview-img" alt="Vorschau" />
+
+          <div class="preview-meta">
+            @if (!selectedObjectId()) {
+              <div class="preview-warning">Bitte zuerst ein Objekt auswaehlen.</div>
+            }
+          </div>
+
           <div class="preview-actions">
-            <ion-button class="photo-action photo-action--primary" expand="block" [disabled]="isLoading()" (click)="upload()">
-              {{ isLoading() ? 'Hochladen...' : 'Hochladen' }}
+            <ion-button
+              class="photo-action photo-action--primary"
+              expand="block"
+              [disabled]="!canUpload()"
+              (click)="upload()"
+            >
+              @if (isUploading()) {
+                <ion-spinner class="btn-spinner" name="crescent" aria-hidden="true"></ion-spinner>
+                Hochladen…
+              } @else {
+                Hochladen
+              }
             </ion-button>
-            <ion-button class="photo-action photo-action--secondary" expand="block" fill="outline" (click)="discard()">
-              Verwerfen
-            </ion-button>
+
+            <div class="preview-actions-row">
+              <ion-button class="photo-action" fill="outline" expand="block" (click)="takePhoto()">
+                Neu aufnehmen
+              </ion-button>
+              <ion-button class="photo-action" fill="outline" expand="block" (click)="discard()">
+                Verwerfen
+              </ion-button>
+            </div>
           </div>
         </ion-card-content>
       </ion-card>

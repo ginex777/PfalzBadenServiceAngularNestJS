@@ -98,6 +98,71 @@ interface Stempel {
   created_at?: string;
 }
 
+interface EvidenceListItemApi {
+  id: number;
+  objekt_id: number;
+  mitarbeiter_id: number | null;
+  filename: string;
+  mimetype: string;
+  filesize: number;
+  sha256: string;
+  notiz: string | null;
+  erstellt_am: string;
+  erstellt_von: string;
+  erstellt_von_name: string | null;
+}
+
+export interface ChecklistFieldApi {
+  fieldId: string;
+  label: string;
+  type: 'boolean' | 'text' | 'number' | 'select';
+  helperText?: string;
+  required?: boolean;
+  options?: string[];
+}
+
+export interface ChecklistTemplateApi {
+  id: number;
+  name: string;
+  description: string | null;
+  version: number;
+  isActive: boolean;
+  fields: ChecklistFieldApi[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChecklistSubmissionListItemApi {
+  id: number;
+  submittedAt: string;
+  object: { id: number; name: string };
+  template: { id: number; name: string; version: number };
+  employee: { id: number; name: string } | null;
+  createdByEmail: string;
+  createdByName: string | null;
+  note: string | null;
+}
+
+export interface ChecklistSubmissionDetailApi extends ChecklistSubmissionListItemApi {
+  templateSnapshot: unknown;
+  answers: unknown;
+}
+
+export type MobileFeedbackKindApi = 'EVIDENCE' | 'CHECKLIST';
+
+export interface MobileFeedbackItemApi {
+  kind: MobileFeedbackKindApi;
+  id: number;
+  createdAt: string;
+  objectId: number;
+  objectName: string;
+  title: string;
+  subtitle: string | null;
+  link: string;
+  createdByEmail: string | null;
+  createdByName: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
@@ -376,6 +441,98 @@ export class ApiService {
   }
   getReceiptDownloadUrl(id: number, inline = false): string {
     return `${this.basis}/belege/${id}/download${inline ? '?inline=1' : ''}`;
+  }
+
+  // ── Nachweise (Foto-Dokumentation, operativ) ─────────────────────────────
+  loadEvidencePage(query: {
+    page: number;
+    pageSize: number;
+    objectId?: number;
+  }): Observable<PaginatedResponse<EvidenceListItemApi>> {
+    let params = new HttpParams()
+      .set('page', String(query.page))
+      .set('pageSize', String(query.pageSize));
+    if (query.objectId) params = params.set('objectId', String(query.objectId));
+    return this.http.get<PaginatedResponse<EvidenceListItemApi>>(`${this.basis}/nachweise`, { params });
+  }
+
+  getEvidenceDownloadUrl(id: number, inline = false): string {
+    return `${this.basis}/nachweise/${id}/download${inline ? '?inline=1' : ''}`;
+  }
+
+  // ── Checklisten (Operativ: Templates + Kontrollen) ───────────────────────────
+  loadChecklistTemplatesAll(): Observable<ChecklistTemplateApi[]> {
+    return this.http.get<ChecklistTemplateApi[]>(`${this.basis}/checklisten/templates/all`);
+  }
+
+  loadChecklistTemplatesPage(query: {
+    page: number;
+    pageSize: number;
+    q?: string;
+  }): Observable<PaginatedResponse<ChecklistTemplateApi>> {
+    let params = new HttpParams()
+      .set('page', String(query.page))
+      .set('pageSize', String(query.pageSize));
+    if (query.q) params = params.set('q', query.q);
+    return this.http.get<PaginatedResponse<ChecklistTemplateApi>>(`${this.basis}/checklisten/templates`, { params });
+  }
+
+  createChecklistTemplate(payload: {
+    name: string;
+    description?: string;
+    fields: ChecklistFieldApi[];
+    isActive?: boolean;
+  }): Observable<ChecklistTemplateApi> {
+    return this.http.post<ChecklistTemplateApi>(`${this.basis}/checklisten/templates`, payload);
+  }
+
+  updateChecklistTemplate(
+    id: number,
+    payload: Partial<{
+      name: string;
+      description: string;
+      fields: ChecklistFieldApi[];
+      isActive: boolean;
+    }>,
+  ): Observable<ChecklistTemplateApi> {
+    return this.http.put<ChecklistTemplateApi>(`${this.basis}/checklisten/templates/${id}`, payload);
+  }
+
+  loadChecklistSubmissionsPage(query: {
+    page: number;
+    pageSize: number;
+    objectId?: number;
+    templateId?: number;
+  }): Observable<PaginatedResponse<ChecklistSubmissionListItemApi>> {
+    let params = new HttpParams()
+      .set('page', String(query.page))
+      .set('pageSize', String(query.pageSize));
+    if (query.objectId) params = params.set('objectId', String(query.objectId));
+    if (query.templateId) params = params.set('templateId', String(query.templateId));
+    return this.http.get<PaginatedResponse<ChecklistSubmissionListItemApi>>(`${this.basis}/checklisten/submissions`, { params });
+  }
+
+  loadChecklistSubmission(id: number): Observable<ChecklistSubmissionDetailApi> {
+    return this.http.get<ChecklistSubmissionDetailApi>(`${this.basis}/checklisten/submissions/${id}`);
+  }
+
+  createChecklistSubmissionPdf(submissionId: number): Observable<{ token: string; url: string }> {
+    return this.http.post<{ token: string; url: string }>(`${this.basis}/pdf/checkliste/submission`, {
+      submission_id: submissionId,
+    });
+  }
+
+  // ── Mobile → Webapp Workflows ("money feature") ─────────────────────────
+  loadMobileFeedbackPage(query: {
+    page: number;
+    pageSize: number;
+    objectId?: number;
+  }): Observable<PaginatedResponse<MobileFeedbackItemApi>> {
+    let params = new HttpParams()
+      .set('page', String(query.page))
+      .set('pageSize', String(query.pageSize));
+    if (query.objectId) params = params.set('objectId', String(query.objectId));
+    return this.http.get<PaginatedResponse<MobileFeedbackItemApi>>(`${this.basis}/mobile-feedback`, { params });
   }
 
   // ── Einstellungen ───────────────────────────────────────────────────────

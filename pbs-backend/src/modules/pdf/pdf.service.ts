@@ -9,6 +9,7 @@ import { EuerPdfGenerator } from './generators/euer-pdf.generator';
 import { HausmeisterPdfGenerator } from './generators/hausmeister-pdf.generator';
 import { MitarbeiterPdfGenerator } from './generators/mitarbeiter-pdf.generator';
 import { VertragPdfGenerator } from './generators/vertrag-pdf.generator';
+import { ChecklistePdfGenerator } from './generators/checkliste-pdf.generator';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
@@ -25,6 +26,7 @@ export class PdfService {
     private readonly hausmeisterGen: HausmeisterPdfGenerator,
     private readonly mitarbeiterGen: MitarbeiterPdfGenerator,
     private readonly vertragGen: VertragPdfGenerator,
+    private readonly checklisteGen: ChecklistePdfGenerator,
   ) {}
 
   // ── PDF Generators ──────────────────────────────────────────────────────────
@@ -51,6 +53,12 @@ export class PdfService {
   }
   createVertragPdf(id: number) {
     return this.vertragGen.create(id);
+  }
+  createChecklisteSubmissionPdf(
+    submissionId: number,
+    auth: { role: string; employeeId: number | null },
+  ) {
+    return this.checklisteGen.createSubmissionPdf(submissionId, auth);
   }
 
   // ── Token ───────────────────────────────────────────────────────────────────

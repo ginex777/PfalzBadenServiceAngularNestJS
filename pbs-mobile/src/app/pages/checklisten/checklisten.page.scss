@@ -1,0 +1,88 @@
+.page-checklisten {
+  display: grid;
+  gap: 1rem;
+}
+
+.error-card {
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  background: linear-gradient(180deg, rgba(254, 242, 242, 0.9) 0%, rgba(255, 255, 255, 0.85) 100%);
+}
+
+.error-title {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.error-text {
+  color: var(--app-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.answers-head {
+  margin-bottom: 0.75rem;
+}
+
+.answers-title {
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.answers-sub {
+  margin-top: 0.25rem;
+  color: var(--app-text-muted);
+  font-size: 0.92rem;
+}
+
+.answer-label__title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+
+.answer-label__hint {
+  margin-top: 0.25rem;
+  color: var(--app-text-muted);
+  font-size: 0.85rem;
+}
+
+.req {
+  color: var(--app-accent-strong);
+  font-weight: 800;
+}
+
+.answer-textarea {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.submit-wrap {
+  margin-top: 1rem;
+}
+
+.submit-btn {
+  --border-radius: 1rem;
+  --box-shadow: 0 14px 28px rgba(18, 24, 38, 0.12);
+}
+
+.btn-spinner {
+  margin-right: 0.5rem;
+}
+
+.empty-form {
+  padding: 1rem;
+  border: 1px dashed var(--app-border);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.empty-form-title {
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.empty-form-text {
+  color: var(--app-text-muted);
+}
+

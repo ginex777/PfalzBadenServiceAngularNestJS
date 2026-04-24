@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: Verdana, Arial, sans-serif;
+        font-size: 10px;
+        color: #000;
+      }
+      .page {
+        padding: 0 20mm;
+      }
+      h1 {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 3px;
+      }
+      .sub {
+        font-size: 10px;
+        color: #555;
+        margin-bottom: 14px;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px 22px;
+        margin-bottom: 14px;
+        font-size: 10px;
+      }
+      .meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 140px;
+      }
+      .meta-label {
+        font-size: 9px;
+        text-transform: uppercase;
+        color: #888;
+        font-weight: 600;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+      }
+      th {
+        background: #f0f0f0;
+        padding: 5px 8px;
+        text-align: left;
+        border-bottom: 2px solid #000;
+        font-size: 9px;
+        text-transform: uppercase;
+      }
+      td {
+        padding: 5px 8px;
+        border-bottom: 1px solid #e8e8e8;
+        font-size: 9.5px;
+        vertical-align: top;
+      }
+      tr:nth-child(even) td {
+        background: #f9f9f9;
+      }
+      .value {
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>Checkliste: {{template.name}} (v{{template.version}})</h1>
+      <div class="sub">Erstellt am {{erstelltAm}} · PBS Pfalz-Baden Service</div>
+
+      <div class="meta">
+        <div class="meta-item">
+          <span class="meta-label">Objekt</span>
+          <span>{{objekt.name}}</span>
+        </div>
+        {{#if objekt.address}}
+          <div class="meta-item">
+            <span class="meta-label">Adresse</span>
+            <span>{{objekt.address}}</span>
+          </div>
+        {{/if}}
+        <div class="meta-item">
+          <span class="meta-label">Abgegeben</span>
+          <span>{{submission.submittedAt}}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Von</span>
+          <span>{{submission.createdBy}}</span>
+        </div>
+        {{#if mitarbeiter}}
+          <div class="meta-item">
+            <span class="meta-label">Mitarbeiter</span>
+            <span>{{mitarbeiter.name}}</span>
+          </div>
+        {{/if}}
+        {{#if submission.note}}
+          <div class="meta-item">
+            <span class="meta-label">Notiz</span>
+            <span>{{submission.note}}</span>
+          </div>
+        {{/if}}
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feld</th>
+            <th>Antwort</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each items}}
+            <tr>
+              <td>{{label}}</td>
+              <td class="value">{{value}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
+

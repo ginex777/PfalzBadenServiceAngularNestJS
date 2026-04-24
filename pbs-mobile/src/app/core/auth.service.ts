@@ -3,9 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Preferences } from '@capacitor/preferences';
 import { firstValueFrom } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
-
-export const API_BASE = environment.apiBase;
+import { MobileApiConfigService } from './api-config.service';
 
 export interface AuthUser {
   email: string;
@@ -15,12 +13,18 @@ export interface AuthUser {
 
 @Injectable({ providedIn: 'root' })
 export class MobileAuthService {
+  private readonly apiConfig: MobileApiConfigService;
   readonly accessToken = signal<string | null>(null);
   readonly currentUser = signal<AuthUser | null>(null);
   readonly isLoggedIn = computed(() => !!this.accessToken() && !!this.currentUser());
   private refreshPromise: Promise<string | null> | null = null;
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    apiConfig: MobileApiConfigService,
+  ) {
+    this.apiConfig = apiConfig;
+  }
 
   async restoreSession(): Promise<void> {
     const { value: token } = await Preferences.get({ key: 'access_token' });
@@ -46,6 +50,7 @@ export class MobileAuthService {
   }
 
   login(email: string, password: string) {
+    const baseUrl = this.apiConfig.apiBaseUrl();
     return this.http
       .post<{
         accessToken: string;
@@ -53,7 +58,7 @@ export class MobileAuthService {
         email: string;
         rolle: string;
         mitarbeiterId: number | null;
-      }>(`${API_BASE}/api/auth/login`, { email, password })
+      }>(`${baseUrl}/api/auth/login`, { email, password })
       .pipe(
         tap(async (res) => {
           await Preferences.set({ key: 'access_token', value: res.accessToken });
@@ -71,9 +76,10 @@ export class MobileAuthService {
   }
 
   async logout() {
+    const baseUrl = this.apiConfig.apiBaseUrl();
     const { value: refresh } = await Preferences.get({ key: 'refresh_token' });
     if (refresh) {
-      this.http.post(`${API_BASE}/api/auth/logout`, { refreshToken: refresh }).subscribe();
+      this.http.post(`${baseUrl}/api/auth/logout`, { refreshToken: refresh }).subscribe();
     }
     await this.clearSession();
   }
@@ -90,12 +96,13 @@ export class MobileAuthService {
   }
 
   private async performRefresh(): Promise<string | null> {
+    const baseUrl = this.apiConfig.apiBaseUrl();
     const { value: refreshToken } = await Preferences.get({ key: 'refresh_token' });
     if (!refreshToken) return null;
 
     try {
       const res = await firstValueFrom(
-        this.http.post<{ accessToken: string; refreshToken: string }>(`${API_BASE}/api/auth/refresh`, {
+        this.http.post<{ accessToken: string; refreshToken: string }>(`${baseUrl}/api/auth/refresh`, {
           refreshToken,
         }),
       );

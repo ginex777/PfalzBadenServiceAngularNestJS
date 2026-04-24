@@ -23,11 +23,27 @@
           <strong>{{ openEntry() ? 'Aktiv' : 'Inaktiv' }}</strong>
         </div>
       </div>
+      <div class="hero-context">
+        <app-objekt-auswahl
+          label="Objekt (Kontext)"
+          [objects]="context.objects()"
+          [selectedObjectId]="context.selectedObjectId()"
+          [disabled]="context.objectsLoading()"
+          (selectedObjectIdChange)="context.setSelectedObjectId($event)"
+        />
+        @if (context.objectsError()) {
+          <div class="app-state-banner app-state-banner--error">{{ context.objectsError() }}</div>
+        }
+        @if (!canUseOperativeActions()) {
+          <p class="hero-context-hint">Bitte Objekt auswÃ¤hlen, bevor du operative Aktionen startest.</p>
+        }
+      </div>
       <div class="hero-actions">
         <ion-button
           class="hero-action-btn hero-action-btn--primary"
           fill="solid"
           (click)="openTimeClock()"
+          [disabled]="!canUseOperativeActions()"
         >
           Zur Stempeluhr
         </ion-button>
@@ -35,6 +51,7 @@
           class="hero-action-btn hero-action-btn--secondary"
           fill="outline"
           (click)="openPhotoUpload()"
+          [disabled]="!canUseOperativeActions()"
         >
           Foto hochladen
         </ion-button>

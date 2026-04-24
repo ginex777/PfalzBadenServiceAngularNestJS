@@ -44,6 +44,18 @@ ion-content {
   margin-bottom: 0.75rem;
 }
 
+.hero-context {
+  margin: 0 0 0.8rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.hero-context-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
 .stat-item {
   border-radius: 0.8rem;
   background: rgba(255, 255, 255, 0.12);

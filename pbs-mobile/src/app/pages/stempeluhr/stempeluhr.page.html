@@ -19,19 +19,34 @@
       <ion-card-content>
         <div class="clock-state">{{ isActive ? 'Aktiv' : 'Nicht gestempelt' }}</div>
         <div class="runtime">{{ runtime() }}</div>
+
         <div class="object-field">
-          <label class="object-label" for="objectName">Objekt</label>
+          <app-objekt-auswahl
+            label="Objekt (pflicht)"
+            [objects]="context.objects()"
+            [selectedObjectId]="context.selectedObjectId()"
+            [disabled]="isActive"
+            (selectedObjectIdChange)="context.setSelectedObjectId($event)"
+          />
+          @if (context.objectsError()) {
+            <div class="app-state-banner app-state-banner--error">{{ context.objectsError() }}</div>
+          }
+          <p class="object-hint">Wird fuer Auswertungen und Nachweise pro Objekt verwendet.</p>
+        </div>
+
+        <div class="object-field">
+          <label class="object-label" for="note">Notiz (optional)</label>
           <input
-            #objectInput
-            id="objectName"
+            #noteInput
+            id="note"
             class="object-input"
             type="text"
-            [value]="selectedObject()"
-            (input)="updateObject(objectInput.value)"
+            [value]="note()"
+            (input)="updateNote(noteInput.value)"
             [disabled]="isActive"
-            placeholder="z. B. Musterstrasse 12"
+            placeholder="z. B. Keller, Hausflur, Hof"
           />
-          <p class="object-hint">Optional: Freitext heute, spaeter Auswahl aus vordefinierten Objekten.</p>
+          <p class="object-hint">Temporärer Freitext-Fallback (später ggf. deaktiviert).</p>
         </div>
 
         @if (isActive) {
@@ -39,7 +54,7 @@
             Stoppen
           </ion-button>
         } @else {
-          <ion-button class="primary-action primary-action--start" expand="block" [disabled]="isLoading()" (click)="start()">
+          <ion-button class="primary-action primary-action--start" expand="block" [disabled]="!canStart()" (click)="start()">
             Stempeln
           </ion-button>
         }

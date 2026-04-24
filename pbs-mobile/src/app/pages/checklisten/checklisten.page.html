@@ -1,0 +1,183 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Checklisten</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="logout()">Abmelden</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="app-page-grid page-checklisten">
+    <section class="app-hero">
+      <p class="app-hero-label">Operativ</p>
+      <h1 class="app-hero-title">Kontrolle durchführen</h1>
+      <p class="app-hero-text">Objekt wählen, Checkliste ausfüllen und als Protokoll absenden.</p>
+    </section>
+
+    @if (errorMessage()) {
+      <ion-card class="app-card error-card">
+        <ion-card-content>
+          <div class="error-title">Fehler</div>
+          <div class="error-text">{{ errorMessage() }}</div>
+          <ion-button expand="block" fill="outline" (click)="reload()">Neu laden</ion-button>
+        </ion-card-content>
+      </ion-card>
+    }
+
+    <ion-card class="app-card form-card">
+      <ion-card-content>
+        <ion-list class="form-list" lines="full">
+          <ion-item class="form-item" [disabled]="objectsLoading()">
+            <ion-label position="stacked">Objekt</ion-label>
+            @if (objectsLoading()) {
+              <div class="inline-spinner" slot="end">
+                <ion-spinner name="crescent" aria-label="Objekte werden geladen"></ion-spinner>
+              </div>
+            }
+            <ion-select
+              interface="popover"
+              [value]="selectedObjectId()"
+              (ionChange)="onObjectChanged($event.detail.value)"
+              placeholder="Objekt auswählen"
+            >
+              @for (o of objects(); track o.id) {
+                <ion-select-option [value]="o.id">
+                  {{ o.name }} @if (o.strasse || o.ort) { — {{ o.strasse ?? '' }} {{ o.ort ?? '' }} }
+                </ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="form-item" [disabled]="templatesLoading()">
+            <ion-label position="stacked">Checkliste</ion-label>
+            @if (templatesLoading()) {
+              <div class="inline-spinner" slot="end">
+                <ion-spinner name="crescent" aria-label="Checklisten werden geladen"></ion-spinner>
+              </div>
+            }
+            <ion-select
+              interface="popover"
+              [value]="selectedTemplateId()"
+              (ionChange)="onTemplateChanged($event.detail.value)"
+              placeholder="Checkliste auswählen"
+            >
+              @for (t of templates(); track t.id) {
+                <ion-select-option [value]="t.id">
+                  {{ t.name }} (v{{ t.version }})
+                </ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="form-item" lines="none">
+            <ion-label position="stacked">Notiz (optional)</ion-label>
+            <ion-textarea
+              [value]="note()"
+              (ionInput)="onNoteInput($event)"
+              placeholder="z. B. Besonderheiten, Schäden, Rückfragen…"
+              autoGrow="true"
+              rows="3"
+            ></ion-textarea>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    @if (!selectedTemplate()) {
+      <div class="app-card empty-form">
+        <div class="empty-form-inner">
+          <div class="empty-form-title">Keine Checkliste ausgewählt</div>
+          <div class="empty-form-text">Bitte wähle oben eine Checkliste aus.</div>
+        </div>
+      </div>
+    } @else {
+      <ion-card class="app-card answers-card">
+        <ion-card-content>
+          <div class="answers-head">
+            <div class="answers-title">{{ selectedTemplate()!.name }}</div>
+            @if (selectedTemplate()!.description) {
+              <div class="answers-sub">{{ selectedTemplate()!.description }}</div>
+            }
+          </div>
+
+          <ion-list class="answers-list" lines="full">
+            @for (f of fields(); track f.fieldId) {
+              <ion-item class="answer-item" [lines]="f.type === 'text' ? 'none' : 'full'">
+                <ion-label class="answer-label">
+                  <div class="answer-label__title">
+                    {{ f.label }} @if (f.required) { <span class="req">*</span> }
+                  </div>
+                  @if (f.helperText) { <div class="answer-label__hint">{{ f.helperText }}</div> }
+                </ion-label>
+
+                @switch (f.type) {
+                  @case ('boolean') {
+                    <ion-toggle
+                      slot="end"
+                      [checked]="(fieldValue(f.fieldId) ?? false) === true"
+                      (ionChange)="setBooleanAnswer(f.fieldId, $event.detail.checked)"
+                    ></ion-toggle>
+                  }
+                  @case ('number') {
+                    <ion-input
+                      slot="end"
+                      type="number"
+                      inputmode="decimal"
+                      [value]="fieldValue(f.fieldId) ?? ''"
+                      (ionInput)="onNumberAnswerInput(f.fieldId, $event)"
+                      placeholder="0"
+                    ></ion-input>
+                  }
+                  @case ('select') {
+                    <ion-select
+                      slot="end"
+                      interface="popover"
+                      [value]="fieldValue(f.fieldId) ?? ''"
+                      (ionChange)="setSelectAnswer(f.fieldId, $event.detail.value)"
+                      placeholder="Bitte auswählen"
+                    >
+                      @for (opt of f.options ?? []; track opt) {
+                        <ion-select-option [value]="opt">{{ opt }}</ion-select-option>
+                      }
+                    </ion-select>
+                  }
+                  @default {
+                    <ion-textarea
+                      class="answer-textarea"
+                      [value]="fieldValue(f.fieldId) ?? ''"
+                      (ionInput)="onTextAnswerInput(f.fieldId, $event)"
+                      placeholder="Antwort…"
+                      autoGrow="true"
+                      rows="3"
+                    ></ion-textarea>
+                  }
+                }
+              </ion-item>
+            }
+          </ion-list>
+
+          <div class="submit-wrap">
+            <ion-button class="submit-btn" expand="block" [disabled]="!canSubmit()" (click)="submit()">
+              @if (submitting()) {
+                <ion-spinner class="btn-spinner" name="crescent" aria-hidden="true"></ion-spinner>
+                Senden…
+              } @else {
+                Absenden
+              }
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    }
+  </div>
+</ion-content>
+
+<ion-toast
+  [isOpen]="toastOpen()"
+  [message]="toastMessage()"
+  [color]="toastColor()"
+  duration="5000"
+  position="top"
+  (didDismiss)="closeToast()"
+></ion-toast>

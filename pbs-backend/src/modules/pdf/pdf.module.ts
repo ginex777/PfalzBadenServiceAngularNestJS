@@ -11,6 +11,7 @@ import { EuerPdfGenerator } from './generators/euer-pdf.generator';
 import { HausmeisterPdfGenerator } from './generators/hausmeister-pdf.generator';
 import { MitarbeiterPdfGenerator } from './generators/mitarbeiter-pdf.generator';
 import { VertragPdfGenerator } from './generators/vertrag-pdf.generator';
+import { ChecklistePdfGenerator } from './generators/checkliste-pdf.generator';
 
 @Module({
   controllers: [PdfController],
@@ -26,6 +27,7 @@ import { VertragPdfGenerator } from './generators/vertrag-pdf.generator';
     HausmeisterPdfGenerator,
     MitarbeiterPdfGenerator,
     VertragPdfGenerator,
+    ChecklistePdfGenerator,
   ],
   exports: [PdfService],
 })

@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, computed, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonButton,
@@ -12,25 +12,39 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { MobileAuthService } from '../../core/auth.service';
+import { OperationalContextService } from '../../core/operational-context.service';
 import { StempelService } from '../../core/stempel.service';
+import { ObjektAuswahlComponent } from '../../shared/ui/objekt-auswahl/objekt-auswahl.component';
 
 @Component({
   selector: 'app-stempeluhr',
   standalone: true,
   host: { class: 'ion-page' },
-  imports: [IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonCard, IonCardContent, IonToast],
+  imports: [
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonContent,
+    IonCard,
+    IonCardContent,
+    IonToast,
+    ObjektAuswahlComponent,
+  ],
   templateUrl: './stempeluhr.page.html',
   styleUrl: './stempeluhr.page.scss',
 })
 export class StempeluhrPage implements OnInit, OnDestroy {
   private readonly auth = inject(MobileAuthService);
   private readonly stampService = inject(StempelService);
+  protected readonly context = inject(OperationalContextService);
   private readonly router = inject(Router);
 
   readonly user = this.auth.currentUser;
   openStamp = signal<{ id: number; start: Date } | null>(null);
   runtime = signal('00:00:00');
-  selectedObject = signal('');
+  note = signal('');
   isLoading = signal(false);
   statusMessage = signal('');
   statusTone = signal<'success' | 'error' | 'info'>('info');
@@ -38,12 +52,17 @@ export class StempeluhrPage implements OnInit, OnDestroy {
 
   private timer?: ReturnType<typeof setInterval>;
 
+  protected readonly canStart = computed(() => {
+    return !this.isActive && !this.isLoading() && this.context.selectedObjectId() != null;
+  });
+
   private get employeeId(): number {
     return this.auth.currentUser()?.mitarbeiterId ?? 0;
   }
 
   ngOnInit() {
     this.timer = setInterval(() => this.updateRuntime(), 1000);
+    this.context.ensureObjectsLoaded();
   }
 
   ngOnDestroy() {
@@ -61,17 +80,29 @@ export class StempeluhrPage implements OnInit, OnDestroy {
       this.setStatus('error', 'Kein Mitarbeiterprofil mit dem Benutzer verknuepft.');
       return;
     }
-    const objectName = this.selectedObject().trim();
+
+    const objectId = this.context.selectedObjectId();
+    if (objectId == null) {
+      this.setStatus('error', 'Bitte ein Objekt auswaehlen.');
+      return;
+    }
+
+    const selectedObjectName =
+      this.context.objects().find((o) => o.id === objectId)?.name ?? null;
+
+    const trimmedNote = this.note().trim();
+    const note = trimmedNote ? trimmedNote : undefined;
 
     this.isLoading.set(true);
-    const note = objectName ? `Objekt: ${objectName}` : undefined;
-    this.stampService.start(this.employeeId, note).subscribe({
+    this.stampService.start(this.employeeId, objectId, note).subscribe({
       next: (s) => {
         this.openStamp.set({ id: s.id, start: new Date(s.start) });
-        const successMessage = objectName
-          ? `Stempel erfolgreich gestartet fuer ${objectName}.`
-          : 'Stempel erfolgreich gestartet.';
-        this.setStatus('success', successMessage);
+        this.setStatus(
+          'success',
+          selectedObjectName
+            ? `Stempel gestartet: ${selectedObjectName}.`
+            : 'Stempel erfolgreich gestartet.',
+        );
         this.isLoading.set(false);
       },
       error: (error: { error?: { message?: string } }) => {
@@ -135,8 +166,8 @@ export class StempeluhrPage implements OnInit, OnDestroy {
     this.toastOpen.set(true);
   }
 
-  protected updateObject(value: string): void {
-    this.selectedObject.set(value);
+  protected updateNote(value: string): void {
+    this.note.set(value);
   }
 
   protected closeToast(): void {

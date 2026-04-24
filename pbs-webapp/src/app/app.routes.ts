@@ -90,6 +90,26 @@ export const routes: Routes = [
       import('./features/hausmeister/hausmeister.component').then((m) => m.HausmeisterComponent),
   },
   {
+    path: 'nachweise',
+    canActivate: [authGuard, roleGuard(['admin', 'readonly', 'mitarbeiter'])],
+    loadComponent: () =>
+      import('./features/nachweise/nachweise.component').then((m) => m.NachweiseComponent),
+  },
+  {
+    path: 'checklisten',
+    canActivate: [authGuard, roleGuard(['admin', 'readonly', 'mitarbeiter'])],
+    loadComponent: () =>
+      import('./features/checklisten/checklisten.component').then((m) => m.ChecklistenComponent),
+  },
+  {
+    path: 'mobile-rueckmeldungen',
+    canActivate: [authGuard, roleGuard(['admin', 'readonly', 'mitarbeiter'])],
+    loadComponent: () =>
+      import('./features/mobile-rueckmeldungen/mobile-rueckmeldungen.component').then(
+        (m) => m.MobileRueckmeldungenComponent,
+      ),
+  },
+  {
     path: 'pdf-archiv',
     canActivate: [authGuard, roleGuard(['admin', 'readonly'])],
     loadComponent: () =>

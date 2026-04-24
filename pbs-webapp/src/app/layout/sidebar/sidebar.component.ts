@@ -40,6 +40,9 @@ const NAV_ACCESS: Record<string, readonly UserRole[]> = {
 
   '/muellplan': ['admin', 'mitarbeiter'],
   '/hausmeister': ['admin', 'mitarbeiter'],
+  '/mobile-rueckmeldungen': ['admin', 'readonly', 'mitarbeiter'],
+  '/nachweise': ['admin', 'readonly', 'mitarbeiter'],
+  '/checklisten': ['admin', 'readonly', 'mitarbeiter'],
 
   '/mitarbeiter': ['admin'],
   '/vertraege': ['admin', 'readonly'],
@@ -85,6 +88,9 @@ const NAV_GRUPPEN: NavGroup[] = [
     items: [
       { path: '/muellplan', label: 'Müllplan' },
       { path: '/hausmeister', label: 'Hausmeister' },
+      { path: '/mobile-rueckmeldungen', label: 'Mobile RÃ¼ckmeldungen' },
+      { path: '/nachweise', label: 'Nachweise' },
+      { path: '/checklisten', label: 'Checklisten' },
     ],
   },
   {

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --proxy-config proxy.conf.cjs",
     "build": "ng build",
     "build:mobile": "ng build",
     "cap:sync": "npx cap sync",

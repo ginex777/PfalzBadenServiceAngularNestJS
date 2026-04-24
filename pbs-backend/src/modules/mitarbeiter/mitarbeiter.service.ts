@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -221,6 +221,25 @@ export class MitarbeiterService {
   // ── Mobile Stempeluhr ─────────────────────────────────────────────────────
 
   async stempelStart(mitarbeiterId: number, d: StempelStartDto) {
+    const objektId = d.objektId ?? null;
+    if (objektId == null) {
+      throw new BadRequestException({
+        code: 'MISSING_OBJECT',
+        message: 'Objekt ist erforderlich. Bitte ein Objekt auswaehlen.',
+      });
+    }
+
+    const objektExists = await this.prisma.objekte.findUnique({
+      where: { id: BigInt(objektId) },
+      select: { id: true },
+    });
+    if (!objektExists) {
+      throw new BadRequestException({
+        code: 'INVALID_OBJECT',
+        message: 'Objekt existiert nicht. Bitte ein gueltiges Objekt auswaehlen.',
+      });
+    }
+
     // Close any open stempel first (safety)
     await this.prisma.stempel.updateMany({
       where: { mitarbeiter_id: BigInt(mitarbeiterId), stop: null },
@@ -229,6 +248,7 @@ export class MitarbeiterService {
     const s = await this.prisma.stempel.create({
       data: {
         mitarbeiter: { connect: { id: BigInt(mitarbeiterId) } },
+        objekte: { connect: { id: BigInt(objektId) } },
         start: new Date(),
         notiz: d.notiz ?? null,
       },
@@ -236,6 +256,7 @@ export class MitarbeiterService {
     return {
       id: Number(s.id),
       mitarbeiter_id: Number(s.mitarbeiter_id),
+      objekt_id: s.objekt_id ? Number(s.objekt_id) : null,
       start: s.start,
     };
   }
@@ -256,6 +277,7 @@ export class MitarbeiterService {
     return {
       id: Number(s.id),
       mitarbeiter_id: Number(s.mitarbeiter_id),
+      objekt_id: s.objekt_id ? Number(s.objekt_id) : null,
       start: s.start,
       stop: s.stop,
       dauer_minuten: s.dauer_minuten,
@@ -271,6 +293,7 @@ export class MitarbeiterService {
     return rows.map((s) => ({
       id: Number(s.id),
       mitarbeiter_id: Number(s.mitarbeiter_id),
+      objekt_id: s.objekt_id ? Number(s.objekt_id) : null,
       start: s.start,
       stop: s.stop,
       dauer_minuten: s.dauer_minuten,

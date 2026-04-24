@@ -1,19 +1,14 @@
 import { Component, computed, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { IonIcon } from '@ionic/angular/standalone';
+import { IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { cameraOutline, calendarOutline, timerOutline } from 'ionicons/icons';
+import { cameraOutline, calendarOutline, listOutline, timerOutline, trashOutline } from 'ionicons/icons';
 import { MobileAuthService } from '../core/auth.service';
 
 @Component({
   selector: 'app-mobile-shell',
   standalone: true,
-  imports: [
-    RouterLink,
-    RouterLinkActive,
-    RouterOutlet,
-    IonIcon,
-  ],
+  host: { class: 'ion-page' },
+  imports: [IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel],
   templateUrl: './mobile-shell.component.html',
   styleUrl: './mobile-shell.component.scss',
 })
@@ -26,6 +21,6 @@ export class MobileShellComponent {
   });
 
   constructor() {
-    addIcons({ timerOutline, calendarOutline, cameraOutline });
+    addIcons({ timerOutline, calendarOutline, cameraOutline, trashOutline, listOutline });
   }
 }

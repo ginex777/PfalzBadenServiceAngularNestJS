@@ -1,0 +1,93 @@
+<div class="page-wrap">
+  <app-page-title
+    titel="Mobile RÃ¼ckmeldungen"
+    untertitel="Alle operativen EintrÃ¤ge aus der Mobile App (Nachweise & Checklisten)."
+  />
+
+  <div class="card toolbar mobile-feedback-toolbar">
+    <div class="filter-btns">
+      <select
+        class="filter-select"
+        [value]="facade.selectedObjectId() ?? ''"
+        (change)="onObjectChanged($event)"
+        [disabled]="facade.objectsLoading()"
+      >
+        @for (o of facade.objects(); track o.id) {
+          <option [value]="o.id">{{ o.name }}</option>
+        }
+      </select>
+
+      <select class="filter-select" [value]="facade.kindFilter()" (change)="onKindChanged($event)">
+        <option value="ALL">Alle Typen</option>
+        <option value="EVIDENCE">Nachweise</option>
+        <option value="CHECKLIST">Checklisten</option>
+      </select>
+    </div>
+
+    <div class="mobile-feedback-toolbar__right">
+      <span class="anzahl"
+        >{{ facade.filteredTotal() }} / {{ facade.entries().length }} geladen â€¢ {{ facade.total() }}
+        gesamt</span
+      >
+      <button class="btn btn--klein" type="button" (click)="reload()" [disabled]="facade.loading()">
+        Neu laden
+      </button>
+    </div>
+  </div>
+
+  @if (facade.loading() && facade.entries().length === 0) {
+    <app-skeleton-rows [anzahl]="6" />
+  } @else if (facade.errorMessage()) {
+    <div class="card fehler-card">
+      <div class="form-fehler">{{ facade.errorMessage() }}</div>
+    </div>
+  } @else if (!facade.filteredEntries().length) {
+    <app-empty-state titel="Keine RÃ¼ckmeldungen" beschreibung="Noch wurden keine EintrÃ¤ge von Mobile erstellt." />
+  } @else {
+    <div class="card">
+      <div class="tabelle-scroll">
+        <table class="data-table mobile-feedback-table">
+          <thead>
+            <tr>
+              <th>Typ</th>
+              <th>Objekt</th>
+              <th>Titel</th>
+              <th>Notiz</th>
+              <th>Zeit</th>
+              <th>Von</th>
+              <th class="col-aktionen">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of facade.filteredEntries(); track r.kind + '-' + r.id) {
+              <tr>
+                <td>
+                  <span class="type-pill" [class.type-pill--evidence]="r.kind === 'EVIDENCE'" [class.type-pill--checklist]="r.kind === 'CHECKLIST'">
+                    {{ r.kind === 'EVIDENCE' ? 'Nachweis' : 'Checkliste' }}
+                  </span>
+                </td>
+                <td>{{ r.objectName }}</td>
+                <td class="mono">{{ r.title }}</td>
+                <td>{{ r.subtitle || 'â€”' }}</td>
+                <td>{{ r.createdAt | date: 'short' }}</td>
+                <td>{{ r.createdByName || r.createdByEmail || 'â€”' }}</td>
+                <td class="col-aktionen">
+                  <a class="btn btn--klein" [routerLink]="r.link">Ã–ffnen</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (facade.hasMore()) {
+        <div class="mobile-feedback-more">
+          <button class="btn" type="button" (click)="loadMore()" [disabled]="facade.loading()">
+            @if (facade.loading()) { Ladenâ€¦ } @else { Mehr laden }
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>
+

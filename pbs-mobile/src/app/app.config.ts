@@ -10,6 +10,7 @@ import { inject } from '@angular/core';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { catchError, from, switchMap, throwError } from 'rxjs';
 import { MobileAuthService } from './core/auth.service';
+import { MobileApiConfigService } from './core/api-config.service';
 import { routes } from './app.routes';
 
 const jwtInterceptor: HttpInterceptorFn = (req, next) => {
@@ -51,6 +52,12 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withFetch(), withInterceptors([jwtInterceptor])),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (apiConfig: MobileApiConfigService) => () => apiConfig.restore(),
+      deps: [MobileApiConfigService],
+      multi: true,
+    },
     {
       provide: APP_INITIALIZER,
       useFactory: (auth: MobileAuthService) => () => auth.restoreSession(),

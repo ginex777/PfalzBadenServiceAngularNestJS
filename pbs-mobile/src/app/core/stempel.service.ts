@@ -1,10 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { API_BASE } from './auth.service';
+import { MobileApiConfigService } from './api-config.service';
 
 export interface StempelEintrag {
   id: number;
   mitarbeiter_id: number;
+  objekt_id?: number | null;
   start: string;
   stop: string | null;
   dauer_minuten: number | null;
@@ -14,24 +15,28 @@ export interface StempelEintrag {
 @Injectable({ providedIn: 'root' })
 export class StempelService {
   private readonly http = inject(HttpClient);
+  private readonly apiConfig = inject(MobileApiConfigService);
 
-  start(employeeId: number, note?: string) {
+  start(employeeId: number, objectId: number, note?: string) {
+    const baseUrl = this.apiConfig.apiBaseUrl();
     return this.http.post<StempelEintrag>(
-      `${API_BASE}/api/mitarbeiter/${employeeId}/stempel/start`,
-      { notiz: note ?? null },
+      `${baseUrl}/api/mitarbeiter/${employeeId}/stempel/start`,
+      { objektId: objectId, notiz: note ?? null },
     );
   }
 
   stop(employeeId: number) {
+    const baseUrl = this.apiConfig.apiBaseUrl();
     return this.http.post<StempelEintrag>(
-      `${API_BASE}/api/mitarbeiter/${employeeId}/stempel/stop`,
+      `${baseUrl}/api/mitarbeiter/${employeeId}/stempel/stop`,
       {},
     );
   }
 
   getTimeEntries(employeeId: number) {
+    const baseUrl = this.apiConfig.apiBaseUrl();
     return this.http.get<StempelEintrag[]>(
-      `${API_BASE}/api/mitarbeiter/${employeeId}/zeiterfassung`,
+      `${baseUrl}/api/mitarbeiter/${employeeId}/zeiterfassung`,
     );
   }
 }

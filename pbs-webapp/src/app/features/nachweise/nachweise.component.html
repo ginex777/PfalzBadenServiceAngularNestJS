@@ -1,0 +1,77 @@
+<div class="page-wrap">
+  <app-page-title titel="Nachweise" untertitel="Operative Foto-Dokumentation (Read-only)" />
+
+  <div class="card toolbar nachweise-toolbar">
+    <div class="filter-btns">
+      <select
+        class="filter-select"
+        [value]="facade.selectedObjectId() ?? ''"
+        (change)="onObjectChanged($event)"
+        [disabled]="facade.objectsLoading()"
+      >
+        @for (o of facade.objects(); track o.id) {
+          <option [value]="o.id">{{ o.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="nachweise-toolbar__right">
+      <span class="anzahl">{{ facade.evidences().length }} / {{ facade.total() }} Nachweise</span>
+      <button class="btn btn--klein" type="button" (click)="reload()" [disabled]="facade.loading()">
+        Neu laden
+      </button>
+    </div>
+  </div>
+
+  @if (facade.loading() && facade.evidences().length === 0) {
+    <app-skeleton-rows [anzahl]="6" />
+  } @else if (facade.errorMessage()) {
+    <div class="card fehler-card">
+      <div class="form-fehler">{{ facade.errorMessage() }}</div>
+    </div>
+  } @else if (!facade.evidences().length) {
+    <app-empty-state titel="Keine Nachweise vorhanden" beschreibung="Noch wurden keine Fotos hochgeladen." />
+  } @else {
+    <div class="card">
+      <div class="tabelle-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Objekt</th>
+              <th>Dateiname</th>
+              <th>Notiz</th>
+              <th>Hochgeladen</th>
+              <th>Von</th>
+              <th class="col-aktionen">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (n of facade.evidences(); track n.id) {
+              <tr>
+                <td>{{ objectLabel(n.objectId) }}</td>
+                <td class="mono">{{ n.filename }}</td>
+                <td>{{ n.note || '—' }}</td>
+                <td>{{ n.createdAt | date: 'short' }}</td>
+                <td>{{ n.createdByName || n.createdByEmail }}</td>
+                <td class="col-aktionen">
+                  <a class="btn btn--klein" [href]="facade.downloadUrl(n.id, true)" target="_blank"
+                    >Anzeigen</a
+                  >
+                  <a class="btn btn--klein" [href]="facade.downloadUrl(n.id)">Download</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (facade.hasMore()) {
+        <div class="nachweise-mehr">
+          <button class="btn" type="button" (click)="loadMore()" [disabled]="facade.loading()">
+            @if (facade.loading()) { Laden… } @else { Mehr laden }
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

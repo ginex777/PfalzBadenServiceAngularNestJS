@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { API_BASE } from './auth.service';
+import { MobileApiConfigService } from './api-config.service';
 
 export interface UpcomingWastePickup {
   id: number;
@@ -12,12 +12,41 @@ export interface UpcomingWastePickup {
   objekt_name?: string;
 }
 
+export interface WasteObject {
+  id: number;
+  name: string;
+  strasse: string | null;
+  plz: string | null;
+  ort: string | null;
+}
+
+export interface WastePickup {
+  id: number;
+  objekt_id: number;
+  muellart: string;
+  farbe: string;
+  abholung: string;
+  erledigt: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class WastePlanService {
   private readonly http = inject(HttpClient);
+  private readonly apiConfig = inject(MobileApiConfigService);
+
+  getObjectsAll() {
+    const baseUrl = this.apiConfig.apiBaseUrl();
+    return this.http.get<WasteObject[]>(`${baseUrl}/api/objekte/all`);
+  }
+
+  getPickupsForObject(objectId: number) {
+    const baseUrl = this.apiConfig.apiBaseUrl();
+    return this.http.get<WastePickup[]>(`${baseUrl}/api/muellplan/${objectId}`);
+  }
 
   getUpcoming(limit = 5) {
+    const baseUrl = this.apiConfig.apiBaseUrl();
     const params = new HttpParams().set('limit', String(limit));
-    return this.http.get<UpcomingWastePickup[]>(`${API_BASE}/api/muellplan-upcoming`, { params });
+    return this.http.get<UpcomingWastePickup[]>(`${baseUrl}/api/muellplan-upcoming`, { params });
   }
 }

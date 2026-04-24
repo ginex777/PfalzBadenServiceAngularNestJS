@@ -1,0 +1,117 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Muellplan</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="refresh()">Aktualisieren</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="muellplan-page">
+    <section class="muellplan-hero">
+      <p class="muellplan-hero-label">Uebersicht</p>
+      <h1 class="muellplan-hero-title">Welche Abholung steht als naechstes an?</h1>
+      <p class="muellplan-hero-text">
+        Objekt waehlen und Termine sehen – mit klaren States fuer Loading, Empty und Fehler.
+      </p>
+    </section>
+
+    <ion-card class="muellplan-card">
+      <ion-card-content>
+        <div class="card-head">
+          <h3 class="section-title">Objekt</h3>
+          @if (selectedObject()) {
+            <p class="section-subtitle">{{ selectedObject()!.name }}</p>
+          }
+        </div>
+
+        @if (isLoading()) {
+          <p class="hint">Lade Objekte...</p>
+        } @else if (objects().length === 0) {
+          <p class="hint">Keine Objekte gefunden.</p>
+        } @else {
+          <ion-item class="object-select" lines="none">
+            <ion-label position="stacked">Objekt auswaehlen</ion-label>
+            <ion-select
+              [value]="selectedObjectId()"
+              interface="popover"
+              placeholder="Objekt waehlen"
+              (ionChange)="selectObject($event.detail.value)"
+            >
+              @for (obj of objects(); track obj.id) {
+                <ion-select-option [value]="obj.id">{{ obj.name }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+        }
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="muellplan-card">
+      <ion-card-content>
+        <h3 class="section-title">Termine fuer das Objekt</h3>
+
+        @if (isLoading() || isLoadingPickups()) {
+          <p class="hint">Lade Termine...</p>
+        } @else if (!selectedObjectId()) {
+          <p class="hint">Bitte zuerst ein Objekt auswaehlen.</p>
+        } @else if (objectPickups().length === 0) {
+          <p class="hint">Keine Termine hinterlegt.</p>
+        } @else {
+          <ion-list lines="inset">
+            @for (pickup of objectPickups(); track pickup.id) {
+              <ion-item>
+                <span class="color-dot" [style.backgroundColor]="pickupColor(pickup.farbe)"></span>
+                <ion-label>
+                  <h3>{{ pickup.muellart }}</h3>
+                  <p>{{ pickup.abholung | date: 'dd.MM.yyyy' }}</p>
+                </ion-label>
+                @if (isPickupToday(pickup.abholung)) {
+                  <ion-badge slot="end" color="warning">Heute</ion-badge>
+                }
+              </ion-item>
+            }
+          </ion-list>
+        }
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="muellplan-card">
+      <ion-card-content>
+        <h3 class="section-title">Anstehend (alle Objekte)</h3>
+
+        @if (isLoading()) {
+          <p class="hint">Lade anstehende Termine...</p>
+        } @else if (upcomingPickups().length === 0) {
+          <p class="hint">Keine anstehenden Termine gefunden.</p>
+        } @else {
+          <ion-list lines="inset">
+            @for (pickup of upcomingPickups(); track pickup.id) {
+              <ion-item>
+                <span class="color-dot" [style.backgroundColor]="pickupColor(pickup.farbe)"></span>
+                <ion-label>
+                  <h3>{{ pickup.muellart }} · {{ pickup.abholung | date: 'dd.MM.yyyy' }}</h3>
+                  <p>{{ pickup.objekt_name || ('Objekt #' + pickup.objekt_id) }}</p>
+                </ion-label>
+                @if (isPickupToday(pickup.abholung)) {
+                  <ion-badge slot="end" color="warning">Heute</ion-badge>
+                }
+              </ion-item>
+            }
+          </ion-list>
+        }
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>
+
+<ion-toast
+  [isOpen]="toastOpen()"
+  [message]="toastMessage()"
+  color="danger"
+  duration="5000"
+  position="top"
+  (didDismiss)="closeToast()"
+></ion-toast>
+

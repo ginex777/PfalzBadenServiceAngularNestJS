@@ -1,24 +1,32 @@
-<div class="mobile-shell">
-  <main class="mobile-shell-content">
-    <router-outlet></router-outlet>
-  </main>
+<ion-tabs class="mobile-shell">
+  <ion-router-outlet></ion-router-outlet>
 
-  <nav class="mobile-tab-bar">
-    <a class="mobile-tab-button" [routerLink]="['/tabs/heute']" routerLinkActive="tab-active">
-      <ion-icon name="calendar-outline"></ion-icon>
-      <span>Heute</span>
-    </a>
+  <ion-tab-bar slot="bottom" class="mobile-tab-bar">
+    <ion-tab-button tab="heute" href="/tabs/heute" class="mobile-tab-button">
+      <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+      <ion-label>Heute</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="muellplan" href="/tabs/muellplan" class="mobile-tab-button">
+      <ion-icon name="trash-outline" aria-hidden="true"></ion-icon>
+      <ion-label>Muellplan</ion-label>
+    </ion-tab-button>
 
     @if (showOperativeTabs()) {
-      <a class="mobile-tab-button" [routerLink]="['/tabs/stempeluhr']" routerLinkActive="tab-active">
-        <ion-icon name="timer-outline"></ion-icon>
-        <span>Zeiterfassung</span>
-      </a>
+      <ion-tab-button tab="stempeluhr" href="/tabs/stempeluhr" class="mobile-tab-button">
+        <ion-icon name="timer-outline" aria-hidden="true"></ion-icon>
+        <ion-label>Zeiterfassung</ion-label>
+      </ion-tab-button>
 
-      <a class="mobile-tab-button" [routerLink]="['/tabs/foto-upload']" routerLinkActive="tab-active">
-        <ion-icon name="camera-outline"></ion-icon>
-        <span>Foto</span>
-      </a>
+      <ion-tab-button tab="foto-upload" href="/tabs/foto-upload" class="mobile-tab-button">
+        <ion-icon name="camera-outline" aria-hidden="true"></ion-icon>
+        <ion-label>Foto</ion-label>
+      </ion-tab-button>
+
+      <ion-tab-button tab="checklisten" href="/tabs/checklisten" class="mobile-tab-button">
+        <ion-icon name="list-outline" aria-hidden="true"></ion-icon>
+        <ion-label>Checklisten</ion-label>
+      </ion-tab-button>
     }
-  </nav>
-</div>
+  </ion-tab-bar>
+</ion-tabs>

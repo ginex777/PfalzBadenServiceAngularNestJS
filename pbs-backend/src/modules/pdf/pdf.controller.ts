@@ -8,8 +8,11 @@ import {
   ParseIntPipe,
   Res,
   Query,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
 import type { Response } from 'express';
+import type { Request } from 'express';
 import { PdfService } from './pdf.service';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -17,12 +20,17 @@ import { AllowReadonlyWrite } from '../auth/decorators/allow-readonly-write.deco
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import {
   CreateAngebotPdfDto,
+  CreateChecklistSubmissionPdfDto,
   CreateEuerPdfDto,
   CreateHausmeisterEinsatzPdfDto,
   CreateHausmeisterMonatsnachweisPdfDto,
   CreateMitarbeiterAbrechnungPdfDto,
   CreateRechnungPdfDto,
 } from './dto/pdf.dto';
+
+type AuthRequest = Request & {
+  user?: { rolle: string; mitarbeiterId?: number | null };
+};
 
 @Controller('api/pdf')
 export class PdfController {
@@ -75,6 +83,21 @@ export class PdfController {
     @Body() body: CreateMitarbeiterAbrechnungPdfDto,
   ) {
     return this.service.createMitarbeiterAbrechnungPdf(body.mitarbeiter_id);
+  }
+
+  @Post('checkliste/submission')
+  @Roles('admin', 'readonly', 'mitarbeiter')
+  @AllowReadonlyWrite()
+  async createChecklistSubmissionPdf(
+    @Body() body: CreateChecklistSubmissionPdfDto,
+    @Req() req: AuthRequest,
+  ) {
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.createChecklisteSubmissionPdf(body.submission_id, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
 
   // ── Token-basierter Download ─────────────────────────────────────────────────

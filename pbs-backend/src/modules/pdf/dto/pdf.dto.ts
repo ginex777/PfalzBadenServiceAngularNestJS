@@ -50,3 +50,8 @@ export class CreateMitarbeiterAbrechnungPdfDto {
   mitarbeiter_id!: number;
 }
 
+export class CreateChecklistSubmissionPdfDto {
+  @IsInt()
+  @Min(1)
+  submission_id!: number;
+}

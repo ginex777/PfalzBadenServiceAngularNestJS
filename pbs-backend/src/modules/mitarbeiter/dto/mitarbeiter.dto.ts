@@ -71,7 +71,11 @@ export class UpdateMitarbeiterStundenDto extends CreateMitarbeiterStundenDto {}
 
 export class StempelStartDto {
   @IsOptional()
+  @IsNumber()
+  @Min(1)
+  objektId?: number;
+
+  @IsOptional()
   @IsString()
   notiz?: string;
 }
-

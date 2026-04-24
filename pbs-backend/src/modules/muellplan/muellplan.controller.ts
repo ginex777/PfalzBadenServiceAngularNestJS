@@ -42,7 +42,7 @@ export class MuellplanController {
   }
 
   @Get('objekte/all')
-  @Roles('admin', 'readonly')
+  @Roles('admin', 'readonly', 'mitarbeiter')
   async objekteAlleLaden() {
     return this.service.objekteAlleLaden();
   }

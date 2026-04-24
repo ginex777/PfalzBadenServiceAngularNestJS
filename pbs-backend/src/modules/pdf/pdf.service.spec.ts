@@ -11,6 +11,7 @@ import { EuerPdfGenerator } from './generators/euer-pdf.generator';
 import { HausmeisterPdfGenerator } from './generators/hausmeister-pdf.generator';
 import { MitarbeiterPdfGenerator } from './generators/mitarbeiter-pdf.generator';
 import { VertragPdfGenerator } from './generators/vertrag-pdf.generator';
+import { ChecklistePdfGenerator } from './generators/checkliste-pdf.generator';
 
 const mockPrisma = {
   settings: { findUnique: jest.fn() },
@@ -34,6 +35,7 @@ describe('PdfService', () => {
         HausmeisterPdfGenerator,
         MitarbeiterPdfGenerator,
         VertragPdfGenerator,
+        ChecklistePdfGenerator,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: PuppeteerService, useValue: mockPuppeteer },
       ],
