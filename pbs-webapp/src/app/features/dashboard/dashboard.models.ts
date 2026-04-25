@@ -3,67 +3,32 @@
 // ============================================================
 
 export interface DashboardStats {
-  jahresEinnahmen: number;
-  jahresAusgaben: number;
-  gewinn: number;
-  offeneRechnungenAnzahl: number;
-  offeneRechnungenSumme: number;
-  ueberfaelligeRechnungenAnzahl: number;
-  ueberfaelligeRechnungenSumme: number;
-  offeneAngeboteAnzahl: number;
-  offeneAngeboteSumme: number;
+  yearRevenueNet: number;
+  yearExpensesNet: number;
+  yearProfitNet: number;
+  openInvoicesCount: number;
+  openInvoicesGrossTotal: number;
+  overdueInvoicesCount: number;
+  overdueInvoicesGrossTotal: number;
+  openOffersCount: number;
+  openOffersGrossTotal: number;
 }
 
-export interface DashboardRechnungZeile {
+export interface DashboardInvoiceRow {
   id: number;
-  nr: string;
-  empf: string;
-  brutto: number;
-  frist: string | undefined;
-  tageUeberfaellig: number | null;
-  tageVerbleibend: number | null;
-  ueberfaellig: boolean;
+  number: string;
+  recipient: string;
+  gross: number;
+  dueDate?: string;
+  daysOverdue: number | null;
 }
 
-export interface DashboardAngebotZeile {
+export interface DashboardOfferRow {
   id: number;
-  nr: string;
-  empf: string;
-  brutto: number;
-  gueltigBis: string | undefined;
-  tageVerbleibend: number | null;
-  abgelaufen: boolean;
-}
-
-export interface AktivitaetZeile {
-  typ: string;
-  nr: string;
-  name: string;
-  betrag: number | undefined;
-  datum: string | undefined;
-  status: string;
-  statusKlasse: 'text-success' | 'text-danger' | 'text-warning';
-  routerLink: string;
-}
-
-export interface DashboardAktivitaet {
-  id: number;
-  tabelle: string;
-  aktion: string;
-  zeitstempel: string;
-  nutzer: string;
-  datensatzId: number;
-  nr?: string;
-  empf?: string;
-  brutto?: number;
-}
-
-export interface MonatsvergleichZeile {
-  monatIndex: number;
-  monatName: string;
-  einnahmen: number;
-  ausgaben: number;
-  gewinn: number;
-  balkenEinnahmen: number;
-  balkenAusgaben: number;
+  number: string;
+  recipient: string;
+  gross: number;
+  validUntil?: string;
+  daysRemaining: number | null;
+  isExpired: boolean;
 }

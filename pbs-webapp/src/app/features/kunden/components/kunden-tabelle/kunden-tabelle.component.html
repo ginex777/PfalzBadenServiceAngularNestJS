@@ -3,15 +3,15 @@
 } @else if (kunden().length === 0 && !suchbegriff()) {
   <app-empty-state
     *roleAllowed="['admin']"
-    titel="Noch keine Kunden angelegt"
-    beschreibung="Trage oben den ersten Kunden ein."
-    aktionLabel="Ersten Kunden anlegen"
-    (aktion)="neuAnlegen.emit()"
+    title="Noch keine Kunden angelegt"
+    description="Trage oben den ersten Kunden ein."
+    actionLabel="Ersten Kunden anlegen"
+    (action)="neuAnlegen.emit()"
   />
   <app-empty-state
     *roleAllowed="['readonly', 'mitarbeiter']"
-    titel="Noch keine Kunden angelegt"
-    beschreibung="Keine Kunden vorhanden."
+    title="Noch keine Kunden angelegt"
+    description="Keine Kunden vorhanden."
   />
 } @else if (kunden().length === 0 && suchbegriff()) {
   <div class="keine-treffer">Keine Treffer für „{{ suchbegriff() }}"</div>

@@ -33,7 +33,7 @@ export class MuellplanFacade {
   readonly vorlageAnwendenId = signal<number | null>(null);
   readonly vorlageVorschau = signal<{ datum: string; muellart: string; farbe: string }[]>([]);
 
-  // â”€â”€ Termine kopieren â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // --- Copy terms ---
   readonly kopierenModalSichtbar = signal(false);
   readonly kopierenVonObjektId = signal<number | null>(null);
 
@@ -122,7 +122,7 @@ export class MuellplanFacade {
     const daten = this.terminFormularDaten();
     const objekt = this.aktuellesObjekt();
     if (!objekt || !daten.muellart || !daten.abholung) {
-      this.toast.error('MÃ¼llart und Datum sind Pflichtfelder.');
+      this.toast.error('Müllart und Datum sind Pflichtfelder.');
       return;
     }
     const editId = this.bearbeiteterTermin()?.id;
@@ -144,7 +144,7 @@ export class MuellplanFacade {
   terminLoeschen(id: number): void {
     this.service.terminLoeschen(id).subscribe({
       next: () => this.termine.update((list) => list.filter((t) => t.id !== id)),
-      error: () => this.toast.error('Termin konnte nicht gelÃ¶scht werden.'),
+      error: () => this.toast.error('Termin konnte nicht gelöscht werden.'),
     });
   }
 
@@ -167,7 +167,7 @@ export class MuellplanFacade {
     });
   }
 
-  // â”€â”€ Vorlagen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // --- Templates ---
   vorlagenModalOeffnen(): void {
     this.vorlagenModalSichtbar.set(true);
   }
@@ -214,13 +214,13 @@ export class MuellplanFacade {
   vorlageLoeschen(id: number): void {
     this.service.vorlageLoeschen(id).subscribe({
       next: () => this.vorlagen.update((list) => list.filter((v) => v.id !== id)),
-      error: () => this.toast.error('Vorlage konnte nicht gelÃ¶scht werden.'),
+      error: () => this.toast.error('Vorlage konnte nicht gelöscht werden.'),
     });
   }
 
   vorlageAnwendenOeffnen(): void {
     if (!this.aktuellesObjekt()) {
-      this.toast.error('Bitte zuerst ein Objekt auswÃ¤hlen.');
+      this.toast.error('Bitte zuerst ein Objekt auswählen.');
       return;
     }
     this.vorlageAnwendenId.set(this.aktuellesObjekt()?.vorlage_id ?? null);
@@ -235,7 +235,7 @@ export class MuellplanFacade {
     const vorlageId = this.vorlageAnwendenId();
     const objekt = this.aktuellesObjekt();
     if (!objekt || !vorlageId) {
-      this.toast.error('Bitte eine Vorlage auswÃ¤hlen.');
+      this.toast.error('Bitte eine Vorlage auswählen.');
       return;
     }
     const vorlage = this.vorlagen().find((v) => v.id === vorlageId);
@@ -299,10 +299,10 @@ export class MuellplanFacade {
     this.vorlageFormularDaten.update((d) => ({ ...d, [feld]: wert }));
   }
 
-  // â”€â”€ Termine kopieren â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // --- Copy terms ---
   kopierenModalOeffnen(): void {
     if (!this.aktuellesObjekt()) {
-      this.toast.error('Bitte zuerst ein Objekt auswÃ¤hlen.');
+      this.toast.error('Bitte zuerst ein Objekt auswählen.');
       return;
     }
     this.kopierenVonObjektId.set(null);
@@ -318,7 +318,7 @@ export class MuellplanFacade {
     const vonId = this.kopierenVonObjektId();
     const zielObjekt = this.aktuellesObjekt();
     if (!vonId || !zielObjekt) {
-      this.toast.error('Bitte ein Quell-Objekt auswÃ¤hlen.');
+      this.toast.error('Bitte ein Quell-Objekt auswählen.');
       return;
     }
     this.service.termineKopieren(vonId, zielObjekt.id).subscribe({
@@ -336,7 +336,7 @@ export class MuellplanFacade {
   monatsabschlussPdfGenerieren(): void {
     const objekt = this.aktuellesObjekt();
     if (!objekt) {
-      this.toast.error('Bitte zuerst ein Objekt auswÃ¤hlen.');
+      this.toast.error('Bitte zuerst ein Objekt auswählen.');
       return;
     }
     this.service
@@ -344,7 +344,7 @@ export class MuellplanFacade {
       .catch(() => this.toast.error('PDF konnte nicht erstellt werden.'));
   }
 
-  // â”€â”€ Vorlage PDF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // --- Template PDF ---
   vorlagePdfHochladen(vorlageId: number, file: File): void {
     this.service.vorlagePdfHochladen(vorlageId, file).subscribe({
       next: (res) => {

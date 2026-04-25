@@ -1,30 +1,30 @@
 <div class="page-wrap">
-  <app-page-title titel="Rechnungen" untertitel="Erstellen & Verwalten" />
+  <app-page-title title="Rechnungen" subtitle="Erstellen & Verwalten" />
 
   <div class="stat-cards">
     <app-stat-card
-      titel="Offen"
-      [wert]="waehrungFormatieren(facade.statistik().offen)"
-      variante="warning"
-      [laedt]="facade.laedt()"
+      title="Offen"
+      [value]="waehrungFormatieren(facade.statistik().offen)"
+      variant="warning"
+      [isLoading]="facade.laedt()"
     />
     <app-stat-card
-      titel="Bezahlt (Monat)"
-      [wert]="waehrungFormatieren(facade.statistik().bezahltMonat)"
-      variante="success"
-      [laedt]="facade.laedt()"
+      title="Bezahlt (Monat)"
+      [value]="waehrungFormatieren(facade.statistik().bezahltMonat)"
+      variant="success"
+      [isLoading]="facade.laedt()"
     />
     <app-stat-card
-      titel="Überfällig"
-      [wert]="waehrungFormatieren(facade.statistik().ueberfaellig)"
-      variante="danger"
-      [laedt]="facade.laedt()"
+      title="Überfällig"
+      [value]="waehrungFormatieren(facade.statistik().ueberfaellig)"
+      variant="danger"
+      [isLoading]="facade.laedt()"
     />
     <app-stat-card
-      titel="Gesamtumsatz"
-      [wert]="waehrungFormatieren(facade.statistik().gesamtumsatz)"
-      variante="primary"
-      [laedt]="facade.laedt()"
+      title="Gesamtumsatz"
+      [value]="waehrungFormatieren(facade.statistik().gesamtumsatz)"
+      variant="primary"
+      [isLoading]="facade.laedt()"
     />
   </div>
 
@@ -89,11 +89,11 @@
 
   @if (facade.loeschKandidat() !== null) {
     <app-confirm-modal
-      titel="Rechnung löschen"
-      nachricht="Diese Rechnung wird unwiderruflich gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden."
-      bestaetigenLabel="Löschen"
-      (bestaetigt)="facade.loeschenAusfuehren()"
-      (abgebrochen)="facade.loeschenAbbrechen()"
+      title="Rechnung löschen"
+      message="Diese Rechnung wird unwiderruflich gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden."
+      confirmLabel="Löschen"
+      (confirmed)="facade.loeschenAusfuehren()"
+      (canceled)="facade.loeschenAbbrechen()"
     />
   }
 

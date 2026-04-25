@@ -53,8 +53,8 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
 
   protected readonly subtitle = computed(() => {
     const o = this.existingObject();
-    if (this.mode() === 'create') return 'Verwaltung â€” Neues Objekt';
-    return o ? `Verwaltung â€” ${o.name}` : 'Verwaltung â€” Objekt';
+    if (this.mode() === 'create') return 'Verwaltung — Neues Objekt';
+    return o ? `Verwaltung — ${o.name}` : 'Verwaltung — Objekt';
   });
 
   constructor() {
@@ -145,13 +145,13 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
       !data.customerId;
 
     if (requiredMissing) {
-      this.toast.error('Bitte Pflichtfelder ausfÃ¼llen (Name, StraÃŸe, PLZ, Ort, Kunde).');
+      this.toast.error('Bitte Pflichtfelder ausfüllen (Name, Straße, PLZ, Ort, Kunde).');
       return;
     }
 
     const customerId = Number(data.customerId);
     if (!Number.isFinite(customerId) || customerId <= 0) {
-      this.toast.error('Bitte einen gÃ¼ltigen Kunden auswÃ¤hlen.');
+      this.toast.error('Bitte einen gültigen Kunden auswählen.');
       return;
     }
 

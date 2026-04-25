@@ -17,22 +17,22 @@
 
 @if (pendingDeleteId() !== null) {
   <app-confirm-modal
-    titel="Rechnung löschen"
-    nachricht="Diese Rechnung wird unwiderruflich gelöscht. Fortfahren?"
-    bestaetigenLabel="Löschen"
-    (bestaetigt)="loeschenBestaetigt()"
-    (abgebrochen)="pendingDeleteId.set(null)"
+    title="Rechnung löschen"
+    message="Diese Rechnung wird unwiderruflich gelöscht. Fortfahren?"
+    confirmLabel="Löschen"
+    (confirmed)="loeschenBestaetigt()"
+    (canceled)="pendingDeleteId.set(null)"
   />
 }
 @if (pendingBulkDelete().length > 0) {
   <app-confirm-modal
-    titel="Rechnungen löschen"
-    [nachricht]="
+    title="Rechnungen löschen"
+    [message]="
       pendingBulkDelete().length + ' Rechnungen werden unwiderruflich gelöscht. Fortfahren?'
     "
-    bestaetigenLabel="Alle löschen"
-    (bestaetigt)="bulkLoeschenBestaetigt()"
-    (abgebrochen)="pendingBulkDelete.set([])"
+    confirmLabel="Alle löschen"
+    (confirmed)="bulkLoeschenBestaetigt()"
+    (canceled)="pendingBulkDelete.set([])"
   />
 }
 
@@ -44,8 +44,8 @@
   </div>
 } @else if (rechnungen().length === 0) {
   <app-empty-state
-    titel="Keine Rechnungen gefunden"
-    beschreibung="Erstellen Sie Ihre erste Rechnung über das Formular."
+    title="Keine Rechnungen gefunden"
+    description="Erstellen Sie Ihre erste Rechnung über das Formular."
   />
 } @else {
   @if (ausgewaehlt().size > 0) {

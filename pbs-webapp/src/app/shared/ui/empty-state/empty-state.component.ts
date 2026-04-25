@@ -8,12 +8,12 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
   styleUrl: './empty-state.component.scss',
 })
 export class EmptyStateComponent {
-  readonly titel = input.required<string>();
-  readonly beschreibung = input<string>('');
-  readonly aktionLabel = input<string>('');
-  readonly aktion = output<void>();
+  readonly title = input.required<string>();
+  readonly description = input<string>('');
+  readonly actionLabel = input<string>('');
+  readonly action = output<void>();
 
-  protected aktionAusfuehren(): void {
-    this.aktion.emit();
+  protected triggerAction(): void {
+    this.action.emit();
   }
 }

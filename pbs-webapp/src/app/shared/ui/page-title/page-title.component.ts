@@ -8,6 +8,6 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   styleUrl: './page-title.component.scss',
 })
 export class PageTitleComponent {
-  readonly titel = input.required<string>();
-  readonly untertitel = input<string>('');
+  readonly title = input.required<string>();
+  readonly subtitle = input<string>('');
 }

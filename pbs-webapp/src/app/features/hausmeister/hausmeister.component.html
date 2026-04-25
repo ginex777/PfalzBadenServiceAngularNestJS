@@ -1,12 +1,12 @@
 <div class="page-wrap">
-  <app-page-title titel="Sonstige Tätigkeiten" untertitel="Einsätze & Nachweise" />
+  <app-page-title title="Sonstige Tätigkeiten" subtitle="Einsätze & Nachweise" />
 
   <div class="statistik-zeile">
-    <app-stat-card titel="Einsätze gesamt" [wert]="facade.statistik().gesamt.toString()" />
-    <app-stat-card titel="Diesen Monat" [wert]="facade.statistik().monat.toString()" />
+    <app-stat-card title="Einsätze gesamt" [value]="facade.statistik().gesamt.toString()" />
+    <app-stat-card title="Diesen Monat" [value]="facade.statistik().monat.toString()" />
     <app-stat-card
-      titel="Stunden diesen Monat"
-      [wert]="
+      title="Stunden diesen Monat"
+      [value]="
         facade.statistik().stundenMonat.toLocaleString('de-DE', {
           minimumFractionDigits: 1,
           maximumFractionDigits: 1,
@@ -127,10 +127,10 @@
 
   @if (facade.loeschKandidat() !== null) {
     <app-confirm-modal
-      titel="Einsatz löschen"
-      nachricht="Diesen Einsatz wirklich löschen?"
-      (bestaetigt)="facade.loeschenAusfuehren()"
-      (abgebrochen)="facade.loeschenAbbrechen()"
+      title="Einsatz löschen"
+      message="Diesen Einsatz wirklich löschen?"
+      (confirmed)="facade.loeschenAusfuehren()"
+      (canceled)="facade.loeschenAbbrechen()"
     />
   }
 </div>

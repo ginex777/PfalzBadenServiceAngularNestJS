@@ -7,11 +7,13 @@ describe('StatCardComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [StatCardComponent],
+      imports: [StatCardComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StatCardComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('title', 'Offene Rechnungen');
+    fixture.componentRef.setInput('value', '0');
     fixture.detectChanges();
   });
 

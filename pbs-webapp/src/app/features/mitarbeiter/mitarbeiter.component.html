@@ -1,5 +1,5 @@
 <div class="page-wrap">
-  <app-page-title titel="Mitarbeiter" untertitel="Mitarbeiterverwaltung und Stundenerfassung" />
+  <app-page-title title="Mitarbeiter" subtitle="Mitarbeiterverwaltung und Stundenerfassung" />
 
   @if (!facade.aktiverMitarbeiter()) {
     <div class="toolbar">
@@ -120,17 +120,17 @@
 
   @if (facade.loeschKandidat() !== null) {
     <app-confirm-modal
-      nachricht="Mitarbeiter wirklich löschen? Alle Stundendaten werden ebenfalls gelöscht."
-      (bestaetigt)="facade.loeschenAusfuehren()"
-      (abgebrochen)="facade.loeschenAbbrechen()"
+      message="Mitarbeiter wirklich löschen? Alle Stundendaten werden ebenfalls gelöscht."
+      (confirmed)="facade.loeschenAusfuehren()"
+      (canceled)="facade.loeschenAbbrechen()"
     />
   }
 
   @if (facade.loeschStundenKandidat() !== null) {
     <app-confirm-modal
-      nachricht="Stundeneintrag wirklich löschen?"
-      (bestaetigt)="facade.stundenLoeschenAusfuehren()"
-      (abgebrochen)="facade.stundenLoeschenAbbrechen()"
+      message="Stundeneintrag wirklich löschen?"
+      (confirmed)="facade.stundenLoeschenAusfuehren()"
+      (canceled)="facade.stundenLoeschenAbbrechen()"
     />
   }
 </div>

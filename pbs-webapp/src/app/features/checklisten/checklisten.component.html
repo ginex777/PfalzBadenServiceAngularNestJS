@@ -1,5 +1,5 @@
 <div class="page-wrap">
-  <app-page-title titel="Checklisten" untertitel="Operative Kontrollen (Read Views) + PDF" />
+  <app-page-title title="Checklisten" subtitle="Operative Kontrollen (Read Views) + PDF" />
 
   <div class="card toolbar checklisten-toolbar">
     <div class="filter-btns">
@@ -43,7 +43,7 @@
       <div class="form-fehler">{{ facade.errorMessage() }}</div>
     </div>
   } @else if (!facade.submissions().length) {
-    <app-empty-state titel="Keine Einträge vorhanden" beschreibung="Noch wurden keine Checklisten eingereicht." />
+    <app-empty-state title="Keine Einträge vorhanden" description="Noch wurden keine Checklisten eingereicht." />
   } @else {
     <div class="card">
       <div class="tabelle-scroll">
@@ -248,4 +248,3 @@
     </div>
   }
 </div>
-

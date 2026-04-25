@@ -1,9 +1,9 @@
 <div class="page-wrap">
-  <app-page-title [titel]="title()" [untertitel]="subtitle()" />
+  <app-page-title [title]="title()" [subtitle]="subtitle()" />
 
   <div class="card">
     <div class="detail-header">
-      <button class="btn btn-sm" (click)="backToList()">â† ZurÃ¼ck</button>
+      <button class="btn btn-sm" (click)="backToList()">← Zurück</button>
 
       <div class="detail-header__actions">
         <button
@@ -31,7 +31,7 @@
     @if (error()) {
       <app-error-state [message]="error()!" actionLabel="Neu laden" (action)="load()" />
     } @else if (isLoading() && !customers().length) {
-      <div class="loading">LÃ¤dtâ€¦</div>
+      <div class="loading">Lädt…</div>
     } @else {
       <app-objekt-formular
         [value]="form()"
@@ -42,7 +42,7 @@
 
       @if (!canEdit()) {
         <div class="readonly-hint">
-          <strong>Read-only:</strong> Nur Admins kÃ¶nnen Objekte bearbeiten.
+          <strong>Read-only:</strong> Nur Admins können Objekte bearbeiten.
         </div>
       }
     }
@@ -51,11 +51,10 @@
 
 @if (confirmDeactivateOpen()) {
   <app-confirm-modal
-    titel="Objekt deaktivieren"
-    nachricht="Dieses Objekt wirklich deaktivieren? Es bleibt fÃ¼r Historie erhalten, ist aber nicht mehr auswÃ¤hlbar."
-    bestaetigenLabel="Deaktivieren"
-    (bestaetigt)="confirmDeactivate()"
-    (abgebrochen)="cancelDeactivate()"
+    title="Objekt deaktivieren"
+    message="Dieses Objekt wirklich deaktivieren? Es bleibt für Historie erhalten, ist aber nicht mehr auswählbar."
+    confirmLabel="Deaktivieren"
+    (confirmed)="confirmDeactivate()"
+    (canceled)="cancelDeactivate()"
   />
 }
-

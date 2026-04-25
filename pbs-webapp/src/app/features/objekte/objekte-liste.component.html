@@ -1,5 +1,5 @@
 <div class="page-wrap">
-  <app-page-title titel="Objekte" untertitel="Verwaltung â€” Standorte & Stammdaten" />
+  <app-page-title title="Objekte" subtitle="Verwaltung — Standorte & Stammdaten" />
 
   <div class="card">
     <div class="header-row">
@@ -19,7 +19,7 @@
         <input
           class="form-input"
           type="search"
-          placeholder="Name, Adresse, Kundeâ€¦"
+          placeholder="Name, Adresse, Kunde…"
           [value]="searchTerm()"
           (input)="onSearch($event)"
         />
@@ -51,17 +51,17 @@
         (action)="load()"
       />
     } @else if (isLoading()) {
-      <div class="loading-skeleton" aria-label="LÃ¤dtâ€¦">
+      <div class="loading-skeleton" aria-label="Lädt…">
         @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {
           <div class="loading-skeleton__row"></div>
         }
       </div>
     } @else if (!pageObjects().length) {
       <app-empty-state
-        titel="Keine Objekte gefunden"
-        beschreibung="Passen Sie Filter an oder legen Sie ein neues Objekt in der Verwaltung an."
-        [aktionLabel]="canEdit() ? '+ Objekt anlegen' : ''"
-        (aktion)="navigateToNew()"
+        title="Keine Objekte gefunden"
+        description="Passen Sie Filter an oder legen Sie ein neues Objekt in der Verwaltung an."
+        [actionLabel]="canEdit() ? '+ Objekt anlegen' : ''"
+        (action)="navigateToNew()"
       />
     } @else {
       <div class="table-wrap">
@@ -84,8 +84,8 @@
                     <div class="sub">{{ o.notiz }}</div>
                   }
                 </td>
-                <td class="col-address">{{ formatAddress(o) || 'â€”' }}</td>
-                <td class="col-customer">{{ o.kunden_name || 'â€”' }}</td>
+                <td class="col-address">{{ formatAddress(o) || '—' }}</td>
+                <td class="col-customer">{{ o.kunden_name || '—' }}</td>
                 <td class="col-status">
                   <app-status-badge [status]="statusBadge(o.status)" />
                 </td>
@@ -118,4 +118,3 @@
     }
   </div>
 </div>
-

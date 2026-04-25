@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { filterNavigationGroupsForRole } from '../navigation/navigation.config';
+import { NavigationGroup, filterNavigationGroupsForRole } from '../navigation/navigation.config';
 
 @Component({
   selector: 'app-header-nav',
@@ -40,6 +40,10 @@ export class HeaderNavComponent {
 
   protected toggleGroup(id: string): void {
     this.openGroupId.update((current) => (current === id ? null : id));
+  }
+
+  protected isDirectLinkGroup(group: NavigationGroup): boolean {
+    return group.links.length === 1 && group.links[0]?.path === group.rootPath;
   }
 
   protected closeMenus(): void {

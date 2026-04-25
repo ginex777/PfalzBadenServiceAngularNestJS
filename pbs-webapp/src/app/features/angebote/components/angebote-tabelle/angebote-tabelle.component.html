@@ -18,11 +18,11 @@
 
 @if (pendingDeleteId() !== null) {
   <app-confirm-modal
-    titel="Angebot löschen"
-    nachricht="Dieses Angebot wird unwiderruflich gelöscht. Fortfahren?"
-    bestaetigenLabel="Löschen"
-    (bestaetigt)="loeschenBestaetigt()"
-    (abgebrochen)="pendingDeleteId.set(null)"
+    title="Angebot löschen"
+    message="Dieses Angebot wird unwiderruflich gelöscht. Fortfahren?"
+    confirmLabel="Löschen"
+    (confirmed)="loeschenBestaetigt()"
+    (canceled)="pendingDeleteId.set(null)"
   />
 }
 
@@ -34,8 +34,8 @@
   </div>
 } @else if (angebote().length === 0) {
   <app-empty-state
-    titel="Keine Angebote gefunden"
-    beschreibung="Erstellen Sie Ihr erstes Angebot über das Formular."
+    title="Keine Angebote gefunden"
+    description="Erstellen Sie Ihr erstes Angebot über das Formular."
   />
 } @else {
   <div class="table-wrapper">

@@ -7,11 +7,12 @@ describe('PageTitleComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PageTitleComponent],
+      imports: [PageTitleComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PageTitleComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('title', 'Dashboard');
     fixture.detectChanges();
   });
 

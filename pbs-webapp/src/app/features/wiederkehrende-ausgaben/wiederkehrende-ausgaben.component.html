@@ -1,4 +1,4 @@
-<app-page-title titel="Wiederkehrende Kosten" untertitel="Monatliche Fixkosten" />
+<app-page-title title="Wiederkehrende Kosten" subtitle="Monatliche Fixkosten" />
 
 @if (facade.formularSichtbar()) {
   <div class="card">
@@ -91,10 +91,10 @@
 
   @if (!facade.gefilterteAusgaben().length) {
     <app-empty-state
-      titel="Noch keine Fixkosten definiert"
-      beschreibung="Trage wiederkehrende Kosten ein — sie lassen sich dann per Klick in die Buchhaltung übernehmen."
-      aktionLabel="+ Ersten Kostenpunkt anlegen"
-      (aktion)="formularOeffnen()"
+      title="Noch keine Fixkosten definiert"
+      description="Trage wiederkehrende Kosten ein — sie lassen sich dann per Klick in die Buchhaltung übernehmen."
+      actionLabel="+ Ersten Kostenpunkt anlegen"
+      (action)="formularOeffnen()"
     />
   } @else {
     <div class="tabelle-scroll">
@@ -144,12 +144,12 @@
 
 @if (facade.loeschKandidat() !== null) {
   <app-confirm-modal
-    titel="Kostenpunkt löschen"
-    [nachricht]="
+    title="Kostenpunkt löschen"
+    [message]="
       (facade.ausgaben().find((a) => a.id === facade.loeschKandidat())?.name || '') +
       ' wirklich löschen?'
     "
-    (bestaetigt)="facade.loeschenAusfuehren()"
-    (abgebrochen)="facade.loeschenAbbrechen()"
+    (confirmed)="facade.loeschenAusfuehren()"
+    (canceled)="facade.loeschenAbbrechen()"
   />
 }

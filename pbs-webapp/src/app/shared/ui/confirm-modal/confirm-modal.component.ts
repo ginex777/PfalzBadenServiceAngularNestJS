@@ -22,13 +22,13 @@ const FOCUSABLE =
 export class ConfirmModalComponent implements OnInit {
   private readonly el = inject(ElementRef);
 
-  readonly titel = input<string>('Bestätigung erforderlich');
-  readonly nachricht = input.required<string>();
-  readonly bestaetigenLabel = input<string>('Löschen');
-  readonly abbrechenLabel = input<string>('Abbrechen');
-  readonly gefaehrlich = input<boolean>(true);
-  readonly bestaetigt = output<void>();
-  readonly abgebrochen = output<void>();
+  readonly title = input<string>('Bestätigung erforderlich');
+  readonly message = input.required<string>();
+  readonly confirmLabel = input<string>('Löschen');
+  readonly cancelLabel = input<string>('Abbrechen');
+  readonly isDangerous = input<boolean>(true);
+  readonly confirmed = output<void>();
+  readonly canceled = output<void>();
 
   ngOnInit(): void {
     setTimeout(() => {
@@ -42,7 +42,7 @@ export class ConfirmModalComponent implements OnInit {
 
   @HostListener('document:keydown.escape')
   protected onEscape(): void {
-    this.abgebrochen.emit();
+    this.canceled.emit();
   }
 
   @HostListener('keydown', ['$event'])
@@ -65,11 +65,11 @@ export class ConfirmModalComponent implements OnInit {
     }
   }
 
-  protected bestaetigen(): void {
-    this.bestaetigt.emit();
+  protected confirm(): void {
+    this.confirmed.emit();
   }
 
-  protected abbrechen(): void {
-    this.abgebrochen.emit();
+  protected cancel(): void {
+    this.canceled.emit();
   }
 }

@@ -10,6 +10,7 @@ import {
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import {
+  NavigationGroup,
   UserRole,
   filterNavigationGroupsForRole,
   getInitialOpenGroupId,
@@ -54,6 +55,10 @@ export class SidebarComponent {
       else next.add(id);
       return next;
     });
+  }
+
+  protected isDirectLinkGroup(group: NavigationGroup): boolean {
+    return group.links.length === 1 && group.links[0]?.path === group.rootPath;
   }
 
   protected isOpen(id: string): boolean {

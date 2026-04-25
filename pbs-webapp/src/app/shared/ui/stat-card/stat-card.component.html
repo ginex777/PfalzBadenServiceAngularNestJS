@@ -1,11 +1,11 @@
-<div class="stat-card stat-card--{{ variante() }}" [class.stat-card--laedt]="laedt()">
-  <div class="stat-card__titel">{{ titel() }}</div>
-  @if (laedt()) {
+<div class="stat-card stat-card--{{ variant() }}" [class.stat-card--laedt]="isLoading()">
+  <div class="stat-card__titel">{{ title() }}</div>
+  @if (isLoading()) {
     <div class="stat-card__skeleton"></div>
   } @else {
-    <div class="stat-card__wert">{{ wert() }}</div>
+    <div class="stat-card__wert">{{ value() }}</div>
   }
-  @if (untertitel()) {
-    <div class="stat-card__untertitel">{{ untertitel() }}</div>
+  @if (subtitle()) {
+    <div class="stat-card__untertitel">{{ subtitle() }}</div>
   }
 </div>

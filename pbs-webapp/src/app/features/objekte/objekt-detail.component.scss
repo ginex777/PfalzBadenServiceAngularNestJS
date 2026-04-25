@@ -4,11 +4,19 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
 .detail-header__actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+
+  @media (max-width: 520px) {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 
 .loading {
@@ -25,4 +33,3 @@
   color: var(--gray-700);
   font-size: 12px;
 }
-

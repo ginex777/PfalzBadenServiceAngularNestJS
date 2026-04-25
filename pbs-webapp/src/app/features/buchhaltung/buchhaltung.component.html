@@ -147,11 +147,11 @@
 <!-- Bestätigungs-Dialog -->
 @if (facade.bestaetigenDialog()) {
   <app-confirm-modal
-    [titel]="facade.bestaetigenDialog()!.titel"
-    [nachricht]="facade.bestaetigenDialog()!.nachricht"
-    bestaetigenLabel="Bestätigen"
-    (bestaetigt)="dialogBestaetigen()"
-    (abgebrochen)="dialogAbbrechen()"
+    [title]="facade.bestaetigenDialog()!.titel"
+    [message]="facade.bestaetigenDialog()!.nachricht"
+    confirmLabel="Bestätigen"
+    (confirmed)="dialogBestaetigen()"
+    (canceled)="dialogAbbrechen()"
   />
 }
 

@@ -1,95 +1,80 @@
 <div class="dashboard-page">
-  <!-- Header -->
   <div class="dashboard-header">
-    <app-page-title titel="Dashboard" [untertitel]="aktuellesJahr.toString()" />
+    <app-page-title title="Dashboard" [subtitle]="facade.currentYear().toString()" />
+
     <div class="header-actions">
-      <button class="btn btn-primary" (click)="facade.zuNeuerRechnungNavigieren()">
+      <button class="btn btn-primary" type="button" (click)="facade.navigateToNewInvoice()">
         + Rechnung
       </button>
-      <button class="btn btn-success" (click)="facade.zuNeuesAngebotNavigieren()">+ Angebot</button>
-      <button class="btn" (click)="facade.zuKundenNavigieren()">+ Kunde</button>
-      <button class="btn" (click)="facade.zuBuchhaltungNavigieren()">Buchhaltung</button>
+      <button class="btn btn-success" type="button" (click)="facade.navigateToNewOffer()">
+        + Angebot
+      </button>
+      <a class="btn" routerLink="/buchhaltung">Buchhaltung</a>
     </div>
   </div>
 
-  <!-- Stat Cards -->
   <div class="stats-grid">
     <app-stat-card
-      titel="Einnahmen (Netto)"
-      [wert]="facade.stats() ? waehrungFormatieren(facade.stats()!.jahresEinnahmen) : '–'"
-      untertitel="Aktuelles Jahr"
-      variante="success"
-      [laedt]="facade.laedt()"
+      title="Einnahmen (Netto)"
+      [value]="facade.stats() ? formatCurrency(facade.stats()!.yearRevenueNet) : '–'"
+      subtitle="Aktuelles Jahr"
+      variant="success"
+      [isLoading]="facade.isLoading()"
     />
     <app-stat-card
-      titel="Ausgaben (Netto)"
-      [wert]="facade.stats() ? waehrungFormatieren(facade.stats()!.jahresAusgaben) : '–'"
-      untertitel="Aktuelles Jahr"
-      variante="danger"
-      [laedt]="facade.laedt()"
+      title="Ausgaben (Netto)"
+      [value]="facade.stats() ? formatCurrency(facade.stats()!.yearExpensesNet) : '–'"
+      subtitle="Aktuelles Jahr"
+      variant="danger"
+      [isLoading]="facade.isLoading()"
     />
     <app-stat-card
-      titel="Gewinn / Verlust"
-      [wert]="facade.stats() ? waehrungFormatieren(facade.stats()!.gewinn) : '–'"
-      untertitel="Aktuelles Jahr"
-      [variante]="facade.stats() && facade.stats()!.gewinn >= 0 ? 'success' : 'danger'"
-      [laedt]="facade.laedt()"
+      title="Gewinn / Verlust"
+      [value]="facade.stats() ? formatCurrency(facade.stats()!.yearProfitNet) : '–'"
+      subtitle="Aktuelles Jahr"
+      [variant]="facade.stats() && facade.stats()!.yearProfitNet >= 0 ? 'success' : 'danger'"
+      [isLoading]="facade.isLoading()"
     />
     <app-stat-card
-      titel="Offene Rechnungen"
-      [wert]="
+      title="Offene Rechnungen"
+      [value]="
         facade.stats()
-          ? facade.stats()!.offeneRechnungenAnzahl +
-            ' / ' +
-            waehrungFormatieren(facade.stats()!.offeneRechnungenSumme)
+          ? facade.stats()!.openInvoicesCount + ' / ' + formatCurrency(facade.stats()!.openInvoicesGrossTotal)
           : '0'
       "
-      [untertitel]="
-        facade.stats() && facade.stats()!.ueberfaelligeRechnungenAnzahl > 0
-          ? facade.stats()!.ueberfaelligeRechnungenAnzahl + ' überfällig'
+      [subtitle]="
+        facade.stats() && facade.stats()!.overdueInvoicesCount > 0
+          ? facade.stats()!.overdueInvoicesCount + ' überfällig'
           : ''
       "
-      [variante]="
-        facade.stats() && facade.stats()!.ueberfaelligeRechnungenAnzahl > 0 ? 'danger' : 'warning'
-      "
-      [laedt]="facade.laedt()"
-    />
-    <app-stat-card
-      titel="Offene Angebote"
-      [wert]="
-        facade.stats()
-          ? facade.stats()!.offeneAngeboteAnzahl +
-            ' / ' +
-            waehrungFormatieren(facade.stats()!.offeneAngeboteSumme)
-          : '0'
-      "
-      untertitel="Ausstehend"
-      variante="primary"
-      [laedt]="facade.laedt()"
+      [variant]="facade.stats() && facade.stats()!.overdueInvoicesCount > 0 ? 'danger' : 'warning'"
+      [isLoading]="facade.isLoading()"
     />
   </div>
 
-  <!-- Benachrichtigungen -->
-  @if (facade.ungeleseneNotifAnzahl() > 0) {
+  @if (facade.unreadNotificationsCount() > 0) {
     <div class="card notif-card">
       <div class="card-header">
         <h3 class="section-title">
           Benachrichtigungen
-          <span class="badge badge-primary">{{ facade.ungeleseneNotifAnzahl() }} neu</span>
+          <span class="badge badge-primary">{{ facade.unreadNotificationsCount() }} neu</span>
         </h3>
-        <button class="btn btn-sm" (click)="facade.markAllNotificationsRead()">Alle gelesen</button>
+        <button class="btn btn-sm" type="button" (click)="facade.markAllNotificationsRead()">
+          Alle gelesen
+        </button>
       </div>
+
       <div class="notif-list">
-        @for (notif of facade.ungeleseneNotifs(); track notif.id) {
+        @for (notif of facade.unreadNotifications(); track notif.id) {
           <div class="notif-item">
             <span class="notif-dot notif-dot--{{ notif.typ }}"></span>
             <div class="notif-content">
-              <div class="notif-titel">{{ notif.titel }}</div>
+              <div class="notif-title">{{ notif.titel }}</div>
               @if (notif.nachricht) {
-                <div class="notif-nachricht">{{ notif.nachricht }}</div>
+                <div class="notif-message">{{ notif.nachricht }}</div>
               }
             </div>
-            <button class="btn-action" (click)="facade.markNotificationRead(notif.id)">
+            <button class="btn-action" type="button" (click)="facade.markNotificationRead(notif.id)">
               Gelesen
             </button>
           </div>
@@ -98,11 +83,14 @@
     </div>
   }
 
-  <!-- Rechnungen: Überfällig + Offen -->
   <div class="two-col">
     <div class="card">
-      <h3 class="section-title section-title--danger">Überfällige Rechnungen</h3>
-      @if (facade.ueberfaelligeRechnungen().length === 0) {
+      <div class="card-header">
+        <h3 class="section-title section-title--danger">Überfällige Rechnungen</h3>
+        <button class="btn btn-sm" type="button" (click)="facade.navigateToInvoices()">Alle</button>
+      </div>
+
+      @if (facade.overdueInvoices().length === 0) {
         <div class="empty-inline">
           <span class="text-success">✓ Alles bezahlt</span>
           <span class="hint">Keine überfälligen Rechnungen</span>
@@ -111,63 +99,51 @@
         <div class="table-wrapper">
           <table>
             <tbody>
-              @for (re of facade.ueberfaelligeRechnungen(); track re.id) {
+              @for (invoice of facade.overdueInvoices(); track invoice.id) {
                 <tr class="row-danger">
-                  <td class="col-nr">{{ re.nr }}</td>
-                  <td class="col-name">{{ re.empf }}</td>
-                  <td class="col-betrag text-danger">{{ waehrungFormatieren(re.brutto) }}</td>
+                  <td class="col-nr">{{ invoice.number }}</td>
+                  <td class="col-name">{{ invoice.recipient }}</td>
+                  <td class="col-amount text-danger">{{ formatCurrency(invoice.gross) }}</td>
                   <td class="col-status">
-                    <span class="text-danger hint-sm">{{
-                      tageText(re.tageUeberfaellig, true)
+                    <span class="text-danger hint-sm">{{ formatDaysOverdue(invoice.daysOverdue) }}</span>
+                  </td>
+                  <td class="col-action">
+                    <button class="btn-action" type="button" (click)="facade.openInvoice(invoice.id)">
+                      Öffnen
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="section-title">Offene Angebote</h3>
+        <button class="btn btn-sm" type="button" (click)="facade.navigateToOffers()">Alle</button>
+      </div>
+
+      @if (facade.openOffers().length === 0) {
+        <p class="hint">Keine offenen Angebote</p>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <tbody>
+              @for (offer of facade.openOffers(); track offer.id) {
+                <tr [class.row-danger]="offer.isExpired">
+                  <td class="col-nr">{{ offer.number }}</td>
+                  <td class="col-name">{{ offer.recipient }}</td>
+                  <td class="col-amount">{{ formatCurrency(offer.gross) }}</td>
+                  <td class="col-status">
+                    <span class="hint-sm" [class.text-danger]="offer.isExpired">{{
+                      formatOfferDue(offer.daysRemaining)
                     }}</span>
                   </td>
                   <td class="col-action">
-                    <button class="btn-action" (click)="facade.rechnungOeffnen(re.id)">
-                      Öffnen
-                    </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-          @if (facade.stats() && facade.stats()!.ueberfaelligeRechnungenSumme > 0) {
-            <div class="table-summe text-danger">
-              Gesamt: {{ waehrungFormatieren(facade.stats()!.ueberfaelligeRechnungenSumme) }}
-            </div>
-          }
-        </div>
-      }
-    </div>
-
-    <div class="card">
-      <h3 class="section-title section-title--warning">Offene Rechnungen</h3>
-      @if (facade.offeneRechnungen().length === 0) {
-        <div class="empty-inline">
-          <span class="hint">Keine offenen Rechnungen</span>
-          <button class="btn btn-sm btn-primary" (click)="facade.zuNeuerRechnungNavigieren()">
-            + Neue Rechnung
-          </button>
-        </div>
-      } @else {
-        <div class="table-wrapper">
-          <table>
-            <tbody>
-              @for (re of facade.offeneRechnungen(); track re.id) {
-                <tr>
-                  <td class="col-nr">{{ re.nr }}</td>
-                  <td class="col-name">{{ re.empf }}</td>
-                  <td class="col-betrag">{{ waehrungFormatieren(re.brutto) }}</td>
-                  <td class="col-status">
-                    @if (re.tageVerbleibend !== null) {
-                      <span class="text-warning hint-sm">{{
-                        tageText(re.tageVerbleibend, false)
-                      }}</span>
-                    } @else {
-                      <span class="hint-sm text-muted">Kein Fälligkeitsdatum</span>
-                    }
-                  </td>
-                  <td class="col-action">
-                    <button class="btn-action" (click)="facade.rechnungOeffnen(re.id)">
+                    <button class="btn-action" type="button" (click)="facade.openOffer(offer.id)">
                       Öffnen
                     </button>
                   </td>
@@ -178,243 +154,6 @@
         </div>
       }
     </div>
-  </div>
-
-  <!-- Angebote + Letzte Aktivitäten -->
-  <div class="two-col">
-    <div class="card">
-      <h3 class="section-title">Offene Angebote</h3>
-      @if (facade.offeneAngebote().length === 0) {
-        <div class="empty-inline">
-          <span class="hint">Keine offenen Angebote</span>
-          <button class="btn btn-sm btn-success" (click)="facade.zuNeuesAngebotNavigieren()">
-            + Neues Angebot
-          </button>
-        </div>
-      } @else {
-        <div class="table-wrapper">
-          <table>
-            <tbody>
-              @for (ang of facade.offeneAngebote(); track ang.id) {
-                <tr>
-                  <td class="col-nr">{{ ang.nr }}</td>
-                  <td class="col-name">{{ ang.empf }}</td>
-                  <td class="col-betrag">{{ waehrungFormatieren(ang.brutto) }}</td>
-                  <td class="col-status">
-                    @if (ang.tageVerbleibend === null) {
-                      <span class="hint-sm text-muted">–</span>
-                    } @else if (ang.abgelaufen) {
-                      <span class="text-danger hint-sm">{{ ang.tageVerbleibend }}T abgelaufen</span>
-                    } @else {
-                      <span class="text-warning hint-sm">noch {{ ang.tageVerbleibend }}T</span>
-                    }
-                  </td>
-                  <td class="col-action">
-                    <button class="btn-action" (click)="facade.angebotOeffnen(ang.id)">
-                      Öffnen
-                    </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Letzte Aktivitäten</h3>
-      @if (facade.letzteAktivitaeten().length === 0) {
-        <p class="hint">Noch keine Aktivitäten vorhanden</p>
-      } @else {
-        <div class="table-wrapper">
-          <table>
-            <tbody>
-              @for (akt of facade.letzteAktivitaeten(); track akt.nr) {
-                <tr>
-                  <td class="col-datum hint-sm">{{ aktivitaetDatumFormatieren(akt.datum) }}</td>
-                  <td class="col-typ hint-sm text-muted">{{ akt.typ }}</td>
-                  <td class="col-name">{{ akt.nr }} – {{ akt.name }}</td>
-                  <td class="col-betrag" [class]="akt.statusKlasse">
-                    {{ akt.betrag !== null && akt.betrag !== undefined ? waehrungFormatieren(akt.betrag) : '–' }}
-                  </td>
-                  <td class="col-action">
-                    <button class="btn-action hint-sm" [routerLink]="akt.routerLink">Öffnen</button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    </div>
-  </div>
-
-  <!-- Mülltermine + Backup -->
-  <div class="two-col">
-    <div class="card">
-      <h3 class="section-title">Nächste Mülltermine</h3>
-      @if (facade.muellTermine().length === 0) {
-        <p class="hint">Keine anstehenden Termine</p>
-      } @else {
-        <div class="table-wrapper">
-          <table>
-            <tbody>
-              @for (termin of facade.muellTermine(); track termin.id) {
-                <tr>
-                  <td>
-                    <span class="muell-dot" [style.background]="termin.farbe"></span>
-                    {{ termin.muellart }}
-                  </td>
-                  <td class="hint-sm text-muted">{{ termin.objekt_name }}</td>
-                  <td>
-                    <span [class]="muellTerminBadgeKlasse(termin.abholung)" class="badge">
-                      {{ muellTerminBadge(termin.abholung) }}
-                    </span>
-                  </td>
-                  <td class="col-action">
-                    <a class="btn-action" routerLink="/muellplan">Öffnen</a>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Backup-Status</h3>
-      @if (facade.backupInfo()) {
-        <div class="backup-info">
-          <div class="backup-row">
-            <span class="hint-sm text-muted">Letztes Backup</span>
-            <span class="backup-datum">{{
-              datumFormatieren(facade.backupInfo()!.erstellt_am)
-            }}</span>
-          </div>
-          <div class="backup-row">
-            <span class="hint-sm text-muted">Datei</span>
-            <span class="hint-sm">{{ facade.backupInfo()!.filename }}</span>
-          </div>
-        </div>
-      } @else {
-        <p class="hint">Kein Backup vorhanden</p>
-      }
-      <div class="card-actions">
-        <button
-          class="btn btn-sm btn-primary"
-          [disabled]="facade.backupLaedt()"
-          (click)="facade.createBackup()"
-        >
-          {{ facade.backupLaedt() ? 'Sichert…' : 'Jetzt sichern' }}
-        </button>
-        <a class="btn btn-sm" routerLink="/einstellungen">Einstellungen</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Hausmeister + Schnellzugriff -->
-  <div class="two-col">
-    <div class="card">
-      <h3 class="section-title">Nächste Hausmeister-Einsätze</h3>
-      @if (facade.naechsteEinsaetze().length === 0) {
-        <p class="hint">Keine anstehenden Einsätze</p>
-      } @else {
-        <div class="table-wrapper">
-          <table>
-            <tbody>
-              @for (e of facade.naechsteEinsaetze(); track e.id) {
-                <tr>
-                  <td class="fw-medium">{{ e.mitarbeiter_name }}</td>
-                  <td class="hint-sm text-muted">{{ e.kunden_name || '' }}</td>
-                  <td>
-                    <span
-                      class="badge"
-                      [class]="
-                        einsatzDatumBadge(e.datum) === 'Heute'
-                          ? 'badge-danger'
-                          : einsatzDatumBadge(e.datum) === 'Morgen'
-                            ? 'badge-warning'
-                            : 'badge-neutral'
-                      "
-                    >
-                      {{ einsatzDatumBadge(e.datum) }}
-                    </span>
-                  </td>
-                  <td class="col-action">
-                    <a class="btn-action" routerLink="/hausmeister">Öffnen</a>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-      <div class="card-actions--sm">
-        <a class="btn btn-sm btn-primary" routerLink="/hausmeister">+ Neuer Einsatz</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Schnellzugriff</h3>
-      <div class="btn-row">
-        <a class="btn btn-sm" routerLink="/buchhaltung">Buchhaltung</a>
-        <a class="btn btn-sm" routerLink="/belege">Belege</a>
-        <a class="btn btn-sm" routerLink="/pdf-archiv">PDF-Archiv</a>
-        <a class="btn btn-sm" routerLink="/datev">DATEV Export</a>
-        <a class="btn btn-sm" routerLink="/audit-log">Audit-Log</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Monatsvergleich -->
-  <div class="card">
-    <h3 class="section-title">Monatsvergleich — Einnahmen vs. Ausgaben</h3>
-    @if (facade.monatsvergleich().length === 0) {
-      <p class="hint">Keine Daten vorhanden</p>
-    } @else {
-      <div class="monatsvergleich-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Monat</th>
-              <th class="text-right">Einnahmen</th>
-              <th class="text-right">Ausgaben</th>
-              <th class="text-right">Gewinn</th>
-              <th class="col-balken">Verlauf</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (zeile of facade.monatsvergleich(); track zeile.monatIndex) {
-              <tr>
-                <td class="col-monat">{{ zeile.monatName }}</td>
-                <td class="text-right text-success">{{ waehrungFormatieren(zeile.einnahmen) }}</td>
-                <td class="text-right text-danger">{{ waehrungFormatieren(zeile.ausgaben) }}</td>
-                <td
-                  class="text-right"
-                  [class.text-success]="zeile.gewinn >= 0"
-                  [class.text-danger]="zeile.gewinn < 0"
-                >
-                  {{ waehrungFormatieren(zeile.gewinn) }}
-                </td>
-                <td class="col-balken">
-                  <div class="balken-wrap">
-                    <div
-                      class="balken balken--success"
-                      [style.width.px]="zeile.balkenEinnahmen"
-                    ></div>
-                    <div
-                      class="balken balken--danger"
-                      [style.width.px]="zeile.balkenAusgaben"
-                    ></div>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
   </div>
 </div>
+

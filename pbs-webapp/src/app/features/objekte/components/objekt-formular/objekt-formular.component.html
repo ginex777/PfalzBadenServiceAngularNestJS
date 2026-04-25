@@ -24,7 +24,7 @@
   </div>
 
   <div class="form-field form-field--wide">
-    <label>StraÃŸe *</label>
+    <label>Straße *</label>
     <input
       class="form-input"
       type="text"
@@ -75,7 +75,7 @@
       [value]="value().customerId"
       (change)="onSelect('customerId', $event)"
     >
-      <option value="">Bitte wÃ¤hlenâ€¦</option>
+      <option value="">Bitte wählen…</option>
       @for (c of customers(); track c.id) {
         <option [value]="c.id">{{ c.name }}</option>
       }

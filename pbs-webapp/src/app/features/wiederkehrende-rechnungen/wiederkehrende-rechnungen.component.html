@@ -1,6 +1,6 @@
 <app-page-title
-  titel="Wiederkehrende Rechnungen"
-  untertitel="Vorlagen für regelmäßige Rechnungen"
+  title="Wiederkehrende Rechnungen"
+  subtitle="Vorlagen für regelmäßige Rechnungen"
 />
 
 <!-- Formular -->
@@ -112,10 +112,10 @@
 <!-- Tabelle -->
 @if (!facade.rechnungen().length && !facade.laedt()) {
   <app-empty-state
-    titel="Keine Vorlagen vorhanden"
-    beschreibung="Erstellen Sie Vorlagen für regelmäßige Rechnungen."
-    aktionLabel="+ Erste Vorlage anlegen"
-    (aktion)="facade.formularOeffnen()"
+    title="Keine Vorlagen vorhanden"
+    description="Erstellen Sie Vorlagen für regelmäßige Rechnungen."
+    actionLabel="+ Erste Vorlage anlegen"
+    (action)="facade.formularOeffnen()"
   />
 } @else {
   <div class="tabelle-wrapper">
@@ -174,8 +174,8 @@
 
 @if (facade.loeschKandidat() !== null) {
   <app-confirm-modal
-    nachricht="Vorlage wirklich löschen?"
-    (bestaetigt)="facade.loeschenAusfuehren()"
-    (abgebrochen)="facade.loeschenAbbrechen()"
+    message="Vorlage wirklich löschen?"
+    (confirmed)="facade.loeschenAusfuehren()"
+    (canceled)="facade.loeschenAbbrechen()"
   />
 }

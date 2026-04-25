@@ -1,5 +1,5 @@
 <div class="page-wrap">
-  <app-page-title titel="Beleg-Archiv" untertitel="Digitale Belegverwaltung (GoBD-konform)" />
+  <app-page-title title="Beleg-Archiv" subtitle="Digitale Belegverwaltung (GoBD-konform)" />
 
   <!-- Upload -->
   <div class="card upload-card">
@@ -40,19 +40,19 @@
   <!-- Stats -->
   <div class="stats-grid stats-3-col">
     <app-stat-card
-      titel="Belege gesamt"
-      [wert]="facade.belege().length.toString()"
-      variante="primary"
+      title="Belege gesamt"
+      [value]="facade.belege().length.toString()"
+      variant="primary"
     />
     <app-stat-card
-      titel="Gespeichertes Volumen"
-      [wert]="facade.gesamtGroesse()"
-      variante="primary"
+      title="Gespeichertes Volumen"
+      [value]="facade.gesamtGroesse()"
+      variant="primary"
     />
     <app-stat-card
-      titel="Aufbewahrung bis"
-      [wert]="facade.spaetesteAufbewahrung()"
-      variante="primary"
+      title="Aufbewahrung bis"
+      [value]="facade.spaetesteAufbewahrung()"
+      variant="primary"
     />
   </div>
 
@@ -94,10 +94,7 @@
   @if (facade.laedt()) {
     <app-skeleton-rows [anzahl]="6" />
   } @else if (!facade.gefilterteBelege().length) {
-    <app-empty-state
-      titel="Keine Belege vorhanden"
-      beschreibung="Laden Sie Ihren ersten Beleg hoch."
-    />
+    <app-empty-state title="Keine Belege vorhanden" description="Laden Sie Ihren ersten Beleg hoch." />
   } @else {
     <div class="card">
       <div class="tabelle-scroll">
@@ -235,10 +232,10 @@
 
   @if (facade.loeschKandidat() !== null) {
     <app-confirm-modal
-      titel="Beleg löschen"
-      nachricht="Diesen Beleg wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
-      (bestaetigt)="facade.loeschenAusfuehren()"
-      (abgebrochen)="facade.loeschenAbbrechen()"
+      title="Beleg löschen"
+      message="Diesen Beleg wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+      (confirmed)="facade.loeschenAusfuehren()"
+      (canceled)="facade.loeschenAbbrechen()"
     />
   }
 </div>

@@ -1,5 +1,5 @@
 <div class="page-wrap">
-  <app-page-title titel="Nachweise" untertitel="Operative Foto-Dokumentation (Read-only)" />
+  <app-page-title title="Nachweise" subtitle="Operative Foto-Dokumentation (Read-only)" />
 
   <div class="card toolbar nachweise-toolbar">
     <div class="filter-btns">
@@ -30,7 +30,7 @@
       <div class="form-fehler">{{ facade.errorMessage() }}</div>
     </div>
   } @else if (!facade.evidences().length) {
-    <app-empty-state titel="Keine Nachweise vorhanden" beschreibung="Noch wurden keine Fotos hochgeladen." />
+    <app-empty-state title="Keine Nachweise vorhanden" description="Noch wurden keine Fotos hochgeladen." />
   } @else {
     <div class="card">
       <div class="tabelle-scroll">

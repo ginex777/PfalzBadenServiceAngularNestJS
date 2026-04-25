@@ -1,7 +1,7 @@
 <div class="kunden-page">
   <!-- Header -->
   <div class="page-header">
-    <app-page-title titel="Kunden" [untertitel]="facade.kunden().length + ' Kunden'" />
+  <app-page-title title="Kunden" [subtitle]="facade.kunden().length + ' Kunden'" />
   </div>
 
   <!-- Formular -->
@@ -61,13 +61,13 @@
   <!-- Löschen-Bestätigung -->
   @if (facade.loeschKandidat() !== null) {
     <app-confirm-modal
-      titel="Kunde löschen"
-      nachricht="Diesen Kunden wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
-      bestaetigenLabel="Löschen"
-      abbrechenLabel="Abbrechen"
-      [gefaehrlich]="true"
-      (bestaetigt)="loeschenAusfuehren()"
-      (abgebrochen)="loeschenAbbrechen()"
+      title="Kunde löschen"
+      message="Diesen Kunden wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+      confirmLabel="Löschen"
+      cancelLabel="Abbrechen"
+      [isDangerous]="true"
+      (confirmed)="loeschenAusfuehren()"
+      (canceled)="loeschenAbbrechen()"
     />
   }
 

@@ -4,12 +4,14 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
 .header-row__left {
   display: flex;
   align-items: baseline;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .header-row__meta {
@@ -31,7 +33,9 @@
 .table-wrap {
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .objekte-table {
@@ -61,8 +65,10 @@
   cursor: pointer;
   transition: background var(--transition);
 
-  &:hover {
-    background: var(--primary-muted);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--primary-muted);
+    }
   }
 }
 
@@ -127,4 +133,3 @@
     width: 1%;
   }
 }
-

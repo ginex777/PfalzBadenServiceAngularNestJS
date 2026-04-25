@@ -13,13 +13,13 @@
       <line x1="12" y1="16" x2="12.01" y2="16" />
     </svg>
   </div>
-  <p class="empty-state__titel">{{ titel() }}</p>
-  @if (beschreibung()) {
-    <p class="empty-state__beschreibung">{{ beschreibung() }}</p>
+  <p class="empty-state__titel">{{ title() }}</p>
+  @if (description()) {
+    <p class="empty-state__beschreibung">{{ description() }}</p>
   }
-  @if (aktionLabel()) {
-    <button class="btn btn-primary" (click)="aktionAusfuehren()">
-      {{ aktionLabel() }}
+  @if (actionLabel()) {
+    <button class="btn btn-primary" (click)="triggerAction()">
+      {{ actionLabel() }}
     </button>
   }
 </div>

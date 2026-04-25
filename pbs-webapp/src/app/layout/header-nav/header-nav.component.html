@@ -26,29 +26,43 @@
         <ul class="header-nav__groups" role="list">
           @for (group of navGroups(); track group.id) {
             <li class="header-nav__group">
-              <button
-                class="header-nav__group-btn"
-                type="button"
-                (click)="toggleGroup(group.id)"
-                [attr.aria-expanded]="openGroupId() === group.id"
-              >
-                <span>{{ group.label }}</span>
-                @if (group.id === 'uebersicht' && hasNotifications()) {
-                  <span class="header-nav__dot" aria-label="Neue Benachrichtigungen"></span>
-                }
-                <svg
-                  class="header-nav__chevron"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
+              @if (isDirectLinkGroup(group)) {
+                <a
+                  class="header-nav__group-link"
+                  [routerLink]="group.rootPath"
+                  routerLinkActive="header-nav__group-link--active"
+                  (click)="onNavigate()"
                 >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </button>
+                  <span>{{ group.label }}</span>
+                  @if (group.id === 'uebersicht' && hasNotifications()) {
+                    <span class="header-nav__dot" aria-label="Neue Benachrichtigungen"></span>
+                  }
+                </a>
+              } @else {
+                <button
+                  class="header-nav__group-btn"
+                  type="button"
+                  (click)="toggleGroup(group.id)"
+                  [attr.aria-expanded]="openGroupId() === group.id"
+                >
+                  <span>{{ group.label }}</span>
+                  @if (group.id === 'uebersicht' && hasNotifications()) {
+                    <span class="header-nav__dot" aria-label="Neue Benachrichtigungen"></span>
+                  }
+                  <svg
+                    class="header-nav__chevron"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </button>
+              }
 
               @if (openGroupId() === group.id) {
                 <div class="header-nav__menu" role="menu">

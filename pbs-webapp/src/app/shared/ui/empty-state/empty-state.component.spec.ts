@@ -7,11 +7,12 @@ describe('EmptyStateComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EmptyStateComponent],
+      imports: [EmptyStateComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EmptyStateComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('title', 'Nothing here');
     fixture.detectChanges();
   });
 

@@ -1,5 +1,5 @@
 <div class="page-wrap">
-  <app-page-title titel="PDF-Archiv" untertitel="Alle generierten Dokumente" />
+  <app-page-title title="PDF-Archiv" subtitle="Alle generierten Dokumente" />
 
   <div class="toolbar">
     <input
@@ -31,7 +31,7 @@
   @if (facade.isLoading()) {
     <app-skeleton-rows [anzahl]="6" />
   } @else if (!facade.entries().length) {
-    <app-empty-state titel="Keine PDFs gefunden" beschreibung="Generierte PDFs erscheinen hier automatisch." />
+    <app-empty-state title="Keine PDFs gefunden" description="Generierte PDFs erscheinen hier automatisch." />
   } @else {
     <div class="card">
       <div class="tabelle-scroll">
@@ -80,4 +80,3 @@
     />
   }
 </div>
-

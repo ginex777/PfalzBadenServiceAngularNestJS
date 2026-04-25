@@ -1,5 +1,5 @@
 ﻿<div class="page-wrap">
-  <app-page-title titel="MÃƒÂ¼llplan" untertitel="Objekte, Termine & Vorlagen" />
+  <app-page-title title="Müllplan" subtitle="Objekte, Termine & Vorlagen" />
 
   <div class="two-col">
     <!-- Left: objects -->
@@ -53,7 +53,7 @@
           (hidePastChange)="facade.vergangeneAusblenden.set($event)"
         />
       } @else {
-        <div class="leer-hinweis">Bitte links ein Objekt auswÃƒÂ¤hlen.</div>
+        <div class="leer-hinweis">Bitte links ein Objekt auswählen.</div>
       }
     </div>
   </div>
@@ -66,7 +66,7 @@
       <h3 class="modal-title modal-title--sm">Filter</h3>
       <div class="filter-row mb-sm">
         <div class="form-field form-field--flex">
-          <label class="form-hint">MÃƒÂ¼llart</label>
+          <label class="form-hint">Müllart</label>
           <input
             class="form-input"
             type="text"
@@ -108,7 +108,7 @@
             facade.vergangeneAusblenden.set(false)
           "
         >
-          ZurÃƒÂ¼cksetzen
+          Zurücksetzen
         </button>
         <button class="btn btn-primary" (click)="filterModalOffen.set(false)">Fertig</button>
       </div>
@@ -122,12 +122,12 @@
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header-row">
         <h3 class="modal-title">Termin</h3>
-        <button class="btn btn-sm" (click)="facade.terminFormularSchliessen()">SchlieÃƒÅ¸en</button>
+        <button class="btn btn-sm" (click)="facade.terminFormularSchliessen()">Schließen</button>
       </div>
 
       <div class="form-row mb-sm">
         <div class="form-field">
-          <label>MÃƒÂ¼llart *</label>
+          <label>Müllart *</label>
           <input
             class="form-input"
             type="text"
@@ -174,7 +174,7 @@
           <button class="btn btn-sm btn-primary" (click)="facade.vorlageFormularOeffnen()">
             + Vorlage
           </button>
-          <button class="btn btn-sm" (click)="facade.vorlagenModalSchliessen()">SchlieÃƒÅ¸en</button>
+          <button class="btn btn-sm" (click)="facade.vorlagenModalSchliessen()">Schließen</button>
         </div>
       </div>
 
@@ -190,7 +190,7 @@
                 <button class="btn btn-sm" (click)="facade.vorlagePdfOeffnen(v.id)">PDF</button>
               }
               <button class="btn btn-sm btn-danger" (click)="facade.vorlageLoeschen(v.id)">
-                LÃƒÂ¶schen
+                Löschen
               </button>
             </div>
           }
@@ -206,7 +206,7 @@
     <div class="modal modal--lg" (click)="$event.stopPropagation()">
       <div class="modal-header-row">
         <h3 class="modal-title">Vorlage erstellen</h3>
-        <button class="btn btn-sm" (click)="facade.vorlageFormularSchliessen()">SchlieÃƒÅ¸en</button>
+        <button class="btn btn-sm" (click)="facade.vorlageFormularSchliessen()">Schließen</button>
       </div>
 
       <div class="form-row mb-sm">
@@ -253,7 +253,7 @@
           <div class="vorschau-liste">
             @for (t of facade.vorlageVorschau().slice(0, 20); track t.datum + t.muellart) {
               <span class="muell-badge" [style.background]="t.farbe"
-                >{{ t.muellart }} Ã¢â‚¬â€ {{ fmtDatum(t.datum) }}</span
+                >{{ t.muellart }} — {{ fmtDatum(t.datum) }}</span
               >
             }
           </div>
@@ -285,13 +285,13 @@
             )
           "
         >
-          <option value="">Bitte wÃƒÂ¤hlenÃ¢â‚¬Â¦</option>
+          <option value="">Bitte wählen…</option>
           @for (v of facade.vorlagen(); track v.id) {
             <option [value]="v.id">{{ v.name }}</option>
           }
         </select>
         <div class="form-hint">
-          Erstellt Termine fÃƒÂ¼r das aktuelle Jahr und speichert die Vorlage am Objekt.
+          Erstellt Termine für das aktuelle Jahr und speichert die Vorlage am Objekt.
         </div>
       </div>
 

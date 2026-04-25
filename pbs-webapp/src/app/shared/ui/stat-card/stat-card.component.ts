@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-export type StatCardVariante = 'standard' | 'success' | 'danger' | 'warning' | 'primary';
+export type StatCardVariant = 'standard' | 'success' | 'danger' | 'warning' | 'primary';
 
 @Component({
   selector: 'app-stat-card',
@@ -10,9 +10,9 @@ export type StatCardVariante = 'standard' | 'success' | 'danger' | 'warning' | '
   styleUrl: './stat-card.component.scss',
 })
 export class StatCardComponent {
-  readonly titel = input.required<string>();
-  readonly wert = input.required<string>();
-  readonly untertitel = input<string>('');
-  readonly variante = input<StatCardVariante>('standard');
-  readonly laedt = input<boolean>(false);
+  readonly title = input.required<string>();
+  readonly value = input.required<string>();
+  readonly subtitle = input<string>('');
+  readonly variant = input<StatCardVariant>('standard');
+  readonly isLoading = input<boolean>(false);
 }

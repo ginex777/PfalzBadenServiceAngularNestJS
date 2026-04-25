@@ -1,5 +1,5 @@
 <div class="page-wrap">
-  <app-page-title titel="Angebote" untertitel="Erstellen & Verwalten" />
+  <app-page-title title="Angebote" subtitle="Erstellen & Verwalten" />
 
   <div class="card">
     <app-search-toolbar
@@ -51,11 +51,11 @@
 
   @if (facade.loeschKandidat() !== null) {
     <app-confirm-modal
-      titel="Angebot löschen"
-      nachricht="Dieses Angebot wird unwiderruflich gelöscht."
-      bestaetigenLabel="Löschen"
-      (bestaetigt)="facade.loeschenAusfuehren()"
-      (abgebrochen)="facade.loeschenAbbrechen()"
+      title="Angebot löschen"
+      message="Dieses Angebot wird unwiderruflich gelöscht."
+      confirmLabel="Löschen"
+      (confirmed)="facade.loeschenAusfuehren()"
+      (canceled)="facade.loeschenAbbrechen()"
     />
   }
 

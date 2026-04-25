@@ -1,5 +1,5 @@
 <div class="page-wrap">
-  <app-page-title titel="Audit-Log" untertitel="Alle Datenänderungen nachvollziehen" />
+  <app-page-title title="Audit-Log" subtitle="Alle Datenänderungen nachvollziehen" />
 
   <div class="toolbar">
     <input
@@ -30,7 +30,7 @@
   @if (facade.isLoading()) {
     <app-skeleton-rows [anzahl]="8" />
   } @else if (!facade.entries().length) {
-    <app-empty-state titel="Keine Einträge gefunden" beschreibung="Alle Datenänderungen werden hier protokolliert." />
+    <app-empty-state title="Keine Einträge gefunden" description="Alle Datenänderungen werden hier protokolliert." />
   } @else {
     <div class="card">
       <div class="tabelle-scroll">
@@ -78,4 +78,3 @@
     </div>
   }
 </div>
-

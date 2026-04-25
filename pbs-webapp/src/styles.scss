@@ -439,47 +439,38 @@ h4 {
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--gray-700);
-  transition: all var(--transition);
+  transition:
+    background-color var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition);
   text-decoration: none;
   user-select: none;
   position: relative;
-  overflow: hidden;
 
-  &:hover:not(:disabled) {
-    background: var(--surface-raised);
-    border-color: var(--border-strong);
-    color: var(--gray-900);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      background: var(--surface-raised);
+      border-color: var(--border-strong);
+      color: var(--gray-900);
+    }
   }
 
   &:active:not(:disabled) {
     box-shadow: var(--shadow-xs);
   }
 
+  &:focus-visible {
+    outline: none;
+    border-color: var(--primary-solid);
+    box-shadow: 0 0 0 3px var(--primary-muted);
+  }
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
-  }
-
-  /* Ripple effect */
-  &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    transform: translate(-50%, -50%);
-    transition:
-      width 0.3s,
-      height 0.3s;
-  }
-
-  &:active::before {
-    width: 300px;
-    height: 300px;
   }
 }
 
@@ -491,14 +482,13 @@ h4 {
   position: relative;
   overflow: hidden;
 
-  &:hover:not(:disabled) {
-    background: var(--primary-hover);
-    color: #fff;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      filter: brightness(0.98) saturate(1.02);
+      color: #fff;
+    }
   }
 
-  &::before {
-    background: rgba(255, 255, 255, 0.2);
-  }
 }
 
 .btn-success {
@@ -507,9 +497,11 @@ h4 {
   border: none;
   box-shadow: var(--shadow-sm);
 
-  &:hover:not(:disabled) {
-    background: #00c49a;
-    color: #fff;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      filter: brightness(0.96);
+      color: #fff;
+    }
   }
 }
 
@@ -518,10 +510,12 @@ h4 {
   color: var(--danger);
   border-color: rgba(255, 71, 87, 0.2);
 
-  &:hover:not(:disabled) {
-    background: var(--danger);
-    color: #fff;
-    border-color: var(--danger);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
   }
 }
 
@@ -530,11 +524,13 @@ h4 {
   border-color: transparent;
   color: var(--gray-600);
 
-  &:hover:not(:disabled) {
-    background: var(--surface-glass);
-    backdrop-filter: var(--glass-blur-sm);
-    color: var(--gray-900);
-    border-color: transparent;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      background: var(--surface-glass);
+      backdrop-filter: var(--glass-blur-sm);
+      color: var(--gray-900);
+      border-color: transparent;
+    }
   }
 }
 
@@ -545,10 +541,12 @@ h4 {
   border: 1px solid var(--border-glass);
   color: var(--gray-700);
 
-  &:hover:not(:disabled) {
-    background: var(--surface-frosted);
-    backdrop-filter: var(--glass-blur);
-    border-color: var(--border-glow);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      background: var(--surface-frosted);
+      backdrop-filter: var(--glass-blur);
+      border-color: var(--border-glow);
+    }
   }
 }
 
@@ -559,8 +557,10 @@ h4 {
   box-shadow: var(--shadow-raised);
   color: var(--gray-700);
 
-  &:hover:not(:disabled) {
-    box-shadow: var(--shadow-lg);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      box-shadow: var(--shadow-lg);
+    }
   }
 
   &:active:not(:disabled) {
@@ -601,11 +601,13 @@ h4 {
   align-items: center;
   justify-content: center;
 
-  &:hover:not(:disabled) {
-    background: var(--surface-glass);
-    backdrop-filter: var(--glass-blur-sm);
-    color: var(--gray-800);
-    border-color: transparent;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      background: var(--surface-glass);
+      backdrop-filter: var(--glass-blur-sm);
+      color: var(--gray-800);
+      border-color: transparent;
+    }
   }
 }
 
@@ -625,14 +627,17 @@ h4 {
   align-items: center;
   justify-content: center;
 
-  &:hover {
-    color: var(--gray-700);
-    background: var(--surface-glass);
-    backdrop-filter: var(--glass-blur-sm);
-  }
-  &--danger:hover {
-    color: var(--danger);
-    background: var(--danger-light);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--gray-700);
+      background: var(--surface-glass);
+      backdrop-filter: var(--glass-blur-sm);
+    }
+
+    &--danger:hover {
+      color: var(--danger);
+      background: var(--danger-light);
+    }
   }
 }
 
@@ -656,6 +661,12 @@ h4 {
   @extend .btn-neo;
 }
 .btn--sm {
+  @extend .btn-sm;
+}
+.btn--klein {
+  @extend .btn-sm;
+}
+.btn--small {
   @extend .btn-sm;
 }
 .btn--xs {
@@ -749,37 +760,45 @@ h4 {
   color: var(--gray-600);
   cursor: pointer;
   white-space: nowrap;
-  transition: all var(--transition);
+  transition:
+    background-color var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    box-shadow var(--transition);
   font-family: inherit;
 
-  &:hover {
-    background: var(--gray-50);
-    color: var(--gray-900);
-    border-color: var(--gray-300);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--gray-50);
+      color: var(--gray-900);
+      border-color: var(--gray-300);
+    }
   }
   &--primary {
     background: var(--primary-muted);
-    color: var(--primary);
+    color: var(--primary-solid);
     border-color: transparent;
   }
-  &--primary:hover {
-    background: var(--primary-light);
+  @media (hover: hover) and (pointer: fine) {
+    &--primary:hover {
+      background: var(--primary-light);
+    }
+    &--success:hover {
+      background: var(--success-light);
+    }
+    &--danger:hover {
+      background: var(--danger-light);
+    }
   }
   &--success {
     background: var(--success-muted);
     color: var(--success);
     border-color: transparent;
   }
-  &--success:hover {
-    background: var(--success-light);
-  }
   &--danger {
     background: var(--danger-muted);
     color: var(--danger);
     border-color: transparent;
-  }
-  &--danger:hover {
-    background: var(--danger-light);
   }
   &--disabled {
     opacity: 0.4;
@@ -1149,7 +1168,11 @@ textarea {
   padding: 24px;
   box-shadow: var(--shadow-sm);
   margin-bottom: 20px;
-  transition: all var(--transition);
+  transition:
+    background-color var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition);
   position: relative;
   overflow: hidden;
 
@@ -1165,22 +1188,24 @@ textarea {
     border: none;
     box-shadow: var(--shadow-raised);
 
-    &:hover {
-      box-shadow: var(--shadow-lg);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        box-shadow: var(--shadow-lg);
+      }
     }
   }
 
   &--interactive {
     cursor: pointer;
 
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-lg);
-      border-color: var(--primary-solid);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-solid);
+      }
     }
 
     &:active {
-      transform: translateY(-1px);
       box-shadow: var(--shadow-md);
     }
   }
@@ -1399,10 +1424,12 @@ td {
 }
 
 tbody tr {
-  transition: all var(--transition);
+  transition: background-color var(--transition);
 
-  &:hover td {
-    background: rgba(99, 102, 241, 0.02);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover td {
+      background: var(--primary-muted);
+    }
   }
 
   &:last-child td {
@@ -1460,6 +1487,7 @@ tr.total-row td {
 }
 
 .tabelle-wrapper,
+.table-wrap,
 .table-wrapper,
 .tabelle-scroll,
 .table-scroll {
@@ -1488,9 +1516,11 @@ th.sortable {
   white-space: nowrap;
   transition: all var(--transition);
 
-  &:hover {
-    color: var(--gray-800);
-    background: var(--gray-100);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--gray-800);
+      background: var(--gray-100);
+    }
   }
 
   .sort-icon {

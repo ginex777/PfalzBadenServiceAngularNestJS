@@ -1,23 +1,23 @@
-<div class="modal-backdrop" (click)="abbrechen()" aria-hidden="true"></div>
+<div class="modal-backdrop" (click)="cancel()" aria-hidden="true"></div>
 
-<div class="modal" role="dialog" aria-labelledby="confirm-modal-titel" aria-modal="true">
+<div class="modal" role="dialog" aria-labelledby="confirm-modal-title" aria-modal="true">
   <div class="modal__header">
-    <h2 class="modal__titel" id="confirm-modal-titel">{{ titel() }}</h2>
+    <h2 class="modal__titel" id="confirm-modal-title">{{ title() }}</h2>
   </div>
   <div class="modal__body">
-    <p class="modal__nachricht">{{ nachricht() }}</p>
+    <p class="modal__nachricht">{{ message() }}</p>
   </div>
   <div class="modal__footer">
-    <button class="btn btn-ghost" (click)="abbrechen()">
-      {{ abbrechenLabel() }}
+    <button class="btn btn-ghost" (click)="cancel()">
+      {{ cancelLabel() }}
     </button>
     <button
       class="btn"
-      [class.btn--danger]="gefaehrlich()"
-      [class.btn--primary]="!gefaehrlich()"
-      (click)="bestaetigen()"
+      [class.btn--danger]="isDangerous()"
+      [class.btn--primary]="!isDangerous()"
+      (click)="confirm()"
     >
-      {{ bestaetigenLabel() }}
+      {{ confirmLabel() }}
     </button>
   </div>
 </div>
