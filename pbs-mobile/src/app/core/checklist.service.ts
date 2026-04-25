@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MobileApiConfigService } from './api-config.service';
 
-export type ChecklistFieldType = 'boolean' | 'text' | 'number' | 'select';
+export type ChecklistFieldType = 'boolean' | 'text' | 'number' | 'select' | 'foto' | 'kommentar';
 
 export interface ChecklistField {
   fieldId: string;
@@ -37,6 +37,11 @@ export class ChecklistService {
   getTemplatesAll() {
     const baseUrl = this.apiConfig.apiBaseUrl();
     return this.http.get<ChecklistTemplate[]>(`${baseUrl}/api/checklisten/templates/all`);
+  }
+
+  getTemplatesForObject(objectId: number) {
+    const baseUrl = this.apiConfig.apiBaseUrl();
+    return this.http.get<ChecklistTemplate[]>(`${baseUrl}/api/checklisten/templates/for-object/${objectId}`);
   }
 
   submitChecklist(request: CreateChecklistSubmissionRequest) {

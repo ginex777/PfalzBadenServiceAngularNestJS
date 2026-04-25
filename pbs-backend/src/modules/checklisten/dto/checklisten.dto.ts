@@ -13,7 +13,14 @@ import {
 } from 'class-validator';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 
-const CHECKLIST_FIELD_TYPES = ['boolean', 'text', 'number', 'select'] as const;
+const CHECKLIST_FIELD_TYPES = [
+  'boolean',
+  'text',
+  'number',
+  'select',
+  'foto',
+  'kommentar',
+] as const;
 export type ChecklistFieldType = (typeof CHECKLIST_FIELD_TYPES)[number];
 
 export class ChecklistFieldDto {
@@ -55,6 +62,11 @@ export class CreateChecklistTemplateDto {
   @MaxLength(2000)
   description?: string;
 
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  kategorie?: string;
+
   @IsArray()
   @ArrayMaxSize(80)
   @ValidateNested({ each: true })
@@ -78,6 +90,11 @@ export class UpdateChecklistTemplateDto {
   description?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  kategorie?: string;
+
+  @IsOptional()
   @IsArray()
   @ArrayMaxSize(80)
   @ValidateNested({ each: true })
@@ -87,6 +104,13 @@ export class UpdateChecklistTemplateDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+}
+
+export class AssignTemplateObjekteDto {
+  @IsArray()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  objektIds!: number[];
 }
 
 export class ChecklistTemplateListQueryDto extends PaginationDto {

@@ -1,6 +1,13 @@
 <ion-tabs class="mobile-shell">
   <ion-router-outlet></ion-router-outlet>
 
+  @if (isTimerActive()) {
+    <div class="timer-banner">
+      <span class="timer-banner__dot"></span>
+      <span class="timer-banner__label">{{ timerRuntime() }}</span>
+    </div>
+  }
+
   <ion-tab-bar slot="bottom" class="mobile-tab-bar">
     <ion-tab-button tab="heute" href="/tabs/heute" class="mobile-tab-button">
       <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
@@ -15,6 +22,9 @@
     @if (showOperativeTabs()) {
       <ion-tab-button tab="stempeluhr" href="/tabs/stempeluhr" class="mobile-tab-button">
         <ion-icon name="timer-outline" aria-hidden="true"></ion-icon>
+        @if (isTimerActive()) {
+          <ion-badge class="timer-badge" color="danger"></ion-badge>
+        }
         <ion-label>Zeiterfassung</ion-label>
       </ion-tab-button>
 

@@ -186,7 +186,8 @@ model Objekte {
   muellplan_pdf MuellplanPdf[]
   stempel       Stempel[]
   nachweise     Nachweise[]
-  checklisten_submissions ChecklistenSubmissions[]
+  checklisten_submissions  ChecklistenSubmissions[]
+  checklisten_template_objekte ChecklistenTemplateObjekte[]
   tasks         Tasks[]
 
   @@index([kunden_id])
@@ -512,15 +513,28 @@ model ChecklistenTemplates {
   id          BigInt   @id @default(autoincrement())
   name        String   @db.VarChar(200)
   description String?
+  kategorie   String?  @db.VarChar(100)
   version     Int      @default(1)
   fields      Json     @default("[]")
   is_active   Boolean  @default(true)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
-  submissions ChecklistenSubmissions[]
+  submissions      ChecklistenSubmissions[]
+  template_objekte ChecklistenTemplateObjekte[]
 
   @@map("checklisten_templates")
+}
+
+model ChecklistenTemplateObjekte {
+  template_id BigInt
+  objekt_id   BigInt
+
+  template ChecklistenTemplates @relation(fields: [template_id], references: [id], onDelete: Cascade)
+  objekt   Objekte              @relation(fields: [objekt_id], references: [id], onDelete: Cascade)
+
+  @@id([template_id, objekt_id])
+  @@map("checklisten_template_objekte")
 }
 
 model ChecklistenSubmissions {

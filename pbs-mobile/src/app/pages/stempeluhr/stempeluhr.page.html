@@ -6,7 +6,7 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="context-toolbar">
-    <app-objekt-kontext [disabled]="isActive" />
+    <app-objekt-kontext [disabled]="isActive()" />
   </ion-toolbar>
 </ion-header>
 
@@ -14,13 +14,13 @@
   <div class="app-page-grid page-stempeluhr">
     <section class="app-hero">
       <p class="app-hero-label">Zeiterfassung</p>
-      <h1 class="app-hero-title">{{ isActive ? 'Timer laeuft' : 'Bereit zum Stempeln' }}</h1>
+      <h1 class="app-hero-title">{{ isActive() ? 'Timer laeuft' : 'Bereit zum Stempeln' }}</h1>
       <p class="app-hero-text">{{ user() ? ('Angemeldet als ' + user()!.email) : 'Nicht angemeldet' }}</p>
     </section>
 
-    <ion-card class="clock-card app-card" [class.clock-card--active]="isActive">
+    <ion-card class="clock-card app-card" [class.clock-card--active]="isActive()">
       <ion-card-content>
-        <div class="clock-state">{{ isActive ? 'Aktiv' : 'Nicht gestempelt' }}</div>
+        <div class="clock-state">{{ isActive() ? 'Aktiv' : 'Nicht gestempelt' }}</div>
         <div class="runtime">{{ runtime() }}</div>
 
         @if (context.objectsError()) {
@@ -42,13 +42,13 @@
             type="text"
             [value]="note()"
             (input)="updateNote(noteInput.value)"
-            [disabled]="isActive"
+            [disabled]="isActive()"
             placeholder="z. B. Keller, Hausflur, Hof"
           />
           <p class="object-hint">Temporarer Freitext-Fallback (spaeter ggf. deaktiviert).</p>
         </div>
 
-        @if (isActive) {
+        @if (isActive()) {
           <ion-button
             class="primary-action primary-action--danger"
             expand="block"

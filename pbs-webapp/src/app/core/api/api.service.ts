@@ -115,7 +115,7 @@ interface EvidenceListItemApi {
 export interface ChecklistFieldApi {
   fieldId: string;
   label: string;
-  type: 'boolean' | 'text' | 'number' | 'select';
+  type: 'boolean' | 'text' | 'number' | 'select' | 'foto' | 'kommentar';
   helperText?: string;
   required?: boolean;
   options?: string[];
@@ -125,9 +125,11 @@ export interface ChecklistTemplateApi {
   id: number;
   name: string;
   description: string | null;
+  kategorie: string | null;
   version: number;
   isActive: boolean;
   fields: ChecklistFieldApi[];
+  assignedObjectIds: number[];
   createdAt: string;
   updatedAt: string;
 }
@@ -323,6 +325,26 @@ export class ApiService {
     return this.http.get<Stempel[]>(`${this.basis}/mitarbeiter/${mitarbeiterId}/zeiterfassung`);
   }
 
+  getStempeluhrEintraege(query: {
+    page?: number;
+    pageSize?: number;
+    mitarbeiterId?: number;
+    objektId?: number;
+    kundenId?: number;
+    von?: string;
+    bis?: string;
+  }): Observable<any> {
+    let params = new HttpParams();
+    if (query.page) params = params.set('page', String(query.page));
+    if (query.pageSize) params = params.set('pageSize', String(query.pageSize));
+    if (query.mitarbeiterId) params = params.set('mitarbeiterId', String(query.mitarbeiterId));
+    if (query.objektId) params = params.set('objektId', String(query.objektId));
+    if (query.kundenId) params = params.set('kundenId', String(query.kundenId));
+    if (query.von) params = params.set('von', query.von);
+    if (query.bis) params = params.set('bis', query.bis);
+    return this.http.get<any>(`${this.basis}/stempeluhr`, { params });
+  }
+
   // ── Objekte ─────────────────────────────────────────────────────────────
   loadObjects(): Observable<Objekt[]> {
     return this.http.get<Objekt[]>(`${this.basis}/objekte/all`);
@@ -335,6 +357,17 @@ export class ApiService {
   }
   deleteObject(id: number): Observable<void> {
     return this.http.delete<void>(`${this.basis}/objekte/${id}`);
+  }
+  getAktivitaeten(objektId: number, query?: any): Observable<any> {
+    let params = new HttpParams();
+    if (query?.type) params = params.set('type', query.type);
+    if (query?.userId) params = params.set('userId', query.userId);
+    if (query?.employeeId) params = params.set('employeeId', query.employeeId);
+    if (query?.createdFrom) params = params.set('createdFrom', query.createdFrom);
+    if (query?.createdTo) params = params.set('createdTo', query.createdTo);
+    if (query?.page) params = params.set('page', query.page);
+    if (query?.pageSize) params = params.set('pageSize', query.pageSize);
+    return this.http.get<any>(`${this.basis}/objekte/${objektId}/aktivitaeten`, { params });
   }
 
   // ── Müllplan ────────────────────────────────────────────────────────────
@@ -491,11 +524,20 @@ export class ApiService {
     payload: Partial<{
       name: string;
       description: string;
+      kategorie: string;
       fields: ChecklistFieldApi[];
       isActive: boolean;
     }>,
   ): Observable<ChecklistTemplateApi> {
     return this.http.put<ChecklistTemplateApi>(`${this.basis}/checklisten/templates/${id}`, payload);
+  }
+
+  assignChecklistTemplateObjects(templateId: number, objektIds: number[]): Observable<{ ok: boolean }> {
+    return this.http.put<{ ok: boolean }>(`${this.basis}/checklisten/templates/${templateId}/objekte`, { objektIds });
+  }
+
+  loadChecklistTemplatesForObject(objektId: number): Observable<ChecklistTemplateApi[]> {
+    return this.http.get<ChecklistTemplateApi[]>(`${this.basis}/checklisten/templates/for-object/${objektId}`);
   }
 
   loadChecklistSubmissionsPage(query: {

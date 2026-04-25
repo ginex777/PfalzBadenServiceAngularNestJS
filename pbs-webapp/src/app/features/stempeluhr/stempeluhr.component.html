@@ -1,24 +1,24 @@
 <div class="page-wrap">
-  <app-page-title title="Stempeluhr" subtitle="Mobile Zeiterfassung • Web-Gegenstück" />
+  <app-page-title title="Zeiterfassung" subtitle="Alle Einträge mit Objekt & Kunde" />
 
-  <div class="card placeholder-card">
-    <div class="placeholder-card__copy">
-      <h3 class="placeholder-card__title">Mobile-first, aber im Web auffindbar</h3>
-      <p class="placeholder-card__text">
-        Start/Stop erfolgt im Feld über die <strong>Mobile App</strong>. Im Web findest du die Einträge aktuell
-        gebündelt in der Mitarbeiterverwaltung.
-      </p>
-    </div>
+  <app-zeiterfassung-filter
+    [filters]="filters()"
+    [mitarbeiter]="mitarbeiter()"
+    [objekte]="objekte()"
+    [kunden]="kunden()"
+    (filtersChange)="onFiltersChange($event)"
+    (reset)="onResetFilters()"
+  />
 
-    <div class="placeholder-card__actions">
-      <a class="btn btn--primaer" [routerLink]="['/verwaltung/mitarbeiter']">Zu Mitarbeiter (Admin)</a>
-      <a class="btn" [routerLink]="['/operativ/mobile-rueckmeldungen']">Mobile Rückmeldungen</a>
-    </div>
-
-    <div class="placeholder-card__meta">
-      <span class="pill">Actionable Placeholder</span>
-      <span class="placeholder-card__meta-sep">•</span>
-      <span>Follow-up: 3.21</span>
-    </div>
-  </div>
+  <app-zeiterfassung-liste
+    [eintraege]="eintraege()"
+    [total]="total()"
+    [page]="page()"
+    [pageSize]="pageSize()"
+    [isLoading]="isLoading()"
+    [totalDurationMinutes]="totalDurationMinutes()"
+    [errorMessage]="errorMessage()"
+    (pageChange)="onPageChange($event)"
+    (pageSizeChange)="onPageSizeChange($event)"
+  />
 </div>

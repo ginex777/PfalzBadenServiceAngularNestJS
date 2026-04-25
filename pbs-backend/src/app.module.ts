@@ -31,6 +31,7 @@ import { ChecklistenModule } from './modules/checklisten/checklisten.module';
 import { MobileFeedbackModule } from './modules/mobile-feedback/mobile-feedback.module';
 import { ObjekteModule } from './modules/objekte/objekte.module';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { StempeluhrModule } from './modules/stempeluhr/stempeluhr.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -61,6 +62,7 @@ import { HealthController } from './health.controller';
     ChecklistenModule,
     MobileFeedbackModule,
     TasksModule,
+    StempeluhrModule,
     DatevModule,
     BackupModule,
     EmailModule,

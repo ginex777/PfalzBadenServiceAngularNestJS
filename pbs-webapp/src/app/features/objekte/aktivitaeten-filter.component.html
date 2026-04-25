@@ -1,0 +1,68 @@
+<div class="filter-card">
+  <div class="filter-row">
+    <div class="filter-block">
+      <label class="filter-block__title">Aktivitätstyp</label>
+      <select
+        class="filter-input"
+        [value]="filters().type || ''"
+        (change)="onTypeChange(getSelectValue($event))"
+      >
+        @for (opt of typeOptions(); track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-block">
+      <label class="filter-block__title">User</label>
+      <select
+        class="filter-input"
+        [value]="filters().userId || ''"
+        (change)="onUserChange(getSelectValue($event))"
+      >
+        @for (opt of userOptions(); track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-block">
+      <label class="filter-block__title">Mitarbeiter</label>
+      <select
+        class="filter-input"
+        [value]="filters().employeeId || ''"
+        (change)="onEmployeeChange(getSelectValue($event))"
+      >
+        @for (opt of employeeOptions(); track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-row__actions">
+      <button class="btn btn-sm btn-secondary" (click)="resetFilters.emit()">Zurücksetzen</button>
+    </div>
+  </div>
+
+  <div class="filter-row filter-row--secondary">
+    <div class="filter-block">
+      <label class="filter-block__title">Von (Datum)</label>
+      <input
+        type="date"
+        class="filter-input"
+        [value]="filters().createdFrom || ''"
+        (change)="onCreatedFromChange($event.target.value)"
+      />
+    </div>
+
+    <div class="filter-block">
+      <label class="filter-block__title">Bis (Datum)</label>
+      <input
+        type="date"
+        class="filter-input"
+        [value]="filters().createdTo || ''"
+        (change)="onCreatedToChange($event.target.value)"
+      />
+    </div>
+  </div>
+</div>

@@ -214,6 +214,28 @@
   justify-content: flex-end;
 }
 
+.objekt-assign-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--surface);
+}
+
+.form-checkbox--sm {
+  font-size: 13px;
+}
+
+.form-hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
 @media (max-width: 980px) {
   .admin-grid {
     grid-template-columns: 1fr;

@@ -181,10 +181,35 @@
                 <textarea class="form-textarea" rows="3" [(ngModel)]="editing()!.description" name="tplDesc"></textarea>
               </label>
 
+              <label class="form-label">
+                <span>Kategorie</span>
+                <input class="form-input" [(ngModel)]="editing()!.kategorie" name="tplKategorie" placeholder="z.B. Winterdienst, Reinigung…" />
+              </label>
+
               <label class="form-checkbox">
                 <input type="checkbox" [(ngModel)]="editing()!.isActive" name="tplActive" />
                 <span>Aktiv</span>
               </label>
+
+              <div class="form-label">
+                <span>Objekt-Zuordnung</span>
+                <div class="objekt-assign-list">
+                  @if (!facade.objects().length) {
+                    <span class="form-hint">Keine Objekte vorhanden.</span>
+                  }
+                  @for (o of facade.objects(); track o.id) {
+                    <label class="form-checkbox form-checkbox--sm">
+                      <input
+                        type="checkbox"
+                        [checked]="editing()!.assignedObjectIds.includes(o.id)"
+                        (change)="toggleObjectAssignment(o.id)"
+                      />
+                      <span>{{ o.name }}</span>
+                    </label>
+                  }
+                </div>
+                <div class="form-hint">Leer = für alle Objekte sichtbar.</div>
+              </div>
 
               <div class="fields-head">
                 <div class="fields-title">Felder</div>
@@ -205,10 +230,12 @@
                     <label class="form-label">
                       <span>Typ</span>
                       <select class="form-select" [(ngModel)]="f.type" name="fieldType{{$index}}">
-                        <option value="boolean">boolean</option>
-                        <option value="text">text</option>
-                        <option value="number">number</option>
-                        <option value="select">select</option>
+                        <option value="boolean">Ja/Nein</option>
+                        <option value="text">Text</option>
+                        <option value="kommentar">Kommentar</option>
+                        <option value="number">Zahl</option>
+                        <option value="select">Auswahl</option>
+                        <option value="foto">Foto</option>
                       </select>
                     </label>
 

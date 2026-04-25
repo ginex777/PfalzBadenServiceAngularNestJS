@@ -1,0 +1,56 @@
+@if (errorMessage()) {
+  <app-error-state [message]="errorMessage()!" />
+} @else if (isLoading()) {
+  <app-skeleton-rows [anzahl]="8" />
+} @else if (!hasData()) {
+  <app-empty-state
+    title="Keine Einträge gefunden"
+    description="Passen Sie die Filter an, um Zeiterfassungseinträge zu sehen."
+  />
+} @else {
+  <div class="table-wrap">
+    <table class="table zeiterfassung-table" role="grid">
+      <thead>
+        <tr>
+          <th>Mitarbeiter</th>
+          <th>Kunde</th>
+          <th>Objekt</th>
+          <th>Start</th>
+          <th>Stop</th>
+          <th class="col-duration">Dauer</th>
+          <th>Kommentar</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (e of eintraege(); track e.id) {
+          <tr>
+            <td class="muted">{{ e.mitarbeiterName }}</td>
+            <td class="muted">{{ emptyName(e.kundeName) }}</td>
+            <td class="muted">{{ emptyName(e.objektName) }}</td>
+            <td>{{ formatDateTime(e.start) }}</td>
+            <td>{{ formatDateTime(e.stop) }}</td>
+            <td class="col-duration">{{ formatDuration(e.dauerMinuten) }}</td>
+            <td class="muted">{{ emptyName(e.notiz) }}</td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr class="summary-row">
+          <td colspan="5" class="summary-label">Gesamt (gefiltert):</td>
+          <td class="col-duration summary-total">{{ formatTotalDuration(totalDurationMinutes()) }}</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="pager">
+    <app-paginierung
+      [page]="page()"
+      [pageSize]="pageSize()"
+      [total]="total()"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    />
+  </div>
+}

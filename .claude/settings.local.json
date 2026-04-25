@@ -56,7 +56,12 @@
       "Bash(grep -rn \"#[0-9a-fA-F]\\\\{3,6\\\\}\" \"C:/Users/Schuh/Desktop/Entwicklung/PBS Angular NESTJS/pbs-webapp/src/app\" --include=\"*.scss\")",
       "Bash(grep -v \"//.*#\")",
       "Bash(grep *)",
-      "Bash(cmd *)"
+      "Bash(cmd *)",
+      "Bash(git -C \"pbs-webapp\" status --short)",
+      "Read(//c/c/Users/Schuh/Desktop/Entwicklung/**)",
+      "Bash(curl -s http://localhost:3000/health)",
+      "Bash(curl -s http://localhost:80)",
+      "Bash(curl -s http://localhost:8080)"
     ]
   }
 }

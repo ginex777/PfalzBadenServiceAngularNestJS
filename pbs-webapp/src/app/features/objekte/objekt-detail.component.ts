@@ -1,8 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin, of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Kunde, Objekt } from '../../core/models';
+import { Kunde, Mitarbeiter, Objekt } from '../../core/models';
+import { ApiService } from '../../core/api/api.service';
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
 import { ErrorStateComponent } from '../../shared/ui/error-state/error-state.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
@@ -11,8 +15,13 @@ import { HasUnsavedChanges } from '../../core/guards/unsaved-changes.guard';
 import { ObjektFormularComponent } from './components/objekt-formular/objekt-formular.component';
 import { EMPTY_OBJECT_FORM, ObjectFormData } from './objekte.models';
 import { ObjectsService } from './objekte.service';
+import { AktivitaetItem, AktivitaetenFilterState, DEFAULT_AKTIVITAETEN_FILTER, DropdownOption } from './aktivitaeten.models';
+import { AktivitaetenfeedComponent } from './aktivitaeten-feed.component';
+import { AktivitaetenFilterComponent } from './aktivitaeten-filter.component';
+import { AktivitaetenService } from './aktivitaeten.service';
 
 type Mode = 'create' | 'edit';
+type Tab = 'stammdaten' | 'aktivitaeten';
 
 @Component({
   selector: 'app-objekt-detail',
@@ -24,6 +33,8 @@ type Mode = 'create' | 'edit';
     ConfirmModalComponent,
     ObjektFormularComponent,
     RoleAllowedDirective,
+    AktivitaetenfeedComponent,
+    AktivitaetenFilterComponent,
   ],
   templateUrl: './objekt-detail.component.html',
   styleUrl: './objekt-detail.component.scss',
@@ -32,8 +43,11 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly service = inject(ObjectsService);
+  private readonly aktivitaetenService = inject(AktivitaetenService);
+  private readonly apiService = inject(ApiService);
   private readonly toast = inject(ToastService);
   private readonly auth = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly isLoading = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -42,8 +56,21 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
   protected readonly mode = signal<Mode>('create');
   protected readonly confirmDeactivateOpen = signal(false);
 
+  protected readonly activeTab = signal<Tab>('stammdaten');
+
   protected readonly form = signal<ObjectFormData>({ ...EMPTY_OBJECT_FORM });
   private initialSnapshot: ObjectFormData = { ...EMPTY_OBJECT_FORM };
+
+  // Aktivitäten
+  protected readonly aktivitaetenFilters = signal<AktivitaetenFilterState>({ ...DEFAULT_AKTIVITAETEN_FILTER });
+  protected readonly aktivitaeten = signal<AktivitaetItem[]>([]);
+  protected readonly aktivitaetenTotal = signal(0);
+  protected readonly aktivitaetenPage = signal(1);
+  protected readonly aktivitaetenPageSize = signal(10);
+  protected readonly aktivitaetenLoading = signal(false);
+  protected readonly aktivitaetenError = signal<string | null>(null);
+  protected readonly mitarbeiter = signal<DropdownOption[]>([]);
+  protected readonly users = signal<DropdownOption[]>([]);
 
   protected readonly canEdit = computed(() => this.auth.currentUser()?.rolle === 'admin');
 
@@ -224,5 +251,84 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
       },
       error: () => this.toast.error('Objekt konnte nicht deaktiviert werden.'),
     });
+  }
+
+  protected switchTab(tab: Tab): void {
+    this.activeTab.set(tab);
+    if (tab === 'aktivitaeten' && this.aktivitaeten().length === 0) {
+      this.loadAktivitaeten();
+    }
+  }
+
+  protected onAktivitaetenFiltersChange(filters: AktivitaetenFilterState): void {
+    this.aktivitaetenFilters.set(filters);
+    this.aktivitaetenPage.set(1);
+    this.loadAktivitaeten();
+  }
+
+  protected onAktivitaetenResetFilters(): void {
+    this.aktivitaetenFilters.set({ ...DEFAULT_AKTIVITAETEN_FILTER });
+    this.aktivitaetenPage.set(1);
+    this.loadAktivitaeten();
+  }
+
+  protected onAktivitaetenPageChange(page: number): void {
+    this.aktivitaetenPage.set(page);
+    this.loadAktivitaeten();
+  }
+
+  protected onAktivitaetenPageSizeChange(size: number): void {
+    this.aktivitaetenPageSize.set(size);
+    this.aktivitaetenPage.set(1);
+    this.loadAktivitaeten();
+  }
+
+  private loadAktivitaeten(): void {
+    const obj = this.existingObject();
+    if (!obj) return;
+
+    if (this.mitarbeiter().length === 0) {
+      forkJoin({
+        mitarbeiter: this.apiService.loadEmployees().pipe(
+          catchError(() => of([] as Mitarbeiter[])),
+        ),
+      })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: ({ mitarbeiter: ma }) => {
+            this.mitarbeiter.set(ma.map((m) => ({ id: m.id, name: m.name })));
+            this.performAktivitaetenFetch(obj.id);
+          },
+        });
+    } else {
+      this.performAktivitaetenFetch(obj.id);
+    }
+  }
+
+  private performAktivitaetenFetch(objektId: number): void {
+    this.aktivitaetenLoading.set(true);
+    this.aktivitaetenError.set(null);
+
+    this.aktivitaetenService
+      .list(
+        objektId,
+        this.aktivitaetenFilters(),
+        this.aktivitaetenPage(),
+        this.aktivitaetenPageSize(),
+      )
+      .pipe(
+        tap((res) => {
+          this.aktivitaeten.set(res.data);
+          this.aktivitaetenTotal.set(res.total);
+          this.aktivitaetenLoading.set(false);
+        }),
+        catchError(() => {
+          this.aktivitaetenError.set('Aktivitäten konnten nicht geladen werden.');
+          this.aktivitaetenLoading.set(false);
+          return of(null);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 }

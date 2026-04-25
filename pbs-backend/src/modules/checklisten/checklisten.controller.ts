@@ -10,9 +10,11 @@ import {
   Req,
   BadRequestException,
 } from '@nestjs/common';
+
 import type { Request } from 'express';
 import { Roles } from '../auth/decorators/roles.decorator';
 import {
+  AssignTemplateObjekteDto,
   ChecklistSubmissionListQueryDto,
   ChecklistTemplateListQueryDto,
   CreateChecklistSubmissionDto,
@@ -51,10 +53,25 @@ export class ChecklistenController {
     return this.service.templatesAllActive();
   }
 
+  @Get('templates/for-object/:objektId')
+  @Roles('admin', 'readonly', 'mitarbeiter')
+  templatesForObject(@Param('objektId', ParseIntPipe) objektId: number) {
+    return this.service.templatesForObject(objektId);
+  }
+
   @Get('templates/:id')
   @Roles('admin', 'readonly', 'mitarbeiter')
   templateGet(@Param('id', ParseIntPipe) id: number) {
     return this.service.templateGet(id);
+  }
+
+  @Put('templates/:id/objekte')
+  @Roles('admin')
+  templateAssignObjects(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: AssignTemplateObjekteDto,
+  ) {
+    return this.service.templateAssignObjects(id, dto.objektIds);
   }
 
   @Post('templates')

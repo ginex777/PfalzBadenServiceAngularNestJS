@@ -23,7 +23,7 @@ export class AufgabeDetailComponent {
   readonly task = input.required<TaskListItemApi>();
   readonly canEdit = input.required<boolean>();
 
-  readonly close = output<void>();
+  readonly closeDialog = output<void>();
   readonly taskUpdated = output<TaskListItemApi>();
 
   protected readonly isSaving = signal(false);

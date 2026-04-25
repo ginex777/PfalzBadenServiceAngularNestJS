@@ -1,9 +1,13 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Prisma, Objekte } from '@prisma/client';
+import { Prisma, Objekte, TaskType } from '@prisma/client';
 import { PrismaService } from '../../core/database/prisma.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import { CreateObjektDto, UpdateObjektDto } from './dto/objekte.dto';
+import {
+  AktivitaetenQueryDto,
+  CreateObjektDto,
+  UpdateObjektDto,
+} from './dto/objekte.dto';
 
 type ObjektResponse = {
   id: number;
@@ -19,6 +23,21 @@ type ObjektResponse = {
   kunden_id: number | null;
   kunden_name: string | null;
   created_at: Date | null;
+};
+
+type AktivitaetItem = {
+  id: number;
+  type: TaskType;
+  title: string;
+  zeitpunkt: Date;
+  userId: number | null;
+  userEmail: string | null;
+  employeeId: number | null;
+  employeeName: string | null;
+  comment: string | null;
+  photoUrl: string | null;
+  durationMinutes: number | null;
+  createdAt: Date;
 };
 
 @Injectable()
@@ -140,6 +159,83 @@ export class ObjekteService {
       data: { status: 'INAKTIV' },
     });
     return { ok: true };
+  }
+
+  async getAktivitaeten(
+    objektId: number,
+    query: AktivitaetenQueryDto,
+  ): Promise<PaginatedResponse<AktivitaetItem>> {
+    const { page, pageSize } = query;
+    const skip = (page - 1) * pageSize;
+
+    const whereParts: Prisma.TasksWhereInput[] = [
+      { object_id: BigInt(objektId) },
+    ];
+
+    if (query.type) {
+      const types = query.type
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean) as TaskType[];
+      if (types.length > 0) {
+        whereParts.push({ type: { in: types } });
+      }
+    }
+
+    if (typeof query.userId === 'number') {
+      whereParts.push({ user_id: BigInt(query.userId) });
+    }
+
+    if (typeof query.employeeId === 'number') {
+      whereParts.push({ employee_id: BigInt(query.employeeId) });
+    }
+
+    const createdFrom = query.createdFrom ? new Date(query.createdFrom) : null;
+    const createdTo = query.createdTo ? new Date(query.createdTo) : null;
+    if (createdFrom || createdTo) {
+      whereParts.push({
+        created_at: {
+          gte: createdFrom ?? undefined,
+          lte: createdTo ?? undefined,
+        },
+      });
+    }
+
+    const where = whereParts.length > 0 ? { AND: whereParts } : undefined;
+
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.tasks.findMany({
+        where,
+        include: {
+          user: { select: { id: true, email: true } },
+          employee: { select: { id: true, name: true } },
+        },
+        orderBy: { created_at: 'desc' },
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.tasks.count({ where }),
+    ]);
+
+    return {
+      data: rows.map((r) => ({
+        id: Number(r.id),
+        type: r.type,
+        title: r.title,
+        zeitpunkt: r.completed_at ?? r.due_at ?? r.created_at,
+        userId: r.user_id ? Number(r.user_id) : null,
+        userEmail: r.user?.email ?? null,
+        employeeId: r.employee_id ? Number(r.employee_id) : null,
+        employeeName: r.employee?.name ?? null,
+        comment: r.comment ?? null,
+        photoUrl: r.photo_url ?? null,
+        durationMinutes: r.duration_minutes ?? null,
+        createdAt: r.created_at,
+      })),
+      total,
+      page,
+      pageSize,
+    };
   }
 
   private mapObjekt(

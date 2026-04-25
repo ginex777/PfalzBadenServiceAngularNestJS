@@ -1,0 +1,50 @@
+<div class="filter-card">
+  <div class="filter-row filter-row--primary">
+    <div class="form-field form-field--narrow-240">
+      <label class="form-hint">Mitarbeiter</label>
+      <select class="form-input" [value]="filters().mitarbeiterId ?? ''" (change)="onMitarbeiterChange($event)">
+        @for (opt of mitarbeiterOptions(); track opt.id) {
+          <option [value]="opt.id === 0 ? '' : opt.id">{{ opt.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field form-field--narrow-260">
+      <label class="form-hint">Kunde</label>
+      <select class="form-input" [value]="filters().kundenId ?? ''" (change)="onKundenChange($event)">
+        @for (opt of kundenOptions(); track opt.id) {
+          <option [value]="opt.id === 0 ? '' : opt.id">{{ opt.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field form-field--narrow-260">
+      <label class="form-hint">Objekt</label>
+      <select class="form-input" [value]="filters().objektId ?? ''" (change)="onObjektChange($event)">
+        @for (opt of objekteOptions(); track opt.id) {
+          <option [value]="opt.id === 0 ? '' : opt.id">{{ opt.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-row__actions">
+      <button class="btn btn-sm" type="button" (click)="resetFilters.emit()">Zurücksetzen</button>
+    </div>
+  </div>
+
+  <div class="filter-row filter-row--secondary">
+    <div class="filter-block">
+      <div class="filter-block__title">Zeitraum</div>
+      <div class="filter-block__fields">
+        <div class="form-field">
+          <label class="form-hint">Von</label>
+          <input class="form-input" type="date" [value]="filters().von ?? ''" (change)="onVonChange($event)" />
+        </div>
+        <div class="form-field">
+          <label class="form-hint">Bis</label>
+          <input class="form-input" type="date" [value]="filters().bis ?? ''" (change)="onBisChange($event)" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

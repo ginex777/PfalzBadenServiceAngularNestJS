@@ -1,6 +1,7 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+  IonBadge,
   IonButton,
   IonButtons,
   IonCard,
@@ -20,10 +21,22 @@ import {
   IonToggle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { MobileAuthService } from '../../core/auth.service';
 import { ChecklistField, ChecklistService, ChecklistTemplate } from '../../core/checklist.service';
 import { ObjectContextService } from '../../core/object-context.service';
+import { EvidenceService } from '../../core/evidence.service';
 import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-kontext.component';
+
+function base64ToBlob(dataUrl: string, mimeType = 'image/jpeg'): Blob {
+  const byteString = atob(dataUrl.split(',')[1]);
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i += 1) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeType });
+}
 
 type AnswerValue = string | number | boolean | null;
 
@@ -37,6 +50,7 @@ type AnswerValue = string | number | boolean | null;
     IonTitle,
     IonButtons,
     IonButton,
+    IonBadge,
     IonContent,
     IonCard,
     IonCardContent,
@@ -60,6 +74,7 @@ export class ChecklistenPage implements OnInit {
   private readonly router = inject(Router);
   protected readonly context = inject(ObjectContextService);
   private readonly checklist = inject(ChecklistService);
+  private readonly evidence = inject(EvidenceService);
 
   readonly templates = signal<ChecklistTemplate[]>([]);
   readonly selectedObjectId = this.context.selectedObjectId;
@@ -71,6 +86,21 @@ export class ChecklistenPage implements OnInit {
   readonly errorMessage = signal<string | null>(null);
 
   readonly answers = signal<Record<string, AnswerValue>>({});
+  readonly photoUploading = signal<Record<string, boolean>>({});
+  readonly photoErrors = signal<Record<string, string | null>>({});
+
+  private readonly lastLoadedObjectId = signal<number | null>(null);
+  private readonly _templateEffect = effect(() => {
+    const objectId = this.selectedObjectId();
+    if (objectId == null) {
+      this.lastLoadedObjectId.set(null);
+      this.templates.set([]);
+      return;
+    }
+    if (this.lastLoadedObjectId() === objectId) return;
+    this.lastLoadedObjectId.set(objectId);
+    this.loadTemplatesForObject(objectId);
+  });
 
   readonly selectedTemplate = computed(() => {
     const id = this.selectedTemplateId();
@@ -81,7 +111,9 @@ export class ChecklistenPage implements OnInit {
   readonly fields = computed<ChecklistField[]>(() => this.selectedTemplate()?.fields ?? []);
 
   readonly canSubmit = computed(() => {
-    return !!this.selectedObjectId() && !!this.selectedTemplateId() && !this.submitting();
+    const uploading = this.photoUploading();
+    const anyUploading = Object.values(uploading).some((v) => v);
+    return !!this.selectedObjectId() && !!this.selectedTemplateId() && !this.submitting() && !anyUploading;
   });
 
   readonly toastOpen = signal(false);
@@ -93,7 +125,10 @@ export class ChecklistenPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    this.loadData();
+    const objectId = this.selectedObjectId();
+    if (objectId) {
+      this.loadTemplatesForObject(objectId);
+    }
   }
 
   async logout() {
@@ -102,13 +137,16 @@ export class ChecklistenPage implements OnInit {
   }
 
   protected reload(): void {
-    this.loadData();
+    const objectId = this.selectedObjectId();
+    if (objectId) {
+      this.loadTemplatesForObject(objectId);
+    }
   }
 
-  private loadData(): void {
+  private loadTemplatesForObject(objectId: number): void {
     this.errorMessage.set(null);
     this.templatesLoading.set(true);
-    this.checklist.getTemplatesAll().subscribe({
+    this.checklist.getTemplatesForObject(objectId).subscribe({
       next: (templates) => {
         this.templates.set(templates);
         if (this.selectedTemplateId() == null) {
@@ -153,6 +191,43 @@ export class ChecklistenPage implements OnInit {
 
   protected fieldValue(fieldId: string): AnswerValue {
     return this.answers()[fieldId] ?? null;
+  }
+
+  protected async uploadFoto(fieldId: string): Promise<void> {
+    const objectId = this.selectedObjectId();
+    if (!objectId) {
+      this.setToast('error', 'Bitte zuerst ein Objekt auswählen.');
+      return;
+    }
+
+    try {
+      const photo = await Camera.getPhoto({
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Prompt,
+        quality: 80,
+      });
+
+      if (!photo.dataUrl) return;
+
+      const blob = base64ToBlob(photo.dataUrl);
+      const filename = `checklist-${Date.now()}.jpg`;
+
+      this.photoUploading.update((p) => ({ ...p, [fieldId]: true }));
+
+      this.evidence.upload({ objectId, photo: blob, filename }).subscribe({
+        next: (ev) => {
+          this.answers.update((prev) => ({ ...prev, [fieldId]: String(ev.id) }));
+          this.photoUploading.update((p) => ({ ...p, [fieldId]: false }));
+          this.setToast('success', 'Foto gespeichert.');
+        },
+        error: () => {
+          this.photoUploading.update((p) => ({ ...p, [fieldId]: false }));
+          this.setToast('error', 'Foto-Upload fehlgeschlagen.');
+        },
+      });
+    } catch {
+      // user cancelled camera
+    }
   }
 
   protected onNoteInput(ev: CustomEvent<{ value?: string | null }>): void {
@@ -232,5 +307,6 @@ export class ChecklistenPage implements OnInit {
       else next[field.fieldId] = null;
     }
     this.answers.set(next);
+    this.photoUploading.set({});
   }
 }

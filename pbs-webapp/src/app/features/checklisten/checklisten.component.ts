@@ -15,8 +15,10 @@ interface EditableTemplate {
   id: number | null;
   name: string;
   description: string;
+  kategorie: string;
   isActive: boolean;
   fields: EditableField[];
+  assignedObjectIds: number[];
 }
 
 interface EditableField {
@@ -60,7 +62,7 @@ function fromEditableField(field: EditableField): ChecklistField {
 function mapTemplateSnapshotItems(snapshot: unknown, answers: unknown): { label: string; value: string }[] {
   if (!snapshot || typeof snapshot !== 'object') return [];
   const fieldsRaw = (snapshot as { fields?: unknown }).fields;
-  const fields = Array.isArray(fieldsRaw) ? (fieldsRaw as Array<{ fieldId?: unknown; label?: unknown }>) : [];
+  const fields = Array.isArray(fieldsRaw) ? (fieldsRaw as Array<{ fieldId?: unknown; label?: unknown; type?: unknown }>) : [];
 
   const answersArr = Array.isArray(answers) ? (answers as Array<{ fieldId?: unknown; value?: unknown }>) : [];
   const answerByFieldId = new Map<string, unknown>();
@@ -70,18 +72,22 @@ function mapTemplateSnapshotItems(snapshot: unknown, answers: unknown): { label:
     answerByFieldId.set(fieldId, a.value);
   }
 
-  const formatValue = (value: unknown): string => {
+  const formatValue = (value: unknown, type?: string): string => {
     if (value === null || value === undefined) return '—';
     if (typeof value === 'boolean') return value ? 'Ja' : 'Nein';
     if (typeof value === 'number') return Number.isFinite(value) ? String(value) : '—';
-    if (typeof value === 'string') return value.trim() || '—';
+    if (typeof value === 'string') {
+      if (type === 'foto' && value.trim()) return `[Foto: ${value.trim()}]`;
+      return value.trim() || '—';
+    }
     return '—';
   };
 
   return fields.map((f) => {
     const fieldId = typeof f.fieldId === 'string' ? f.fieldId : '';
     const label = typeof f.label === 'string' ? f.label : fieldId || 'Feld';
-    return { label, value: formatValue(answerByFieldId.get(fieldId)) };
+    const type = typeof f.type === 'string' ? f.type : undefined;
+    return { label, value: formatValue(answerByFieldId.get(fieldId), type) };
   });
 }
 
@@ -188,8 +194,10 @@ export class ChecklistenComponent implements OnInit {
       id: null,
       name: '',
       description: '',
+      kategorie: '',
       isActive: true,
       fields: [{ fieldId: '', label: '', type: 'boolean', required: false, helperText: '', optionsText: '' }],
+      assignedObjectIds: [],
     });
   }
 
@@ -198,9 +206,19 @@ export class ChecklistenComponent implements OnInit {
       id: t.id,
       name: t.name,
       description: t.description ?? '',
+      kategorie: t.kategorie ?? '',
       isActive: t.isActive,
       fields: (t.fields ?? []).map(toEditableField),
+      assignedObjectIds: t.assignedObjectIds ?? [],
     });
+  }
+
+  protected toggleObjectAssignment(objectId: number): void {
+    const current = this.editing();
+    if (!current) return;
+    const ids = current.assignedObjectIds;
+    const next = ids.includes(objectId) ? ids.filter((id) => id !== objectId) : [...ids, objectId];
+    this.editing.set({ ...current, assignedObjectIds: next });
   }
 
   protected addField(): void {
@@ -245,8 +263,13 @@ export class ChecklistenComponent implements OnInit {
     const request = {
       name: current.name.trim(),
       description: current.description.trim() || undefined,
+      kategorie: current.kategorie.trim() || undefined,
       isActive: current.isActive,
       fields,
+    };
+
+    const assignObjects = (templateId: number) => {
+      this.service.assignObjectsToTemplate(templateId, current.assignedObjectIds).subscribe();
     };
 
     const done = () => {
@@ -260,6 +283,7 @@ export class ChecklistenComponent implements OnInit {
         .pipe(finalize(done))
         .subscribe({
           next: (created) => {
+            assignObjects(created.id);
             this.startEdit(created);
           },
           error: (err: { error?: { message?: string } }) => {
@@ -274,6 +298,7 @@ export class ChecklistenComponent implements OnInit {
       .pipe(finalize(done))
       .subscribe({
         next: (updated) => {
+          assignObjects(updated.id);
           this.startEdit(updated);
         },
         error: (err: { error?: { message?: string } }) => {

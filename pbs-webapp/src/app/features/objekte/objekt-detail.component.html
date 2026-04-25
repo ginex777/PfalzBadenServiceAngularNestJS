@@ -28,21 +28,62 @@
       </div>
     </div>
 
+    @if (mode() === 'edit') {
+      <div class="tab-nav">
+        <button
+          class="tab-nav__btn"
+          [class.tab-nav__btn--active]="activeTab() === 'stammdaten'"
+          (click)="switchTab('stammdaten')"
+        >
+          Stammdaten
+        </button>
+        <button
+          class="tab-nav__btn"
+          [class.tab-nav__btn--active]="activeTab() === 'aktivitaeten'"
+          (click)="switchTab('aktivitaeten')"
+        >
+          Aktivitäten
+        </button>
+      </div>
+    }
+
     @if (error()) {
       <app-error-state [message]="error()!" actionLabel="Neu laden" (action)="load()" />
     } @else if (isLoading() && !customers().length) {
       <div class="loading">Lädt…</div>
     } @else {
-      <app-objekt-formular
-        [value]="form()"
-        [customers]="customers()"
-        [disabled]="!canEdit()"
-        (valueChange)="onFormChange($event)"
-      />
+      @if (activeTab() === 'stammdaten') {
+        <app-objekt-formular
+          [value]="form()"
+          [customers]="customers()"
+          [disabled]="!canEdit()"
+          (valueChange)="onFormChange($event)"
+        />
 
-      @if (!canEdit()) {
-        <div class="readonly-hint">
-          <strong>Read-only:</strong> Nur Admins können Objekte bearbeiten.
+        @if (!canEdit()) {
+          <div class="readonly-hint">
+            <strong>Read-only:</strong> Nur Admins können Objekte bearbeiten.
+          </div>
+        }
+      } @else if (activeTab() === 'aktivitaeten') {
+        <div class="aktivitaeten-section">
+          <app-aktivitaeten-filter
+            [filters]="aktivitaetenFilters()"
+            [users]="users()"
+            [employees]="mitarbeiter()"
+            (filtersChange)="onAktivitaetenFiltersChange($event)"
+            (reset)="onAktivitaetenResetFilters()"
+          />
+          <app-aktivitaeten-feed
+            [eintraege]="aktivitaeten()"
+            [total]="aktivitaetenTotal()"
+            [page]="aktivitaetenPage()"
+            [pageSize]="aktivitaetenPageSize()"
+            [isLoading]="aktivitaetenLoading()"
+            [errorMessage]="aktivitaetenError()"
+            (pageChange)="onAktivitaetenPageChange($event)"
+            (pageSizeChange)="onAktivitaetenPageSizeChange($event)"
+          />
         </div>
       }
     }

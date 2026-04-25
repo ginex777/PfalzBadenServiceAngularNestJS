@@ -1,5 +1,6 @@
 import { Transform, Type } from 'class-transformer';
 import {
+  IsDateString,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -81,3 +82,31 @@ export class CreateObjektDto {
 }
 
 export class UpdateObjektDto extends CreateObjektDto {}
+
+export class AktivitaetenQueryDto extends PaginationDto {
+  @IsOptional()
+  @IsString()
+  type?: string;
+
+  @IsOptional()
+  @Transform(({ value, obj }) => value ?? obj.userId ?? obj.user_id)
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  userId?: number;
+
+  @IsOptional()
+  @Transform(({ value, obj }) => value ?? obj.employeeId ?? obj.employee_id)
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  employeeId?: number;
+
+  @IsOptional()
+  @IsDateString()
+  createdFrom?: string;
+
+  @IsOptional()
+  @IsDateString()
+  createdTo?: string;
+}

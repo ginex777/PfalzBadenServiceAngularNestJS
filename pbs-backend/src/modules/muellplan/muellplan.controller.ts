@@ -185,29 +185,51 @@ export class MuellplanController {
     buffer: Buffer,
   ): Promise<{ muellart: string; farbe: string; abholung: string }[]> {
     const MUELL_KEYWORDS = [
-      { keys: ['restmüll', 'restabfall', 'rest', 'grau'], name: 'Restmüll', farbe: '#6b7280' },
-      { keys: ['bioabfall', 'bio', 'braun'], name: 'Bioabfall', farbe: '#16a34a' },
+      {
+        keys: ['restmüll', 'restabfall', 'rest', 'grau'],
+        name: 'Restmüll',
+        farbe: '#6b7280',
+      },
+      {
+        keys: ['bioabfall', 'bio', 'braun'],
+        name: 'Bioabfall',
+        farbe: '#16a34a',
+      },
       { keys: ['papier', 'pappe', 'blau'], name: 'Papier', farbe: '#2563eb' },
-      { keys: ['gelber sack', 'gelb', 'leichtverpackung', 'wertstoff'], name: 'Gelber Sack', farbe: '#d97706' },
+      {
+        keys: ['gelber sack', 'gelb', 'leichtverpackung', 'wertstoff'],
+        name: 'Gelber Sack',
+        farbe: '#d97706',
+      },
       { keys: ['glas'], name: 'Glas', farbe: '#0891b2' },
-      { keys: ['grünschnitt', 'grün', 'garten'], name: 'Grünschnitt', farbe: '#65a30d' },
+      {
+        keys: ['grünschnitt', 'grün', 'garten'],
+        name: 'Grünschnitt',
+        farbe: '#65a30d',
+      },
       { keys: ['sperrmüll', 'sperr'], name: 'Sperrmüll', farbe: '#7c3aed' },
     ];
     try {
       const workbook = new Workbook();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       await workbook.xlsx.load(buffer as any);
-      const results: { muellart: string; farbe: string; abholung: string }[] = [];
+      const results: { muellart: string; farbe: string; abholung: string }[] =
+        [];
       workbook.eachSheet((worksheet) => {
         let firstRow = true;
         worksheet.eachRow((row) => {
-          if (firstRow) { firstRow = false; return; }
+          if (firstRow) {
+            firstRow = false;
+            return;
+          }
           // ExcelJS row.values is 1-indexed (index 0 is always null)
           const vals = row.values as unknown[];
           const dateVal = vals[1];
           let dt: string | null = null;
           if (dateVal instanceof Date) {
-            const y = dateVal.getFullYear(), m = dateVal.getMonth() + 1, d = dateVal.getDate();
+            const y = dateVal.getFullYear(),
+              m = dateVal.getMonth() + 1,
+              d = dateVal.getDate();
             if (y >= new Date().getFullYear() - 1)
               dt = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
           } else if (typeof dateVal === 'string') {
@@ -219,7 +241,9 @@ export class MuellplanController {
           }
           if (!dt) return;
           const typeVal = String(vals[2] ?? '').toLowerCase();
-          const detected = MUELL_KEYWORDS.find((k) => k.keys.some((kw) => typeVal.includes(kw)));
+          const detected = MUELL_KEYWORDS.find((k) =>
+            k.keys.some((kw) => typeVal.includes(kw)),
+          );
           results.push({
             muellart: detected?.name ?? String(vals[2] ?? 'Unbekannt'),
             farbe: detected?.farbe ?? '#6366f1',

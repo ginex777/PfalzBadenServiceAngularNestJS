@@ -1,0 +1,87 @@
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.zeiterfassung-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--surface);
+  font-size: 0.95rem;
+}
+
+.zeiterfassung-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+  border-bottom: 1px solid var(--border-strong);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--gray-700);
+  text-transform: uppercase;
+  padding: 0.875rem 1rem;
+  text-align: left;
+}
+
+.zeiterfassung-table tbody tr {
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.zeiterfassung-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.zeiterfassung-table tbody tr:hover {
+  background: var(--accent-muted);
+}
+
+.zeiterfassung-table td {
+  padding: 0.875rem 1rem;
+}
+
+.muted {
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+.col-duration {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-row {
+  border-top: 2px solid var(--accent);
+  background: linear-gradient(90deg, var(--accent-muted) 0%, rgba(247, 147, 30, 0.05) 100%);
+  font-weight: 600;
+}
+
+.summary-row td {
+  padding: 1rem;
+}
+
+.summary-label {
+  text-align: right;
+  color: var(--gray-700);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.summary-total {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+
+.pager {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}

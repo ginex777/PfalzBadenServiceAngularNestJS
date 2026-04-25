@@ -13,6 +13,7 @@ import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { ObjekteService } from './objekte.service';
 import {
+  AktivitaetenQueryDto,
   CreateObjektDto,
   ListObjekteQueryDto,
   UpdateObjektDto,
@@ -36,6 +37,15 @@ export class ObjekteController {
   @Roles('admin', 'readonly', 'mitarbeiter')
   findAllUnpaginated(@Query() query: ListObjekteQueryDto) {
     return this.service.findAllUnpaginated(query.customerId);
+  }
+
+  @Get(':id/aktivitaeten')
+  @ApiOperation({ summary: 'Aktivitäten für Objekt laden' })
+  getAktivitaeten(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() query: AktivitaetenQueryDto,
+  ) {
+    return this.service.getAktivitaeten(id, query);
   }
 
   @Post()

@@ -1,4 +1,4 @@
-import { Component, computed, signal, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, computed, signal, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonButton,
@@ -14,6 +14,7 @@ import {
 import { MobileAuthService } from '../../core/auth.service';
 import { ObjectContextService } from '../../core/object-context.service';
 import { StempelService } from '../../core/stempel.service';
+import { TimerStateService } from '../../core/timer-state.service';
 import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-kontext.component';
 
 @Component({
@@ -35,49 +36,38 @@ import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-ko
   templateUrl: './stempeluhr.page.html',
   styleUrl: './stempeluhr.page.scss',
 })
-export class StempeluhrPage implements OnInit, OnDestroy {
+export class StempeluhrPage implements OnInit {
   private readonly auth = inject(MobileAuthService);
   private readonly stampService = inject(StempelService);
   protected readonly context = inject(ObjectContextService);
+  private readonly timerState = inject(TimerStateService);
   private readonly router = inject(Router);
 
   readonly user = this.auth.currentUser;
-  openStamp = signal<{ id: number; start: Date } | null>(null);
-  runtime = signal('00:00:00');
-  note = signal('');
-  isLoading = signal(false);
-  statusMessage = signal('');
-  statusTone = signal<'success' | 'error' | 'info'>('info');
-  toastOpen = signal(false);
-
-  private timer?: ReturnType<typeof setInterval>;
+  readonly note = signal('');
+  readonly isLoading = signal(false);
+  readonly statusMessage = signal('');
+  readonly statusTone = signal<'success' | 'error' | 'info'>('info');
+  readonly toastOpen = signal(false);
 
   protected readonly canStart = computed(() => {
     return !this.isActive && !this.isLoading() && this.context.selectedObjectId() != null;
   });
+
+  protected readonly isActive = computed(() => this.timerState.isActive());
+  protected readonly runtime = computed(() => this.timerState.runtime());
 
   private get employeeId(): number {
     return this.auth.currentUser()?.mitarbeiterId ?? 0;
   }
 
   ngOnInit() {
-    this.timer = setInterval(() => this.updateRuntime(), 1000);
     this.context.ensureObjectsLoaded();
     this.restoreActiveStamp();
   }
 
-  ngOnDestroy() {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-  }
-
   ionViewWillEnter(): void {
     this.restoreActiveStamp();
-  }
-
-  get isActive(): boolean {
-    return !!this.openStamp();
   }
 
   start() {
@@ -101,7 +91,7 @@ export class StempeluhrPage implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.stampService.start(this.employeeId, objectId, note).subscribe({
       next: (s) => {
-        this.openStamp.set({ id: s.id, start: new Date(s.start) });
+        this.timerState.setActive({ id: s.id, start: new Date(s.start) });
         this.setStatus(
           'success',
           selectedObjectName
@@ -130,8 +120,7 @@ export class StempeluhrPage implements OnInit, OnDestroy {
     this.stampService.stop(this.employeeId).subscribe({
       next: (s) => {
         const min = s.dauer_minuten ?? 0;
-        this.openStamp.set(null);
-        this.runtime.set('00:00:00');
+        this.timerState.clearActive();
         this.setStatus('success', `Gestoppt. ${min} Minuten erfasst.`);
         this.isLoading.set(false);
       },
@@ -150,20 +139,6 @@ export class StempeluhrPage implements OnInit, OnDestroy {
     await this.router.navigate(['/login']);
   }
 
-  private updateRuntime() {
-    const start = this.openStamp()?.start;
-    if (!start) return;
-
-    const diff = Math.floor((Date.now() - start.getTime()) / 1000);
-    const h = Math.floor(diff / 3600)
-      .toString()
-      .padStart(2, '0');
-    const m = Math.floor((diff % 3600) / 60)
-      .toString()
-      .padStart(2, '0');
-    const s = (diff % 60).toString().padStart(2, '0');
-    this.runtime.set(`${h}:${m}:${s}`);
-  }
 
   private setStatus(tone: 'success' | 'error' | 'info', message: string): void {
     this.statusTone.set(tone);
@@ -179,12 +154,11 @@ export class StempeluhrPage implements OnInit, OnDestroy {
       next: (entries) => {
         const open = entries.find((e) => e.stop == null) ?? null;
         if (!open) {
-          this.openStamp.set(null);
-          this.runtime.set('00:00:00');
+          this.timerState.clearActive();
           return;
         }
 
-        this.openStamp.set({ id: open.id, start: new Date(open.start) });
+        this.timerState.setActive({ id: open.id, start: new Date(open.start) });
         if (open.objekt_id != null) {
           this.context.setSelectedObjectId(open.objekt_id);
         }

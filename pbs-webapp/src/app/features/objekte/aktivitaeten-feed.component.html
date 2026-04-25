@@ -1,0 +1,75 @@
+@if (errorMessage()) {
+  <div class="state-banner state-banner--error">
+    {{ errorMessage() }}
+  </div>
+} @else if (isLoading() && !hasData()) {
+  <div class="feed-skeleton">
+    @for (_ of [1, 2, 3]; track _) {
+      <div class="skeleton-row"></div>
+    }
+  </div>
+} @else if (!hasData()) {
+  <div class="empty-state">
+    <p class="empty-state__text">Keine Aktivitäten vorhanden</p>
+  </div>
+} @else {
+  <div class="feed">
+    @for (eintrag of eintraege(); track eintrag.id) {
+      <div class="feed-item" [style.border-left-color]="getTypeColor(eintrag.type)">
+        <div class="feed-item__header">
+          <span class="feed-item__type">{{ AKTIVITAET_TYPE_LABELS[eintrag.type] }}</span>
+          <span class="feed-item__time">{{ formatDateTime(eintrag.zeitpunkt) }}</span>
+        </div>
+        <div class="feed-item__title">{{ eintrag.title }}</div>
+        @if (eintrag.employeeName) {
+          <div class="feed-item__meta">
+            <span class="meta-label">Mitarbeiter:</span>
+            <span class="meta-value">{{ eintrag.employeeName }}</span>
+          </div>
+        }
+        @if (eintrag.userEmail) {
+          <div class="feed-item__meta">
+            <span class="meta-label">User:</span>
+            <span class="meta-value">{{ eintrag.userEmail }}</span>
+          </div>
+        }
+        @if (eintrag.durationMinutes) {
+          <div class="feed-item__meta">
+            <span class="meta-label">Dauer:</span>
+            <span class="meta-value">{{ eintrag.durationMinutes }} Min</span>
+          </div>
+        }
+        @if (eintrag.comment) {
+          <div class="feed-item__comment">{{ eintrag.comment }}</div>
+        }
+        @if (eintrag.photoUrl) {
+          <div class="feed-item__photo">
+            <img [src]="eintrag.photoUrl" alt="Aktivitätsfoto" class="feed-item__photo-img" />
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (totalPages() > 1) {
+    <div class="pagination">
+      <button
+        class="pagination__btn"
+        [disabled]="page() === 1 || isLoading()"
+        (click)="onPageChange(page() - 1)"
+      >
+        ← Zurück
+      </button>
+      <span class="pagination__info">
+        Seite {{ page() }} von {{ totalPages() }}
+      </span>
+      <button
+        class="pagination__btn"
+        [disabled]="page() === totalPages() || isLoading()"
+        (click)="onPageChange(page() + 1)"
+      >
+        Weiter →
+      </button>
+    </div>
+  }
+}

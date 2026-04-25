@@ -14,7 +14,7 @@ export class ObjektListeComponent {
   readonly objects = input.required<Objekt[]>();
   readonly currentObject = input<Objekt | null>(null);
 
-  readonly select = output<Objekt>();
+  readonly selectObject = output<Objekt>();
 
   protected adresseFormatieren(obj: Objekt): string {
     return [obj.strasse, obj.plz, obj.ort].filter((v) => !!v).join(' ');

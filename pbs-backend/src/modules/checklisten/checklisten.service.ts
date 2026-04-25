@@ -29,9 +29,11 @@ export interface ChecklistTemplateListItem {
   id: number;
   name: string;
   description: string | null;
+  kategorie: string | null;
   version: number;
   isActive: boolean;
   fields: ChecklistFieldDto[];
+  assignedObjectIds: number[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -86,15 +88,19 @@ function parseJsonFields(raw: unknown): ChecklistFieldDto[] {
     const fieldId =
       typeof rec['fieldId'] === 'string' ? rec['fieldId'].trim() : '';
     const label = typeof rec['label'] === 'string' ? rec['label'].trim() : '';
-    const type = rec['type'];
+    const typeRaw = rec['type'];
     if (!fieldId || !label) continue;
-    if (
-      type !== 'boolean' &&
-      type !== 'text' &&
-      type !== 'number' &&
-      type !== 'select'
-    )
-      continue;
+
+    const validTypes: ChecklistFieldType[] = [
+      'boolean',
+      'text',
+      'number',
+      'select',
+      'foto',
+      'kommentar',
+    ];
+    const type = validTypes.find((t) => t === typeRaw);
+    if (!type) continue;
 
     const helperText =
       typeof rec['helperText'] === 'string' ? rec['helperText'] : undefined;
@@ -141,7 +147,11 @@ function normalizeAnswerValue(
           : NaN;
     return Number.isFinite(num) ? num : null;
   }
-  if (fieldType === 'text') {
+  if (
+    fieldType === 'text' ||
+    fieldType === 'kommentar' ||
+    fieldType === 'foto'
+  ) {
     if (typeof raw !== 'string') return null;
     const trimmed = raw.trim();
     return trimmed.length ? trimmed : null;
@@ -239,8 +249,14 @@ export class ChecklistenService {
     const rows = await this.prisma.checklistenTemplates.findMany({
       where: { is_active: true },
       orderBy: [{ name: 'asc' }, { id: 'asc' }],
+      include: { template_objekte: { select: { objekt_id: true } } },
     });
-    return rows.map((r) => this.mapTemplate(r));
+    return rows.map((r) =>
+      this.mapTemplate(
+        r,
+        r.template_objekte.map((to) => to.objekt_id),
+      ),
+    );
   }
 
   async templatesList(params: {
@@ -267,12 +283,18 @@ export class ChecklistenService {
         orderBy: [{ updated_at: 'desc' }, { id: 'desc' }],
         skip,
         take: pageSize,
+        include: { template_objekte: { select: { objekt_id: true } } },
       }),
       this.prisma.checklistenTemplates.count({ where }),
     ]);
 
     return {
-      data: rows.map((r) => this.mapTemplate(r)),
+      data: rows.map((r) =>
+        this.mapTemplate(
+          r,
+          r.template_objekte.map((to) => to.objekt_id),
+        ),
+      ),
       total,
       page,
       pageSize,
@@ -283,9 +305,13 @@ export class ChecklistenService {
     await this.ensureDefaultTemplates();
     const row = await this.prisma.checklistenTemplates.findUnique({
       where: { id: BigInt(id) },
+      include: { template_objekte: { select: { objekt_id: true } } },
     });
     if (!row) throw new NotFoundException('Template nicht gefunden');
-    return this.mapTemplate(row);
+    return this.mapTemplate(
+      row,
+      row.template_objekte.map((to) => to.objekt_id),
+    );
   }
 
   async templateCreate(
@@ -295,11 +321,12 @@ export class ChecklistenService {
       data: {
         name: dto.name.trim(),
         description: dto.description?.trim() || null,
+        kategorie: dto.kategorie?.trim() || null,
         fields: toJsonFields(dto.fields),
         is_active: dto.isActive ?? true,
       },
     });
-    return this.mapTemplate(row);
+    return this.mapTemplate(row, []);
   }
 
   async templateUpdate(
@@ -322,12 +349,20 @@ export class ChecklistenService {
         name: dto.name != null ? dto.name.trim() : undefined,
         description:
           dto.description != null ? dto.description.trim() || null : undefined,
+        kategorie:
+          dto.kategorie !== undefined
+            ? dto.kategorie?.trim() || null
+            : undefined,
         fields: dto.fields ? toJsonFields(dto.fields) : undefined,
         is_active: dto.isActive ?? undefined,
         version: nextVersion,
       },
+      include: { template_objekte: { select: { objekt_id: true } } },
     });
-    return this.mapTemplate(row);
+    return this.mapTemplate(
+      row,
+      row.template_objekte.map((to) => to.objekt_id),
+    );
   }
 
   async submissionsList(
@@ -546,24 +581,77 @@ export class ChecklistenService {
     return { id: Number(row.id) };
   }
 
-  private mapTemplate(row: {
-    id: bigint;
-    name: string;
-    description: string | null;
-    version: number;
-    fields: unknown;
-    is_active: boolean;
-    created_at: Date;
-    updated_at: Date;
-  }): ChecklistTemplateListItem {
+  async templatesForObject(
+    objektId: number,
+  ): Promise<ChecklistTemplateListItem[]> {
+    const rows = await this.prisma.checklistenTemplates.findMany({
+      where: { is_active: true },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
+      include: { template_objekte: { select: { objekt_id: true } } },
+    });
+    const bigObjId = BigInt(objektId);
+    return rows
+      .filter((r) => {
+        if (r.template_objekte.length === 0) return true;
+        return r.template_objekte.some((to) => to.objekt_id === bigObjId);
+      })
+      .map((r) =>
+        this.mapTemplate(
+          r,
+          r.template_objekte.map((to) => to.objekt_id),
+        ),
+      );
+  }
+
+  async templateAssignObjects(
+    id: number,
+    objektIds: number[],
+  ): Promise<{ ok: boolean }> {
+    const exists = await this.prisma.checklistenTemplates.findUnique({
+      where: { id: BigInt(id) },
+    });
+    if (!exists) throw new NotFoundException('Template nicht gefunden');
+    const bigId = BigInt(id);
+    await this.prisma.$transaction(async (tx) => {
+      await tx.checklistenTemplateObjekte.deleteMany({
+        where: { template_id: bigId },
+      });
+      if (objektIds.length) {
+        await tx.checklistenTemplateObjekte.createMany({
+          data: objektIds.map((oid) => ({
+            template_id: bigId,
+            objekt_id: BigInt(oid),
+          })),
+        });
+      }
+    });
+    return { ok: true };
+  }
+
+  private mapTemplate(
+    row: {
+      id: bigint;
+      name: string;
+      description: string | null;
+      kategorie?: string | null;
+      version: number;
+      fields: unknown;
+      is_active: boolean;
+      created_at: Date;
+      updated_at: Date;
+    },
+    assignedObjectIds: bigint[],
+  ): ChecklistTemplateListItem {
     const fields = parseJsonFields(row.fields);
     return {
       id: Number(row.id),
       name: row.name,
       description: row.description,
+      kategorie: row.kategorie ?? null,
       version: row.version,
       isActive: row.is_active,
       fields,
+      assignedObjectIds: assignedObjectIds.map((id) => Number(id)),
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };

@@ -131,6 +131,36 @@
                       }
                     </ion-select>
                   }
+                  @case ('foto') {
+                    <div class="foto-field">
+                      @if (fieldValue(f.fieldId)) {
+                        <ion-badge color="success" slot="end">Foto gespeichert</ion-badge>
+                      }
+                      <ion-button
+                        slot="end"
+                        size="small"
+                        fill="outline"
+                        [disabled]="photoUploading()[f.fieldId] || false"
+                        (click)="uploadFoto(f.fieldId)"
+                      >
+                        @if (photoUploading()[f.fieldId]) {
+                          <ion-spinner name="crescent"></ion-spinner>
+                        } @else {
+                          {{ fieldValue(f.fieldId) ? 'Ändern' : 'Aufnehmen' }}
+                        }
+                      </ion-button>
+                    </div>
+                  }
+                  @case ('kommentar') {
+                    <ion-textarea
+                      class="answer-textarea"
+                      [value]="fieldValue(f.fieldId) ?? ''"
+                      (ionInput)="onTextAnswerInput(f.fieldId, $event)"
+                      placeholder="Kommentar..."
+                      autoGrow="true"
+                      rows="4"
+                    ></ion-textarea>
+                  }
                   @default {
                     <ion-textarea
                       class="answer-textarea"

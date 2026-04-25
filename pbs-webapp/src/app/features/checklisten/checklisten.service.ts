@@ -48,11 +48,20 @@ export class ChecklistenService {
     payload: Partial<{
       name: string;
       description: string;
+      kategorie: string;
       fields: ChecklistField[];
       isActive: boolean;
     }>,
   ): Observable<ChecklistTemplate> {
     return this.api.updateChecklistTemplate(id, payload);
+  }
+
+  assignObjectsToTemplate(templateId: number, objektIds: number[]): Observable<{ ok: boolean }> {
+    return this.api.assignChecklistTemplateObjects(templateId, objektIds);
+  }
+
+  loadTemplatesForObject(objektId: number): Observable<ChecklistTemplate[]> {
+    return this.api.loadChecklistTemplatesForObject(objektId);
   }
 
   loadSubmissionsPage(query: {

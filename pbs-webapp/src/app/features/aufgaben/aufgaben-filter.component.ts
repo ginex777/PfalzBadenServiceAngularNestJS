@@ -22,7 +22,7 @@ export class AufgabenFilterComponent {
   readonly users = input.required<readonly UserOption[]>();
 
   readonly filtersChange = output<TaskFilterState>();
-  readonly reset = output<void>();
+  readonly resetFilters = output<void>();
 
   protected readonly typeOptions = computed(() =>
     (Object.keys(TASK_TYPE_LABELS) as TaskType[]).map((type) => ({

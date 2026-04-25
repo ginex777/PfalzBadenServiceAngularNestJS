@@ -26,7 +26,11 @@ export class MuellplanService {
       where: { objekt_id: BigInt(objektId) },
       orderBy: { abholung: 'asc' },
       take: 5000,
-      include: { user: { select: { id: true, email: true, vorname: true, nachname: true } } },
+      include: {
+        user: {
+          select: { id: true, email: true, vorname: true, nachname: true },
+        },
+      },
     });
     return rows.map((r) => this.mapTermin(r));
   }
@@ -40,7 +44,9 @@ export class MuellplanService {
       take: limit,
       include: {
         objekte: { select: { name: true } },
-        user: { select: { id: true, email: true, vorname: true, nachname: true } },
+        user: {
+          select: { id: true, email: true, vorname: true, nachname: true },
+        },
       },
     });
     return rows.map((r) => ({
@@ -61,7 +67,11 @@ export class MuellplanService {
         aktiv: d.aktiv ?? true,
         ...(d.user_id ? { user: { connect: { id: BigInt(d.user_id) } } } : {}),
       },
-      include: { user: { select: { id: true, email: true, vorname: true, nachname: true } } },
+      include: {
+        user: {
+          select: { id: true, email: true, vorname: true, nachname: true },
+        },
+      },
     });
 
     await this.tasksService.upsertFromMuellplan(Number(r.id));
@@ -83,9 +93,18 @@ export class MuellplanService {
         erledigt: d.erledigt ?? false,
         beschreibung: d.beschreibung !== undefined ? d.beschreibung : undefined,
         aktiv: d.aktiv !== undefined ? d.aktiv : undefined,
-        user_id: d.user_id !== undefined ? (d.user_id ? BigInt(d.user_id) : null) : undefined,
+        user_id:
+          d.user_id !== undefined
+            ? d.user_id
+              ? BigInt(d.user_id)
+              : null
+            : undefined,
       },
-      include: { user: { select: { id: true, email: true, vorname: true, nachname: true } } },
+      include: {
+        user: {
+          select: { id: true, email: true, vorname: true, nachname: true },
+        },
+      },
     });
 
     await this.tasksService.upsertFromMuellplan(id);
@@ -94,14 +113,23 @@ export class MuellplanService {
   }
 
   async terminErledigen(id: number, d: ErledigunDto) {
-    const row = await this.prisma.muellplan.findUnique({ where: { id: BigInt(id) } });
+    const row = await this.prisma.muellplan.findUnique({
+      where: { id: BigInt(id) },
+    });
     if (!row) throw new NotFoundException();
     const r = await this.prisma.muellplan.update({
       where: { id: BigInt(id) },
       data: { erledigt: true },
-      include: { user: { select: { id: true, email: true, vorname: true, nachname: true } } },
+      include: {
+        user: {
+          select: { id: true, email: true, vorname: true, nachname: true },
+        },
+      },
     });
-    await this.tasksService.upsertFromMuellplan(id, { kommentar: d.kommentar, fotoUrl: d.foto_url });
+    await this.tasksService.upsertFromMuellplan(id, {
+      kommentar: d.kommentar,
+      fotoUrl: d.foto_url,
+    });
     return this.mapTermin(r);
   }
 
@@ -349,7 +377,12 @@ export class MuellplanService {
     aktiv?: boolean;
     user_id?: bigint | null;
     created_at?: Date | null;
-    user?: { id: bigint; email: string; vorname: string | null; nachname: string | null } | null;
+    user?: {
+      id: bigint;
+      email: string;
+      vorname: string | null;
+      nachname: string | null;
+    } | null;
   }) {
     return {
       id: Number(r.id),
@@ -362,7 +395,12 @@ export class MuellplanService {
       aktiv: r.aktiv ?? true,
       user_id: r.user_id ? Number(r.user_id) : null,
       user: r.user
-        ? { id: Number(r.user.id), email: r.user.email, vorname: r.user.vorname, nachname: r.user.nachname }
+        ? {
+            id: Number(r.user.id),
+            email: r.user.email,
+            vorname: r.user.vorname,
+            nachname: r.user.nachname,
+          }
         : null,
     };
   }
