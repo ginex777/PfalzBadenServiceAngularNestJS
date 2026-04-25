@@ -15,6 +15,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import type { Response } from 'express';
+import { Workbook } from 'exceljs';
 import { MuellplanService } from './muellplan.service';
 import {
   ConfirmMuellplanPdfDto,
@@ -146,8 +147,8 @@ export class MuellplanController {
     // Excel/CSV direkt parsen
     const ext = file.originalname.toLowerCase().split('.').pop() ?? '';
     let parsed: { muellart: string; farbe: string; abholung: string }[] = [];
-    if (['xlsx', 'xls', 'csv'].includes(ext)) {
-      parsed = this.excelCsvParsen(file.buffer);
+    if (['xlsx', 'xls'].includes(ext)) {
+      parsed = await this.excelCsvParsen(file.buffer);
     }
     return { ...meta, parsed, verified: parsed.length === 0 ? 1 : 0 };
   }
@@ -169,60 +170,33 @@ export class MuellplanController {
     return this.service.muellplanPdfMetadatenLaden(objektId);
   }
 
-  private excelCsvParsen(
+  private async excelCsvParsen(
     buffer: Buffer,
-  ): { muellart: string; farbe: string; abholung: string }[] {
+  ): Promise<{ muellart: string; farbe: string; abholung: string }[]> {
+    const MUELL_KEYWORDS = [
+      { keys: ['restmüll', 'restabfall', 'rest', 'grau'], name: 'Restmüll', farbe: '#6b7280' },
+      { keys: ['bioabfall', 'bio', 'braun'], name: 'Bioabfall', farbe: '#16a34a' },
+      { keys: ['papier', 'pappe', 'blau'], name: 'Papier', farbe: '#2563eb' },
+      { keys: ['gelber sack', 'gelb', 'leichtverpackung', 'wertstoff'], name: 'Gelber Sack', farbe: '#d97706' },
+      { keys: ['glas'], name: 'Glas', farbe: '#0891b2' },
+      { keys: ['grünschnitt', 'grün', 'garten'], name: 'Grünschnitt', farbe: '#65a30d' },
+      { keys: ['sperrmüll', 'sperr'], name: 'Sperrmüll', farbe: '#7c3aed' },
+    ];
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const XLSX = require('xlsx') as typeof import('xlsx');
-      const MUELL_KEYWORDS = [
-        {
-          keys: ['restmüll', 'restabfall', 'rest', 'grau'],
-          name: 'Restmüll',
-          farbe: '#6b7280',
-        },
-        {
-          keys: ['bioabfall', 'bio', 'braun'],
-          name: 'Bioabfall',
-          farbe: '#16a34a',
-        },
-        { keys: ['papier', 'pappe', 'blau'], name: 'Papier', farbe: '#2563eb' },
-        {
-          keys: ['gelber sack', 'gelb', 'leichtverpackung', 'wertstoff'],
-          name: 'Gelber Sack',
-          farbe: '#d97706',
-        },
-        { keys: ['glas'], name: 'Glas', farbe: '#0891b2' },
-        {
-          keys: ['grünschnitt', 'grün', 'garten'],
-          name: 'Grünschnitt',
-          farbe: '#65a30d',
-        },
-        { keys: ['sperrmüll', 'sperr'], name: 'Sperrmüll', farbe: '#7c3aed' },
-      ];
-      const wb = XLSX.read(buffer, { type: 'buffer', cellDates: true });
-      const results: { muellart: string; farbe: string; abholung: string }[] =
-        [];
-      for (const sheetName of wb.SheetNames) {
-        const rowsRaw: unknown = XLSX.utils.sheet_to_json(
-          wb.Sheets[sheetName],
-          {
-            header: 1,
-            defval: '',
-          },
-        );
-        if (!Array.isArray(rowsRaw)) continue;
-
-        for (let i = 1; i < rowsRaw.length; i++) {
-          const row = rowsRaw[i];
-          if (!Array.isArray(row)) continue;
-
-          const dateVal = row[0];
+      const workbook = new Workbook();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await workbook.xlsx.load(buffer as any);
+      const results: { muellart: string; farbe: string; abholung: string }[] = [];
+      workbook.eachSheet((worksheet) => {
+        let firstRow = true;
+        worksheet.eachRow((row) => {
+          if (firstRow) { firstRow = false; return; }
+          // ExcelJS row.values is 1-indexed (index 0 is always null)
+          const vals = row.values as unknown[];
+          const dateVal = vals[1];
           let dt: string | null = null;
           if (dateVal instanceof Date) {
-            const y = dateVal.getFullYear(),
-              m = dateVal.getMonth() + 1,
-              d = dateVal.getDate();
+            const y = dateVal.getFullYear(), m = dateVal.getMonth() + 1, d = dateVal.getDate();
             if (y >= new Date().getFullYear() - 1)
               dt = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
           } else if (typeof dateVal === 'string') {
@@ -232,18 +206,16 @@ export class MuellplanController {
               dt = `${y}-${m1[2].padStart(2, '0')}-${m1[1].padStart(2, '0')}`;
             } else if (/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) dt = dateVal;
           }
-          if (!dt) continue;
-          const typeVal = String(row[1] ?? '').toLowerCase();
-          const detected = MUELL_KEYWORDS.find((k) =>
-            k.keys.some((kw) => typeVal.includes(kw)),
-          );
+          if (!dt) return;
+          const typeVal = String(vals[2] ?? '').toLowerCase();
+          const detected = MUELL_KEYWORDS.find((k) => k.keys.some((kw) => typeVal.includes(kw)));
           results.push({
-            muellart: detected?.name ?? String(row[1] ?? 'Unbekannt'),
+            muellart: detected?.name ?? String(vals[2] ?? 'Unbekannt'),
             farbe: detected?.farbe ?? '#6366f1',
             abholung: dt,
           });
-        }
-      }
+        });
+      });
       return results;
     } catch {
       return [];

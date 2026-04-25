@@ -1,4 +1,5 @@
 import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Workbook } from 'exceljs';
 import type { Response } from 'express';
 import { PrismaService } from '../../core/database/prisma.service';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -371,8 +372,6 @@ export class DatevController {
     @Query('monat') monat: string,
     @Res() res: Response,
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const XLSX = require('xlsx') as typeof import('xlsx');
     const j = parseInt(jahr),
       m = monat !== undefined ? parseInt(monat) : -1;
     const firma = await this.firmaLaden();
@@ -434,12 +433,9 @@ export class DatevController {
       ]);
     });
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      wb,
-      XLSX.utils.aoa_to_sheet(buchungenData),
-      'Buchungen',
-    );
+    const workbook = new Workbook();
+    const buchSheet = workbook.addWorksheet('Buchungen');
+    buchSheet.addRows(buchungenData);
 
     const summaryData: (string | number)[][] = [
       ['Firmenname:', firma['firma'] ?? ''],
@@ -509,14 +505,11 @@ export class DatevController {
       parseFloat((tU - tV).toFixed(2)),
       parseFloat((tI - tE).toFixed(2)),
     ]);
-    XLSX.utils.book_append_sheet(
-      wb,
-      XLSX.utils.aoa_to_sheet(summaryData),
-      'Zusammenfassung',
-    );
+    const summSheet = workbook.addWorksheet('Zusammenfassung');
+    summSheet.addRows(summaryData);
 
     const monatLabel = m >= 0 && m <= 11 ? MONATE_DE[m] : 'Gesamtjahr';
-    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    const buf = Buffer.from(await workbook.xlsx.writeBuffer());
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
