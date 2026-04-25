@@ -279,7 +279,10 @@ export class TasksService {
     return this.mapTask(updated);
   }
 
-  async upsertFromMuellplan(muellplanId: number): Promise<void> {
+  async upsertFromMuellplan(
+    muellplanId: number,
+    extra?: { kommentar?: string; fotoUrl?: string },
+  ): Promise<void> {
     const muellRow = await this.prisma.muellplan.findUnique({
       where: { id: BigInt(muellplanId) },
       select: {
@@ -322,6 +325,8 @@ export class TasksService {
         customer: muellRow.objekte.kunden_id
           ? { connect: { id: muellRow.objekte.kunden_id } }
           : { disconnect: true },
+        ...(extra?.kommentar !== undefined ? { comment: extra.kommentar } : {}),
+        ...(extra?.fotoUrl !== undefined ? { photo_url: extra.fotoUrl } : {}),
       },
       create: {
         title: `Muelltermin: ${muellRow.muellart}`,
@@ -334,6 +339,8 @@ export class TasksService {
           ? { connect: { id: muellRow.objekte.kunden_id } }
           : undefined,
         muellplan_id: muellRow.id,
+        comment: extra?.kommentar ?? null,
+        photo_url: extra?.fotoUrl ?? null,
       },
     });
   }

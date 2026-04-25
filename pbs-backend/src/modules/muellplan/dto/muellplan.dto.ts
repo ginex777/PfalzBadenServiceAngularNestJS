@@ -30,6 +30,18 @@ export class CreateMuellplanTerminDto {
   @IsOptional()
   @IsBoolean()
   erledigt?: boolean;
+
+  @IsOptional()
+  @IsString()
+  beschreibung?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  aktiv?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  user_id?: number;
 }
 
 export class UpdateMuellplanTerminDto {
@@ -47,6 +59,28 @@ export class UpdateMuellplanTerminDto {
   @IsOptional()
   @IsBoolean()
   erledigt?: boolean;
+
+  @IsOptional()
+  @IsString()
+  beschreibung?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  aktiv?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  user_id?: number;
+}
+
+export class ErledigunDto {
+  @IsOptional()
+  @IsString()
+  kommentar?: string;
+
+  @IsOptional()
+  @IsString()
+  foto_url?: string;
 }
 
 export class CopyMuellplanTermineDto {

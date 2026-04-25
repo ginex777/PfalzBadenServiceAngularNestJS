@@ -1,4 +1,4 @@
-﻿<ion-header>
+<ion-header>
   <ion-toolbar>
     <ion-title>Muellplan</ion-title>
   </ion-toolbar>
@@ -37,14 +37,37 @@
         } @else {
           <ion-list lines="inset">
             @for (pickup of objectPickups(); track pickup.id) {
-              <ion-item>
+              <ion-item [class.pickup-done]="pickup.erledigt">
                 <span class="color-dot" [style.backgroundColor]="pickupColor(pickup.farbe)"></span>
                 <ion-label>
                   <h3>{{ pickup.muellart }}</h3>
                   <p>{{ pickup.abholung | date: 'dd.MM.yyyy' }}</p>
                 </ion-label>
-                @if (isPickupToday(pickup.abholung)) {
+                @if (pickup.erledigt) {
+                  <ion-badge slot="end" color="success">Erledigt</ion-badge>
+                } @else if (isPickupToday(pickup.abholung)) {
                   <ion-badge slot="end" color="warning">Heute</ion-badge>
+                  <ion-button
+                    slot="end"
+                    size="small"
+                    color="primary"
+                    [disabled]="markingDoneId() !== null"
+                    (click)="markDone(pickup)"
+                  >
+                    Abhaken
+                  </ion-button>
+                } @else if (isPickupDue(pickup.abholung)) {
+                  <ion-badge slot="end" color="danger">Faellig</ion-badge>
+                  <ion-button
+                    slot="end"
+                    size="small"
+                    color="primary"
+                    fill="outline"
+                    [disabled]="markingDoneId() !== null"
+                    (click)="markDone(pickup)"
+                  >
+                    Abhaken
+                  </ion-button>
                 }
               </ion-item>
             }
@@ -85,8 +108,8 @@
 <ion-toast
   [isOpen]="toastOpen()"
   [message]="toastMessage()"
-  color="danger"
-  duration="5000"
+  [color]="toastColor()"
+  duration="3000"
   position="top"
   (didDismiss)="closeToast()"
 ></ion-toast>

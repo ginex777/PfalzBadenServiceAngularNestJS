@@ -44,4 +44,9 @@ export class WastePlanService {
     const params = new HttpParams().set('limit', String(limit));
     return this.http.get<UpcomingWastePickup[]>(`${baseUrl}/api/muellplan-upcoming`, { params });
   }
+
+  markPickupDone(id: number, comment?: string) {
+    const baseUrl = this.apiConfig.apiBaseUrl();
+    return this.http.patch<WastePickup>(`${baseUrl}/api/muellplan/${id}/erledigen`, { kommentar: comment });
+  }
 }

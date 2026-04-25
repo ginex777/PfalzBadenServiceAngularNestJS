@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -22,6 +23,7 @@ import {
   CopyMuellplanTermineDto,
   CreateMuellplanTerminDto,
   CreateMuellplanVorlageDto,
+  ErledigunDto,
   UpdateMuellplanTerminDto,
 } from './dto/muellplan.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -59,6 +61,15 @@ export class MuellplanController {
   ) {
     return this.service.terminAktualisieren(id, b);
   }
+  @Patch('muellplan/:id/erledigen')
+  @Roles('admin', 'mitarbeiter')
+  async terminErledigen(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() b: ErledigunDto,
+  ) {
+    return this.service.terminErledigen(id, b);
+  }
+
   @Delete('muellplan/:id')
   @Roles('admin')
   async terminLoeschen(@Param('id', ParseIntPipe) id: number) {

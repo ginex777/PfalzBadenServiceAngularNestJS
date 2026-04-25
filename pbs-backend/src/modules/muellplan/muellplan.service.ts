@@ -4,6 +4,7 @@ import { Prisma, MuellplanVorlagen } from '@prisma/client';
 import {
   CreateMuellplanTerminDto,
   CreateMuellplanVorlageDto,
+  ErledigunDto,
   MuellplanVorlagenTerminDto,
   UpdateMuellplanTerminDto,
 } from './dto/muellplan.dto';
@@ -25,31 +26,26 @@ export class MuellplanService {
       where: { objekt_id: BigInt(objektId) },
       orderBy: { abholung: 'asc' },
       take: 5000,
+      include: { user: { select: { id: true, email: true, vorname: true, nachname: true } } },
     });
-    return rows.map((r) => ({
-      ...r,
-      id: Number(r.id),
-      objekt_id: Number(r.objekt_id),
-      abholung: r.abholung.toISOString().slice(0, 10),
-    }));
+    return rows.map((r) => this.mapTermin(r));
   }
 
   async anstehendeTermineLaden(limit = 5) {
     const heute = new Date();
     heute.setHours(0, 0, 0, 0);
     const rows = await this.prisma.muellplan.findMany({
-      where: { abholung: { gte: heute }, erledigt: false },
+      where: { abholung: { gte: heute }, erledigt: false, aktiv: true },
       orderBy: { abholung: 'asc' },
       take: limit,
-      include: { objekte: { select: { name: true } } },
+      include: {
+        objekte: { select: { name: true } },
+        user: { select: { id: true, email: true, vorname: true, nachname: true } },
+      },
     });
     return rows.map((r) => ({
-      ...r,
-      id: Number(r.id),
-      objekt_id: Number(r.objekt_id),
-      abholung: r.abholung.toISOString().slice(0, 10),
+      ...this.mapTermin(r),
       objekt_name: r.objekte.name,
-      objekte: undefined,
     }));
   }
 
@@ -61,17 +57,16 @@ export class MuellplanService {
         farbe: d.farbe ?? '#6366f1',
         abholung: new Date(d.abholung),
         erledigt: d.erledigt ?? false,
+        beschreibung: d.beschreibung ?? null,
+        aktiv: d.aktiv ?? true,
+        ...(d.user_id ? { user: { connect: { id: BigInt(d.user_id) } } } : {}),
       },
+      include: { user: { select: { id: true, email: true, vorname: true, nachname: true } } },
     });
 
     await this.tasksService.upsertFromMuellplan(Number(r.id));
 
-    return {
-      ...r,
-      id: Number(r.id),
-      objekt_id: Number(r.objekt_id),
-      abholung: r.abholung.toISOString().slice(0, 10),
-    };
+    return this.mapTermin(r);
   }
 
   async terminAktualisieren(id: number, d: UpdateMuellplanTerminDto) {
@@ -86,17 +81,28 @@ export class MuellplanService {
         farbe: d.farbe ?? '#6366f1',
         abholung: new Date(d.abholung),
         erledigt: d.erledigt ?? false,
+        beschreibung: d.beschreibung !== undefined ? d.beschreibung : undefined,
+        aktiv: d.aktiv !== undefined ? d.aktiv : undefined,
+        user_id: d.user_id !== undefined ? (d.user_id ? BigInt(d.user_id) : null) : undefined,
       },
+      include: { user: { select: { id: true, email: true, vorname: true, nachname: true } } },
     });
 
     await this.tasksService.upsertFromMuellplan(id);
 
-    return {
-      ...r,
-      id: Number(r.id),
-      objekt_id: Number(r.objekt_id),
-      abholung: r.abholung.toISOString().slice(0, 10),
-    };
+    return this.mapTermin(r);
+  }
+
+  async terminErledigen(id: number, d: ErledigunDto) {
+    const row = await this.prisma.muellplan.findUnique({ where: { id: BigInt(id) } });
+    if (!row) throw new NotFoundException();
+    const r = await this.prisma.muellplan.update({
+      where: { id: BigInt(id) },
+      data: { erledigt: true },
+      include: { user: { select: { id: true, email: true, vorname: true, nachname: true } } },
+    });
+    await this.tasksService.upsertFromMuellplan(id, { kommentar: d.kommentar, fotoUrl: d.foto_url });
+    return this.mapTermin(r);
   }
 
   async terminLoeschen(id: number) {
@@ -330,5 +336,34 @@ export class MuellplanService {
     r: Pick<MuellplanVorlagen, 'id' | 'name' | 'pdf_name' | 'created_at'>,
   ) {
     return { ...r, id: Number(r.id) };
+  }
+
+  private mapTermin(r: {
+    id: bigint;
+    objekt_id: bigint;
+    muellart: string;
+    farbe: string;
+    abholung: Date;
+    erledigt: boolean;
+    beschreibung?: string | null;
+    aktiv?: boolean;
+    user_id?: bigint | null;
+    created_at?: Date | null;
+    user?: { id: bigint; email: string; vorname: string | null; nachname: string | null } | null;
+  }) {
+    return {
+      id: Number(r.id),
+      objekt_id: Number(r.objekt_id),
+      muellart: r.muellart,
+      farbe: r.farbe,
+      abholung: r.abholung.toISOString().slice(0, 10),
+      erledigt: r.erledigt,
+      beschreibung: r.beschreibung ?? null,
+      aktiv: r.aktiv ?? true,
+      user_id: r.user_id ? Number(r.user_id) : null,
+      user: r.user
+        ? { id: Number(r.user.id), email: r.user.email, vorname: r.user.vorname, nachname: r.user.nachname }
+        : null,
+    };
   }
 }

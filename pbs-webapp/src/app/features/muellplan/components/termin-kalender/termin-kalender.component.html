@@ -1,4 +1,4 @@
-﻿<!-- Objekt-Header -->
+<!-- Objekt-Header -->
 <div class="detail-header">
   <div class="detail-header__info">
     <span class="detail-header__name">{{ object().name }}</span>
@@ -35,81 +35,136 @@
   </div>
 </div>
 
-<!-- Nächste Termine -->
-@if (nextTerms().length > 0) {
-  <div class="naechste-termine">
-    <span class="naechste-termine__label">Nächste:</span>
-    @for (t of nextTerms(); track t.id) {
-      <div class="naechster-termin" [class]="'naechster-termin--' + t.status">
-        <span class="termin-punkt" [style.background]="t.farbe"></span>
-        {{ t.muellart }} — {{ naechsterLabel(t) }}
-        <span class="naechster-termin__abholung">(Abholung {{ datumFormatieren(t.abholungAnzeige) }})</span>
-      </div>
+<!-- Tabs -->
+<div class="tabs">
+  <button
+    class="tab-btn"
+    [class.tab-btn--aktiv]="aktiverTab() === 'termine'"
+    (click)="aktiverTab.set('termine')"
+  >
+    Termine
+  </button>
+  <button
+    class="tab-btn"
+    [class.tab-btn--aktiv]="aktiverTab() === 'historie'"
+    (click)="aktiverTab.set('historie')"
+  >
+    Erledigungshistorie
+    @if (erledigungsHistorie().length) {
+      <span class="tab-badge">{{ erledigungsHistorie().length }}</span>
     }
-  </div>
+  </button>
+</div>
+
+<!-- Nächste Termine -->
+@if (aktiverTab() === 'termine') {
+  @if (nextTerms().length > 0) {
+    <div class="naechste-termine">
+      <span class="naechste-termine__label">Nächste:</span>
+      @for (t of nextTerms(); track t.id) {
+        <div class="naechster-termin" [class]="'naechster-termin--' + t.status">
+          <span class="termin-punkt" [style.background]="t.farbe"></span>
+          {{ t.muellart }} — {{ naechsterLabel(t) }}
+          <span class="naechster-termin__abholung">(Abholung {{ datumFormatieren(t.abholungAnzeige) }})</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Termin-Tabelle -->
+  @if (terms().length === 0) {
+    <div class="termin-leer">Keine Termine</div>
+  } @else {
+    <div class="termin-tabelle-wrap">
+      <table class="termin-tabelle">
+        <thead>
+          <tr>
+            <th>Tonne rausstellen</th>
+            <th>Müllabholung</th>
+            <th>Müllart</th>
+            <th>Status</th>
+            <th class="col-erledigt">Erledigt</th>
+            <th class="col-aktion"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (gruppe of monatsGruppen(); track gruppe.key) {
+            <tr class="monat-gruppe-header">
+              <td colspan="6">{{ gruppe.label }}</td>
+            </tr>
+            @for (t of gruppe.termine; track t.id) {
+              <tr
+                class="termin-zeile"
+                [class.termin-zeile--heute]="t.status === 'heute'"
+                [class.termin-zeile--bald]="t.status === 'morgen' || t.status === 'bald'"
+                [class.termin-zeile--verpasst]="t.status === 'verpasst'"
+                [class.termin-zeile--erledigt]="t.erledigt"
+              >
+                <td class="col-rausstellen">{{ datumFormatieren(t.rausstellen) }}</td>
+                <td class="col-abholung">{{ datumFormatieren(t.abholungAnzeige) }}</td>
+                <td>
+                  <span class="muell-badge" [style.background]="t.farbe">{{ t.muellart }}</span>
+                </td>
+                <td>
+                  <span class="status-badge" [class]="'status-badge--' + t.status">
+                    {{ statusLabel(t) }}
+                  </span>
+                </td>
+                <td class="col-erledigt">
+                  <input
+                    type="checkbox"
+                    [checked]="t.erledigt"
+                    [disabled]="!erledigtAenderbar(t)"
+                    [title]="
+                      !erledigtAenderbar(t)
+                        ? 'Erst ab ' + datumFormatieren(t.rausstellen) + ' abhakbar'
+                        : ''
+                    "
+                    (change)="termDoneChange.emit({ id: t.id, done: $any($event.target).checked })"
+                  />
+                </td>
+                <td class="col-aktion">
+                  <button class="btn-action btn-action-danger" (click)="deleteTerm.emit(t.id)">
+                    Löschen
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 }
 
-<!-- Termin-Tabelle -->
-@if (terms().length === 0) {
-  <div class="termin-leer">Keine Termine</div>
-} @else {
-  <div class="termin-tabelle-wrap">
-    <table class="termin-tabelle">
-      <thead>
-        <tr>
-          <th>Tonne rausstellen</th>
-          <th>Müllabholung</th>
-          <th>Müllart</th>
-          <th>Status</th>
-          <th class="col-erledigt">Erledigt</th>
-          <th class="col-aktion"></th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (gruppe of monatsGruppen(); track gruppe.key) {
-          <tr class="monat-gruppe-header">
-            <td colspan="6">{{ gruppe.label }}</td>
+<!-- Erledigungshistorie -->
+@if (aktiverTab() === 'historie') {
+  @if (erledigungsHistorie().length === 0) {
+    <div class="termin-leer">Keine erledigten Mülltermine.</div>
+  } @else {
+    <div class="termin-tabelle-wrap">
+      <table class="termin-tabelle">
+        <thead>
+          <tr>
+            <th>Müllart</th>
+            <th>Abholdatum</th>
+            <th>Erledigt am</th>
+            <th>Mitarbeiter</th>
+            <th>Kommentar</th>
           </tr>
-          @for (t of gruppe.termine; track t.id) {
-            <tr
-              class="termin-zeile"
-              [class.termin-zeile--heute]="t.status === 'heute'"
-              [class.termin-zeile--bald]="t.status === 'morgen' || t.status === 'bald'"
-              [class.termin-zeile--verpasst]="t.status === 'verpasst'"
-              [class.termin-zeile--erledigt]="t.erledigt"
-            >
-              <td class="col-rausstellen">{{ datumFormatieren(t.rausstellen) }}</td>
-              <td class="col-abholung">{{ datumFormatieren(t.abholungAnzeige) }}</td>
-              <td>
-                <span class="muell-badge" [style.background]="t.farbe">{{ t.muellart }}</span>
-              </td>
-              <td>
-                <span class="status-badge" [class]="'status-badge--' + t.status">
-                  {{ statusLabel(t) }}
-                </span>
-              </td>
-              <td class="col-erledigt">
-                <input
-                  type="checkbox"
-                  [checked]="t.erledigt"
-                  [disabled]="!erledigtAenderbar(t)"
-                  [title]="
-                    !erledigtAenderbar(t)
-                      ? 'Erst ab ' + datumFormatieren(t.rausstellen) + ' abhakbar'
-                      : ''
-                  "
-                  (change)="termDoneChange.emit({ id: t.id, done: $any($event.target).checked })"
-                />
-              </td>
-              <td class="col-aktion">
-                <button class="btn-action btn-action-danger" (click)="deleteTerm.emit(t.id)">
-                  Löschen
-                </button>
-              </td>
+        </thead>
+        <tbody>
+          @for (h of erledigungsHistorie(); track h.id) {
+            <tr class="termin-zeile termin-zeile--erledigt">
+              <td>{{ h.title }}</td>
+              <td>{{ h.dueAt ? datumFormatieren(h.dueAt.slice(0, 10)) : '—' }}</td>
+              <td>{{ h.completedAt ? datumFormatieren(h.completedAt.slice(0, 10)) : '—' }}</td>
+              <td>{{ h.employeeName ?? h.userEmail ?? '—' }}</td>
+              <td>{{ h.comment ?? '—' }}</td>
             </tr>
           }
-        }
-      </tbody>
-    </table>
-  </div>
+        </tbody>
+      </table>
+    </div>
+  }
 }

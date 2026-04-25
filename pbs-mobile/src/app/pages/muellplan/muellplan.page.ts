@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, OnInit, signal } from '@angular/co
 import { DatePipe } from '@angular/common';
 import {
   IonBadge,
+  IonButton,
   IonCard,
   IonCardContent,
   IonContent,
@@ -36,6 +37,7 @@ import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-ko
     IonLabel,
     IonList,
     IonBadge,
+    IonButton,
     IonRefresher,
     IonRefresherContent,
     IonToast,
@@ -56,8 +58,10 @@ export class MuellplanPage implements OnInit {
 
   protected readonly isLoading = signal(true);
   protected readonly isLoadingPickups = signal(false);
+  protected readonly markingDoneId = signal<number | null>(null);
   protected readonly toastMessage = signal('');
   protected readonly toastOpen = signal(false);
+  protected readonly toastColor = signal<'success' | 'danger'>('success');
 
   private readonly lastLoadedObjectId = signal<number | null>(null);
   private readonly _pickupsEffect = effect(() => {
@@ -84,6 +88,24 @@ export class MuellplanPage implements OnInit {
     this.reloadAll(() => (event.target as HTMLIonRefresherElement).complete());
   }
 
+  protected markDone(pickup: WastePickup): void {
+    if (pickup.erledigt || this.markingDoneId() !== null) return;
+    this.markingDoneId.set(pickup.id);
+    this.wastePlan.markPickupDone(pickup.id).subscribe({
+      next: (updated) => {
+        this.objectPickups.update((list) =>
+          list.map((p) => (p.id === updated.id ? updated : p)),
+        );
+        this.markingDoneId.set(null);
+        this.showToast('Abgehakt!', 'success');
+      },
+      error: () => {
+        this.markingDoneId.set(null);
+        this.showToast('Fehler beim Abhaken. Bitte erneut versuchen.', 'danger');
+      },
+    });
+  }
+
   protected pickupColor(color: string): string {
     const normalized = color.trim();
     if (/^#[0-9a-fA-F]{3,8}$/.test(normalized)) return normalized;
@@ -100,9 +122,20 @@ export class MuellplanPage implements OnInit {
     );
   }
 
+  protected isPickupDue(dateValue: string): boolean {
+    const date = new Date(dateValue);
+    date.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date <= today;
+  }
+
+  protected closeToast(): void {
+    this.toastOpen.set(false);
+  }
+
   private reloadAll(onComplete?: () => void): void {
     this.isLoading.set(true);
-    // Reset guard so effect will reload pickups for current object
     this.lastLoadedObjectId.set(null);
 
     forkJoin({ upcoming: this.wastePlan.getUpcoming(14) }).subscribe({
@@ -122,7 +155,7 @@ export class MuellplanPage implements OnInit {
       error: () => {
         this.isLoading.set(false);
         onComplete?.();
-        this.showToast('Muellplan konnte nicht geladen werden. Bitte erneut versuchen.');
+        this.showToast('Muellplan konnte nicht geladen werden.', 'danger');
       },
     });
   }
@@ -141,17 +174,14 @@ export class MuellplanPage implements OnInit {
         this.objectPickups.set([]);
         this.isLoadingPickups.set(false);
         onComplete?.();
-        this.showToast('Termine konnten nicht geladen werden. Bitte erneut versuchen.');
+        this.showToast('Termine konnten nicht geladen werden.', 'danger');
       },
     });
   }
 
-  protected closeToast(): void {
-    this.toastOpen.set(false);
-  }
-
-  private showToast(message: string): void {
+  private showToast(message: string, color: 'success' | 'danger'): void {
     this.toastMessage.set(message);
+    this.toastColor.set(color);
     this.toastOpen.set(true);
   }
 }

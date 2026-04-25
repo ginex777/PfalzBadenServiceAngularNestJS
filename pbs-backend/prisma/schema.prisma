@@ -206,15 +206,19 @@ model MuellplanVorlagen {
 }
 
 model Muellplan {
-  id         BigInt    @id @default(autoincrement())
-  objekt_id  BigInt
-  muellart   String    @db.VarChar(100)
-  farbe      String    @default("#6366f1") @db.VarChar(20)
-  abholung   DateTime  @db.Date
-  erledigt   Boolean   @default(false)
-  created_at DateTime? @default(now()) @db.Date
+  id           BigInt    @id @default(autoincrement())
+  objekt_id    BigInt
+  muellart     String    @db.VarChar(100)
+  farbe        String    @default("#6366f1") @db.VarChar(20)
+  abholung     DateTime  @db.Date
+  erledigt     Boolean   @default(false)
+  beschreibung String?   @db.VarChar(500)
+  aktiv        Boolean   @default(true)
+  user_id      BigInt?
+  created_at   DateTime? @default(now()) @db.Date
 
   objekte Objekte @relation(fields: [objekt_id], references: [id])
+  user    Users?  @relation(fields: [user_id], references: [id])
 
   @@map("muellplan")
 }
@@ -449,6 +453,7 @@ model Users {
   updated_at    DateTime @updatedAt
   mitarbeiter   Mitarbeiter?
   tasks         Tasks[]
+  muellplan     Muellplan[]
 
   @@map("users")
 }

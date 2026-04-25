@@ -3,6 +3,7 @@ import { MuellplanService } from './muellplan.service';
 import { BrowserService } from '../../core/services/browser.service';
 import { ToastService } from '../../core/services/toast.service';
 import { Objekt, MuellplanTermin, MuellplanVorlage } from '../../core/models';
+import { TaskListItemApi } from '../aufgaben/aufgaben.models';
 import {
   TerminFormularDaten,
   VorlageFormularDaten,
@@ -32,6 +33,9 @@ export class MuellplanFacade {
   readonly vorlageFormularDaten = signal<VorlageFormularDaten>({ ...LEERE_VORLAGE });
   readonly vorlageAnwendenId = signal<number | null>(null);
   readonly vorlageVorschau = signal<{ datum: string; muellart: string; farbe: string }[]>([]);
+
+  readonly erledigungsHistorie = signal<TaskListItemApi[]>([]);
+  readonly historieZeigen = signal(false);
 
   // --- Copy terms ---
   readonly kopierenModalSichtbar = signal(false);
@@ -93,9 +97,18 @@ export class MuellplanFacade {
   objektAuswaehlen(objekt: Objekt): void {
     if ((objekt.status ?? 'AKTIV') === 'INAKTIV') return;
     this.aktuellesObjekt.set(objekt);
+    this.erledigungsHistorie.set([]);
     this.service.termineLaden(objekt.id).subscribe({
       next: (t) => this.termine.set(t),
       error: () => this.termine.set([]),
+    });
+    this.loadCompletionHistory(objekt.id);
+  }
+
+  loadCompletionHistory(objectId: number): void {
+    this.service.loadCompletionHistory(objectId).subscribe({
+      next: (res) => this.erledigungsHistorie.set(res.data),
+      error: () => {},
     });
   }
 
@@ -161,8 +174,11 @@ export class MuellplanFacade {
     const termin = this.termine().find((t) => t.id === id);
     if (!termin) return;
     this.service.terminAktualisieren(id, { ...termin, erledigt }).subscribe({
-      next: (aktualisiert) =>
-        this.termine.update((list) => list.map((t) => (t.id === id ? aktualisiert : t))),
+      next: (aktualisiert) => {
+        this.termine.update((list) => list.map((t) => (t.id === id ? aktualisiert : t)));
+        const objekt = this.aktuellesObjekt();
+        if (erledigt && objekt) this.loadCompletionHistory(objekt.id);
+      },
       error: () => this.toast.error('Termin konnte nicht aktualisiert werden.'),
     });
   }

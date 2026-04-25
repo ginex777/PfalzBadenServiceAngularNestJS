@@ -257,3 +257,39 @@
   color: var(--gray-400);
   font-size: 13px;
 }
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab-btn {
+  padding: 0.4rem 0.9rem;
+  font-size: 13px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: -1px;
+
+  &--aktiv {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    font-weight: 600;
+  }
+}
+
+.tab-badge {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 9999px;
+  font-size: 11px;
+  padding: 0 0.4rem;
+  line-height: 1.5;
+}

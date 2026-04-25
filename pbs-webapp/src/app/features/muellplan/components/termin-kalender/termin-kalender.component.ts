@@ -2,11 +2,12 @@
 // Müllplan — Termin-Kalender (Dumb Component)
 // ============================================================
 
-import { ChangeDetectionStrategy, Component, input, output, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, computed, signal } from '@angular/core';
 import { Objekt, MuellplanVorlage } from '../../../../core/models';
 import { TerminAnzeige } from '../../muellplan.models';
 import { datumFormatieren } from '../../../../core/utils/format.utils';
 import { MONATE } from '../../../../core/utils/format.utils';
+import { TaskListItemApi } from '../../../aufgaben/aufgaben.models';
 
 interface MonatsGruppe {
   label: string;
@@ -29,6 +30,9 @@ export class TerminKalenderComponent {
   readonly monthFilter = input<number | null>(null);
   readonly hidePast = input<boolean>(false);
   readonly hasActiveFilter = input<boolean>(false);
+  readonly erledigungsHistorie = input<TaskListItemApi[]>([]);
+
+  protected readonly aktiverTab = signal<'termine' | 'historie'>('termine');
 
   readonly addTerm = output<void>();
   readonly termDoneChange = output<{ id: number; done: boolean }>();

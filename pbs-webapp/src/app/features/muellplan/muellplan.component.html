@@ -43,6 +43,7 @@
           [monthFilter]="monatFilter()"
           [hidePast]="facade.vergangeneAusblenden()"
           [hasActiveFilter]="hatAktivenFilter()"
+          [erledigungsHistorie]="facade.erledigungsHistorie()"
           (addTerm)="facade.terminFormularOeffnen()"
           (termDoneChange)="terminErledigtAendern($event)"
           (deleteTerm)="facade.terminLoeschen($event)"

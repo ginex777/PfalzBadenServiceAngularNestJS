@@ -1,11 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { ApiService } from '../../core/api/api.service';
-import { Objekt, MuellplanTermin, MuellplanVorlage } from '../../core/models';
+import { Objekt, MuellplanTermin, MuellplanVorlage, PaginatedResponse } from '../../core/models';
+import { TaskListItemApi } from '../aufgaben/aufgaben.models';
 
 @Injectable({ providedIn: 'root' })
 export class MuellplanService {
   private readonly api = inject(ApiService);
+  private readonly http = inject(HttpClient);
 
   allesDatenLaden(): Observable<{
     objekte: Objekt[];
@@ -65,6 +68,20 @@ export class MuellplanService {
 
   termineKopieren(vonObjektId: number, zuObjektId: number): Observable<void> {
     return this.api.copyGarbageTerms(vonObjektId, zuObjektId);
+  }
+
+  markTerminDone(id: number, comment?: string): Observable<MuellplanTermin> {
+    return this.http.patch<MuellplanTermin>(`/api/muellplan/${id}/erledigen`, { kommentar: comment });
+  }
+
+  loadCompletionHistory(objectId: number): Observable<PaginatedResponse<TaskListItemApi>> {
+    const params = new HttpParams()
+      .set('objectId', String(objectId))
+      .set('type', 'MUELL')
+      .set('status', 'ERLEDIGT')
+      .set('page', '1')
+      .set('pageSize', '50');
+    return this.http.get<PaginatedResponse<TaskListItemApi>>('/api/aufgaben', { params });
   }
 
   async monatsabschlussPdfOeffnen(objektId: number): Promise<void> {
