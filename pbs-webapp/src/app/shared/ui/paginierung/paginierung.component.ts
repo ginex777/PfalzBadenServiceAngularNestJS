@@ -45,4 +45,3 @@ export class PaginierungComponent {
     this.pageSizeChange.emit(value);
   }
 }
-

@@ -1,12 +1,16 @@
 <div class="page-wrap">
-<app-page-title title="DATEV Export" subtitle="Buchungsstapel für Steuerberater" />
+  <app-page-title title="DATEV Export" subtitle="Buchungsstapel für Steuerberater" />
 
   <!-- Zeitraum-Auswahl -->
   <div class="card">
     <div class="zeitraum-zeile">
       <div>
         <label class="feld-label">Jahr</label>
-        <select class="select-sm" [value]="facade.aktuellesJahr()" (change)="jahrGeaendert($event)">
+        <select
+          class="filter-select"
+          [value]="facade.aktuellesJahr()"
+          (change)="jahrGeaendert($event)"
+        >
           @for (j of facade.verfuegbareJahre(); track j) {
             <option [value]="j">{{ j }}</option>
           }
@@ -17,7 +21,7 @@
         <div class="zeitraum-btns">
           @for (typ of zeitraumTypen; track typ.id) {
             <button
-              class="zeitraum-btn"
+              class="btn btn-sm zeitraum-btn"
               [class.aktiv]="facade.zeitraumTyp() === typ.id"
               (click)="facade.zeitraumTypSetzen(typ.id)"
             >
@@ -30,7 +34,7 @@
         <div>
           <label class="feld-label">Monat</label>
           <select
-            class="select-sm"
+            class="filter-select"
             [value]="facade.aktiverMonat()"
             (change)="monatGeaendert($event)"
           >

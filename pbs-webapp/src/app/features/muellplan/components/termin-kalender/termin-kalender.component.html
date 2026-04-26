@@ -65,7 +65,9 @@
         <div class="naechster-termin" [class]="'naechster-termin--' + t.status">
           <span class="termin-punkt" [style.background]="t.farbe"></span>
           {{ t.muellart }} — {{ naechsterLabel(t) }}
-          <span class="naechster-termin__abholung">(Abholung {{ datumFormatieren(t.abholungAnzeige) }})</span>
+          <span class="naechster-termin__abholung"
+            >(Abholung {{ datumFormatieren(t.abholungAnzeige) }})</span
+          >
         </div>
       }
     </div>

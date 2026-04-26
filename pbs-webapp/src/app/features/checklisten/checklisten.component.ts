@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -59,12 +66,19 @@ function fromEditableField(field: EditableField): ChecklistField {
   };
 }
 
-function mapTemplateSnapshotItems(snapshot: unknown, answers: unknown): { label: string; value: string }[] {
+function mapTemplateSnapshotItems(
+  snapshot: unknown,
+  answers: unknown,
+): { label: string; value: string }[] {
   if (!snapshot || typeof snapshot !== 'object') return [];
   const fieldsRaw = (snapshot as { fields?: unknown }).fields;
-  const fields = Array.isArray(fieldsRaw) ? (fieldsRaw as Array<{ fieldId?: unknown; label?: unknown; type?: unknown }>) : [];
+  const fields = Array.isArray(fieldsRaw)
+    ? (fieldsRaw as Array<{ fieldId?: unknown; label?: unknown; type?: unknown }>)
+    : [];
 
-  const answersArr = Array.isArray(answers) ? (answers as Array<{ fieldId?: unknown; value?: unknown }>) : [];
+  const answersArr = Array.isArray(answers)
+    ? (answers as Array<{ fieldId?: unknown; value?: unknown }>)
+    : [];
   const answerByFieldId = new Map<string, unknown>();
   for (const a of answersArr) {
     const fieldId = typeof a.fieldId === 'string' ? a.fieldId : '';
@@ -184,7 +198,9 @@ export class ChecklistenComponent implements OnInit {
           }
         },
         error: (err: { error?: { message?: string } }) => {
-          this.adminTemplatesError.set(err?.error?.message ?? 'Templates konnten nicht geladen werden.');
+          this.adminTemplatesError.set(
+            err?.error?.message ?? 'Templates konnten nicht geladen werden.',
+          );
         },
       });
   }
@@ -196,7 +212,16 @@ export class ChecklistenComponent implements OnInit {
       description: '',
       kategorie: '',
       isActive: true,
-      fields: [{ fieldId: '', label: '', type: 'boolean', required: false, helperText: '', optionsText: '' }],
+      fields: [
+        {
+          fieldId: '',
+          label: '',
+          type: 'boolean',
+          required: false,
+          helperText: '',
+          optionsText: '',
+        },
+      ],
       assignedObjectIds: [],
     });
   }
@@ -228,7 +253,14 @@ export class ChecklistenComponent implements OnInit {
       ...current,
       fields: [
         ...current.fields,
-        { fieldId: '', label: '', type: 'boolean', required: false, helperText: '', optionsText: '' },
+        {
+          fieldId: '',
+          label: '',
+          type: 'boolean',
+          required: false,
+          helperText: '',
+          optionsText: '',
+        },
       ],
     });
   }
@@ -307,4 +339,3 @@ export class ChecklistenComponent implements OnInit {
       });
   }
 }
-

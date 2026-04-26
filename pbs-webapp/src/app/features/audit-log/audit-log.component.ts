@@ -50,7 +50,10 @@ export class AuditLogComponent implements OnInit {
 
   protected onSearchTermChange(event: Event): void {
     const q = (event.target as HTMLInputElement).value;
-    this.router.navigate([], { queryParams: { q: q || null, page: 1 }, queryParamsHandling: 'merge' });
+    this.router.navigate([], {
+      queryParams: { q: q || null, page: 1 },
+      queryParamsHandling: 'merge',
+    });
   }
 
   protected onActionChange(event: Event): void {
@@ -63,7 +66,10 @@ export class AuditLogComponent implements OnInit {
 
   protected onTableChange(event: Event): void {
     const tabelle = (event.target as HTMLSelectElement).value;
-    this.router.navigate([], { queryParams: { tabelle: tabelle || null, page: 1 }, queryParamsHandling: 'merge' });
+    this.router.navigate([], {
+      queryParams: { tabelle: tabelle || null, page: 1 },
+      queryParamsHandling: 'merge',
+    });
   }
 
   protected onPageChange(page: number): void {

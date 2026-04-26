@@ -10,11 +10,7 @@ import { MuellplanFacade } from './muellplan.facade';
 import { ObjektListeComponent } from './components/objekt-liste/objekt-liste.component';
 import { TerminKalenderComponent } from './components/termin-kalender/termin-kalender.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
-import {
-  TerminAnzeige,
-  TerminFormularDaten,
-  VorlageFormularDaten,
-} from './muellplan.models';
+import { TerminAnzeige, TerminFormularDaten, VorlageFormularDaten } from './muellplan.models';
 import { datumFormatieren } from '../../core/utils/format.utils';
 import { MuellplanVorlage } from '../../core/models';
 
@@ -22,11 +18,7 @@ import { MuellplanVorlage } from '../../core/models';
   selector: 'app-muellplan',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ObjektListeComponent,
-    TerminKalenderComponent,
-    PageTitleComponent,
-  ],
+  imports: [ObjektListeComponent, TerminKalenderComponent, PageTitleComponent],
   templateUrl: './muellplan.component.html',
   styleUrl: './muellplan.component.scss',
 })

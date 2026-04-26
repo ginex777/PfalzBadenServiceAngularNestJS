@@ -10,10 +10,13 @@ export class AktivitaetenService {
   private readonly http = inject(HttpClient);
   private readonly basis = '/api';
 
-  list(objektId: number, filters: AktivitaetenFilterState, page: number, pageSize: number): Observable<AktivitaetenListResponse> {
-    let params = new HttpParams()
-      .set('page', page)
-      .set('pageSize', pageSize);
+  list(
+    objektId: number,
+    filters: AktivitaetenFilterState,
+    page: number,
+    pageSize: number,
+  ): Observable<AktivitaetenListResponse> {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
 
     if (filters.type) {
       params = params.set('type', filters.type);
@@ -31,8 +34,11 @@ export class AktivitaetenService {
       params = params.set('createdTo', filters.createdTo);
     }
 
-    return this.http.get<AktivitaetenListResponse>(`${this.basis}/objekte/${objektId}/aktivitaeten`, {
-      params,
-    });
+    return this.http.get<AktivitaetenListResponse>(
+      `${this.basis}/objekte/${objektId}/aktivitaeten`,
+      {
+        params,
+      },
+    );
   }
 }

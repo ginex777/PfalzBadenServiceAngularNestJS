@@ -91,4 +91,3 @@ export class AufgabenListeComponent {
     return Boolean(task.photoUrl && task.photoUrl.trim());
   }
 }
-

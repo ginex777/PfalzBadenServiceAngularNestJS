@@ -15,7 +15,8 @@
 
     <button class="btn btn-sm" [disabled]="page() <= 1" (click)="prev()">← Zurück</button>
     <span class="paginierung__page">Seite {{ page() }} / {{ totalPages() }}</span>
-    <button class="btn btn-sm" [disabled]="page() >= totalPages()" (click)="next()">Weiter →</button>
+    <button class="btn btn-sm" [disabled]="page() >= totalPages()" (click)="next()">
+      Weiter →
+    </button>
   </div>
 </div>
-

@@ -569,7 +569,7 @@ export class ChecklistenService {
     await this.prisma.benachrichtigungen.create({
       data: {
         typ: 'MOBILE_CHECKLIST',
-        titel: `Neue Checkliste: ${template.name} â€¢ ${objectExists.name}`,
+        titel: `Neue Checkliste: ${template.name} • ${objectExists.name}`,
         nachricht: note ? note : undefined,
         link: `/checklisten`,
         gelesen: false,

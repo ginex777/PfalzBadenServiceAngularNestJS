@@ -1,6 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AktivitaetenFilterState, DropdownOption, AKTIVITAET_TYPE_LABELS } from './aktivitaeten.models';
+import {
+  AktivitaetenFilterState,
+  DropdownOption,
+  AKTIVITAET_TYPE_LABELS,
+} from './aktivitaeten.models';
 
 @Component({
   selector: 'app-aktivitaeten-filter',
@@ -25,10 +29,7 @@ export class AktivitaetenFilterComponent {
       value: key,
       label,
     }));
-    return [
-      { value: '', label: 'Alle Typen' },
-      ...types,
-    ];
+    return [{ value: '', label: 'Alle Typen' }, ...types];
   });
 
   protected readonly userOptions = computed(() => {
@@ -75,8 +76,6 @@ export class AktivitaetenFilterComponent {
       createdTo: date || null,
     });
   }
-
-
 
   protected getSelectValue(event: Event): string {
     return (event.target as HTMLSelectElement).value;

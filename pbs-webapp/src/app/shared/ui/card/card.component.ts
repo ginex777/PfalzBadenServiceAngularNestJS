@@ -10,4 +10,3 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 export class CardComponent {
   readonly padded = input<boolean>(true);
 }
-

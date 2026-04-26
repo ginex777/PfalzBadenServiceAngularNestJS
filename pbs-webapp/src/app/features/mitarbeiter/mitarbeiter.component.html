@@ -4,9 +4,7 @@
   @if (!facade.aktiverMitarbeiter()) {
     <div class="toolbar">
       <span class="toolbar__info">{{ facade.mitarbeiter().length }} Mitarbeiter</span>
-      <button class="btn btn-primary" (click)="facade.formularOeffnen()">
-        Neuer Mitarbeiter
-      </button>
+      <button class="btn btn-primary" (click)="facade.formularOeffnen()">Neuer Mitarbeiter</button>
     </div>
 
     <app-mitarbeiter-liste

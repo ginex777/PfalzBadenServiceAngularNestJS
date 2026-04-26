@@ -10,13 +10,7 @@ import { SkeletonRowsComponent } from '../../shared/ui/skeleton-rows/skeleton-ro
   selector: 'app-mobile-rueckmeldungen',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    DatePipe,
-    RouterLink,
-    PageTitleComponent,
-    EmptyStateComponent,
-    SkeletonRowsComponent,
-  ],
+  imports: [DatePipe, RouterLink, PageTitleComponent, EmptyStateComponent, SkeletonRowsComponent],
   templateUrl: './mobile-rueckmeldungen.component.html',
   styleUrl: './mobile-rueckmeldungen.component.scss',
 })

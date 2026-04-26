@@ -9,7 +9,10 @@
 
   <ul class="sidebar__nav" role="list">
     @for (group of navGroups(); track group.id) {
-      <li class="sidebar__group" [class.sidebar__group--offen]="!isDirectLinkGroup(group) && isOpen(group.id)">
+      <li
+        class="sidebar__group"
+        [class.sidebar__group--offen]="!isDirectLinkGroup(group) && isOpen(group.id)"
+      >
         @if (isDirectLinkGroup(group)) {
           <a
             class="sidebar__group-link"

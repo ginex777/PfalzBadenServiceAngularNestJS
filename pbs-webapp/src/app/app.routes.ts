@@ -29,7 +29,9 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('./features/operativ/operativ-landing.component').then((m) => m.OperativLandingComponent),
+          import('./features/operativ/operativ-landing.component').then(
+            (m) => m.OperativLandingComponent,
+          ),
       },
       {
         path: 'muellplan',
@@ -41,7 +43,9 @@ export const routes: Routes = [
         path: 'hausmeister',
         canActivate: [roleGuard(['admin', 'mitarbeiter'])],
         loadComponent: () =>
-          import('./features/hausmeister/hausmeister.component').then((m) => m.HausmeisterComponent),
+          import('./features/hausmeister/hausmeister.component').then(
+            (m) => m.HausmeisterComponent,
+          ),
       },
       {
         path: 'nachweise',
@@ -51,7 +55,9 @@ export const routes: Routes = [
       {
         path: 'checklisten',
         loadComponent: () =>
-          import('./features/checklisten/checklisten.component').then((m) => m.ChecklistenComponent),
+          import('./features/checklisten/checklisten.component').then(
+            (m) => m.ChecklistenComponent,
+          ),
       },
       {
         path: 'stempeluhr',
@@ -123,9 +129,9 @@ export const routes: Routes = [
           {
             path: 'wiederkehrende-rechnungen',
             loadComponent: () =>
-              import(
-                './features/wiederkehrende-rechnungen/wiederkehrende-rechnungen.component'
-              ).then((m) => m.WiederkehrendeRechnungenComponent),
+              import('./features/wiederkehrende-rechnungen/wiederkehrende-rechnungen.component').then(
+                (m) => m.WiederkehrendeRechnungenComponent,
+              ),
           },
           {
             path: 'datev',
@@ -145,7 +151,11 @@ export const routes: Routes = [
         ],
       },
       // Legacy sibling routes → redirect into buchhaltung shell
-      { path: 'wiederkehrende-rechnungen', redirectTo: 'buchhaltung/wiederkehrende-rechnungen', pathMatch: 'full' },
+      {
+        path: 'wiederkehrende-rechnungen',
+        redirectTo: 'buchhaltung/wiederkehrende-rechnungen',
+        pathMatch: 'full',
+      },
       { path: 'belege', redirectTo: 'buchhaltung/belege', pathMatch: 'full' },
       { path: 'euer', redirectTo: 'buchhaltung/euer', pathMatch: 'full' },
       { path: 'fixkosten', redirectTo: 'buchhaltung/fixkosten', pathMatch: 'full' },
@@ -178,7 +188,9 @@ export const routes: Routes = [
         path: 'mitarbeiter',
         canActivate: [roleGuard(['admin'])],
         loadComponent: () =>
-          import('./features/mitarbeiter/mitarbeiter.component').then((m) => m.MitarbeiterComponent),
+          import('./features/mitarbeiter/mitarbeiter.component').then(
+            (m) => m.MitarbeiterComponent,
+          ),
       },
       {
         path: 'vertraege',
@@ -226,7 +238,11 @@ export const routes: Routes = [
 
   { path: 'rechnungen', redirectTo: 'finanzen/rechnungen', pathMatch: 'full' },
   { path: 'angebote', redirectTo: 'finanzen/angebote', pathMatch: 'full' },
-  { path: 'wiederkehrende-rechnungen', redirectTo: 'finanzen/wiederkehrende-rechnungen', pathMatch: 'full' },
+  {
+    path: 'wiederkehrende-rechnungen',
+    redirectTo: 'finanzen/wiederkehrende-rechnungen',
+    pathMatch: 'full',
+  },
   { path: 'buchhaltung', redirectTo: 'finanzen/buchhaltung', pathMatch: 'full' },
   { path: 'belege', redirectTo: 'finanzen/belege', pathMatch: 'full' },
   { path: 'euer', redirectTo: 'finanzen/euer', pathMatch: 'full' },
@@ -247,7 +263,11 @@ export const routes: Routes = [
   { path: 'checklisten', redirectTo: 'operativ/checklisten', pathMatch: 'full' },
   { path: 'stempeluhr', redirectTo: 'operativ/stempeluhr', pathMatch: 'full' },
   { path: 'foto-upload', redirectTo: 'operativ/foto-upload', pathMatch: 'full' },
-  { path: 'mobile-rueckmeldungen', redirectTo: 'operativ/mobile-rueckmeldungen', pathMatch: 'full' },
+  {
+    path: 'mobile-rueckmeldungen',
+    redirectTo: 'operativ/mobile-rueckmeldungen',
+    pathMatch: 'full',
+  },
 
   { path: 'marketing', redirectTo: 'uebersicht', pathMatch: 'full' },
   { path: 'aufgaben', redirectTo: 'uebersicht', pathMatch: 'full' },

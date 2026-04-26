@@ -486,7 +486,9 @@ export class ApiService {
       .set('page', String(query.page))
       .set('pageSize', String(query.pageSize));
     if (query.objectId) params = params.set('objectId', String(query.objectId));
-    return this.http.get<PaginatedResponse<EvidenceListItemApi>>(`${this.basis}/nachweise`, { params });
+    return this.http.get<PaginatedResponse<EvidenceListItemApi>>(`${this.basis}/nachweise`, {
+      params,
+    });
   }
 
   getEvidenceDownloadUrl(id: number, inline = false): string {
@@ -507,7 +509,10 @@ export class ApiService {
       .set('page', String(query.page))
       .set('pageSize', String(query.pageSize));
     if (query.q) params = params.set('q', query.q);
-    return this.http.get<PaginatedResponse<ChecklistTemplateApi>>(`${this.basis}/checklisten/templates`, { params });
+    return this.http.get<PaginatedResponse<ChecklistTemplateApi>>(
+      `${this.basis}/checklisten/templates`,
+      { params },
+    );
   }
 
   createChecklistTemplate(payload: {
@@ -529,15 +534,26 @@ export class ApiService {
       isActive: boolean;
     }>,
   ): Observable<ChecklistTemplateApi> {
-    return this.http.put<ChecklistTemplateApi>(`${this.basis}/checklisten/templates/${id}`, payload);
+    return this.http.put<ChecklistTemplateApi>(
+      `${this.basis}/checklisten/templates/${id}`,
+      payload,
+    );
   }
 
-  assignChecklistTemplateObjects(templateId: number, objektIds: number[]): Observable<{ ok: boolean }> {
-    return this.http.put<{ ok: boolean }>(`${this.basis}/checklisten/templates/${templateId}/objekte`, { objektIds });
+  assignChecklistTemplateObjects(
+    templateId: number,
+    objektIds: number[],
+  ): Observable<{ ok: boolean }> {
+    return this.http.put<{ ok: boolean }>(
+      `${this.basis}/checklisten/templates/${templateId}/objekte`,
+      { objektIds },
+    );
   }
 
   loadChecklistTemplatesForObject(objektId: number): Observable<ChecklistTemplateApi[]> {
-    return this.http.get<ChecklistTemplateApi[]>(`${this.basis}/checklisten/templates/for-object/${objektId}`);
+    return this.http.get<ChecklistTemplateApi[]>(
+      `${this.basis}/checklisten/templates/for-object/${objektId}`,
+    );
   }
 
   loadChecklistSubmissionsPage(query: {
@@ -551,17 +567,25 @@ export class ApiService {
       .set('pageSize', String(query.pageSize));
     if (query.objectId) params = params.set('objectId', String(query.objectId));
     if (query.templateId) params = params.set('templateId', String(query.templateId));
-    return this.http.get<PaginatedResponse<ChecklistSubmissionListItemApi>>(`${this.basis}/checklisten/submissions`, { params });
+    return this.http.get<PaginatedResponse<ChecklistSubmissionListItemApi>>(
+      `${this.basis}/checklisten/submissions`,
+      { params },
+    );
   }
 
   loadChecklistSubmission(id: number): Observable<ChecklistSubmissionDetailApi> {
-    return this.http.get<ChecklistSubmissionDetailApi>(`${this.basis}/checklisten/submissions/${id}`);
+    return this.http.get<ChecklistSubmissionDetailApi>(
+      `${this.basis}/checklisten/submissions/${id}`,
+    );
   }
 
   createChecklistSubmissionPdf(submissionId: number): Observable<{ token: string; url: string }> {
-    return this.http.post<{ token: string; url: string }>(`${this.basis}/pdf/checkliste/submission`, {
-      submission_id: submissionId,
-    });
+    return this.http.post<{ token: string; url: string }>(
+      `${this.basis}/pdf/checkliste/submission`,
+      {
+        submission_id: submissionId,
+      },
+    );
   }
 
   // ── Mobile → Webapp Workflows ("money feature") ─────────────────────────
@@ -574,7 +598,10 @@ export class ApiService {
       .set('page', String(query.page))
       .set('pageSize', String(query.pageSize));
     if (query.objectId) params = params.set('objectId', String(query.objectId));
-    return this.http.get<PaginatedResponse<MobileFeedbackItemApi>>(`${this.basis}/mobile-feedback`, { params });
+    return this.http.get<PaginatedResponse<MobileFeedbackItemApi>>(
+      `${this.basis}/mobile-feedback`,
+      { params },
+    );
   }
 
   // ── Einstellungen ───────────────────────────────────────────────────────
@@ -758,7 +785,9 @@ export class ApiService {
       .set('pageSize', String(query?.pageSize ?? 50));
     if (query?.q) params = params.set('q', query.q);
     if (query?.typ) params = params.set('typ', query.typ);
-    return this.http.get<PaginatedResponse<PdfArchiveEntry>>(`${this.basis}/pdf/archiv`, { params });
+    return this.http.get<PaginatedResponse<PdfArchiveEntry>>(`${this.basis}/pdf/archiv`, {
+      params,
+    });
   }
 
   loadPdfArchive(): Observable<PdfArchiveEntry[]> {

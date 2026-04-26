@@ -11,7 +11,11 @@ export class ZeiterfassungService {
 
   constructor(private http: HttpClient) {}
 
-  list(filters: ZeiterfassungFilterState, page: number = 1, pageSize: number = 50): Observable<ZeiterfassungListResponse> {
+  list(
+    filters: ZeiterfassungFilterState,
+    page: number = 1,
+    pageSize: number = 50,
+  ): Observable<ZeiterfassungListResponse> {
     let params = new HttpParams().set('page', String(page)).set('pageSize', String(pageSize));
 
     if (filters.mitarbeiterId) {

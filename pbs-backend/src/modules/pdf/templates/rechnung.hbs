@@ -87,7 +87,7 @@
     border-bottom: none;
   }
   /* Keep totals block together */
-  .totals-group { page-break-inside: avoid; }
+  tbody.totals-group { page-break-inside: avoid; }
 
   /* Hinweis / Grußformel */
   .hinweis {
@@ -147,7 +147,9 @@
         <td class="r">{{fmtEur gesamtpreis}}</td>
       </tr>
       {{/each}}
-      <tr class="totals-row totals-group">
+    </tbody>
+    <tbody class="totals-group">
+      <tr class="totals-row">
         <td colspan="4">Nettobetrag</td>
         <td class="r">{{rechnung.nettoFormatiert}}</td>
       </tr>

@@ -1,7 +1,4 @@
-<app-page-title
-  title="Wiederkehrende Rechnungen"
-  subtitle="Vorlagen für regelmäßige Rechnungen"
-/>
+<app-page-title title="Wiederkehrende Rechnungen" subtitle="Vorlagen für regelmäßige Rechnungen" />
 
 <!-- Formular Modal -->
 @if (facade.formularSichtbar()) {
@@ -15,90 +12,94 @@
             Neue Vorlage
           }
         </h3>
-        <button class="modal-close" (click)="facade.formularSchliessen()" title="Schließen">✕</button>
+        <button class="modal-close" (click)="facade.formularSchliessen()" title="Schließen">
+          ✕
+        </button>
       </div>
       <div class="modal-body">
         <div class="form-row">
-      <div class="form-field">
-        <label class="form-label">Titel *</label>
-        <input
-          class="form-input"
-          type="text"
-          placeholder="z.B. Monatliche Reinigung"
-          [value]="facade.formularDaten().titel"
-          (input)="titelGeaendert($event)"
-        />
-      </div>
-      <div class="form-field">
-        <label class="form-label">Kunde</label>
-        <select
-          class="form-select"
-          [value]="facade.formularDaten().kunden_id ?? ''"
-          (change)="kundeGeaendert($event)"
-        >
-          <option value="">-- kein Kunde --</option>
-          @for (k of facade.kunden(); track k.id) {
-            <option [value]="k.id">{{ k.name }}</option>
-          }
-        </select>
-      </div>
-      <div class="form-field">
-        <label class="form-label">Intervall</label>
-        <select
-          class="form-select"
-          [value]="facade.formularDaten().intervall"
-          (change)="intervallGeaendert($event)"
-        >
-          <option value="monatlich">Monatlich</option>
-          <option value="quartalsweise">Quartalsweise</option>
-          <option value="halbjaehrlich">Halbjährlich</option>
-          <option value="jaehrlich">Jährlich</option>
-        </select>
-      </div>
-      <div class="form-field form-field--checkbox">
-        <label class="form-label">Aktiv</label>
-        <input
-          type="checkbox"
-          [checked]="facade.formularDaten().aktiv"
-          (change)="aktivGeaendert($event)"
-        />
-      </div>
-    </div>
-
-    <!-- Positionen -->
-    <div class="positionen-bereich">
-      <div class="positionen-kopf">
-        <label class="form-label">Positionen</label>
-        <button class="btn btn-sm" (click)="facade.positionHinzufuegen()">Position</button>
-      </div>
-      @for (pos of facade.formularDaten().positionen; track $index) {
-        <div class="position-zeile">
-          <textarea
-            class="form-input"
-            rows="1"
-            placeholder="Beschreibung"
-            [value]="pos.bez"
-            (input)="positionBezGeaendert($index, $event)"
-          ></textarea>
-          <input
-            class="form-input pos-preis"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="Betrag"
-            [value]="pos.gesamtpreis || ''"
-            (input)="positionGesamtpreisGeaendert($index, $event)"
-          />
-          @if (facade.formularDaten().positionen.length > 1) {
-            <button class="btn-action btn-action--danger" (click)="facade.positionEntfernen($index)">
-              ✕
-            </button>
-          }
+          <div class="form-field">
+            <label class="form-label">Titel *</label>
+            <input
+              class="form-input"
+              type="text"
+              placeholder="z.B. Monatliche Reinigung"
+              [value]="facade.formularDaten().titel"
+              (input)="titelGeaendert($event)"
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Kunde</label>
+            <select
+              class="form-select"
+              [value]="facade.formularDaten().kunden_id ?? ''"
+              (change)="kundeGeaendert($event)"
+            >
+              <option value="">-- kein Kunde --</option>
+              @for (k of facade.kunden(); track k.id) {
+                <option [value]="k.id">{{ k.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Intervall</label>
+            <select
+              class="form-select"
+              [value]="facade.formularDaten().intervall"
+              (change)="intervallGeaendert($event)"
+            >
+              <option value="monatlich">Monatlich</option>
+              <option value="quartalsweise">Quartalsweise</option>
+              <option value="halbjaehrlich">Halbjährlich</option>
+              <option value="jaehrlich">Jährlich</option>
+            </select>
+          </div>
+          <div class="form-field form-field--checkbox">
+            <label class="form-label">Aktiv</label>
+            <input
+              type="checkbox"
+              [checked]="facade.formularDaten().aktiv"
+              (change)="aktivGeaendert($event)"
+            />
+          </div>
         </div>
-      }
-      <div class="positionen-summe">Gesamt: {{ fmt(facade.brutto()) }}</div>
-    </div>
 
+        <!-- Positionen -->
+        <div class="positionen-bereich">
+          <div class="positionen-kopf">
+            <label class="form-label">Positionen</label>
+            <button class="btn btn-sm" (click)="facade.positionHinzufuegen()">Position</button>
+          </div>
+          @for (pos of facade.formularDaten().positionen; track $index) {
+            <div class="position-zeile">
+              <textarea
+                class="form-input"
+                rows="1"
+                placeholder="Beschreibung"
+                [value]="pos.bez"
+                (input)="positionBezGeaendert($index, $event)"
+              ></textarea>
+              <input
+                class="form-input pos-preis"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Betrag"
+                [value]="pos.gesamtpreis || ''"
+                (input)="positionGesamtpreisGeaendert($index, $event)"
+              />
+              @if (facade.formularDaten().positionen.length > 1) {
+                <button
+                  class="btn-action btn-action--danger"
+                  (click)="facade.positionEntfernen($index)"
+                >
+                  ✕
+                </button>
+              }
+            </div>
+          }
+          <div class="positionen-summe">Gesamt: {{ fmt(facade.brutto()) }}</div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn" (click)="facade.formularSchliessen()">Abbrechen</button>

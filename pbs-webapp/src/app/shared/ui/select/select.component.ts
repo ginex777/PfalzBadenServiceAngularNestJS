@@ -61,4 +61,3 @@ export class SelectComponent implements ControlValueAccessor {
     this.onTouched();
   }
 }
-

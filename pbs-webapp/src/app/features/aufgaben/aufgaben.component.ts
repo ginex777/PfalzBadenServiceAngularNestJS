@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
@@ -12,7 +19,14 @@ import { PageTitleComponent } from '../../shared/ui/page-title/page-title.compon
 import { AufgabeDetailComponent } from './aufgabe-detail.component';
 import { AufgabenFilterComponent, UserOption } from './aufgaben-filter.component';
 import { AufgabenListeComponent } from './aufgaben-liste.component';
-import { DEFAULT_TASK_FILTERS, TaskFilterState, TaskListItemApi, TaskListQuery, TaskStatus, TaskType } from './aufgaben.models';
+import {
+  DEFAULT_TASK_FILTERS,
+  TaskFilterState,
+  TaskListItemApi,
+  TaskListQuery,
+  TaskStatus,
+  TaskType,
+} from './aufgaben.models';
 import { TasksService } from './aufgaben.service';
 
 function parseNumber(value: unknown): number | null {
@@ -164,7 +178,10 @@ export class AufgabenComponent {
   }
 
   protected onPageSizeChange(nextSize: number): void {
-    this.router.navigate([], { queryParams: { pageSize: nextSize, page: 1 }, queryParamsHandling: 'merge' });
+    this.router.navigate([], {
+      queryParams: { pageSize: nextSize, page: 1 },
+      queryParamsHandling: 'merge',
+    });
   }
 
   protected reload(): void {
@@ -219,7 +236,8 @@ export class AufgabenComponent {
           const type = parseEnumList(params['type'], TASK_TYPES);
           const status = parseEnumList(params['status'], TASK_STATUSES);
 
-          const createdFrom = typeof params['createdFrom'] === 'string' ? params['createdFrom'] : '';
+          const createdFrom =
+            typeof params['createdFrom'] === 'string' ? params['createdFrom'] : '';
           const createdTo = typeof params['createdTo'] === 'string' ? params['createdTo'] : '';
           const dueFrom = typeof params['dueFrom'] === 'string' ? params['dueFrom'] : '';
           const dueTo = typeof params['dueTo'] === 'string' ? params['dueTo'] : '';

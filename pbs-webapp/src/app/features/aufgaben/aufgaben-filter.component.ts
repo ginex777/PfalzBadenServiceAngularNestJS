@@ -1,6 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { Kunde, Mitarbeiter, Objekt } from '../../core/models';
-import { TaskFilterState, TaskStatus, TaskType, TASK_STATUS_LABELS, TASK_TYPE_LABELS } from './aufgaben.models';
+import {
+  TaskFilterState,
+  TaskStatus,
+  TaskType,
+  TASK_STATUS_LABELS,
+  TASK_TYPE_LABELS,
+} from './aufgaben.models';
 
 export interface UserOption {
   id: number;
@@ -149,4 +155,3 @@ export class AufgabenFilterComponent {
     this.filtersChange.emit({ ...this.filters(), ...patch });
   }
 }
-

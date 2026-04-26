@@ -1,11 +1,4 @@
-import {
-  Directive,
-  TemplateRef,
-  ViewContainerRef,
-  effect,
-  inject,
-  input,
-} from '@angular/core';
+import { Directive, TemplateRef, ViewContainerRef, effect, inject, input } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 
 type UserRole = 'admin' | 'readonly' | 'mitarbeiter';
@@ -52,4 +45,3 @@ export class RoleAllowedDirective {
     this.hasView = false;
   }
 }
-

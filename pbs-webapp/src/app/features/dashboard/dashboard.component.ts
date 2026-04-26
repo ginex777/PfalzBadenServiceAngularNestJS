@@ -38,4 +38,3 @@ export class DashboardComponent implements OnInit {
     return `noch ${daysRemaining} Tage`;
   }
 }
-

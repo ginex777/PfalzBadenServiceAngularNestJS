@@ -1,5 +1,14 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, signal, input, output, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  signal,
+  input,
+  output,
+  computed,
+} from '@angular/core';
 import { ToastService } from '../../core/services/toast.service';
 import { BrowserService } from '../../core/services/browser.service';
 import { TasksService } from './aufgaben.service';

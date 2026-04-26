@@ -28,7 +28,7 @@ Handlebars.registerHelper(
     (n || 0).toLocaleString('de-DE', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }) + ' â‚¬',
+    }) + ' €',
 );
 Handlebars.registerHelper('posNr', (idx: number) => idx + 1);
 Handlebars.registerHelper('fmtStunden', (n: number) =>
@@ -155,7 +155,7 @@ export class PdfRenderService {
   }
 
   formatDate(s: string): string {
-    if (!s) return 'â€“';
+    if (!s) return '–';
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
       const [y, m, d] = s.split('-').map(Number);
       return new Date(y, m - 1, d).toLocaleDateString('de-DE', {
@@ -172,7 +172,7 @@ export class PdfRenderService {
   }
 
   addDays(date: string, days: number): string {
-    if (!date) return 'â€“';
+    if (!date) return '–';
     const [y, m, d] = date.split('-').map(Number);
     const dt = new Date(y, m - 1, d);
     dt.setDate(dt.getDate() + days);
@@ -188,7 +188,7 @@ export class PdfRenderService {
       (n || 0).toLocaleString('de-DE', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      }) + ' â‚¬'
+      }) + ' €'
     );
   }
 
@@ -202,7 +202,7 @@ export class PdfRenderService {
     const headerCss = `
 <style>
   * { box-sizing: border-box; }
-  .doc-header { font-family: Arial,Helvetica,sans-serif; color: #111; width: 100%; padding: 6mm 20mm 0; }
+  .doc-header { font-family: Arial,Helvetica,sans-serif; color: #111; width: 100%; padding: 6mm 20mm 0; display: flex; justify-content: space-between; align-items: flex-start; }
   .firma-info { display: flex; flex-direction: column; gap: 1px; }
   .firma-name { font-size: 13px; font-weight: 700; }
   .firma-sub { font-size: 8px; color: #555; }

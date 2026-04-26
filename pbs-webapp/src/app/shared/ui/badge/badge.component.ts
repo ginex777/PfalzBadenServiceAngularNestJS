@@ -13,4 +13,3 @@ export class BadgeComponent {
   readonly variant = input<AppBadgeVariant>('neutral');
   protected readonly cssClass = computed(() => `app-badge app-badge--${this.variant()}`);
 }
-

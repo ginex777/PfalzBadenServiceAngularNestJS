@@ -81,4 +81,3 @@ export class ChecklistenService {
     return this.api.createChecklistSubmissionPdf(submissionId);
   }
 }
-

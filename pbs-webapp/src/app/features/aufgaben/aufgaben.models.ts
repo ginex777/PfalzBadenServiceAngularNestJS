@@ -119,4 +119,3 @@ export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   GEPRUEFT: 'Geprüft',
   ABGELEHNT: 'Abgelehnt',
 };
-

@@ -46,7 +46,14 @@ export class BelegeService {
       jahr || typ || query
         ? {
             AND: [
-              jahr ? { buchhaltung: { jahr } } : {},
+              jahr
+                ? {
+                    erstellt_am: {
+                      gte: new Date(jahr, 0, 1),
+                      lt: new Date(jahr + 1, 0, 1),
+                    },
+                  }
+                : {},
               typ ? { typ } : {},
               query
                 ? {

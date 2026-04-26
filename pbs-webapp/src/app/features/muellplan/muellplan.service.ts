@@ -71,7 +71,9 @@ export class MuellplanService {
   }
 
   markTerminDone(id: number, comment?: string): Observable<MuellplanTermin> {
-    return this.http.patch<MuellplanTermin>(`/api/muellplan/${id}/erledigen`, { kommentar: comment });
+    return this.http.patch<MuellplanTermin>(`/api/muellplan/${id}/erledigen`, {
+      kommentar: comment,
+    });
   }
 
   loadCompletionHistory(objectId: number): Observable<PaginatedResponse<TaskListItemApi>> {

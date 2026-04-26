@@ -51,7 +51,11 @@
           [disabled]="!canEdit() || isSaving() || editedStatus() === task().status"
           (click)="saveStatus()"
         >
-          @if (isSaving()) { Speichert… } @else { Speichern }
+          @if (isSaving()) {
+            Speichert…
+          } @else {
+            Speichern
+          }
         </button>
       </div>
       @if (!canEdit()) {
@@ -72,7 +76,9 @@
         </div>
         <div class="kv__row">
           <div class="kv__k">Erledigt am</div>
-          <div class="kv__v">{{ task().completedAt ? (task().completedAt | date: 'dd.MM.yyyy HH:mm') : '–' }}</div>
+          <div class="kv__v">
+            {{ task().completedAt ? (task().completedAt | date: 'dd.MM.yyyy HH:mm') : '–' }}
+          </div>
         </div>
         <div class="kv__row">
           <div class="kv__k">Dauer</div>
@@ -119,4 +125,3 @@
     </div>
   </div>
 </div>
-

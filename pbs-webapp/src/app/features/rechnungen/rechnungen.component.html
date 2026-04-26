@@ -214,7 +214,7 @@
   <!-- Modal: Rechnung erstellen / bearbeiten / versenden -->
   @if (facade.drawerOffen()) {
     <div class="modal-overlay" (click)="facade.drawerSchliessen()">
-      <div class="modal modal--xl" (click)="$event.stopPropagation()">
+      <div class="modal modal--fullscreen" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h3 class="modal-title">
             @if (facade.drawerSchritt() === 'senden') {
@@ -303,9 +303,7 @@
 
         <div class="modal-footer">
           @if (facade.drawerSchritt() === 'senden') {
-            <button class="btn btn-primary" (click)="onOutlookOeffnen()">
-              Outlook öffnen
-            </button>
+            <button class="btn btn-primary" (click)="onOutlookOeffnen()">Outlook öffnen</button>
             <button class="btn" (click)="onTextKopieren()">Kopieren</button>
             <button class="btn" (click)="facade.sendModalSchliessen()">Schließen</button>
           }

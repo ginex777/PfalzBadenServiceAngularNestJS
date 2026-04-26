@@ -71,7 +71,7 @@ export class AngeboteService {
 
   async create(daten: CreateAngebotDto, nutzer?: string) {
     const angebot = await this.prisma.angebote.create({
-      data: this.mapData(daten),
+      data: this.mapDataCreate(daten),
     });
     await this.audit.log(
       'angebote',
@@ -107,7 +107,32 @@ export class AngeboteService {
     return { ok: true };
   }
 
-  private mapData(d: CreateAngebotDto): Prisma.AngeboteCreateInput {
+  private mapData(d: UpdateAngebotDto): Prisma.AngeboteUpdateInput {
+    const data: Prisma.AngeboteUpdateInput = {};
+    if (d.nr !== undefined) data.nr = d.nr;
+    if (d.empf !== undefined) data.empf = d.empf;
+    if (d.str !== undefined) data.str = d.str ?? null;
+    if (d.ort !== undefined) data.ort = d.ort ?? null;
+    if (d.titel !== undefined) data.titel = d.titel ?? null;
+    if (d.datum !== undefined) data.datum = d.datum ? new Date(d.datum) : null;
+    if (d.brutto !== undefined) data.brutto = new Prisma.Decimal(d.brutto);
+    if (d.gueltig_bis !== undefined)
+      data.gueltig_bis = d.gueltig_bis ? new Date(d.gueltig_bis) : null;
+    if (d.angenommen !== undefined) data.angenommen = d.angenommen;
+    if (d.abgelehnt !== undefined) data.abgelehnt = d.abgelehnt;
+    if (d.gesendet !== undefined) data.gesendet = d.gesendet;
+    if (d.zusatz !== undefined) data.zusatz = d.zusatz ?? null;
+    if (d.positionen !== undefined)
+      data.positionen = d.positionen as unknown as Prisma.InputJsonValue;
+    if (d.kunden_id !== undefined) {
+      data.kunden = d.kunden_id
+        ? { connect: { id: BigInt(d.kunden_id) } }
+        : { disconnect: true };
+    }
+    return data;
+  }
+
+  private mapDataCreate(d: CreateAngebotDto): Prisma.AngeboteCreateInput {
     return {
       nr: d.nr,
       empf: d.empf,

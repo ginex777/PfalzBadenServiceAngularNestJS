@@ -15,7 +15,11 @@ const TABS: readonly OperativTab[] = [
   { path: 'hausmeister', label: 'Sonstige Tätigkeiten', roles: ['admin', 'mitarbeiter'] },
   { path: 'stempeluhr', label: 'Stempeluhr', roles: ['admin', 'mitarbeiter'] },
   { path: 'foto-upload', label: 'Foto Upload', roles: ['admin', 'mitarbeiter'] },
-  { path: 'mobile-rueckmeldungen', label: 'Mobile Rückmeldungen', roles: ['admin', 'readonly', 'mitarbeiter'] },
+  {
+    path: 'mobile-rueckmeldungen',
+    label: 'Mobile Rückmeldungen',
+    roles: ['admin', 'readonly', 'mitarbeiter'],
+  },
   { path: 'nachweise', label: 'Nachweise', roles: ['admin', 'readonly', 'mitarbeiter'] },
   { path: 'checklisten', label: 'Checklisten', roles: ['admin', 'readonly', 'mitarbeiter'] },
   { path: 'aufgaben', label: 'Aufgaben', roles: ['admin', 'readonly'] },
@@ -36,37 +40,41 @@ const TABS: readonly OperativTab[] = [
       <router-outlet />
     </div>
   `,
-  styles: [`
-    .operativ-subnav {
-      display: flex;
-      gap: 0;
-      border-bottom: 1px solid var(--border-strong);
-      padding: 0 1.5rem;
-      background: var(--surface);
-      overflow-x: auto;
-    }
-    .operativ-subnav a {
-      padding: 0.625rem 1.125rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--gray-400);
-      text-decoration: none;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
-      white-space: nowrap;
-      transition: color 0.15s, border-color 0.15s;
-    }
-    .operativ-subnav a:hover {
-      color: var(--gray-600);
-    }
-    .operativ-subnav a.active {
-      color: var(--primary-solid);
-      border-bottom-color: var(--primary-solid);
-    }
-    .operativ-content {
-      padding: 0 1.5rem;
-    }
-  `],
+  styles: [
+    `
+      .operativ-subnav {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid var(--border-strong);
+        padding: 0 1.5rem;
+        background: var(--surface);
+        overflow-x: auto;
+      }
+      .operativ-subnav a {
+        padding: 0.625rem 1.125rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--gray-400);
+        text-decoration: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        white-space: nowrap;
+        transition:
+          color 0.15s,
+          border-color 0.15s;
+      }
+      .operativ-subnav a:hover {
+        color: var(--gray-600);
+      }
+      .operativ-subnav a.active {
+        color: var(--primary-solid);
+        border-bottom-color: var(--primary-solid);
+      }
+      .operativ-content {
+        padding: 0 1.5rem;
+      }
+    `,
+  ],
 })
 export class OperativShellComponent {
   private readonly auth = inject(AuthService);

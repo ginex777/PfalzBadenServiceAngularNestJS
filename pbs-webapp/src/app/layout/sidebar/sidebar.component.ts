@@ -39,7 +39,9 @@ export class SidebarComponent {
     return filterNavigationGroupsForRole(role);
   });
 
-  protected readonly openGroupIds = signal<Set<string>>(new Set([getInitialOpenGroupId(this.router.url)]));
+  protected readonly openGroupIds = signal<Set<string>>(
+    new Set([getInitialOpenGroupId(this.router.url)]),
+  );
 
   protected readonly userDisplayName = computed(() => {
     const user = this.authService.currentUser();

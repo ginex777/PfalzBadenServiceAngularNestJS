@@ -18,4 +18,3 @@ export class DrawerComponent {
     this.closed.emit();
   }
 }
-

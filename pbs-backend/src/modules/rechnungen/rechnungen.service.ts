@@ -85,7 +85,7 @@ export class RechnungenService {
       );
 
     const rechnung = await this.prisma.rechnungen.create({
-      data: this.mapData(daten),
+      data: this.mapDataCreate(daten),
     });
     await this.audit.log(
       'rechnungen',
@@ -112,7 +112,7 @@ export class RechnungenService {
     }
 
     // Duplikat-Check bei Nr-Änderung
-    if (daten.nr !== alt.nr) {
+    if (daten.nr !== undefined && daten.nr !== alt.nr) {
       const dup = await this.prisma.rechnungen.findFirst({
         where: { nr: daten.nr, id: { not: BigInt(id) } },
       });
@@ -144,7 +144,36 @@ export class RechnungenService {
     return { ok: true };
   }
 
-  private mapData(d: CreateRechnungDto): Prisma.RechnungenCreateInput {
+  private mapData(d: UpdateRechnungDto): Prisma.RechnungenUpdateInput {
+    const data: Prisma.RechnungenUpdateInput = {};
+    if (d.nr !== undefined) data.nr = d.nr;
+    if (d.empf !== undefined) data.empf = d.empf;
+    if (d.str !== undefined) data.str = d.str ?? null;
+    if (d.ort !== undefined) data.ort = d.ort ?? null;
+    if (d.titel !== undefined) data.titel = d.titel ?? null;
+    if (d.datum !== undefined) data.datum = d.datum ? new Date(d.datum) : null;
+    if (d.leistungsdatum !== undefined)
+      data.leistungsdatum = d.leistungsdatum ?? null;
+    if (d.email !== undefined) data.email = d.email ?? null;
+    if (d.zahlungsziel !== undefined) data.zahlungsziel = d.zahlungsziel;
+    if (d.kunden_id !== undefined) {
+      data.kunden = d.kunden_id
+        ? { connect: { id: BigInt(d.kunden_id) } }
+        : { disconnect: true };
+    }
+    if (d.brutto !== undefined) data.brutto = new Prisma.Decimal(d.brutto);
+    if (d.frist !== undefined) data.frist = d.frist ? new Date(d.frist) : null;
+    if (d.bezahlt !== undefined) data.bezahlt = d.bezahlt;
+    if (d.bezahlt_am !== undefined)
+      data.bezahlt_am = d.bezahlt_am ? new Date(d.bezahlt_am) : null;
+    if (d.positionen !== undefined)
+      data.positionen = d.positionen as unknown as Prisma.InputJsonValue;
+    if (d.mwst_satz !== undefined)
+      data.mwst_satz = new Prisma.Decimal(d.mwst_satz);
+    return data;
+  }
+
+  private mapDataCreate(d: CreateRechnungDto): Prisma.RechnungenCreateInput {
     return {
       nr: d.nr,
       empf: d.empf,

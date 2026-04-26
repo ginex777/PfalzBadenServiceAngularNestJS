@@ -25,12 +25,7 @@ export class PdfArchivFacade {
     Math.max(1, Math.ceil(this.total() / Math.max(1, this.pageSize()))),
   );
 
-  applyQuery(query: {
-    page?: number;
-    pageSize?: number;
-    q?: string;
-    typ?: PdfArchivFilter;
-  }): void {
+  applyQuery(query: { page?: number; pageSize?: number; q?: string; typ?: PdfArchivFilter }): void {
     const nextPage = query.page && query.page > 0 ? query.page : 1;
     const nextPageSize = query.pageSize && query.pageSize > 0 ? query.pageSize : this.pageSize();
     const nextSearch = query.q ?? this.searchTerm();

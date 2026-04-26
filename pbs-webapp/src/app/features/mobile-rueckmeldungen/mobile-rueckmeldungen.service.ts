@@ -1,6 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { ApiService, MobileFeedbackItemApi, MobileFeedbackKindApi } from '../../core/api/api.service';
+import {
+  ApiService,
+  MobileFeedbackItemApi,
+  MobileFeedbackKindApi,
+} from '../../core/api/api.service';
 import { PaginatedResponse } from '../../core/models';
 
 export type MobileFeedbackKind = MobileFeedbackKindApi;
@@ -30,18 +34,12 @@ export class MobileRueckmeldungenService {
     return this.api.loadObjects();
   }
 
-  loadFeedbackPage(query: {
-    page: number;
-    pageSize: number;
-    objectId?: number;
-  }) {
-    return this.api
-      .loadMobileFeedbackPage(query)
-      .pipe(
-        map((r: PaginatedResponse<MobileFeedbackItemApi>) => ({
-          ...r,
-          data: r.data.map(mapItem),
-        })),
-      );
+  loadFeedbackPage(query: { page: number; pageSize: number; objectId?: number }) {
+    return this.api.loadMobileFeedbackPage(query).pipe(
+      map((r: PaginatedResponse<MobileFeedbackItemApi>) => ({
+        ...r,
+        data: r.data.map(mapItem),
+      })),
+    );
   }
 }

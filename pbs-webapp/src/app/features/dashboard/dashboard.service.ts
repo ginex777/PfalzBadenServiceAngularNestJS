@@ -1,12 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
 import { ApiService } from '../../core/api/api.service';
-import {
-  Rechnung,
-  Angebot,
-  Benachrichtigung,
-  BuchhaltungJahr,
-} from '../../core/models';
+import { Rechnung, Angebot, Benachrichtigung, BuchhaltungJahr } from '../../core/models';
 
 export interface DashboardData {
   invoices: Rechnung[];

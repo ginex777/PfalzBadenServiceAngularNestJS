@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/mapped-types';
 import { RechnungPositionDto } from '../../rechnungen/dto/rechnung.dto';
 
 export class CreateAngebotDto {
@@ -39,4 +40,4 @@ export class CreateAngebotDto {
   kunden_id?: number;
 }
 
-export class UpdateAngebotDto extends CreateAngebotDto {}
+export class UpdateAngebotDto extends PartialType(CreateAngebotDto) {}

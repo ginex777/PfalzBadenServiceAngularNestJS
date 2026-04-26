@@ -31,7 +31,10 @@
       <div class="form-fehler">{{ facade.errorMessage() }}</div>
     </div>
   } @else if (!facade.evidences().length) {
-    <app-empty-state title="Keine Nachweise vorhanden" description="Noch wurden keine Fotos hochgeladen." />
+    <app-empty-state
+      title="Keine Nachweise vorhanden"
+      description="Noch wurden keine Fotos hochgeladen."
+    />
   } @else {
     <div class="card">
       <div class="tabelle-scroll">
@@ -69,7 +72,11 @@
       @if (facade.hasMore()) {
         <div class="nachweise-mehr">
           <button class="btn" type="button" (click)="loadMore()" [disabled]="facade.loading()">
-            @if (facade.loading()) { Laden… } @else { Mehr laden }
+            @if (facade.loading()) {
+              Laden…
+            } @else {
+              Mehr laden
+            }
           </button>
         </div>
       }

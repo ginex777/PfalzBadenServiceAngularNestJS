@@ -43,7 +43,10 @@
       <div class="form-fehler">{{ facade.errorMessage() }}</div>
     </div>
   } @else if (!facade.submissions().length) {
-    <app-empty-state title="Keine Einträge vorhanden" description="Noch wurden keine Checklisten eingereicht." />
+    <app-empty-state
+      title="Keine Einträge vorhanden"
+      description="Noch wurden keine Checklisten eingereicht."
+    />
   } @else {
     <div class="card">
       <div class="tabelle-scroll">
@@ -67,7 +70,9 @@
                 <td>{{ s.submittedAt | date: 'short' }}</td>
                 <td>{{ s.createdByName || s.createdByEmail }}</td>
                 <td class="col-aktionen">
-                  <button class="btn btn-sm" type="button" (click)="selectSubmission(s.id)">Details</button>
+                  <button class="btn btn-sm" type="button" (click)="selectSubmission(s.id)">
+                    Details
+                  </button>
                   <button class="btn btn-sm" type="button" (click)="openPdf(s.id)">PDF</button>
                 </td>
               </tr>
@@ -79,7 +84,11 @@
       @if (facade.hasMore()) {
         <div class="checklisten-mehr">
           <button class="btn" type="button" (click)="loadMore()" [disabled]="facade.loading()">
-            @if (facade.loading()) { Laden… } @else { Mehr laden }
+            @if (facade.loading()) {
+              Laden…
+            } @else {
+              Mehr laden
+            }
           </button>
         </div>
       }
@@ -101,18 +110,32 @@
             <div class="form-fehler">{{ facade.detailError() }}</div>
           } @else if (facade.selectedSubmission()) {
             <div class="detail-meta">
-              <div><span class="k">Objekt:</span> {{ facade.selectedSubmission()!.object.name }}</div>
               <div>
-                <span class="k">Checkliste:</span> {{ facade.selectedSubmission()!.template.name }} (v{{
+                <span class="k">Objekt:</span> {{ facade.selectedSubmission()!.object.name }}
+              </div>
+              <div>
+                <span class="k">Checkliste:</span>
+                {{ facade.selectedSubmission()!.template.name }} (v{{
                   facade.selectedSubmission()!.template.version
                 }})
               </div>
-              <div><span class="k">Abgegeben:</span> {{ facade.selectedSubmission()!.submittedAt | date: 'short' }}</div>
-              <div><span class="k">Von:</span> {{ facade.selectedSubmission()!.createdByName || facade.selectedSubmission()!.createdByEmail }}</div>
+              <div>
+                <span class="k">Abgegeben:</span>
+                {{ facade.selectedSubmission()!.submittedAt | date: 'short' }}
+              </div>
+              <div>
+                <span class="k">Von:</span>
+                {{
+                  facade.selectedSubmission()!.createdByName ||
+                    facade.selectedSubmission()!.createdByEmail
+                }}
+              </div>
             </div>
 
             <div class="detail-actions">
-              <button class="btn" type="button" (click)="openPdf(facade.selectedSubmission()!.id)">PDF erstellen</button>
+              <button class="btn" type="button" (click)="openPdf(facade.selectedSubmission()!.id)">
+                PDF erstellen
+              </button>
             </div>
 
             <div class="tabelle-scroll detail-table">
@@ -164,7 +187,14 @@
                 (click)="startEdit(t)"
               >
                 <div class="admin-item__name">{{ t.name }}</div>
-                <div class="admin-item__meta">v{{ t.version }} · @if (t.isActive) { aktiv } @else { inaktiv }</div>
+                <div class="admin-item__meta">
+                  v{{ t.version }} ·
+                  @if (t.isActive) {
+                    aktiv
+                  } @else {
+                    inaktiv
+                  }
+                </div>
               </button>
             }
           </div>
@@ -182,12 +212,22 @@
 
               <label class="form-label">
                 <span>Beschreibung</span>
-                <textarea class="form-textarea" rows="3" [(ngModel)]="editing()!.description" name="tplDesc"></textarea>
+                <textarea
+                  class="form-textarea"
+                  rows="3"
+                  [(ngModel)]="editing()!.description"
+                  name="tplDesc"
+                ></textarea>
               </label>
 
               <label class="form-label">
                 <span>Kategorie</span>
-                <input class="form-input" [(ngModel)]="editing()!.kategorie" name="tplKategorie" placeholder="z.B. Winterdienst, Reinigung…" />
+                <input
+                  class="form-input"
+                  [(ngModel)]="editing()!.kategorie"
+                  name="tplKategorie"
+                  placeholder="z.B. Winterdienst, Reinigung…"
+                />
               </label>
 
               <label class="form-checkbox">
@@ -217,7 +257,9 @@
 
               <div class="fields-head">
                 <div class="fields-title">Felder</div>
-                <button class="btn btn-sm" type="button" (click)="addField()">Feld hinzufügen</button>
+                <button class="btn btn-sm" type="button" (click)="addField()">
+                  Feld hinzufügen
+                </button>
               </div>
 
               <div class="fields">
@@ -225,15 +267,23 @@
                   <div class="field-row">
                     <label class="form-label">
                       <span>ID</span>
-                      <input class="form-input" [(ngModel)]="f.fieldId" name="fieldId{{$index}}" />
+                      <input
+                        class="form-input"
+                        [(ngModel)]="f.fieldId"
+                        name="fieldId{{ $index }}"
+                      />
                     </label>
                     <label class="form-label">
                       <span>Label</span>
-                      <input class="form-input" [(ngModel)]="f.label" name="fieldLabel{{$index}}" />
+                      <input
+                        class="form-input"
+                        [(ngModel)]="f.label"
+                        name="fieldLabel{{ $index }}"
+                      />
                     </label>
                     <label class="form-label">
                       <span>Typ</span>
-                      <select class="form-select" [(ngModel)]="f.type" name="fieldType{{$index}}">
+                      <select class="form-select" [(ngModel)]="f.type" name="fieldType{{ $index }}">
                         <option value="boolean">Ja/Nein</option>
                         <option value="text">Text</option>
                         <option value="kommentar">Kommentar</option>
@@ -244,23 +294,36 @@
                     </label>
 
                     <label class="form-checkbox">
-                      <input type="checkbox" [(ngModel)]="f.required" name="fieldReq{{$index}}" />
+                      <input type="checkbox" [(ngModel)]="f.required" name="fieldReq{{ $index }}" />
                       <span>Pflicht</span>
                     </label>
 
                     <label class="form-label field-helper">
                       <span>Helper</span>
-                      <input class="form-input" [(ngModel)]="f.helperText" name="fieldHelp{{$index}}" />
+                      <input
+                        class="form-input"
+                        [(ngModel)]="f.helperText"
+                        name="fieldHelp{{ $index }}"
+                      />
                     </label>
 
                     @if (f.type === 'select') {
                       <label class="form-label field-options">
                         <span>Optionen (1 pro Zeile)</span>
-                        <textarea class="form-textarea" rows="3" [(ngModel)]="f.optionsText" name="fieldOpt{{$index}}"></textarea>
+                        <textarea
+                          class="form-textarea"
+                          rows="3"
+                          [(ngModel)]="f.optionsText"
+                          name="fieldOpt{{ $index }}"
+                        ></textarea>
                       </label>
                     }
 
-                    <button class="btn btn btn-sm btn-danger" type="button" (click)="removeField($index)">
+                    <button
+                      class="btn btn btn-sm btn-danger"
+                      type="button"
+                      (click)="removeField($index)"
+                    >
                       Entfernen
                     </button>
                   </div>
@@ -269,7 +332,11 @@
 
               <div class="admin-actions">
                 <button class="btn" type="button" (click)="saveTemplate()" [disabled]="saving()">
-                  @if (saving()) { Speichern… } @else { Speichern }
+                  @if (saving()) {
+                    Speichern…
+                  } @else {
+                    Speichern
+                  }
                 </button>
               </div>
             </div>

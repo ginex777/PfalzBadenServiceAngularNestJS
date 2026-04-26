@@ -139,12 +139,18 @@
           <tr
             [class.row--bezahlt]="rechnung.bezahlt"
             [class.row--ueberfaellig]="istUeberfaellig(rechnung)"
-            [class.row--ausgewaehlt]="rechnung.id !== null && rechnung.id !== undefined && ausgewaehlt().has(rechnung.id)"
+            [class.row--ausgewaehlt]="
+              rechnung.id !== null && rechnung.id !== undefined && ausgewaehlt().has(rechnung.id)
+            "
           >
             <td class="col-check" *roleAllowed="['admin']">
               <input
                 type="checkbox"
-                [checked]="rechnung.id !== null && rechnung.id !== undefined && ausgewaehlt().has(rechnung.id)"
+                [checked]="
+                  rechnung.id !== null &&
+                  rechnung.id !== undefined &&
+                  ausgewaehlt().has(rechnung.id)
+                "
                 (change)="auswahlToggle(rechnung.id!)"
               />
             </td>
@@ -168,7 +174,9 @@
             <td><app-status-badge [status]="statusTyp(rechnung)" /></td>
             <td class="actions-cell">
               <button class="btn-action" (click)="pdfGenerieren.emit(rechnung)">PDF</button>
-              <button class="btn-action" *roleAllowed="['admin']" (click)="kopieren.emit(rechnung)">Als Kopie erstellen</button>
+              <button class="btn-action" *roleAllowed="['admin']" (click)="kopieren.emit(rechnung)">
+                Als Kopie erstellen
+              </button>
               <button
                 class="btn-action"
                 *roleAllowed="['admin']"
@@ -178,10 +186,20 @@
                 Mahnung
               </button>
               @if (!rechnung.bezahlt) {
-                <button class="btn-action btn-action--success" *roleAllowed="['admin']" (click)="alsGezahlt.emit(rechnung)">
+                <button
+                  class="btn-action btn-action--success"
+                  *roleAllowed="['admin']"
+                  (click)="alsGezahlt.emit(rechnung)"
+                >
                   Bezahlt
                 </button>
-                <button class="btn-action" *roleAllowed="['admin']" (click)="bearbeiten.emit(rechnung)">Bearbeiten</button>
+                <button
+                  class="btn-action"
+                  *roleAllowed="['admin']"
+                  (click)="bearbeiten.emit(rechnung)"
+                >
+                  Bearbeiten
+                </button>
                 <button
                   class="btn-action btn-action--danger"
                   *roleAllowed="['admin']"

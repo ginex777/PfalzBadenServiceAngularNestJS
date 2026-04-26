@@ -39,7 +39,9 @@
       title="Offene Rechnungen"
       [value]="
         facade.stats()
-          ? facade.stats()!.openInvoicesCount + ' / ' + formatCurrency(facade.stats()!.openInvoicesGrossTotal)
+          ? facade.stats()!.openInvoicesCount +
+            ' / ' +
+            formatCurrency(facade.stats()!.openInvoicesGrossTotal)
           : '0'
       "
       [subtitle]="
@@ -74,7 +76,11 @@
                 <div class="notif-message">{{ notif.nachricht }}</div>
               }
             </div>
-            <button class="btn-action" type="button" (click)="facade.markNotificationRead(notif.id)">
+            <button
+              class="btn-action"
+              type="button"
+              (click)="facade.markNotificationRead(notif.id)"
+            >
               Gelesen
             </button>
           </div>
@@ -105,10 +111,16 @@
                   <td class="col-name">{{ invoice.recipient }}</td>
                   <td class="col-amount text-danger">{{ formatCurrency(invoice.gross) }}</td>
                   <td class="col-status">
-                    <span class="text-danger hint-sm">{{ formatDaysOverdue(invoice.daysOverdue) }}</span>
+                    <span class="text-danger hint-sm">{{
+                      formatDaysOverdue(invoice.daysOverdue)
+                    }}</span>
                   </td>
                   <td class="col-action">
-                    <button class="btn-action" type="button" (click)="facade.openInvoice(invoice.id)">
+                    <button
+                      class="btn-action"
+                      type="button"
+                      (click)="facade.openInvoice(invoice.id)"
+                    >
                       Öffnen
                     </button>
                   </td>
@@ -156,4 +168,3 @@
     </div>
   </div>
 </div>
-

@@ -106,9 +106,15 @@ export class DashboardFacade {
           yearExpensesNet,
           yearProfitNet: yearRevenueNet - yearExpensesNet,
           openInvoicesCount: openInvoices.length,
-          openInvoicesGrossTotal: openInvoices.reduce((sum, invoice) => sum + (invoice.brutto ?? 0), 0),
+          openInvoicesGrossTotal: openInvoices.reduce(
+            (sum, invoice) => sum + (invoice.brutto ?? 0),
+            0,
+          ),
           overdueInvoicesCount: overdueInvoices.length,
-          overdueInvoicesGrossTotal: overdueInvoices.reduce((sum, invoice) => sum + (invoice.brutto ?? 0), 0),
+          overdueInvoicesGrossTotal: overdueInvoices.reduce(
+            (sum, invoice) => sum + (invoice.brutto ?? 0),
+            0,
+          ),
           openOffersCount: openOffers.length,
           openOffersGrossTotal: openOffers.reduce((sum, offer) => sum + (offer.gross ?? 0), 0),
         });
@@ -125,7 +131,9 @@ export class DashboardFacade {
 
   markNotificationRead(id: number): void {
     this.service.markNotificationRead(id).subscribe(() => {
-      this.notifications.update((list) => list.map((n) => (n.id === id ? { ...n, gelesen: true } : n)));
+      this.notifications.update((list) =>
+        list.map((n) => (n.id === id ? { ...n, gelesen: true } : n)),
+      );
     });
   }
 
@@ -140,7 +148,7 @@ export class DashboardFacade {
   }
 
   openInvoice(id: number): void {
-    this.router.navigate(['/rechnungen'], { state: { openId: id } });
+    this.router.navigate(['/finanzen/rechnungen'], { queryParams: { id } });
   }
 
   navigateToNewInvoice(): void {
@@ -152,7 +160,7 @@ export class DashboardFacade {
   }
 
   openOffer(id: number): void {
-    this.router.navigate(['/angebote'], { state: { openId: id } });
+    this.router.navigate(['/finanzen/angebote'], { queryParams: { id } });
   }
 
   navigateToNewOffer(): void {
@@ -163,4 +171,3 @@ export class DashboardFacade {
     this.router.navigate(['/buchhaltung']);
   }
 }
-

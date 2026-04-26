@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(ls -la \"C:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\.claude\\\\agents\\\\\\\\\")",
-      "Bash(find '/c/Users/Schuh/Desktop/Entwicklung/PBS Angular NESTJS/pbs-backend/src/modules' -name \"*.controller.ts\" -type f -exec grep -l \"pdfView\\\\|pdf.*View\\\\|/pdf\" {} \\\\;)"
+      "Bash(find '/c/Users/Schuh/Desktop/Entwicklung/PBS Angular NESTJS/pbs-backend/src/modules' -name \"*.controller.ts\" -type f -exec grep -l \"pdfView\\\\|pdf.*View\\\\|/pdf\" {} \\\\;)",
+      "Bash(node -e ' *)",
+      "Bash(find \"c:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\pbs-webapp\\\\src\\\\app\\\\features\" -type f -name \"*.html\" -exec grep -l \">\\\\+\\\\s\" {} \\\\;)",
+      "Bash(find \"c:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\pbs-webapp\\\\src\\\\app\\\\features\" -type f -name \"*.html\" -exec grep -l \"<hr\" {} \\\\;)",
+      "Bash(find \"c:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\pbs-webapp\\\\src\\\\app\\\\features\" -name \"*.html\" -type f -exec grep -l \"Neue Vorlage\\\\|Neuer Mitarbeiter\\\\|Neue Rechnung\\\\|Position\\\\|button\" {} \\\\;)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Schuh\\Desktop\\Entwicklung\\PBS Angular NESTJS\\.claude\\agents",

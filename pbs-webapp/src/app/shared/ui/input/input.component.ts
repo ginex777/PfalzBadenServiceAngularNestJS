@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  forwardRef,
-  input,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, forwardRef, input, signal } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 
 @Component({
@@ -29,15 +23,7 @@ export class InputComponent implements ControlValueAccessor {
   readonly type = input<'text' | 'email' | 'password' | 'number' | 'search'>('text');
   readonly autocomplete = input<string | null>(null);
   readonly inputMode = input<
-    | 'none'
-    | 'text'
-    | 'tel'
-    | 'url'
-    | 'email'
-    | 'numeric'
-    | 'decimal'
-    | 'search'
-    | null
+    'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search' | null
   >(null);
   readonly name = input<string | null>(null);
 
@@ -75,4 +61,3 @@ export class InputComponent implements ControlValueAccessor {
     this.onTouched();
   }
 }
-

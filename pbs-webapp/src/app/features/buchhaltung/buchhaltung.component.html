@@ -42,7 +42,9 @@
           Monat entsperren
         </button>
       } @else {
-        <button class="btn btn-sm btn--sperren" (click)="lockMonth()" type="button">Monat sperren</button>
+        <button class="btn btn-sm btn--sperren" (click)="lockMonth()" type="button">
+          Monat sperren
+        </button>
       }
     }
 
@@ -69,7 +71,11 @@
           <div class="karte-kopf">
             <h3 class="karte-titel">{{ aktuellerMonatName() }}</h3>
             @if (!facade.istGesperrt()) {
-              <button class="btn btn-sm btn--gefaehrlich-klein" (click)="monatLeeren()" type="button">
+              <button
+                class="btn btn-sm btn--gefaehrlich-klein"
+                (click)="monatLeeren()"
+                type="button"
+              >
                 Monat leeren
               </button>
             }

@@ -45,11 +45,7 @@
     </div>
 
     @if (error()) {
-      <app-error-state
-        [message]="error()!"
-        actionLabel="Neu laden"
-        (action)="load()"
-      />
+      <app-error-state [message]="error()!" actionLabel="Neu laden" (action)="load()" />
     } @else if (isLoading()) {
       <div class="loading-skeleton" aria-label="Lädt…">
         @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {

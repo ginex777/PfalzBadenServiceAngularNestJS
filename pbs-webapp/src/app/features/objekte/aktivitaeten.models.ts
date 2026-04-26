@@ -1,4 +1,11 @@
-export type TaskType = 'MUELL' | 'CHECKLISTE' | 'REINIGUNG' | 'KONTROLLE' | 'REPARATUR' | 'ZEITERFASSUNG' | 'SONSTIGES';
+export type TaskType =
+  | 'MUELL'
+  | 'CHECKLISTE'
+  | 'REINIGUNG'
+  | 'KONTROLLE'
+  | 'REPARATUR'
+  | 'ZEITERFASSUNG'
+  | 'SONSTIGES';
 
 export interface AktivitaetItem {
   id: number;

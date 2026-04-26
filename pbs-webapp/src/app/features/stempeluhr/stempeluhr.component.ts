@@ -9,7 +9,13 @@ import { Mitarbeiter, Objekt, Kunde } from '../../core/models';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { ZeiterfassungFilterComponent } from './zeiterfassung-filter.component';
 import { ZeiterfassungListeComponent } from './zeiterfassung-liste.component';
-import { DEFAULT_ZEITERFASSUNG_FILTER, DropdownOption, ZeiterfassungEintrag, ZeiterfassungFilterState, ZeiterfassungListResponse } from './zeiterfassung.models';
+import {
+  DEFAULT_ZEITERFASSUNG_FILTER,
+  DropdownOption,
+  ZeiterfassungEintrag,
+  ZeiterfassungFilterState,
+  ZeiterfassungListResponse,
+} from './zeiterfassung.models';
 import { ZeiterfassungService } from './zeiterfassung.service';
 
 function parseNumber(value: unknown): number | null {
@@ -40,7 +46,9 @@ export class StempeluhrComponent {
   protected readonly objekte = signal<DropdownOption[]>([]);
   protected readonly kunden = signal<DropdownOption[]>([]);
 
-  protected readonly filters = signal<ZeiterfassungFilterState>({ ...DEFAULT_ZEITERFASSUNG_FILTER });
+  protected readonly filters = signal<ZeiterfassungFilterState>({
+    ...DEFAULT_ZEITERFASSUNG_FILTER,
+  });
 
   protected readonly eintraege = signal<ZeiterfassungEintrag[]>([]);
   protected readonly total = signal(0);
@@ -88,20 +96,23 @@ export class StempeluhrComponent {
   }
 
   protected onPageSizeChange(nextSize: number): void {
-    this.router.navigate([], { queryParams: { pageSize: nextSize, page: 1 }, queryParamsHandling: 'merge' });
+    this.router.navigate([], {
+      queryParams: { pageSize: nextSize, page: 1 },
+      queryParamsHandling: 'merge',
+    });
   }
 
   private loadFilterData(): void {
     forkJoin({
-      mitarbeiter: this.api.loadEmployees().pipe(
-        map((res: Mitarbeiter[]) => res.map((m) => ({ id: m.id, name: m.name }))),
-      ),
-      objekte: this.api.loadObjects().pipe(
-        map((res: Objekt[]) => res.map((o) => ({ id: o.id, name: o.name }))),
-      ),
-      kunden: this.api.loadCustomers().pipe(
-        map((res: Kunde[]) => res.map((k) => ({ id: k.id, name: k.name }))),
-      ),
+      mitarbeiter: this.api
+        .loadEmployees()
+        .pipe(map((res: Mitarbeiter[]) => res.map((m) => ({ id: m.id, name: m.name })))),
+      objekte: this.api
+        .loadObjects()
+        .pipe(map((res: Objekt[]) => res.map((o) => ({ id: o.id, name: o.name })))),
+      kunden: this.api
+        .loadCustomers()
+        .pipe(map((res: Kunde[]) => res.map((k) => ({ id: k.id, name: k.name })))),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -172,4 +183,3 @@ export class StempeluhrComponent {
       });
   }
 }
-

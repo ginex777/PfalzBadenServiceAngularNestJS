@@ -16,4 +16,3 @@ export class ErrorStateComponent {
 
   readonly action = output<void>();
 }
-

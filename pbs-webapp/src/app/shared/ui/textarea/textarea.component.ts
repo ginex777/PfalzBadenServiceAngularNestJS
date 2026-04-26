@@ -57,4 +57,3 @@ export class TextareaComponent implements ControlValueAccessor {
     this.onTouched();
   }
 }
-

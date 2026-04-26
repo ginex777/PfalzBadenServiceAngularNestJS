@@ -27,8 +27,8 @@
 
     <div class="mobile-feedback-toolbar__right">
       <span class="anzahl"
-        >{{ facade.filteredTotal() }} / {{ facade.entries().length }} geladen • {{ facade.total() }}
-        gesamt</span
+        >{{ facade.filteredTotal() }} / {{ facade.entries().length }} geladen •
+        {{ facade.total() }} gesamt</span
       >
       <button class="btn btn-sm" type="button" (click)="reload()" [disabled]="facade.loading()">
         Neu laden
@@ -43,7 +43,10 @@
       <div class="form-fehler">{{ facade.errorMessage() }}</div>
     </div>
   } @else if (!facade.filteredEntries().length) {
-    <app-empty-state title="Keine Rückmeldungen" description="Noch wurden keine Einträge von Mobile erstellt." />
+    <app-empty-state
+      title="Keine Rückmeldungen"
+      description="Noch wurden keine Einträge von Mobile erstellt."
+    />
   } @else {
     <div class="card">
       <div class="tabelle-scroll">
@@ -63,7 +66,11 @@
             @for (r of facade.filteredEntries(); track r.kind + '-' + r.id) {
               <tr>
                 <td>
-                  <span class="type-pill" [class.type-pill--evidence]="r.kind === 'EVIDENCE'" [class.type-pill--checklist]="r.kind === 'CHECKLIST'">
+                  <span
+                    class="type-pill"
+                    [class.type-pill--evidence]="r.kind === 'EVIDENCE'"
+                    [class.type-pill--checklist]="r.kind === 'CHECKLIST'"
+                  >
                     {{ r.kind === 'EVIDENCE' ? 'Nachweis' : 'Checkliste' }}
                   </span>
                 </td>
@@ -84,7 +91,11 @@
       @if (facade.hasMore()) {
         <div class="mobile-feedback-more">
           <button class="btn" type="button" (click)="loadMore()" [disabled]="facade.loading()">
-            @if (facade.loading()) { Laden… } @else { Mehr laden }
+            @if (facade.loading()) {
+              Laden…
+            } @else {
+              Mehr laden
+            }
           </button>
         </div>
       }

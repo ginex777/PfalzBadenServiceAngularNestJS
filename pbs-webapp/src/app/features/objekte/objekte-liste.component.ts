@@ -60,11 +60,7 @@ export class ObjekteListeComponent {
       if (!q) return true;
       const address = this.formatAddress(o).toLowerCase();
       const customerName = (o.kunden_name ?? '').toLowerCase();
-      return (
-        o.name.toLowerCase().includes(q) ||
-        address.includes(q) ||
-        customerName.includes(q)
-      );
+      return o.name.toLowerCase().includes(q) || address.includes(q) || customerName.includes(q);
     });
   });
 

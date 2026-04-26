@@ -10,13 +10,21 @@
       (input)="onSearchTermChange($event)"
     />
 
-    <select class="form-select select-auto" [value]="facade.actionFilter()" (change)="onActionChange($event)">
+    <select
+      class="form-select select-auto"
+      [value]="facade.actionFilter()"
+      (change)="onActionChange($event)"
+    >
       @for (opt of aktionOptionen; track opt.id) {
         <option [value]="opt.id">{{ opt.label }}</option>
       }
     </select>
 
-    <select class="form-select select-auto" [value]="facade.tableFilter()" (change)="onTableChange($event)">
+    <select
+      class="form-select select-auto"
+      [value]="facade.tableFilter()"
+      (change)="onTableChange($event)"
+    >
       <option value="">Alle Tabellen</option>
       @for (t of facade.tables(); track t) {
         <option [value]="t">{{ tabelleLabel(t) }}</option>
@@ -30,7 +38,10 @@
   @if (facade.isLoading()) {
     <app-skeleton-rows [anzahl]="8" />
   } @else if (!facade.entries().length) {
-    <app-empty-state title="Keine Einträge gefunden" description="Alle Datenänderungen werden hier protokolliert." />
+    <app-empty-state
+      title="Keine Einträge gefunden"
+      description="Alle Datenänderungen werden hier protokolliert."
+    />
   } @else {
     <div class="card">
       <div class="tabelle-scroll">

@@ -38,25 +38,29 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
     id: 'uebersicht',
     label: 'Übersicht',
     rootPath: '/uebersicht',
-    links: [
-      { path: '/uebersicht', label: 'Dashboard', roles: NAV_ACCESS['/uebersicht'] ?? [] },
-    ],
+    links: [{ path: '/uebersicht', label: 'Dashboard', roles: NAV_ACCESS['/uebersicht'] ?? [] }],
   },
   {
     id: 'operativ',
     label: 'Operativ',
     rootPath: '/operativ',
-    links: [
-      { path: '/operativ', label: 'Operativ', roles: NAV_ACCESS['/operativ'] ?? [] },
-    ],
+    links: [{ path: '/operativ', label: 'Operativ', roles: NAV_ACCESS['/operativ'] ?? [] }],
   },
   {
     id: 'finanzen',
     label: 'Finanzen',
     rootPath: '/finanzen',
     links: [
-      { path: '/finanzen/rechnungen', label: 'Rechnungen', roles: NAV_ACCESS['/finanzen/rechnungen'] ?? [] },
-      { path: '/finanzen/angebote', label: 'Angebote', roles: NAV_ACCESS['/finanzen/angebote'] ?? [] },
+      {
+        path: '/finanzen/rechnungen',
+        label: 'Rechnungen',
+        roles: NAV_ACCESS['/finanzen/rechnungen'] ?? [],
+      },
+      {
+        path: '/finanzen/angebote',
+        label: 'Angebote',
+        roles: NAV_ACCESS['/finanzen/angebote'] ?? [],
+      },
     ],
   },
   {
@@ -64,7 +68,11 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
     label: 'Buchhaltung',
     rootPath: '/finanzen/buchhaltung',
     links: [
-      { path: '/finanzen/buchhaltung', label: 'Buchhaltung', roles: NAV_ACCESS['/finanzen/buchhaltung'] ?? [] },
+      {
+        path: '/finanzen/buchhaltung',
+        label: 'Buchhaltung',
+        roles: NAV_ACCESS['/finanzen/buchhaltung'] ?? [],
+      },
     ],
   },
   {
@@ -72,13 +80,41 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
     label: 'Verwaltung',
     rootPath: '/verwaltung',
     links: [
-      { path: '/verwaltung/kunden', label: 'Kunden', roles: NAV_ACCESS['/verwaltung/kunden'] ?? [] },
-      { path: '/verwaltung/objekte', label: 'Objekte', roles: NAV_ACCESS['/verwaltung/objekte'] ?? [] },
-      { path: '/verwaltung/mitarbeiter', label: 'Mitarbeiter', roles: NAV_ACCESS['/verwaltung/mitarbeiter'] ?? [] },
-      { path: '/verwaltung/vertraege', label: 'Verträge', roles: NAV_ACCESS['/verwaltung/vertraege'] ?? [] },
-      { path: '/verwaltung/pdf-archiv', label: 'PDF-Archiv', roles: NAV_ACCESS['/verwaltung/pdf-archiv'] ?? [] },
-      { path: '/verwaltung/audit-log', label: 'Audit-Log', roles: NAV_ACCESS['/verwaltung/audit-log'] ?? [] },
-      { path: '/verwaltung/einstellungen', label: 'Einstellungen', roles: NAV_ACCESS['/verwaltung/einstellungen'] ?? [] },
+      {
+        path: '/verwaltung/kunden',
+        label: 'Kunden',
+        roles: NAV_ACCESS['/verwaltung/kunden'] ?? [],
+      },
+      {
+        path: '/verwaltung/objekte',
+        label: 'Objekte',
+        roles: NAV_ACCESS['/verwaltung/objekte'] ?? [],
+      },
+      {
+        path: '/verwaltung/mitarbeiter',
+        label: 'Mitarbeiter',
+        roles: NAV_ACCESS['/verwaltung/mitarbeiter'] ?? [],
+      },
+      {
+        path: '/verwaltung/vertraege',
+        label: 'Verträge',
+        roles: NAV_ACCESS['/verwaltung/vertraege'] ?? [],
+      },
+      {
+        path: '/verwaltung/pdf-archiv',
+        label: 'PDF-Archiv',
+        roles: NAV_ACCESS['/verwaltung/pdf-archiv'] ?? [],
+      },
+      {
+        path: '/verwaltung/audit-log',
+        label: 'Audit-Log',
+        roles: NAV_ACCESS['/verwaltung/audit-log'] ?? [],
+      },
+      {
+        path: '/verwaltung/einstellungen',
+        label: 'Einstellungen',
+        roles: NAV_ACCESS['/verwaltung/einstellungen'] ?? [],
+      },
     ],
   },
   {
@@ -105,7 +141,8 @@ export function filterNavigationGroupsForRole(role: UserRole | null): Navigation
 
 export function getInitialOpenGroupId(currentUrl: string): string {
   for (const group of NAVIGATION_GROUPS) {
-    if (currentUrl === group.rootPath || currentUrl.startsWith(`${group.rootPath}/`)) return group.id;
+    if (currentUrl === group.rootPath || currentUrl.startsWith(`${group.rootPath}/`))
+      return group.id;
     if (group.links.some((link) => currentUrl.startsWith(link.path))) return group.id;
   }
   return 'uebersicht';

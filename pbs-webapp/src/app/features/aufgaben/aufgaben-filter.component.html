@@ -13,7 +13,11 @@
 
     <div class="form-field form-field--narrow-200">
       <label class="form-hint">Status</label>
-      <select class="form-input" [value]="filters().status.at(0) ?? ''" (change)="onStatusChange($event)">
+      <select
+        class="form-input"
+        [value]="filters().status.at(0) ?? ''"
+        (change)="onStatusChange($event)"
+      >
         <option value="">Alle</option>
         @for (opt of statusOptions(); track opt.status) {
           <option [value]="opt.status">{{ opt.label }}</option>
@@ -23,7 +27,11 @@
 
     <div class="form-field form-field--narrow-200">
       <label class="form-hint">Typ</label>
-      <select class="form-input" [value]="filters().type.at(0) ?? ''" (change)="onTypeChange($event)">
+      <select
+        class="form-input"
+        [value]="filters().type.at(0) ?? ''"
+        (change)="onTypeChange($event)"
+      >
         <option value="">Alle</option>
         @for (opt of typeOptions(); track opt.type) {
           <option [value]="opt.type">{{ opt.label }}</option>
@@ -33,7 +41,11 @@
 
     <div class="form-field form-field--narrow-260">
       <label class="form-hint">Kunde</label>
-      <select class="form-input" [value]="filters().customerId ?? ''" (change)="onCustomerChange($event)">
+      <select
+        class="form-input"
+        [value]="filters().customerId ?? ''"
+        (change)="onCustomerChange($event)"
+      >
         @for (opt of customerOptions(); track opt.value) {
           <option [value]="opt.value">{{ opt.label }}</option>
         }
@@ -42,7 +54,11 @@
 
     <div class="form-field form-field--narrow-260">
       <label class="form-hint">Objekt</label>
-      <select class="form-input" [value]="filters().objectId ?? ''" (change)="onObjectChange($event)">
+      <select
+        class="form-input"
+        [value]="filters().objectId ?? ''"
+        (change)="onObjectChange($event)"
+      >
         @for (opt of objectOptions(); track opt.value) {
           <option [value]="opt.value">{{ opt.label }}</option>
         }
@@ -51,7 +67,11 @@
 
     <div class="form-field form-field--narrow-240">
       <label class="form-hint">Mitarbeiter</label>
-      <select class="form-input" [value]="filters().employeeId ?? ''" (change)="onEmployeeChange($event)">
+      <select
+        class="form-input"
+        [value]="filters().employeeId ?? ''"
+        (change)="onEmployeeChange($event)"
+      >
         @for (opt of employeeOptions(); track opt.value) {
           <option [value]="opt.value">{{ opt.label }}</option>
         }

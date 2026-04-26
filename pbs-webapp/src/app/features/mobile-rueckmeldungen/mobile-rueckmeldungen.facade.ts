@@ -1,7 +1,11 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { Objekt } from '../../core/models';
-import { MobileFeedbackItem, MobileFeedbackKind, MobileRueckmeldungenService } from './mobile-rueckmeldungen.service';
+import {
+  MobileFeedbackItem,
+  MobileFeedbackKind,
+  MobileRueckmeldungenService,
+} from './mobile-rueckmeldungen.service';
 
 type KindFilter = 'ALL' | MobileFeedbackKind;
 
@@ -100,4 +104,3 @@ export class MobileRueckmeldungenFacade {
       });
   }
 }
-

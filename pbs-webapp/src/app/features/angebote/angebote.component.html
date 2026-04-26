@@ -62,7 +62,7 @@
   <!-- Modal: Angebot erstellen / bearbeiten / versenden -->
   @if (facade.drawerOffen()) {
     <div class="modal-overlay" (click)="facade.drawerSchliessen()">
-      <div class="modal modal--xl" (click)="$event.stopPropagation()">
+      <div class="modal modal--fullscreen" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h3 class="modal-title">
             @if (facade.drawerSchritt() === 'senden') {

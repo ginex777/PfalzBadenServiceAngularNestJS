@@ -85,12 +85,21 @@
               >
                 PDF
               </button>
-              <button class="btn-action" *roleAllowed="['admin']" title="Kopieren" (click)="kopieren.emit(angebot)">
+              <button
+                class="btn-action"
+                *roleAllowed="['admin']"
+                title="Kopieren"
+                (click)="kopieren.emit(angebot)"
+              >
                 Kopie
               </button>
 
               @if (!angebot.angenommen) {
-                <select class="filter-select select-xs" *roleAllowed="['admin']" (change)="onStatusChange(angebot, $event)">
+                <select
+                  class="filter-select select-xs"
+                  *roleAllowed="['admin']"
+                  (change)="onStatusChange(angebot, $event)"
+                >
                   <option value="">Status…</option>
                   <option value="offen">Offen</option>
                   <option value="gesendet">Gesendet</option>
@@ -112,7 +121,12 @@
               }
 
               @if (!angebot.angenommen) {
-                <button class="btn-action" *roleAllowed="['admin']" title="Bearbeiten" (click)="bearbeiten.emit(angebot)">
+                <button
+                  class="btn-action"
+                  *roleAllowed="['admin']"
+                  title="Bearbeiten"
+                  (click)="bearbeiten.emit(angebot)"
+                >
                   Bearbeiten
                 </button>
               }

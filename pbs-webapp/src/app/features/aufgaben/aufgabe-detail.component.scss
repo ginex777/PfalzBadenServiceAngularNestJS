@@ -107,7 +107,8 @@
 }
 
 .hint--mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
     monospace;
   word-break: break-all;
 }
@@ -117,4 +118,3 @@
   line-height: 1.35;
   color: var(--gray-800);
 }
-

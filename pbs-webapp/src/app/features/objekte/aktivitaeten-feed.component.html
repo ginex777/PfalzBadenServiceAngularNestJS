@@ -60,9 +60,7 @@
       >
         ← Zurück
       </button>
-      <span class="pagination__info">
-        Seite {{ page() }} von {{ totalPages() }}
-      </span>
+      <span class="pagination__info"> Seite {{ page() }} von {{ totalPages() }} </span>
       <button
         class="pagination__btn"
         [disabled]="page() === totalPages() || isLoading()"

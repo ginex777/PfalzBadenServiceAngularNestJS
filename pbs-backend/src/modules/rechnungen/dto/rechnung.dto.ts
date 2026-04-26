@@ -14,6 +14,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/mapped-types';
 
 export class RechnungPositionDto {
   @ApiProperty() @IsString() @IsNotEmpty() bez!: string;
@@ -59,4 +60,4 @@ export class CreateRechnungDto {
   mwst_satz?: number;
 }
 
-export class UpdateRechnungDto extends CreateRechnungDto {}
+export class UpdateRechnungDto extends PartialType(CreateRechnungDto) {}

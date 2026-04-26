@@ -23,4 +23,3 @@ export class ButtonComponent {
     () => `app-btn app-btn--${this.variant()} app-btn--${this.size()}`,
   );
 }
-

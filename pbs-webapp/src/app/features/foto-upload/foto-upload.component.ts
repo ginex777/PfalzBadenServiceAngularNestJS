@@ -11,4 +11,3 @@ import { PageTitleComponent } from '../../shared/ui/page-title/page-title.compon
   styleUrl: './foto-upload.component.scss',
 })
 export class FotoUploadComponent {}
-

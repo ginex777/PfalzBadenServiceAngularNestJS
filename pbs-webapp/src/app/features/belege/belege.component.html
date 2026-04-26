@@ -94,7 +94,10 @@
   @if (facade.laedt()) {
     <app-skeleton-rows [anzahl]="6" />
   } @else if (!facade.gefilterteBelege().length) {
-    <app-empty-state title="Keine Belege vorhanden" description="Laden Sie Ihren ersten Beleg hoch." />
+    <app-empty-state
+      title="Keine Belege vorhanden"
+      description="Laden Sie Ihren ersten Beleg hoch."
+    />
   } @else {
     <div class="card">
       <div class="tabelle-scroll">

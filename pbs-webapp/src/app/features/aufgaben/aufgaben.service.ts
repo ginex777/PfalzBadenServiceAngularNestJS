@@ -18,12 +18,15 @@ export class TasksService {
     if (q) params = params.set('q', q);
 
     if (typeof query.objectId === 'number') params = params.set('objectId', String(query.objectId));
-    if (typeof query.customerId === 'number') params = params.set('customerId', String(query.customerId));
-    if (typeof query.employeeId === 'number') params = params.set('employeeId', String(query.employeeId));
+    if (typeof query.customerId === 'number')
+      params = params.set('customerId', String(query.customerId));
+    if (typeof query.employeeId === 'number')
+      params = params.set('employeeId', String(query.employeeId));
     if (typeof query.userId === 'number') params = params.set('userId', String(query.userId));
 
     if (query.type && query.type.length > 0) params = params.set('type', query.type.join(','));
-    if (query.status && query.status.length > 0) params = params.set('status', query.status.join(','));
+    if (query.status && query.status.length > 0)
+      params = params.set('status', query.status.join(','));
 
     if (query.createdFrom) params = params.set('createdFrom', query.createdFrom);
     if (query.createdTo) params = params.set('createdTo', query.createdTo);

@@ -1,9 +1,5 @@
 @if (errorMessage()) {
-  <app-error-state
-    [message]="errorMessage()!"
-    actionLabel="Neu laden"
-    (action)="reload.emit()"
-  />
+  <app-error-state [message]="errorMessage()!" actionLabel="Neu laden" (action)="reload.emit()" />
 } @else if (isLoading()) {
   <app-skeleton-rows [anzahl]="8" />
 } @else if (!hasData()) {
@@ -45,7 +41,11 @@
             <td class="col-duration">{{ formatDuration(t.durationMinutes) }}</td>
             <td class="col-indicators">
               @if (hasComment(t)) {
-                <span class="indicator indicator--comment" title="Kommentar vorhanden" aria-label="Kommentar vorhanden">
+                <span
+                  class="indicator indicator--comment"
+                  title="Kommentar vorhanden"
+                  aria-label="Kommentar vorhanden"
+                >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path
                       fill="currentColor"
@@ -55,7 +55,11 @@
                 </span>
               }
               @if (hasPhoto(t)) {
-                <span class="indicator indicator--photo" title="Foto vorhanden" aria-label="Foto vorhanden">
+                <span
+                  class="indicator indicator--photo"
+                  title="Foto vorhanden"
+                  aria-label="Foto vorhanden"
+                >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path
                       fill="currentColor"

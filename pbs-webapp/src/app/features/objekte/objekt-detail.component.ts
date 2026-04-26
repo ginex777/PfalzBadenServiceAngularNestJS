@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
@@ -15,7 +22,12 @@ import { HasUnsavedChanges } from '../../core/guards/unsaved-changes.guard';
 import { ObjektFormularComponent } from './components/objekt-formular/objekt-formular.component';
 import { EMPTY_OBJECT_FORM, ObjectFormData } from './objekte.models';
 import { ObjectsService } from './objekte.service';
-import { AktivitaetItem, AktivitaetenFilterState, DEFAULT_AKTIVITAETEN_FILTER, DropdownOption } from './aktivitaeten.models';
+import {
+  AktivitaetItem,
+  AktivitaetenFilterState,
+  DEFAULT_AKTIVITAETEN_FILTER,
+  DropdownOption,
+} from './aktivitaeten.models';
 import { AktivitaetenfeedComponent } from './aktivitaeten-feed.component';
 import { AktivitaetenFilterComponent } from './aktivitaeten-filter.component';
 import { AktivitaetenService } from './aktivitaeten.service';
@@ -62,7 +74,9 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
   private initialSnapshot: ObjectFormData = { ...EMPTY_OBJECT_FORM };
 
   // Aktivitäten
-  protected readonly aktivitaetenFilters = signal<AktivitaetenFilterState>({ ...DEFAULT_AKTIVITAETEN_FILTER });
+  protected readonly aktivitaetenFilters = signal<AktivitaetenFilterState>({
+    ...DEFAULT_AKTIVITAETEN_FILTER,
+  });
   protected readonly aktivitaeten = signal<AktivitaetItem[]>([]);
   protected readonly aktivitaetenTotal = signal(0);
   protected readonly aktivitaetenPage = signal(1);
@@ -133,8 +147,7 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
   }
 
   private setFormFromObject(obj: Objekt | null, customers: readonly Kunde[]): void {
-    const fallbackCustomerId =
-      customers.length === 1 ? String(customers[0].id) : '';
+    const fallbackCustomerId = customers.length === 1 ? String(customers[0].id) : '';
 
     const next: ObjectFormData = obj
       ? {
@@ -288,9 +301,9 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
 
     if (this.mitarbeiter().length === 0) {
       forkJoin({
-        mitarbeiter: this.apiService.loadEmployees().pipe(
-          catchError(() => of([] as Mitarbeiter[])),
-        ),
+        mitarbeiter: this.apiService
+          .loadEmployees()
+          .pipe(catchError(() => of([] as Mitarbeiter[]))),
       })
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({

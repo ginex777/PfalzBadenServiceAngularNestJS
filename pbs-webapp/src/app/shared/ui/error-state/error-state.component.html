@@ -4,8 +4,9 @@
     <div class="app-error__title">{{ title() }}</div>
     <div class="app-error__message">{{ message() }}</div>
     @if (actionLabel()) {
-      <app-button variant="primary" size="sm" (click)="action.emit()">{{ actionLabel() }}</app-button>
+      <app-button variant="primary" size="sm" (click)="action.emit()">{{
+        actionLabel()
+      }}</app-button>
     }
   </div>
 </div>
-
