@@ -14,7 +14,7 @@
       <app-objekt-liste
         [objects]="facade.objekte()"
         [currentObject]="facade.aktuellesObjekt()"
-        (select)="facade.objektAuswaehlen($event)"
+        (select)="facade.objektAuswaehlen($any($event))"
       />
 
       @if (facade.anstehendeTermine().length) {

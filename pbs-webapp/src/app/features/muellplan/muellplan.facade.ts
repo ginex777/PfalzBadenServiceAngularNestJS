@@ -94,7 +94,7 @@ export class MuellplanFacade {
     });
   }
 
-  objektAuswaehlen(objekt: Objekt): void {
+  objektAuswaehlen(objekt: any): void {
     if ((objekt.status ?? 'AKTIV') === 'INAKTIV') return;
     this.aktuellesObjekt.set(objekt);
     this.erledigungsHistorie.set([]);

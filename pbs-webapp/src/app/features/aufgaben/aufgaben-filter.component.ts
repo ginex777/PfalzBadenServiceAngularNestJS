@@ -145,10 +145,6 @@ export class AufgabenFilterComponent {
     this.emit({ dueTo: target.value });
   }
 
-  protected onReset(): void {
-    this.reset.emit();
-  }
-
   private emit(patch: Partial<TaskFilterState>): void {
     this.filtersChange.emit({ ...this.filters(), ...patch });
   }

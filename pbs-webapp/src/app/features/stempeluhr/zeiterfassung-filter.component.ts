@@ -65,9 +65,7 @@ export class ZeiterfassungFilterComponent {
     this.emit({ bis: target.value });
   }
 
-  protected onReset(): void {
-    this.reset.emit();
-  }
+
 
   private emit(patch: Partial<ZeiterfassungFilterState>): void {
     this.filtersChange.emit({ ...this.filters(), ...patch });

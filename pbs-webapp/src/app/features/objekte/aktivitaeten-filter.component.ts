@@ -76,9 +76,7 @@ export class AktivitaetenFilterComponent {
     });
   }
 
-  protected onReset(): void {
-    this.reset.emit();
-  }
+
 
   protected getSelectValue(event: Event): string {
     return (event.target as HTMLSelectElement).value;
