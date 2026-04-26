@@ -475,7 +475,7 @@ h4 {
 }
 
 .btn-primary {
-  background: var(--primary);
+  background: var(--primary-solid);
   color: #fff;
   border: none;
   box-shadow: var(--shadow-sm);
@@ -484,7 +484,7 @@ h4 {
 
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(:disabled) {
-      filter: brightness(0.98) saturate(1.02);
+      background: var(--primary-hover);
       color: #fff;
     }
   }
@@ -877,6 +877,13 @@ textarea {
   background-position: right 12px center;
   padding-right: 40px;
   cursor: pointer;
+}
+
+/* Filter dropdowns - constrained width */
+.filter-select {
+  width: fit-content;
+  min-width: 160px;
+  max-width: 300px;
 }
 
 /* Glass morphism input variant */

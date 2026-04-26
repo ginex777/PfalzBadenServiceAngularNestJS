@@ -57,6 +57,13 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
     links: [
       { path: '/finanzen/rechnungen', label: 'Rechnungen', roles: NAV_ACCESS['/finanzen/rechnungen'] ?? [] },
       { path: '/finanzen/angebote', label: 'Angebote', roles: NAV_ACCESS['/finanzen/angebote'] ?? [] },
+    ],
+  },
+  {
+    id: 'buchhaltung',
+    label: 'Buchhaltung',
+    rootPath: '/finanzen/buchhaltung',
+    links: [
       { path: '/finanzen/buchhaltung', label: 'Buchhaltung', roles: NAV_ACCESS['/finanzen/buchhaltung'] ?? [] },
     ],
   },

@@ -3,13 +3,22 @@
   subtitle="Vorlagen für regelmäßige Rechnungen"
 />
 
-<!-- Formular -->
+<!-- Formular Modal -->
 @if (facade.formularSichtbar()) {
-  <div class="card">
-    <h3 class="section-title">
-      {{ facade.bearbeiteteRechnung() ? 'Vorlage bearbeiten' : 'Neue Vorlage' }}
-    </h3>
-    <div class="form-row">
+  <div class="modal-overlay" (click)="facade.formularSchliessen()">
+    <div class="modal modal--lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          @if (facade.bearbeiteteRechnung()) {
+            Vorlage bearbeiten
+          } @else {
+            Neue Vorlage
+          }
+        </h3>
+        <button class="modal-close" (click)="facade.formularSchliessen()" title="Schließen">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
       <div class="form-field">
         <label class="form-label">Titel *</label>
         <input
@@ -60,7 +69,7 @@
     <div class="positionen-bereich">
       <div class="positionen-kopf">
         <label class="form-label">Positionen</label>
-        <button class="btn btn-sm" (click)="facade.positionHinzufuegen()">+ Position</button>
+        <button class="btn btn-sm" (click)="facade.positionHinzufuegen()">Position</button>
       </div>
       @for (pos of facade.formularDaten().positionen; track $index) {
         <div class="position-zeile">
@@ -81,7 +90,7 @@
             (input)="positionGesamtpreisGeaendert($index, $event)"
           />
           @if (facade.formularDaten().positionen.length > 1) {
-            <button class="btn-action btn-action-danger" (click)="facade.positionEntfernen($index)">
+            <button class="btn-action btn-action--danger" (click)="facade.positionEntfernen($index)">
               ✕
             </button>
           }
@@ -90,15 +99,17 @@
       <div class="positionen-summe">Gesamt: {{ fmt(facade.brutto()) }}</div>
     </div>
 
-    <div class="form-aktionen">
-      <button
-        class="btn btn--primary"
-        [disabled]="!facade.formularDaten().titel"
-        (click)="facade.speichern()"
-      >
-        Speichern
-      </button>
-      <button class="btn" (click)="facade.formularSchliessen()">Abbrechen</button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" (click)="facade.formularSchliessen()">Abbrechen</button>
+        <button
+          class="btn btn-primary"
+          [disabled]="!facade.formularDaten().titel"
+          (click)="facade.speichern()"
+        >
+          Speichern
+        </button>
+      </div>
     </div>
   </div>
 }
@@ -106,7 +117,7 @@
 <!-- Toolbar -->
 <div class="toolbar">
   <span class="toolbar__info">{{ facade.rechnungen().length }} Vorlagen</span>
-  <button class="btn btn--primary" (click)="facade.formularOeffnen()">+ Neue Vorlage</button>
+  <button class="btn btn-primary" (click)="facade.formularOeffnen()">Neue Vorlage</button>
 </div>
 
 <!-- Tabelle -->
@@ -114,7 +125,7 @@
   <app-empty-state
     title="Keine Vorlagen vorhanden"
     description="Erstellen Sie Vorlagen für regelmäßige Rechnungen."
-    actionLabel="+ Erste Vorlage anlegen"
+    actionLabel="Erste Vorlage anlegen"
     (action)="facade.formularOeffnen()"
   />
 } @else {
@@ -151,7 +162,7 @@
               />
             </td>
             <td class="td-aktionen">
-              <button class="btn btn-sm btn--primary" (click)="facade.jetztErstellen(wr)">
+              <button class="btn btn-sm btn-primary" (click)="facade.jetztErstellen(wr)">
                 Jetzt erstellen
               </button>
               <button class="btn-action" title="Bearbeiten" (click)="facade.formularOeffnen(wr)">

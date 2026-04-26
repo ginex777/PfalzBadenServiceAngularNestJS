@@ -10,7 +10,7 @@ import {
 @ApiTags('Stempeluhr')
 @ApiSecurity('x-nutzer')
 @Roles('admin', 'readonly')
-@Controller('stempeluhr')
+@Controller('api/stempeluhr')
 export class StempeluhrController {
   constructor(private readonly stempeluhrService: StempeluhrService) {}
 

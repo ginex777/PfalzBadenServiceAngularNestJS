@@ -8,71 +8,12 @@
     <div class="banner banner--ok">{{ erfolg() }}</div>
   }
 
-  <!-- Neuen Benutzer anlegen -->
-  <div class="card">
-    <h3 class="section-title">Neuen Benutzer anlegen</h3>
-    <div class="form-grid">
-      <label class="form-label">
-        Vorname
-        <input
-          class="form-input"
-          type="text"
-          placeholder="Max"
-          [value]="neuerUser().vorname"
-          (input)="neuerUser.update((u) => ({ ...u, vorname: $any($event.target).value }))"
-        />
-      </label>
-      <label class="form-label">
-        Nachname
-        <input
-          class="form-input"
-          type="text"
-          placeholder="Mustermann"
-          [value]="neuerUser().nachname"
-          (input)="neuerUser.update((u) => ({ ...u, nachname: $any($event.target).value }))"
-        />
-      </label>
-      <label class="form-label">
-        E-Mail *
-        <input
-          class="form-input"
-          type="email"
-          placeholder="nutzer@beispiel.de"
-          [value]="neuerUser().email"
-          (input)="neuerUser.update((u) => ({ ...u, email: $any($event.target).value }))"
-        />
-      </label>
-      <label class="form-label">
-        Passwort * (min. 8 Zeichen)
-        <input
-          class="form-input"
-          type="password"
-          placeholder="••••••••"
-          [value]="neuerUser().password"
-          (input)="neuerUser.update((u) => ({ ...u, password: $any($event.target).value }))"
-        />
-      </label>
-      <label class="form-label">
-        Rolle
-        <select
-          class="form-input"
-          [value]="neuerUser().rolle"
-          (change)="neuerUser.update((u) => ({ ...u, rolle: $any($event.target).value }))"
-        >
-          <option value="admin">Admin</option>
-          <option value="mitarbeiter">Mitarbeiter</option>
-          <option value="readonly">Nur Lesen</option>
-        </select>
-      </label>
-    </div>
-    <button class="btn btn-primary btn-mt" [disabled]="anlegenLaedt()" (click)="anlegen()">
-      {{ anlegenLaedt() ? 'Anlegen…' : 'Benutzer anlegen' }}
-    </button>
-  </div>
-
   <!-- Benutzerliste -->
   <div class="card">
-    <h3 class="section-title">Alle Benutzer</h3>
+    <div class="liste-header">
+      <h3 class="section-title">Alle Benutzer</h3>
+      <button class="btn btn-primary" (click)="neuerUserOeffnen()">Neuer Benutzer</button>
+    </div>
     @if (laedt()) {
       <p class="hint">Lade…</p>
     } @else if (!users().length) {
@@ -116,6 +57,82 @@
     }
   </div>
 </div>
+
+<!-- Neuer Benutzer Modal -->
+@if (neuerUserSichtbar()) {
+  <div class="modal-overlay" (click)="neuerUserSchliessen()">
+    <div class="modal modal--lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">Neuer Benutzer</h3>
+        <button class="modal-close" (click)="neuerUserSchliessen()" title="Schließen">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <label class="form-label">
+            Vorname
+            <input
+              class="form-input"
+              type="text"
+              placeholder="Max"
+              [value]="neuerUser().vorname"
+              (input)="neuerUser.update((u) => ({ ...u, vorname: $any($event.target).value }))"
+            />
+          </label>
+          <label class="form-label">
+            Nachname
+            <input
+              class="form-input"
+              type="text"
+              placeholder="Mustermann"
+              [value]="neuerUser().nachname"
+              (input)="neuerUser.update((u) => ({ ...u, nachname: $any($event.target).value }))"
+            />
+          </label>
+          <label class="form-label">
+            E-Mail *
+            <input
+              class="form-input"
+              type="email"
+              placeholder="nutzer@beispiel.de"
+              [value]="neuerUser().email"
+              (input)="neuerUser.update((u) => ({ ...u, email: $any($event.target).value }))"
+            />
+          </label>
+          <label class="form-label">
+            Passwort * (min. 8 Zeichen)
+            <input
+              class="form-input"
+              type="password"
+              placeholder="••••••••"
+              [value]="neuerUser().password"
+              (input)="neuerUser.update((u) => ({ ...u, password: $any($event.target).value }))"
+            />
+          </label>
+          <label class="form-label">
+            Rolle
+            <select
+              class="form-input"
+              [value]="neuerUser().rolle"
+              (change)="neuerUser.update((u) => ({ ...u, rolle: $any($event.target).value }))"
+            >
+              <option value="admin">Admin</option>
+              <option value="mitarbeiter">Mitarbeiter</option>
+              <option value="readonly">Nur Lesen</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" (click)="neuerUserSchliessen()">Abbrechen</button>
+        <button class="btn btn-primary" [disabled]="anlegenLaedt()" (click)="anlegen()">
+          {{ anlegenLaedt() ? 'Anlegen…' : 'Benutzer anlegen' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
 
 <!-- Bearbeiten Modal -->
 @if (bearbeiteterUser()) {

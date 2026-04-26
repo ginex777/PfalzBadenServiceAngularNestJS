@@ -9,7 +9,7 @@
       </div>
 
       <div class="header-row__right" *roleAllowed="['admin']">
-        <button class="btn btn-sm btn-primary" (click)="navigateToNew()">+ Objekt</button>
+        <button class="btn btn-sm btn-primary" (click)="navigateToNew()">Objekt</button>
       </div>
     </div>
 
@@ -60,7 +60,7 @@
       <app-empty-state
         title="Keine Objekte gefunden"
         description="Passen Sie Filter an oder legen Sie ein neues Objekt in der Verwaltung an."
-        [actionLabel]="canEdit() ? '+ Objekt anlegen' : ''"
+        [actionLabel]="canEdit() ? 'Objekt anlegen' : ''"
         (action)="navigateToNew()"
       />
     } @else {

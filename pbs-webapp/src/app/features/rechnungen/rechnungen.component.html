@@ -31,7 +31,7 @@
   <div class="card">
     <app-search-toolbar
       placeholder="Rechnung suchen…"
-      actionLabel="+ Neue Rechnung"
+      actionLabel="Neue Rechnung"
       [actionRoles]="['admin']"
       [(searchTerm)]="facade.suchbegriff"
       (action)="onNeueRechnung()"
@@ -211,12 +211,12 @@
     </div>
   }
 
-  <!-- Drawer: Rechnung erstellen / bearbeiten / versenden -->
+  <!-- Modal: Rechnung erstellen / bearbeiten / versenden -->
   @if (facade.drawerOffen()) {
-    <div class="drawer-overlay" (click)="facade.drawerSchliessen()">
-      <div class="drawer" (click)="$event.stopPropagation()">
-        <div class="drawer-header">
-          <h3 class="drawer-title">
+    <div class="modal-overlay" (click)="facade.drawerSchliessen()">
+      <div class="modal modal--xl" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">
             @if (facade.drawerSchritt() === 'senden') {
               Rechnung versenden
             } @else if (facade.bearbeiteteRechnung()) {
@@ -225,12 +225,12 @@
               Neue Rechnung
             }
           </h3>
-          <button class="drawer-close" (click)="facade.drawerSchliessen()" title="Schließen">
+          <button class="modal-close" (click)="facade.drawerSchliessen()" title="Schließen">
             ✕
           </button>
         </div>
 
-        <div class="drawer-body">
+        <div class="modal-body">
           <div class="drawer-content">
             @if (facade.drawerSchritt() === 'formular') {
               <app-rechnungen-formular
@@ -296,16 +296,19 @@
                   [value]="facade.sendText()"
                   readonly
                 ></textarea>
-                <div class="send-actions">
-                  <button class="btn btn-primary" (click)="onOutlookOeffnen()">
-                    Outlook öffnen
-                  </button>
-                  <button class="btn" (click)="onTextKopieren()">Kopieren</button>
-                  <button class="btn" (click)="facade.sendModalSchliessen()">Schließen</button>
-                </div>
               </div>
             }
           </div>
+        </div>
+
+        <div class="modal-footer">
+          @if (facade.drawerSchritt() === 'senden') {
+            <button class="btn btn-primary" (click)="onOutlookOeffnen()">
+              Outlook öffnen
+            </button>
+            <button class="btn" (click)="onTextKopieren()">Kopieren</button>
+            <button class="btn" (click)="facade.sendModalSchliessen()">Schließen</button>
+          }
         </div>
       </div>
     </div>

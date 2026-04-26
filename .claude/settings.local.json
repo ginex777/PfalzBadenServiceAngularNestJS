@@ -61,7 +61,8 @@
       "Read(//c/c/Users/Schuh/Desktop/Entwicklung/**)",
       "Bash(curl -s http://localhost:3000/health)",
       "Bash(curl -s http://localhost:80)",
-      "Bash(curl -s http://localhost:8080)"
+      "Bash(curl -s http://localhost:8080)",
+      "Bash(cd \"c:\\\\\\\\Users\\\\\\\\Schuh\\\\\\\\Desktop\\\\\\\\Entwicklung\\\\\\\\PBS Angular NESTJS\\\\\\\\pbs-webapp\")"
     ]
   }
 }

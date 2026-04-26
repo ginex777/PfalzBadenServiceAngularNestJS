@@ -1,6 +1,4 @@
-<div class="formular-card">
-  <h3 class="formular-titel">{{ titelText }}</h3>
-
+<div class="formular-content">
   <div class="form-row">
     <div class="form-field">
       <label class="form-label">Name *</label>
@@ -15,43 +13,55 @@
       }
     </div>
     <div class="form-field">
-      <label class="form-label">Straße</label>
+      <label class="form-label">Straße *</label>
       <input
         class="form-input"
         type="text"
         placeholder="Musterstraße 1"
         [formField]="kundenForm.strasse"
       />
+      @if (kundenForm.strasse().touched() && kundenForm.strasse().invalid()) {
+        <span class="form-fehler">{{ kundenForm.strasse().errors()[0]?.message }}</span>
+      }
     </div>
     <div class="form-field">
-      <label class="form-label">PLZ Ort</label>
+      <label class="form-label">PLZ Ort *</label>
       <input
         class="form-input"
         type="text"
         placeholder="67346 Speyer"
         [formField]="kundenForm.ort"
       />
+      @if (kundenForm.ort().touched() && kundenForm.ort().invalid()) {
+        <span class="form-fehler">{{ kundenForm.ort().errors()[0]?.message }}</span>
+      }
     </div>
   </div>
 
   <div class="form-row">
     <div class="form-field">
-      <label class="form-label">Telefon</label>
+      <label class="form-label">Telefon *</label>
       <input
         class="form-input"
         type="text"
         placeholder="0123 456789"
         [formField]="kundenForm.tel"
       />
+      @if (kundenForm.tel().touched() && kundenForm.tel().invalid()) {
+        <span class="form-fehler">{{ kundenForm.tel().errors()[0]?.message }}</span>
+      }
     </div>
     <div class="form-field">
-      <label class="form-label">E-Mail</label>
+      <label class="form-label">E-Mail *</label>
       <input
         class="form-input"
         type="email"
         placeholder="info@firma.de"
         [formField]="kundenForm.email"
       />
+      @if (kundenForm.email().touched() && kundenForm.email().invalid()) {
+        <span class="form-fehler">{{ kundenForm.email().errors()[0]?.message }}</span>
+      }
     </div>
     <div class="form-field">
       <label class="form-label">Notiz</label>
@@ -68,6 +78,5 @@
     <button class="btn btn-primary" [disabled]="kundenForm().invalid()" (click)="speichern()">
       {{ submitLabel }}
     </button>
-    <button class="btn" (click)="abbrechen()">Abbrechen</button>
   </div>
 </div>

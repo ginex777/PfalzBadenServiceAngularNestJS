@@ -1,65 +1,72 @@
 <app-page-title title="Wiederkehrende Kosten" subtitle="Monatliche Fixkosten" />
 
 @if (facade.formularSichtbar()) {
-  <div class="card">
-    <h3 class="section-title">
-      {{
-        facade.bearbeiteteAusgabe()
-          ? 'Bearbeiten: ' + facade.bearbeiteteAusgabe()!.name
-          : 'Neuer wiederkehrender Kostenpunkt'
-      }}
-    </h3>
-    <div class="form-row">
-      <div class="form-field">
-        <label>Bezeichnung *</label>
-        <input
-          type="text"
-          placeholder="z.B. Miete Büro, Telefon, Software-Abo"
-          [formField]="ausgabeForm.name"
-        />
-        @if (ausgabeForm.name().touched() && ausgabeForm.name().invalid()) {
-          <span class="form-fehler">{{ ausgabeForm.name().errors()[0]?.message }}</span>
-        }
-      </div>
-      <div class="form-field">
-        <label>Kategorie</label>
-        <select [value]="ausgabeModell().kategorie" (change)="kategorieGeaendert($event)">
-          @for (k of kategorien; track k) {
-            <option [value]="k">{{ k }}</option>
+  <div class="modal-overlay" (click)="formularSchliessen()">
+    <div class="modal modal--lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          @if (facade.bearbeiteteAusgabe()) {
+            Kostenpunkt bearbeiten
+          } @else {
+            Neuer Kostenpunkt
           }
-        </select>
+        </h3>
+        <button class="modal-close" (click)="formularSchliessen()" title="Schließen">✕</button>
       </div>
-    </div>
-    <div class="form-row">
-      <div class="form-field">
-        <label>Brutto (€) *</label>
-        <input type="number" step="0.01" [formField]="ausgabeForm.brutto" placeholder="0,00" />
-        @if (ausgabeForm.brutto().touched() && ausgabeForm.brutto().invalid()) {
-          <span class="form-fehler">{{ ausgabeForm.brutto().errors()[0]?.message }}</span>
-        }
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-field">
+            <label>Bezeichnung *</label>
+            <input
+              type="text"
+              placeholder="z.B. Miete Büro, Telefon, Software-Abo"
+              [formField]="ausgabeForm.name"
+            />
+            @if (ausgabeForm.name().touched() && ausgabeForm.name().invalid()) {
+              <span class="form-fehler">{{ ausgabeForm.name().errors()[0]?.message }}</span>
+            }
+          </div>
+          <div class="form-field">
+            <label>Kategorie</label>
+            <select [value]="ausgabeModell().kategorie" (change)="kategorieGeaendert($event)">
+              @for (k of kategorien; track k) {
+                <option [value]="k">{{ k }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Brutto (€) *</label>
+            <input type="number" step="0.01" [formField]="ausgabeForm.brutto" placeholder="0,00" />
+            @if (ausgabeForm.brutto().touched() && ausgabeForm.brutto().invalid()) {
+              <span class="form-fehler">{{ ausgabeForm.brutto().errors()[0]?.message }}</span>
+            }
+          </div>
+          <div class="form-field">
+            <label>MwSt.</label>
+            <select [value]="ausgabeModell().mwst" (change)="mwstGeaendert($event)">
+              <option value="0">0 %</option>
+              <option value="7">7 %</option>
+              <option value="19">19 %</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Abzug %</label>
+            <input type="number" [formField]="ausgabeForm.abzug" />
+          </div>
+          <div class="form-field">
+            <label>Beleg-Nr.</label>
+            <input type="text" [formField]="ausgabeForm.belegnr" placeholder="B-001" />
+          </div>
+        </div>
       </div>
-      <div class="form-field">
-        <label>MwSt.</label>
-        <select [value]="ausgabeModell().mwst" (change)="mwstGeaendert($event)">
-          <option value="0">0 %</option>
-          <option value="7">7 %</option>
-          <option value="19">19 %</option>
-        </select>
+      <div class="modal-footer">
+        <button class="btn" (click)="formularSchliessen()">Abbrechen</button>
+        <button class="btn btn-primary" [disabled]="ausgabeForm().invalid()" (click)="speichern()">
+          Speichern
+        </button>
       </div>
-      <div class="form-field">
-        <label>Abzug %</label>
-        <input type="number" [formField]="ausgabeForm.abzug" />
-      </div>
-      <div class="form-field">
-        <label>Beleg-Nr.</label>
-        <input type="text" [formField]="ausgabeForm.belegnr" placeholder="B-001" />
-      </div>
-    </div>
-    <div class="btn-group">
-      <button class="btn btn-primary" [disabled]="ausgabeForm().invalid()" (click)="speichern()">
-        Speichern
-      </button>
-      <button class="btn" (click)="formularSchliessen()">Abbrechen</button>
     </div>
   </div>
 }
@@ -85,7 +92,7 @@
         placeholder="Suchen…"
         (input)="suchbegriffGeaendert($event)"
       />
-      <button class="btn btn-sm btn-primary" (click)="formularOeffnen()">+ Neu</button>
+      <button class="btn btn-sm btn-primary" (click)="formularOeffnen()">Neu</button>
     </div>
   </div>
 
@@ -93,7 +100,7 @@
     <app-empty-state
       title="Noch keine Fixkosten definiert"
       description="Trage wiederkehrende Kosten ein — sie lassen sich dann per Klick in die Buchhaltung übernehmen."
-      actionLabel="+ Ersten Kostenpunkt anlegen"
+      actionLabel="Ersten Kostenpunkt anlegen"
       (action)="formularOeffnen()"
     />
   } @else {

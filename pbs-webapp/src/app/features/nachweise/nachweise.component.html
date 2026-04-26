@@ -9,6 +9,7 @@
         (change)="onObjectChanged($event)"
         [disabled]="facade.objectsLoading()"
       >
+        <option value="">Alle Objekte</option>
         @for (o of facade.objects(); track o.id) {
           <option [value]="o.id">{{ o.name }}</option>
         }
@@ -17,7 +18,7 @@
 
     <div class="nachweise-toolbar__right">
       <span class="anzahl">{{ facade.evidences().length }} / {{ facade.total() }} Nachweise</span>
-      <button class="btn btn--klein" type="button" (click)="reload()" [disabled]="facade.loading()">
+      <button class="btn btn-sm" type="button" (click)="reload()" [disabled]="facade.loading()">
         Neu laden
       </button>
     </div>
@@ -54,10 +55,10 @@
                 <td>{{ n.createdAt | date: 'short' }}</td>
                 <td>{{ n.createdByName || n.createdByEmail }}</td>
                 <td class="col-aktionen">
-                  <a class="btn btn--klein" [href]="facade.downloadUrl(n.id, true)" target="_blank"
+                  <a class="btn btn-sm" [href]="facade.downloadUrl(n.id, true)" target="_blank"
                     >Anzeigen</a
                   >
-                  <a class="btn btn--klein" [href]="facade.downloadUrl(n.id)">Download</a>
+                  <a class="btn btn-sm" [href]="facade.downloadUrl(n.id)">Download</a>
                 </td>
               </tr>
             }

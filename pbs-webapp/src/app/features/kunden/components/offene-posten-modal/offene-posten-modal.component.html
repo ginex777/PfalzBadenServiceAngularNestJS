@@ -62,7 +62,7 @@
 
     <!-- Aktionen -->
     <div class="modal-aktionen">
-      <button class="btn btn-primary" (click)="createInvoice()">+ Neue Rechnung</button>
+      <button class="btn btn-primary" (click)="createInvoice()">Neue Rechnung</button>
       @if (daten().ueberfaelligeAnzahl > 0) {
         <button class="btn btn-danger" (click)="sammelMahnungSenden()">
           Sammel-Mahnung ({{ daten().ueberfaelligeAnzahl }})

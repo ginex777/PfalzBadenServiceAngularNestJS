@@ -1,17 +1,19 @@
 <div class="filter-bar">
-  <select class="filter-select" [value]="aktiverFilter()" (change)="onFilterSelectChange($event)">
-    <option value="alle">Alle Status</option>
-    <option value="offen">Offen</option>
-    <option value="ueberfaellig">Überfällig</option>
-    <option value="bezahlt">Bezahlt</option>
-  </select>
-  <select class="filter-select" (change)="monatGeaendert($event)">
-    <option value="">Alle Monate</option>
-    @for (m of MONATE; track $index) {
-      <option [value]="$index">{{ m }}</option>
-    }
-  </select>
-  <button class="btn btn-sm" (click)="suchbegriffLeeren()">Leeren</button>
+  <div class="filter-btns">
+    <select class="filter-select" [value]="aktiverFilter()" (change)="onFilterSelectChange($event)">
+      <option value="alle">Alle Status</option>
+      <option value="offen">Offen</option>
+      <option value="ueberfaellig">Überfällig</option>
+      <option value="bezahlt">Bezahlt</option>
+    </select>
+    <select class="filter-select" (change)="monatGeaendert($event)">
+      <option value="">Alle Monate</option>
+      @for (m of MONATE; track $index) {
+        <option [value]="$index">{{ m }}</option>
+      }
+    </select>
+    <button class="btn btn-primary" (click)="suchbegriffLeeren()">Filter leeren</button>
+  </div>
   <span class="count-hint">{{ sortierteListe().length }} Einträge</span>
 </div>
 
@@ -166,7 +168,7 @@
             <td><app-status-badge [status]="statusTyp(rechnung)" /></td>
             <td class="actions-cell">
               <button class="btn-action" (click)="pdfGenerieren.emit(rechnung)">PDF</button>
-              <button class="btn-action" *roleAllowed="['admin']" (click)="kopieren.emit(rechnung)">Kopie</button>
+              <button class="btn-action" *roleAllowed="['admin']" (click)="kopieren.emit(rechnung)">Als Kopie erstellen</button>
               <button
                 class="btn-action"
                 *roleAllowed="['admin']"

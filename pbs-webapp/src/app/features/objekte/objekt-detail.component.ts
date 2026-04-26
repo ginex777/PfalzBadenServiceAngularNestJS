@@ -182,14 +182,14 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
       return;
     }
 
-    const basePayload: Partial<Objekt> = {
+    const basePayload = {
       name: data.name.trim(),
-      strasse: data.street.trim(),
-      hausnummer: data.houseNumber.trim() || undefined,
-      plz: data.postalCode.trim(),
-      ort: data.city.trim(),
-      notiz: data.note.trim() || undefined,
-      kunden_id: customerId,
+      street: data.street.trim(),
+      houseNumber: data.houseNumber.trim() || undefined,
+      postalCode: data.postalCode.trim(),
+      city: data.city.trim(),
+      note: data.note.trim() || undefined,
+      customerId,
       status: data.status,
     };
 
@@ -199,7 +199,6 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
         ? this.service.createObject(basePayload)
         : this.service.updateObject(existing!.id, {
             ...basePayload,
-            // Preserve fields that are not edited in this UI but would be overwritten by the backend DTO defaults.
             vorlage_id: existing?.vorlage_id,
             filter_typen: existing?.filter_typen ?? '',
           });

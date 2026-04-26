@@ -30,7 +30,7 @@
 
     <div class="checklisten-toolbar__right">
       <span class="anzahl">{{ facade.submissions().length }} / {{ facade.total() }} Einträge</span>
-      <button class="btn btn--klein" type="button" (click)="reload()" [disabled]="facade.loading()">
+      <button class="btn btn-sm" type="button" (click)="reload()" [disabled]="facade.loading()">
         Neu laden
       </button>
     </div>
@@ -67,8 +67,8 @@
                 <td>{{ s.submittedAt | date: 'short' }}</td>
                 <td>{{ s.createdByName || s.createdByEmail }}</td>
                 <td class="col-aktionen">
-                  <button class="btn btn--klein" type="button" (click)="selectSubmission(s.id)">Details</button>
-                  <button class="btn btn--klein" type="button" (click)="openPdf(s.id)">PDF</button>
+                  <button class="btn btn-sm" type="button" (click)="selectSubmission(s.id)">Details</button>
+                  <button class="btn btn-sm" type="button" (click)="openPdf(s.id)">PDF</button>
                 </td>
               </tr>
             }
@@ -87,51 +87,55 @@
   }
 
   @if (facade.selectedSubmissionId()) {
-    <div class="card detail-card">
-      <div class="detail-head">
-        <div class="detail-title">Details</div>
-        <button class="btn btn--klein" type="button" (click)="clearSelection()">Schließen</button>
+    <div class="modal-overlay" (click)="clearSelection()">
+      <div class="modal modal--lg" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">Details</h3>
+          <button class="modal-close" (click)="clearSelection()" title="Schließen">✕</button>
+        </div>
+
+        <div class="modal-body">
+          @if (facade.detailLoading()) {
+            <app-skeleton-rows [anzahl]="6" />
+          } @else if (facade.detailError()) {
+            <div class="form-fehler">{{ facade.detailError() }}</div>
+          } @else if (facade.selectedSubmission()) {
+            <div class="detail-meta">
+              <div><span class="k">Objekt:</span> {{ facade.selectedSubmission()!.object.name }}</div>
+              <div>
+                <span class="k">Checkliste:</span> {{ facade.selectedSubmission()!.template.name }} (v{{
+                  facade.selectedSubmission()!.template.version
+                }})
+              </div>
+              <div><span class="k">Abgegeben:</span> {{ facade.selectedSubmission()!.submittedAt | date: 'short' }}</div>
+              <div><span class="k">Von:</span> {{ facade.selectedSubmission()!.createdByName || facade.selectedSubmission()!.createdByEmail }}</div>
+            </div>
+
+            <div class="detail-actions">
+              <button class="btn" type="button" (click)="openPdf(facade.selectedSubmission()!.id)">PDF erstellen</button>
+            </div>
+
+            <div class="tabelle-scroll detail-table">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Feld</th>
+                    <th>Antwort</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (i of detailItems(); track i.label) {
+                    <tr>
+                      <td>{{ i.label }}</td>
+                      <td class="detail-value">{{ i.value }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
       </div>
-
-      @if (facade.detailLoading()) {
-        <app-skeleton-rows [anzahl]="6" />
-      } @else if (facade.detailError()) {
-        <div class="form-fehler">{{ facade.detailError() }}</div>
-      } @else if (facade.selectedSubmission()) {
-        <div class="detail-meta">
-          <div><span class="k">Objekt:</span> {{ facade.selectedSubmission()!.object.name }}</div>
-          <div>
-            <span class="k">Checkliste:</span> {{ facade.selectedSubmission()!.template.name }} (v{{
-              facade.selectedSubmission()!.template.version
-            }})
-          </div>
-          <div><span class="k">Abgegeben:</span> {{ facade.selectedSubmission()!.submittedAt | date: 'short' }}</div>
-          <div><span class="k">Von:</span> {{ facade.selectedSubmission()!.createdByName || facade.selectedSubmission()!.createdByEmail }}</div>
-        </div>
-
-        <div class="detail-actions">
-          <button class="btn" type="button" (click)="openPdf(facade.selectedSubmission()!.id)">PDF erstellen</button>
-        </div>
-
-        <div class="tabelle-scroll detail-table">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Feld</th>
-                <th>Antwort</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (i of detailItems(); track i.label) {
-                <tr>
-                  <td>{{ i.label }}</td>
-                  <td class="detail-value">{{ i.value }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
     </div>
   }
 
@@ -139,7 +143,7 @@
     <div class="card admin-card">
       <div class="admin-head">
         <div class="admin-title">Templates bearbeiten</div>
-        <button class="btn btn--klein" type="button" (click)="startCreate()">Neu</button>
+        <button class="btn btn-sm" type="button" (click)="startCreate()">Neu</button>
       </div>
 
       @if (adminTemplatesLoading()) {
@@ -213,7 +217,7 @@
 
               <div class="fields-head">
                 <div class="fields-title">Felder</div>
-                <button class="btn btn--klein" type="button" (click)="addField()">Feld hinzufügen</button>
+                <button class="btn btn-sm" type="button" (click)="addField()">Feld hinzufügen</button>
               </div>
 
               <div class="fields">
@@ -256,7 +260,7 @@
                       </label>
                     }
 
-                    <button class="btn btn--klein btn--danger" type="button" (click)="removeField($index)">
+                    <button class="btn btn btn-sm btn-danger" type="button" (click)="removeField($index)">
                       Entfernen
                     </button>
                   </div>

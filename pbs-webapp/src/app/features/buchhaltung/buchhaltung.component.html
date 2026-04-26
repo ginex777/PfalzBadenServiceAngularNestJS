@@ -20,7 +20,7 @@
     @if (facade.ansichtsModus() === 'monat') {
       @if (facade.speicherStatus().dirty) {
         <button
-          class="btn btn--speichern btn--dirty"
+          class="btn btn-sm btn--speichern btn--dirty"
           (click)="batchSpeichern()"
           [disabled]="facade.speicherStatus().speichernLaeuft"
           type="button"
@@ -32,17 +32,17 @@
           }
         </button>
       } @else {
-        <button class="btn btn--speichern" (click)="batchSpeichern()" type="button">
+        <button class="btn btn-sm btn--speichern" (click)="batchSpeichern()" type="button">
           Speichern
         </button>
       }
 
       @if (facade.istGesperrt()) {
-        <button class="btn btn--entsperren" (click)="unlockMonth()" type="button">
+        <button class="btn btn-sm btn--entsperren" (click)="unlockMonth()" type="button">
           Monat entsperren
         </button>
       } @else {
-        <button class="btn btn--sperren" (click)="lockMonth()" type="button">Monat sperren</button>
+        <button class="btn btn-sm btn--sperren" (click)="lockMonth()" type="button">Monat sperren</button>
       }
     }
 
@@ -69,7 +69,7 @@
           <div class="karte-kopf">
             <h3 class="karte-titel">{{ aktuellerMonatName() }}</h3>
             @if (!facade.istGesperrt()) {
-              <button class="btn btn--gefaehrlich-klein" (click)="monatLeeren()" type="button">
+              <button class="btn btn-sm btn--gefaehrlich-klein" (click)="monatLeeren()" type="button">
                 Monat leeren
               </button>
             }

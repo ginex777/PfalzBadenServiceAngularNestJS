@@ -1,5 +1,5 @@
 <div class="stunden-header">
-  <button class="btn btn-sm" (click)="zurueck.emit()">← Zurück</button>
+  <button class="btn btn-sm btn-secondary" (click)="zurueck.emit()">Zurück</button>
   <h3 class="stunden-titel">Stunden: {{ mitarbeiter().name }}</h3>
   <span class="stunden-lohn">{{ waehrungFormatieren(mitarbeiter().stundenlohn) }}/h</span>
   <button class="btn btn-sm" (click)="pdfGenerieren.emit()" title="Stundenabrechnung als PDF">

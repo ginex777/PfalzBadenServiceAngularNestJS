@@ -29,6 +29,10 @@ export class KundenFormularComponent implements OnChanges {
 
   protected readonly kundenForm = form(this.formModell, (schema) => {
     required(schema.name, { message: 'Name ist erforderlich' });
+    required(schema.strasse, { message: 'Straße ist erforderlich' });
+    required(schema.ort, { message: 'PLZ Ort ist erforderlich' });
+    required(schema.tel, { message: 'Telefon ist erforderlich' });
+    required(schema.email, { message: 'E-Mail ist erforderlich' });
   });
 
   protected readonly istFormularGueltig = computed(() => {

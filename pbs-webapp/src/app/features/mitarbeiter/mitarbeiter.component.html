@@ -4,91 +4,10 @@
   @if (!facade.aktiverMitarbeiter()) {
     <div class="toolbar">
       <span class="toolbar__info">{{ facade.mitarbeiter().length }} Mitarbeiter</span>
-      <button class="btn btn--primary" (click)="facade.formularOeffnen()">
-        + Neuer Mitarbeiter
+      <button class="btn btn-primary" (click)="facade.formularOeffnen()">
+        Neuer Mitarbeiter
       </button>
     </div>
-
-    @if (facade.formularSichtbar()) {
-      <div class="formular-card">
-        <h3 class="formular-titel">
-          {{ facade.bearbeiteterMitarbeiter() ? 'Mitarbeiter bearbeiten' : 'Neuer Mitarbeiter' }}
-        </h3>
-        <div class="form-row">
-          <div class="form-field">
-            <label class="form-label">Name *</label>
-            <input
-              class="form-input"
-              type="text"
-              placeholder="Max Mustermann"
-              [value]="facade.formularDaten().name"
-              (input)="nameGeaendert($event)"
-            />
-          </div>
-          <div class="form-field">
-            <label class="form-label">Rolle</label>
-            <input
-              class="form-input"
-              type="text"
-              placeholder="z.B. Hausmeister"
-              [value]="facade.formularDaten().rolle"
-              (input)="rolleGeaendert($event)"
-            />
-          </div>
-          <div class="form-field">
-            <label class="form-label">Stundenlohn (€)</label>
-            <input
-              class="form-input"
-              type="number"
-              min="0"
-              step="0.5"
-              [value]="facade.formularDaten().stundenlohn"
-              (input)="stundenlohnGeaendert($event)"
-            />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label class="form-label">E-Mail</label>
-            <input
-              class="form-input"
-              type="email"
-              placeholder="max@firma.de"
-              [value]="facade.formularDaten().email"
-              (input)="emailGeaendert($event)"
-            />
-          </div>
-          <div class="form-field">
-            <label class="form-label">Telefon</label>
-            <input
-              class="form-input"
-              type="text"
-              placeholder="0621 123456"
-              [value]="facade.formularDaten().tel"
-              (input)="telGeaendert($event)"
-            />
-          </div>
-          <div class="form-field form-field--checkbox">
-            <label class="form-label">Aktiv</label>
-            <input
-              type="checkbox"
-              [checked]="facade.formularDaten().aktiv"
-              (change)="aktivGeaendert($event)"
-            />
-          </div>
-        </div>
-        <div class="form-aktionen">
-          <button
-            class="btn btn--primary"
-            [disabled]="!facade.formularDaten().name"
-            (click)="facade.speichern()"
-          >
-            Speichern
-          </button>
-          <button class="btn" (click)="facade.formularSchliessen()">Abbrechen</button>
-        </div>
-      </div>
-    }
 
     <app-mitarbeiter-liste
       [mitarbeiter]="facade.mitarbeiter()"
@@ -132,5 +51,102 @@
       (confirmed)="facade.stundenLoeschenAusfuehren()"
       (canceled)="facade.stundenLoeschenAbbrechen()"
     />
+  }
+
+  <!-- Mitarbeiter erstellen / bearbeiten Modal -->
+  @if (facade.formularSichtbar()) {
+    <div class="modal-overlay" (click)="facade.formularSchliessen()">
+      <div class="modal modal--lg" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">
+            @if (facade.bearbeiteterMitarbeiter()) {
+              Mitarbeiter bearbeiten
+            } @else {
+              Neuer Mitarbeiter
+            }
+          </h3>
+          <button class="modal-close" (click)="facade.formularSchliessen()" title="Schließen">
+            ✕
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Name *</label>
+              <input
+                class="form-input"
+                type="text"
+                placeholder="Max Mustermann"
+                [value]="facade.formularDaten().name"
+                (input)="nameGeaendert($event)"
+              />
+            </div>
+            <div class="form-field">
+              <label class="form-label">Rolle</label>
+              <input
+                class="form-input"
+                type="text"
+                placeholder="z.B. Hausmeister"
+                [value]="facade.formularDaten().rolle"
+                (input)="rolleGeaendert($event)"
+              />
+            </div>
+            <div class="form-field">
+              <label class="form-label">Stundenlohn (€)</label>
+              <input
+                class="form-input"
+                type="number"
+                min="0"
+                step="0.5"
+                [value]="facade.formularDaten().stundenlohn"
+                (input)="stundenlohnGeaendert($event)"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">E-Mail</label>
+              <input
+                class="form-input"
+                type="email"
+                placeholder="max@firma.de"
+                [value]="facade.formularDaten().email"
+                (input)="emailGeaendert($event)"
+              />
+            </div>
+            <div class="form-field">
+              <label class="form-label">Telefon</label>
+              <input
+                class="form-input"
+                type="text"
+                placeholder="0621 123456"
+                [value]="facade.formularDaten().tel"
+                (input)="telGeaendert($event)"
+              />
+            </div>
+            <div class="form-field form-field--checkbox">
+              <label class="form-label">Aktiv</label>
+              <input
+                type="checkbox"
+                [checked]="facade.formularDaten().aktiv"
+                (change)="aktivGeaendert($event)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn" (click)="facade.formularSchliessen()">Abbrechen</button>
+          <button
+            class="btn btn-primary"
+            [disabled]="!facade.formularDaten().name"
+            (click)="facade.speichern()"
+          >
+            Speichern
+          </button>
+        </div>
+      </div>
+    </div>
   }
 </div>

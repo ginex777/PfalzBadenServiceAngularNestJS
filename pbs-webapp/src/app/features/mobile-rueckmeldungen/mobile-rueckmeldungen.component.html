@@ -12,6 +12,7 @@
         (change)="onObjectChanged($event)"
         [disabled]="facade.objectsLoading()"
       >
+        <option value="">Alle Objekte</option>
         @for (o of facade.objects(); track o.id) {
           <option [value]="o.id">{{ o.name }}</option>
         }
@@ -29,7 +30,7 @@
         >{{ facade.filteredTotal() }} / {{ facade.entries().length }} geladen • {{ facade.total() }}
         gesamt</span
       >
-      <button class="btn btn--klein" type="button" (click)="reload()" [disabled]="facade.loading()">
+      <button class="btn btn-sm" type="button" (click)="reload()" [disabled]="facade.loading()">
         Neu laden
       </button>
     </div>
@@ -72,7 +73,7 @@
                 <td>{{ r.createdAt | date: 'short' }}</td>
                 <td>{{ r.createdByName || r.createdByEmail || '—' }}</td>
                 <td class="col-aktionen">
-                  <a class="btn btn--klein" [routerLink]="r.link">Öffnen</a>
+                  <a class="btn btn-sm" [routerLink]="r.link">Öffnen</a>
                 </td>
               </tr>
             }

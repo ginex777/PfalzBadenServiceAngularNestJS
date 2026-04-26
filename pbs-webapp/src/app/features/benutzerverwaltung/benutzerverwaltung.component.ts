@@ -29,6 +29,7 @@ export class BenutzerverwaltungComponent implements OnInit {
     nachname: '',
   });
   readonly anlegenLaedt = signal(false);
+  readonly neuerUserSichtbar = signal(false);
 
   readonly bearbeiteterUser = signal<UserEintrag | null>(null);
   readonly bearbeitenForm = signal({ vorname: '', nachname: '', rolle: '' });
@@ -74,6 +75,7 @@ export class BenutzerverwaltungComponent implements OnInit {
             nachname: '',
           });
           this.anlegenLaedt.set(false);
+          this.neuerUserSichtbar.set(false);
           this._toast(`✓ ${user.email} angelegt`);
         },
         error: (e: { error?: { message?: string } }) => {
@@ -81,6 +83,21 @@ export class BenutzerverwaltungComponent implements OnInit {
           this.toast.error(e?.error?.message ?? 'Fehler beim Anlegen.');
         },
       });
+  }
+
+  neuerUserOeffnen(): void {
+    this.neuerUserSichtbar.set(true);
+  }
+
+  neuerUserSchliessen(): void {
+    this.neuerUserSichtbar.set(false);
+    this.neuerUser.set({
+      email: '',
+      password: '',
+      rolle: 'readonly',
+      vorname: '',
+      nachname: '',
+    });
   }
 
   bearbeitenOeffnen(u: UserEintrag): void {

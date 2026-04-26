@@ -4,7 +4,7 @@
   <div class="card">
     <app-search-toolbar
       placeholder="Angebot suchen…"
-      actionLabel="+ Neues Angebot"
+      actionLabel="Neues Angebot"
       [actionRoles]="['admin']"
       [(searchTerm)]="facade.suchbegriff"
       (action)="onNeuesAngebot()"
@@ -59,12 +59,12 @@
     />
   }
 
-  <!-- Drawer: Angebot erstellen / bearbeiten / versenden -->
+  <!-- Modal: Angebot erstellen / bearbeiten / versenden -->
   @if (facade.drawerOffen()) {
-    <div class="drawer-overlay" (click)="facade.drawerSchliessen()">
-      <div class="drawer" (click)="$event.stopPropagation()">
-        <div class="drawer-header">
-          <h3 class="drawer-title">
+    <div class="modal-overlay" (click)="facade.drawerSchliessen()">
+      <div class="modal modal--xl" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">
             @if (facade.drawerSchritt() === 'senden') {
               Angebot versenden
             } @else if (facade.bearbeitetesAngebot()) {
@@ -73,12 +73,12 @@
               Neues Angebot
             }
           </h3>
-          <button class="drawer-close" (click)="facade.drawerSchliessen()" title="Schließen">
+          <button class="modal-close" (click)="facade.drawerSchliessen()" title="Schließen">
             ✕
           </button>
         </div>
 
-        <div class="drawer-body">
+        <div class="modal-body">
           <div class="drawer-content">
             @if (facade.drawerSchritt() === 'formular') {
               <app-angebote-formular
@@ -123,6 +123,10 @@
               </div>
             }
           </div>
+        </div>
+
+        <div class="modal-footer">
+          <!-- Footer actions handled within formular/send-step components -->
         </div>
       </div>
     </div>

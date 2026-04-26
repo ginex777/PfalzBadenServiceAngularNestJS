@@ -1,18 +1,20 @@
 <div class="filter-bar">
-  <select class="filter-select" [value]="aktiverFilter()" (change)="onFilterSelectChange($event)">
-    <option value="alle">Alle Status</option>
-    <option value="offen">Offen</option>
-    <option value="gesendet">Gesendet</option>
-    <option value="angenommen">Angenommen</option>
-    <option value="abgelehnt">Abgelehnt</option>
-  </select>
-  <select class="filter-select" (change)="monatGeaendert($event)">
-    <option value="">Alle Monate</option>
-    @for (m of MONATE; track $index) {
-      <option [value]="$index">{{ m }}</option>
-    }
-  </select>
-  <button class="btn btn-sm" (click)="filterLeeren()">Leeren</button>
+  <div class="filter-btns">
+    <select class="filter-select" [value]="aktiverFilter()" (change)="onFilterSelectChange($event)">
+      <option value="alle">Alle Status</option>
+      <option value="offen">Offen</option>
+      <option value="gesendet">Gesendet</option>
+      <option value="angenommen">Angenommen</option>
+      <option value="abgelehnt">Abgelehnt</option>
+    </select>
+    <select class="filter-select" (change)="monatGeaendert($event)">
+      <option value="">Alle Monate</option>
+      @for (m of MONATE; track $index) {
+        <option [value]="$index">{{ m }}</option>
+      }
+    </select>
+    <button class="btn btn-primary" (click)="filterLeeren()">Filter leeren</button>
+  </div>
   <span class="count-hint">{{ gefilterteAngebote().length }} Einträge</span>
 </div>
 

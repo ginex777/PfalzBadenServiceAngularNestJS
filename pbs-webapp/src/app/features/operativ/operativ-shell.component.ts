@@ -32,7 +32,9 @@ const TABS: readonly OperativTab[] = [
         <a [routerLink]="tab.path" routerLinkActive="active">{{ tab.label }}</a>
       }
     </nav>
-    <router-outlet />
+    <div class="operativ-content">
+      <router-outlet />
+    </div>
   `,
   styles: [`
     .operativ-subnav {
@@ -60,6 +62,9 @@ const TABS: readonly OperativTab[] = [
     .operativ-subnav a.active {
       color: var(--primary-solid);
       border-bottom-color: var(--primary-solid);
+    }
+    .operativ-content {
+      padding: 0 1.5rem;
     }
   `],
 })

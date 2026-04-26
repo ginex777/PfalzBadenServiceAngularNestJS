@@ -96,7 +96,7 @@
                 type="button"
                 [title]="zeile.beleg_id ? 'Beleg anzeigen/ändern' : 'Beleg hochladen'"
               >
-                {{ zeile.beleg_id ? 'Beleg' : '+ Beleg' }}
+                {{ zeile.beleg_id ? 'Beleg' : 'Beleg' }}
               </button>
               @if (!istGesperrt()) {
                 <button class="btn-kopie" (click)="kopierenKlicken(zeile._tempId)" type="button">
@@ -125,7 +125,7 @@
       (click)="hinzufuegenKlicken()"
       type="button"
     >
-      + Einnahme
+      Einnahme
     </button>
   }
 

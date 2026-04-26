@@ -23,7 +23,7 @@ export class KundenFacade {
   readonly suchbegriff = signal('');
   readonly bearbeiteterKunde = signal<Kunde | null>(null);
   readonly loeschKandidat = signal<number | null>(null);
-  readonly formularSichtbar = signal(true);
+  readonly formularSichtbar = signal(false);
   readonly offenePosten = signal<OffenePostenDaten | null>(null);
   readonly offenePostenSichtbar = signal(false);
 
@@ -121,13 +121,14 @@ export class KundenFacade {
     });
   }
 
-  bearbeitungStarten(kunde: Kunde): void {
+  bearbeitungStarten(kunde: Kunde | null): void {
     this.bearbeiteterKunde.set(kunde);
     this.formularSichtbar.set(true);
   }
 
   bearbeitungAbbrechen(): void {
     this.bearbeiteterKunde.set(null);
+    this.formularSichtbar.set(false);
   }
 
   loeschenBestaetigen(id: number): void {

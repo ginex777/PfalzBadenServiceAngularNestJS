@@ -36,8 +36,8 @@
 }
 .form-field--checkbox {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
 }
 .form-aktionen {
   display: flex;

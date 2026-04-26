@@ -4,19 +4,17 @@
   <app-page-title title="Kunden" [subtitle]="facade.kunden().length + ' Kunden'" />
   </div>
 
-  <!-- Formular -->
-  <app-kunden-formular
-    *roleAllowed="['admin']"
-    [bearbeiteterKunde]="facade.bearbeiteterKunde()"
-    (gespeichert)="speichern($event)"
-    (abgebrochen)="bearbeitungAbbrechen()"
-  />
-
   <!-- Kundenliste -->
   <div class="kunden-liste-card">
     <div class="liste-header">
       <h3 class="section-title">Kundenliste</h3>
-      <app-search-toolbar placeholder="Kunden suchen…" [(searchTerm)]="facade.suchbegriff" />
+      <app-search-toolbar
+        placeholder="Kunden suchen…"
+        actionLabel="Neuer Kunde"
+        [actionRoles]="['admin']"
+        [(searchTerm)]="facade.suchbegriff"
+        (action)="facade.bearbeitungStarten(null)"
+      />
     </div>
 
     <app-kunden-tabelle
@@ -29,7 +27,7 @@
       (rechnung)="zuRechnungNavigieren($event)"
       (angebot)="zuAngebotNavigieren($event)"
       (offenePosten)="offenePostenAnzeigen($event)"
-      (neuAnlegen)="facade.formularSichtbar.set(true)"
+      (neuAnlegen)="facade.bearbeitungStarten(null)"
     />
 
     @if (facade.gesamtSeiten() > 1) {
@@ -110,6 +108,39 @@
           }
           <button class="btn" (click)="mahnungKopieren()">Kopieren</button>
           <button class="btn" (click)="facade.sammelMahnungSchliessen()">Schließen</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Kunde erstellen / bearbeiten Modal -->
+  @if (facade.formularSichtbar()) {
+    <div class="modal-overlay" (click)="bearbeitungAbbrechen()">
+      <div class="modal modal--lg" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">
+            @if (facade.bearbeiteterKunde()) {
+              Kunde bearbeiten
+            } @else {
+              Neuer Kunde
+            }
+          </h3>
+          <button class="modal-close" (click)="bearbeitungAbbrechen()" title="Schließen">
+            ✕
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <app-kunden-formular
+            *roleAllowed="['admin']"
+            [bearbeiteterKunde]="facade.bearbeiteterKunde()"
+            (gespeichert)="speichern($event)"
+            (abgebrochen)="bearbeitungAbbrechen()"
+          />
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn" (click)="bearbeitungAbbrechen()">Abbrechen</button>
         </div>
       </div>
     </div>
