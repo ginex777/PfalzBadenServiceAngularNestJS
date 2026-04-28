@@ -5,6 +5,7 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { KundenFacade } from './kunden.facade';
 import { KundenService } from './kunden.service';
+import { KundenFormularDaten } from './kunden.models';
 import { ToastService } from '../../core/services/toast.service';
 import { API_BASE_URL } from '../../core/tokens';
 import { Kunde, Rechnung } from '../../core/models';
@@ -133,7 +134,15 @@ describe('KundenFacade', () => {
       facade.kunden.set([]);
       facade.bearbeiteterKunde.set(null);
 
-      facade.speichern({ name: 'Neuer Kunde' } as any);
+      const formData: KundenFormularDaten = {
+        name: 'Neuer Kunde',
+        strasse: '',
+        ort: '',
+        tel: '',
+        email: '',
+        notiz: '',
+      };
+      facade.speichern(formData);
 
       expect(facade.kunden()).toHaveLength(1);
       expect(facade.kunden()[0].name).toBe('Neuer Kunde');
@@ -146,7 +155,15 @@ describe('KundenFacade', () => {
       facade.bearbeitungStarten(testKunden[0]);
       mockService.updateCustomer.mockReturnValue(of(updated));
 
-      facade.speichern({ name: 'Müller Neue GmbH' } as any);
+      const formData: KundenFormularDaten = {
+        name: 'Müller Neue GmbH',
+        strasse: testKunden[0].strasse ?? '',
+        ort: testKunden[0].ort ?? '',
+        tel: testKunden[0].tel ?? '',
+        email: testKunden[0].email ?? '',
+        notiz: testKunden[0].notiz ?? '',
+      };
+      facade.speichern(formData);
 
       const inList = facade.kunden().find((k) => k.id === 1);
       expect(inList?.name).toBe('Müller Neue GmbH');
@@ -155,7 +172,15 @@ describe('KundenFacade', () => {
 
     it('zeigt Fehler-Toast bei Speichern-Fehler', () => {
       mockService.createCustomer.mockReturnValue(throwError(() => new Error('Fehler')));
-      facade.speichern({ name: 'Test' } as any);
+      const formData: KundenFormularDaten = {
+        name: 'Test',
+        strasse: '',
+        ort: '',
+        tel: '',
+        email: '',
+        notiz: '',
+      };
+      facade.speichern(formData);
       expect(mockToast.error).toHaveBeenCalled();
       expect(facade.fehler()).toBeTruthy();
     });
@@ -205,7 +230,8 @@ describe('KundenFacade', () => {
         } as Rechnung,
       ];
       // Inject rechnungen via internal property
-      (facade as any).cachedRechnungen = rechnungen;
+      // @ts-expect-error test-only access to private cache
+      facade['cachedRechnungen'] = rechnungen;
 
       facade.offenePostenAnzeigen(1);
 

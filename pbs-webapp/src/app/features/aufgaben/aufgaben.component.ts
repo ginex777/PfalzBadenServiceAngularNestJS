@@ -11,9 +11,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { DEFAULT_PAGE_SIZE } from '../../core/constants';
-import { ApiService, UserEintrag } from '../../core/api/api.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Kunde, Mitarbeiter, Objekt, PaginatedResponse } from '../../core/models';
+import { UserEintrag } from '../../core/api/api.contract';
+import {
+  CustomersApiClient,
+  EmployeesApiClient,
+  ObjectsApiClient,
+  UsersApiClient,
+} from '../../core/api/clients';
 import { DrawerComponent } from '../../shared/ui/drawer/drawer.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { AufgabeDetailComponent } from './aufgabe-detail.component';
@@ -89,7 +95,10 @@ function parseEnumList<T extends string>(raw: unknown, allowed: readonly T[]): T
 export class AufgabenComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly api = inject(ApiService);
+  private readonly customersApi = inject(CustomersApiClient);
+  private readonly objectsApi = inject(ObjectsApiClient);
+  private readonly employeesApi = inject(EmployeesApiClient);
+  private readonly usersApi = inject(UsersApiClient);
   private readonly auth = inject(AuthService);
   private readonly service = inject(TasksService);
   private readonly destroyRef = inject(DestroyRef);
@@ -190,10 +199,10 @@ export class AufgabenComponent {
 
   private loadFilterData(): void {
     forkJoin({
-      customers: this.api.loadCustomers(),
-      objects: this.api.loadObjects(),
-      employees: this.api.loadEmployees(),
-      users: this.api.loadUsers().pipe(map((raw) => this.mapUsers(raw))),
+      customers: this.customersApi.loadCustomers(),
+      objects: this.objectsApi.loadObjects(),
+      employees: this.employeesApi.loadEmployees(),
+      users: this.usersApi.loadUsers().pipe(map((raw) => this.mapUsers(raw))),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

@@ -33,10 +33,8 @@ module.exports = [
       'unused-imports': unusedImports,
     },
     rules: {
-      // auto-fix unused imports (primary goal)
+      // ── Unused imports / vars ──────────────────────────────────────────────
       'unused-imports/no-unused-imports': 'error',
-
-      // let unused-imports handle this so --fix can remove unused vars in many cases
       '@typescript-eslint/no-unused-vars': 'off',
       'unused-imports/no-unused-vars': ['warn', {
         vars: 'all',
@@ -44,9 +42,33 @@ module.exports = [
         args: 'after-used',
         argsIgnorePattern: '^_',
       }],
+
+      // ── TypeScript hygiene ─────────────────────────────────────────────────
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/no-inferrable-types': 'error',
+      '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
+      '@typescript-eslint/consistent-type-imports': ['error', {
+        prefer: 'type-imports',
+        disallowTypeAnnotations: false,
+      }],
+      '@typescript-eslint/no-empty-object-type': 'error',
+      '@typescript-eslint/no-wrapper-object-types': 'error',
+
+      // ── General correctness ────────────────────────────────────────────────
+      'eqeqeq': ['error', 'always', { null: 'ignore' }],
+      'no-var': 'error',
+      'prefer-const': 'error',
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'no-debugger': 'error',
+      'no-duplicate-imports': 'error',
+      'no-self-compare': 'error',
+      'no-template-curly-in-string': 'warn',
+      'object-shorthand': ['error', 'always'],
+      'prefer-template': 'error',
     },
   },
-  // Angular templates (.html): catch template-only issues that TypeScript ESLint cannot see.
+  // ── Angular templates ────────────────────────────────────────────────────
   {
     files: ['src/**/*.html'],
     languageOptions: {
@@ -57,9 +79,15 @@ module.exports = [
     },
     rules: {
       ...ngTemplatePlugin.configs.recommended.rules,
+      // Accessibility
+      '@angular-eslint/template/alt-text': 'error',
+      '@angular-eslint/template/elements-content': 'error',
+      '@angular-eslint/template/label-has-associated-control': 'error',
+      '@angular-eslint/template/no-duplicate-attributes': 'error',
+      '@angular-eslint/template/no-negated-async': 'error',
     },
   },
-  // Angular-specific TS hygiene (selectors, lifecycle interfaces, etc.). Keep it light.
+  // ── Angular TypeScript ────────────────────────────────────────────────────
   {
     files: ['src/**/*.ts'],
     plugins: {
@@ -67,8 +95,16 @@ module.exports = [
     },
     rules: {
       ...ngPlugin.configs.recommended.rules,
-      // Existing codebase uses constructor injection widely; don't force churn.
       '@angular-eslint/prefer-inject': 'off',
+      '@angular-eslint/prefer-output-readonly': 'error',
+      '@angular-eslint/no-output-on-prefix': 'error',
+      '@angular-eslint/no-input-rename': 'error',
+      '@angular-eslint/no-output-rename': 'error',
+      '@angular-eslint/use-lifecycle-interface': 'error',
+      '@angular-eslint/component-max-inline-declarations': ['warn', {
+        template: 5,
+        styles: 5,
+      }],
     },
   },
 ];

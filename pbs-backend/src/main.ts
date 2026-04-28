@@ -2,18 +2,20 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import {
   ValidationPipe,
   ClassSerializerInterceptor,
-  Logger,
 } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { json, urlencoded } from 'express';
+import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
-import { AllExceptionsFilter } from './core/http-exception.filter';
-import { LoggingInterceptor } from './core/logging.interceptor';
+import { initSentry } from './core/sentry.util';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const logger = new Logger('Bootstrap');
+  initSentry();
+
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(app.get(Logger));
+  const logger = app.get(Logger);
 
   // ── Security ────────────────────────────────────────────────────────────────
   app.use(helmet());
@@ -41,12 +43,8 @@ async function bootstrap() {
     }),
   );
 
-  // ── Global filters + interceptors ───────────────────────────────────────────
-  app.useGlobalFilters(new AllExceptionsFilter());
-  app.useGlobalInterceptors(
-    new LoggingInterceptor(),
-    new ClassSerializerInterceptor(app.get(Reflector)),
-  );
+  // ── Global interceptors ─────────────────────────────────────────────────────
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // ── Swagger (dev + staging only) ────────────────────────────────────────────
   if (process.env['NODE_ENV'] !== 'production') {
@@ -59,11 +57,11 @@ async function bootstrap() {
       .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api-docs', app, document);
-    logger.log('Swagger UI: http://localhost:3000/api-docs');
+    logger.log('Swagger UI: http://localhost:3000/api-docs', 'Bootstrap');
   }
 
   const port = process.env['PORT'] ?? 3000;
   await app.listen(port);
-  logger.log(`PBS Backend läuft auf http://localhost:${port}`);
+  logger.log(`PBS Backend läuft auf http://localhost:${port}`, 'Bootstrap');
 }
 void bootstrap();

@@ -9,7 +9,7 @@
       class="eingabe eingabe--suche"
       placeholder="Ausgaben durchsuchen…"
       [value]="suchbegriff"
-      (input)="suchbegriff = $any($event.target).value"
+      (input)="suchbegriffGeaendert($event)"
     />
     @if (!istGesperrt()) {
       <button

@@ -8,7 +8,6 @@
     <div class="banner banner--ok">{{ erfolg() }}</div>
   }
 
-  <!-- Benutzerliste -->
   <div class="card">
     <div class="liste-header">
       <h3 class="section-title">Alle Benutzer</h3>
@@ -45,9 +44,7 @@
                 <td>{{ u.created_at | date: 'dd.MM.yyyy' }}</td>
                 <td class="td-aktionen">
                   <button class="btn-action" (click)="bearbeitenOeffnen(u)">Bearbeiten</button>
-                  <button class="btn-action btn-action--danger" (click)="loeschen(u)">
-                    Löschen
-                  </button>
+                  <button class="btn-action btn-action--danger" (click)="loeschen(u)">Löschen</button>
                 </td>
               </tr>
             }
@@ -67,66 +64,12 @@
         <button class="modal-close" (click)="neuerUserSchliessen()" title="Schließen">✕</button>
       </div>
       <div class="modal-body">
-        <div class="form-grid">
-          <label class="form-label">
-            Vorname
-            <input
-              class="form-input"
-              type="text"
-              placeholder="Max"
-              [value]="neuerUser().vorname"
-              (input)="neuerUser.update((u) => ({ ...u, vorname: $any($event.target).value }))"
-            />
-          </label>
-          <label class="form-label">
-            Nachname
-            <input
-              class="form-input"
-              type="text"
-              placeholder="Mustermann"
-              [value]="neuerUser().nachname"
-              (input)="neuerUser.update((u) => ({ ...u, nachname: $any($event.target).value }))"
-            />
-          </label>
-          <label class="form-label">
-            E-Mail *
-            <input
-              class="form-input"
-              type="email"
-              placeholder="nutzer@beispiel.de"
-              [value]="neuerUser().email"
-              (input)="neuerUser.update((u) => ({ ...u, email: $any($event.target).value }))"
-            />
-          </label>
-          <label class="form-label">
-            Passwort * (min. 8 Zeichen)
-            <input
-              class="form-input"
-              type="password"
-              placeholder="••••••••"
-              [value]="neuerUser().password"
-              (input)="neuerUser.update((u) => ({ ...u, password: $any($event.target).value }))"
-            />
-          </label>
-          <label class="form-label">
-            Rolle
-            <select
-              class="form-input"
-              [value]="neuerUser().rolle"
-              (change)="neuerUser.update((u) => ({ ...u, rolle: $any($event.target).value }))"
-            >
-              <option value="admin">Admin</option>
-              <option value="mitarbeiter">Mitarbeiter</option>
-              <option value="readonly">Nur Lesen</option>
-            </select>
-          </label>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn" (click)="neuerUserSchliessen()">Abbrechen</button>
-        <button class="btn btn-primary" [disabled]="anlegenLaedt()" (click)="anlegen()">
-          {{ anlegenLaedt() ? 'Anlegen…' : 'Benutzer anlegen' }}
-        </button>
+        <app-benutzer-formular
+          [bearbeiteterUser]="null"
+          [laedt]="anlegenLaedt()"
+          (neuGespeichert)="anlegen($event)"
+          (abgebrochen)="neuerUserSchliessen()"
+        />
       </div>
     </div>
   </div>
@@ -134,44 +77,18 @@
 
 <!-- Bearbeiten Modal -->
 @if (bearbeiteterUser()) {
-  <div class="modal-overlay" (click)="bearbeiteterUser.set(null)">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <h3 class="modal-titel">{{ bearbeiteterUser()!.email }} bearbeiten</h3>
-      <div class="form-grid">
-        <label class="form-label">
-          Vorname
-          <input
-            class="form-input"
-            type="text"
-            [value]="bearbeitenForm().vorname"
-            (input)="bearbeitenForm.update((f) => ({ ...f, vorname: $any($event.target).value }))"
-          />
-        </label>
-        <label class="form-label">
-          Nachname
-          <input
-            class="form-input"
-            type="text"
-            [value]="bearbeitenForm().nachname"
-            (input)="bearbeitenForm.update((f) => ({ ...f, nachname: $any($event.target).value }))"
-          />
-        </label>
-        <label class="form-label">
-          Rolle
-          <select
-            class="form-input"
-            [value]="bearbeitenForm().rolle"
-            (change)="bearbeitenForm.update((f) => ({ ...f, rolle: $any($event.target).value }))"
-          >
-            <option value="admin">Admin</option>
-            <option value="mitarbeiter">Mitarbeiter</option>
-            <option value="readonly">Nur Lesen</option>
-          </select>
-        </label>
+  <div class="modal-overlay" (click)="bearbeitenSchliessen()">
+    <div class="modal modal--lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ bearbeiteterUser()!.email }} bearbeiten</h3>
+        <button class="modal-close" (click)="bearbeitenSchliessen()" title="Schließen">✕</button>
       </div>
-      <div class="modal-footer">
-        <button class="btn" (click)="bearbeiteterUser.set(null)">Abbrechen</button>
-        <button class="btn btn-primary" (click)="bearbeitenSpeichern()">Speichern</button>
+      <div class="modal-body">
+        <app-benutzer-formular
+          [bearbeiteterUser]="bearbeiteterUser()"
+          (bearbeitenGespeichert)="bearbeitenSpeichern($event)"
+          (abgebrochen)="bearbeitenSchliessen()"
+        />
       </div>
     </div>
   </div>

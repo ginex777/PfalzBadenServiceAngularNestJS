@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ApiService } from '../../core/api/api.service';
 import { Kunde, Rechnung } from '../../core/models';
+import { CustomersApiClient, InvoicesApiClient, OffersApiClient } from '../../core/api/clients';
 import { KundeUmsatz } from './kunden.models';
 
 export interface KundenLadeErgebnis {
@@ -13,13 +13,15 @@ export interface KundenLadeErgebnis {
 
 @Injectable({ providedIn: 'root' })
 export class KundenService {
-  private readonly api = inject(ApiService);
+  private readonly customersApi = inject(CustomersApiClient);
+  private readonly invoicesApi = inject(InvoicesApiClient);
+  private readonly offersApi = inject(OffersApiClient);
 
   allesDatenLaden(): Observable<KundenLadeErgebnis> {
     return forkJoin({
-      kunden: this.api.loadCustomers(),
-      rechnungen: this.api.loadInvoices(),
-      angebote: this.api.loadOffers(),
+      kunden: this.customersApi.loadCustomers(),
+      rechnungen: this.invoicesApi.loadInvoices(),
+      angebote: this.offersApi.loadOffers(),
     }).pipe(
       map(({ kunden, rechnungen, angebote }) => {
         const umsaetze = kunden.map((k) => {
@@ -40,14 +42,14 @@ export class KundenService {
   }
 
   createCustomer(daten: Partial<Kunde>): Observable<Kunde> {
-    return this.api.createCustomer(daten);
+    return this.customersApi.createCustomer(daten);
   }
 
   updateCustomer(id: number, daten: Partial<Kunde>): Observable<Kunde> {
-    return this.api.updateCustomer(id, daten);
+    return this.customersApi.updateCustomer(id, daten);
   }
 
   deleteCustomer(id: number): Observable<void> {
-    return this.api.deleteCustomer(id);
+    return this.customersApi.deleteCustomer(id);
   }
 }

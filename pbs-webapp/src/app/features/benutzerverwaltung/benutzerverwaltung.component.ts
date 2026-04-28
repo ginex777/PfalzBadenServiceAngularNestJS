@@ -1,15 +1,17 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { EinstellungenService, UserEintrag } from '../einstellungen/einstellungen.service';
 import { ToastService } from '../../core/services/toast.service';
+import { BenutzerFormularComponent } from './components/benutzer-formular/benutzer-formular.component';
+import { BenutzerNeuDaten, BenutzerBearbeitenDaten } from './benutzerverwaltung.models';
 
 export type { UserEintrag };
 
 @Component({
   selector: 'app-benutzerverwaltung',
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [BenutzerFormularComponent, DatePipe],
   templateUrl: './benutzerverwaltung.component.html',
   styleUrl: './benutzerverwaltung.component.scss',
 })
@@ -19,20 +21,10 @@ export class BenutzerverwaltungComponent implements OnInit {
 
   readonly users = signal<UserEintrag[]>([]);
   readonly laedt = signal(false);
-  readonly erfolg = signal<string | null>(null);
-
-  readonly neuerUser = signal({
-    email: '',
-    password: '',
-    rolle: 'readonly' as string,
-    vorname: '',
-    nachname: '',
-  });
   readonly anlegenLaedt = signal(false);
+  readonly erfolg = signal<string | null>(null);
   readonly neuerUserSichtbar = signal(false);
-
   readonly bearbeiteterUser = signal<UserEintrag | null>(null);
-  readonly bearbeitenForm = signal({ vorname: '', nachname: '', rolle: '' });
 
   ngOnInit(): void {
     this._laden();
@@ -41,39 +33,40 @@ export class BenutzerverwaltungComponent implements OnInit {
   private _laden(): void {
     this.laedt.set(true);
     this.einstellungen.userListeLaden().subscribe({
-      next: (list) => {
-        this.users.set(list);
-        this.laedt.set(false);
-      },
+      next: (list) => { this.users.set(list); this.laedt.set(false); },
       error: () => this.laedt.set(false),
     });
   }
 
-  anlegen(): void {
-    const p = this.neuerUser();
-    if (!p.email || !p.password) {
-      this.toast.error('E-Mail und Passwort sind Pflichtfelder.');
-      return;
-    }
+  neuerUserOeffnen(): void {
+    this.neuerUserSichtbar.set(true);
+  }
+
+  neuerUserSchliessen(): void {
+    this.neuerUserSichtbar.set(false);
+  }
+
+  bearbeitenOeffnen(u: UserEintrag): void {
+    this.bearbeiteterUser.set(u);
+  }
+
+  bearbeitenSchliessen(): void {
+    this.bearbeiteterUser.set(null);
+  }
+
+  anlegen(daten: BenutzerNeuDaten): void {
     this.anlegenLaedt.set(true);
     this.einstellungen
       .createUser({
-        email: p.email,
-        password: p.password,
-        rolle: p.rolle as 'admin' | 'readonly' | 'mitarbeiter',
-        vorname: p.vorname,
-        nachname: p.nachname,
+        email: daten.email,
+        password: daten.password,
+        rolle: daten.rolle as 'admin' | 'readonly' | 'mitarbeiter',
+        vorname: daten.vorname,
+        nachname: daten.nachname,
       })
       .subscribe({
         next: (user) => {
           this.users.update((l) => [...l, user]);
-          this.neuerUser.set({
-            email: '',
-            password: '',
-            rolle: 'readonly',
-            vorname: '',
-            nachname: '',
-          });
           this.anlegenLaedt.set(false);
           this.neuerUserSichtbar.set(false);
           this._toast(`✓ ${user.email} angelegt`);
@@ -85,34 +78,10 @@ export class BenutzerverwaltungComponent implements OnInit {
       });
   }
 
-  neuerUserOeffnen(): void {
-    this.neuerUserSichtbar.set(true);
-  }
-
-  neuerUserSchliessen(): void {
-    this.neuerUserSichtbar.set(false);
-    this.neuerUser.set({
-      email: '',
-      password: '',
-      rolle: 'readonly',
-      vorname: '',
-      nachname: '',
-    });
-  }
-
-  bearbeitenOeffnen(u: UserEintrag): void {
-    this.bearbeiteterUser.set(u);
-    this.bearbeitenForm.set({
-      vorname: u.vorname ?? '',
-      nachname: u.nachname ?? '',
-      rolle: u.rolle,
-    });
-  }
-
-  bearbeitenSpeichern(): void {
+  bearbeitenSpeichern(daten: BenutzerBearbeitenDaten): void {
     const u = this.bearbeiteterUser();
     if (!u) return;
-    this.einstellungen.updateUser(u.id, this.bearbeitenForm()).subscribe({
+    this.einstellungen.updateUser(u.id, daten).subscribe({
       next: (updated) => {
         this.users.update((l) => l.map((x) => (x.id === updated.id ? updated : x)));
         this.bearbeiteterUser.set(null);

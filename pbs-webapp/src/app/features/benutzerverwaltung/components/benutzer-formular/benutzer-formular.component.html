@@ -1,0 +1,76 @@
+<div class="formular-content">
+  @if (!istBearbeiten()) {
+    <!-- Neu anlegen -->
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="form-label">Vorname</label>
+        <input class="form-input" type="text" placeholder="Max" [formField]="neuForm.vorname" />
+      </div>
+      <div class="form-field">
+        <label class="form-label">Nachname</label>
+        <input class="form-input" type="text" placeholder="Mustermann" [formField]="neuForm.nachname" />
+      </div>
+      <div class="form-field">
+        <label class="form-label">E-Mail *</label>
+        <input class="form-input" type="email" placeholder="nutzer@beispiel.de" [formField]="neuForm.email" />
+        @if (neuForm.email().touched() && neuForm.email().invalid()) {
+          <span class="form-fehler">{{ neuForm.email().errors()[0]?.message }}</span>
+        }
+      </div>
+      <div class="form-field">
+        <label class="form-label">Passwort * (min. 8 Zeichen)</label>
+        <input class="form-input" type="password" placeholder="••••••••" [formField]="neuForm.password" />
+        @if (neuForm.password().touched() && neuForm.password().invalid()) {
+          <span class="form-fehler">{{ neuForm.password().errors()[0]?.message }}</span>
+        }
+      </div>
+      <div class="form-field">
+        <label class="form-label">Rolle</label>
+        <select
+          class="form-input"
+          [value]="neuModell().rolle"
+          (change)="neuRolleGeaendert($event)"
+        >
+          @for (opt of rollenOptionen; track opt.wert) {
+            <option [value]="opt.wert">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  } @else {
+    <!-- Bearbeiten -->
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="form-label">Vorname</label>
+        <input class="form-input" type="text" [formField]="bearbeitenForm.vorname" />
+      </div>
+      <div class="form-field">
+        <label class="form-label">Nachname</label>
+        <input class="form-input" type="text" [formField]="bearbeitenForm.nachname" />
+      </div>
+      <div class="form-field">
+        <label class="form-label">Rolle</label>
+        <select
+          class="form-input"
+          [value]="bearbeitenModell().rolle"
+          (change)="bearbeitenRolleGeaendert($event)"
+        >
+          @for (opt of rollenOptionen; track opt.wert) {
+            <option [value]="opt.wert">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  }
+
+  <div class="form-aktionen">
+    <button class="btn" (click)="abbrechen()">Abbrechen</button>
+    <button
+      class="btn btn-primary"
+      [disabled]="laedt() || (istBearbeiten() ? !bearbeitenGueltig() : !neuGueltig())"
+      (click)="speichern()"
+    >
+      {{ laedt() ? 'Speichern…' : (istBearbeiten() ? 'Speichern' : 'Benutzer anlegen') }}
+    </button>
+  </div>
+</div>

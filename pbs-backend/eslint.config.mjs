@@ -10,7 +10,6 @@ export default tseslint.config(
     ignores: ['eslint.config.mjs', 'dist/**'],
   },
   eslint.configs.recommended,
-  // Keep lint actionable: focus on correctness + unused imports. Type-checked rules are too noisy for this repo right now.
   ...tseslint.configs.recommended,
   eslintPluginPrettierRecommended,
   {
@@ -30,9 +29,7 @@ export default tseslint.config(
   },
   {
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-
-      // Auto-fixable hygiene
+      // ── Unused imports / vars ──────────────────────────────────────────────
       '@typescript-eslint/no-unused-vars': 'off',
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': ['warn', {
@@ -42,7 +39,32 @@ export default tseslint.config(
         argsIgnorePattern: '^_',
       }],
 
-      "prettier/prettier": ["error", { endOfLine: "auto" }],
+      // ── TypeScript hygiene ─────────────────────────────────────────────────
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/no-inferrable-types': 'error',
+      '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
+      '@typescript-eslint/consistent-type-imports': ['error', {
+        prefer: 'type-imports',
+        disallowTypeAnnotations: false,
+      }],
+      '@typescript-eslint/no-empty-object-type': 'error',
+      '@typescript-eslint/no-wrapper-object-types': 'error',
+
+      // ── General correctness ────────────────────────────────────────────────
+      'eqeqeq': ['error', 'always', { null: 'ignore' }],
+      'no-var': 'error',
+      'prefer-const': 'error',
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'no-debugger': 'error',
+      'no-duplicate-imports': 'error',
+      'no-self-compare': 'error',
+      'no-template-curly-in-string': 'warn',
+      'object-shorthand': ['error', 'always'],
+      'prefer-template': 'error',
+
+      // ── Prettier ───────────────────────────────────────────────────────────
+      'prettier/prettier': ['error', { endOfLine: 'auto' }],
     },
   },
 );

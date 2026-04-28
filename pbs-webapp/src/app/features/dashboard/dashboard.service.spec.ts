@@ -1,41 +1,48 @@
 import { of } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
-import { ApiService } from '../../core/api/api.service';
+import {
+  AccountingApiClient,
+  InvoicesApiClient,
+  NotificationsApiClient,
+  OffersApiClient,
+} from '../../core/api/clients';
 import { BuchhaltungJahr, Rechnung, Angebot, Benachrichtigung } from '../../core/models';
 import { DashboardService } from './dashboard.service';
-
-class ApiServiceStub {
-  loadInvoices() {
-    return of<Rechnung[]>([]);
-  }
-
-  loadOffers() {
-    return of<Angebot[]>([]);
-  }
-
-  loadNotifications() {
-    return of<Benachrichtigung[]>([]);
-  }
-
-  loadAccounting() {
-    return of<BuchhaltungJahr>({});
-  }
-
-  markNotificationRead() {
-    return of<void>(void 0);
-  }
-
-  markAllNotificationsRead() {
-    return of<void>(void 0);
-  }
-}
 
 describe('DashboardService', () => {
   let service: DashboardService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [DashboardService, { provide: ApiService, useClass: ApiServiceStub }],
+      providers: [
+        DashboardService,
+        {
+          provide: InvoicesApiClient,
+          useValue: {
+            loadInvoices: () => of<Rechnung[]>([]),
+          },
+        },
+        {
+          provide: OffersApiClient,
+          useValue: {
+            loadOffers: () => of<Angebot[]>([]),
+          },
+        },
+        {
+          provide: NotificationsApiClient,
+          useValue: {
+            loadNotifications: () => of<Benachrichtigung[]>([]),
+            markNotificationRead: () => of<void>(void 0),
+            markAllNotificationsRead: () => of<void>(void 0),
+          },
+        },
+        {
+          provide: AccountingApiClient,
+          useValue: {
+            loadAccounting: () => of<BuchhaltungJahr>({}),
+          },
+        },
+      ],
     });
 
     service = TestBed.inject(DashboardService);

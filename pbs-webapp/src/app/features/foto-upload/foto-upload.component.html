@@ -1,30 +1,71 @@
 <div class="page-wrap">
-  <app-page-title
-    title="Foto Upload"
-    subtitle="Nachweise erstellen (aktuell Mobile-first) • Web-Gegenstück"
-  />
+  <app-page-title title="Foto Upload" subtitle="Nachweis hochladen" />
 
-  <div class="card placeholder-card">
-    <div class="placeholder-card__copy">
-      <h3 class="placeholder-card__title">So funktioniert es aktuell</h3>
-      <p class="placeholder-card__text">
-        Fotos werden im operativen Alltag über die <strong>Mobile App</strong> hochgeladen. In der
-        Webapp sind die Nachweise als Read-Views verfügbar, damit du sie schnell prüfen und
-        weiterverarbeiten kannst.
-      </p>
+  @if (uploadSuccess()) {
+    <div class="success-banner">
+      <span>Nachweis erfolgreich hochgeladen.</span>
+      <div class="success-banner__actions">
+        <a class="btn btn-secondary btn-sm" [routerLink]="['/operativ/nachweise']">Nachweise öffnen</a>
+        <button class="btn btn-primary btn-sm" (click)="resetSuccess()">Weiteres hochladen</button>
+      </div>
     </div>
+  } @else {
+    <div class="upload-form card">
+      <div class="form-group">
+        <label class="form-label" for="objekt">Objekt <span class="required">*</span></label>
+        @if (objectsLoading()) {
+          <select class="form-control" disabled><option>Lädt…</option></select>
+        } @else if (objects().length === 0) {
+          <p class="form-hint">Keine Objekte verfügbar.</p>
+        } @else {
+          <select id="objekt" class="form-control" (change)="onObjectChange($event)">
+            @for (o of objects(); track o.id) {
+              <option [value]="o.id">{{ o.name }}</option>
+            }
+          </select>
+        }
+      </div>
 
-    <div class="placeholder-card__actions">
-      <a class="btn btn--primaer" [routerLink]="['/operativ/nachweise']">Nachweise öffnen</a>
-      <a class="btn" [routerLink]="['/operativ/mobile-rueckmeldungen']">Mobile Rückmeldungen</a>
-    </div>
+      <div class="form-group">
+        <label class="form-label" for="foto">Foto <span class="required">*</span></label>
+        <input
+          id="foto"
+          type="file"
+          accept="image/*"
+          class="form-control"
+          (change)="onFileChange($event)"
+        />
+        @if (fileError()) {
+          <p class="field-error">{{ fileError() }}</p>
+        }
+        @if (selectedFile()) {
+          <p class="form-hint">{{ selectedFile()!.name }}</p>
+        }
+      </div>
 
-    <div class="placeholder-card__meta">
-      <span class="pill">Actionable Placeholder</span>
-      <span class="placeholder-card__meta-sep">•</span>
-      <a class="placeholder-card__link" [routerLink]="['/operativ/nachweise']">Read View</a>
-      <span class="placeholder-card__meta-sep">•</span>
-      <span>Follow-up: 3.22</span>
+      <div class="form-group">
+        <label class="form-label" for="notiz">Notiz</label>
+        <textarea
+          id="notiz"
+          class="form-control"
+          rows="3"
+          maxlength="2000"
+          placeholder="Optionaler Kommentar…"
+          [value]="note()"
+          (input)="onNoteChange($event)"
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button
+          class="btn btn-primary"
+          [disabled]="!canSubmit"
+          (click)="submit()"
+        >
+          @if (uploading()) { Lädt hoch… } @else { Hochladen }
+        </button>
+        <a class="btn btn-secondary" [routerLink]="['/operativ/nachweise']">Nachweise ansehen</a>
+      </div>
     </div>
-  </div>
+  }
 </div>

@@ -51,7 +51,7 @@ export class StempeluhrPage implements OnInit {
   readonly toastOpen = signal(false);
 
   protected readonly canStart = computed(() => {
-    return !this.isActive && !this.isLoading() && this.context.selectedObjectId() != null;
+    return !this.isActive() && !this.isLoading() && this.context.selectedObjectId() != null;
   });
 
   protected readonly isActive = computed(() => this.timerState.isActive());

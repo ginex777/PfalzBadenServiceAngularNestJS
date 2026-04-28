@@ -34,6 +34,12 @@ export class AusgabenTabelleComponent {
   protected suchbegriff = '';
   protected kategorieFilter = '';
 
+  protected suchbegriffGeaendert(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    this.suchbegriff = target.value;
+  }
+
   protected verwendeteKategorien(): string[] {
     const alle = this.zeilen()
       .map((z) => z.kategorie ?? '')

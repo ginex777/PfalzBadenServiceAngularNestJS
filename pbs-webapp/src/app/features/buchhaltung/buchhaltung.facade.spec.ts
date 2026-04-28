@@ -25,7 +25,15 @@ const mockToast = { success: jest.fn(), error: jest.fn() };
 function makeZeile(
   overrides: Partial<BuchhaltungEintrag & { _tempId: string }> = {},
 ): BuchhaltungEintrag & { _tempId: string } {
-  return { typ: 'inc', brutto: 100, mwst: 19, abzug: 100, _tempId: 'tmp-1', ...overrides } as any;
+  const base = {
+    typ: 'inc',
+    brutto: 100,
+    mwst: 19,
+    abzug: 100,
+    _tempId: 'tmp-1',
+  } satisfies BuchhaltungEintrag & { _tempId: string };
+
+  return { ...base, ...overrides };
 }
 
 describe('BuchhaltungFacade', () => {
@@ -100,7 +108,8 @@ describe('BuchhaltungFacade', () => {
       facade.aktuellerMonat.set(0);
       facade.gesperrteMonateSet.set(new Set());
       // Inject zeile direkt
-      (facade as any)._einnahmenZeilen.set({
+      // @ts-expect-error test-only access to private state
+      facade['_einnahmenZeilen'].set({
         0: [makeZeile({ brutto: 119, mwst: 19, typ: 'inc' })],
       });
 
@@ -111,7 +120,8 @@ describe('BuchhaltungFacade', () => {
 
     it('berechnet Ausgaben-Vorsteuer mit Abzugsquote', () => {
       facade.aktuellerMonat.set(0);
-      (facade as any)._ausgabenZeilen.set({
+      // @ts-expect-error test-only access to private state
+      facade['_ausgabenZeilen'].set({
         0: [makeZeile({ brutto: 119, mwst: 19, abzug: 50, typ: 'exp' })],
       });
 
@@ -122,10 +132,12 @@ describe('BuchhaltungFacade', () => {
 
     it('berechnet Gewinn = Einnahmen-Netto minus Ausgaben-Netto', () => {
       facade.aktuellerMonat.set(5);
-      (facade as any)._einnahmenZeilen.set({
+      // @ts-expect-error test-only access to private state
+      facade['_einnahmenZeilen'].set({
         5: [makeZeile({ brutto: 119, mwst: 19, typ: 'inc' })],
       });
-      (facade as any)._ausgabenZeilen.set({
+      // @ts-expect-error test-only access to private state
+      facade['_ausgabenZeilen'].set({
         5: [makeZeile({ brutto: 59.5, mwst: 19, abzug: 100, typ: 'exp' })],
       });
 
@@ -140,7 +152,8 @@ describe('BuchhaltungFacade', () => {
       facade.gesperrteMonateSet.set(new Set());
       const z1 = makeZeile({ _tempId: 'a', brutto: 100, typ: 'inc' });
       const z2 = makeZeile({ _tempId: 'b', brutto: 200, typ: 'inc' });
-      (facade as any)._einnahmenZeilen.set({ 0: [z1, z2] });
+      // @ts-expect-error test-only access to private state
+      facade['_einnahmenZeilen'].set({ 0: [z1, z2] });
 
       facade.zeileKopieren('inc', 'a');
 

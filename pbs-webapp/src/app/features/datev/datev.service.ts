@@ -1,32 +1,34 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
-import { ApiService, DatevVorschauAntwort } from '../../core/api/api.service';
 import { FirmaSettings } from '../../core/models';
+import { DatevApiClient, SettingsApiClient } from '../../core/api/clients';
+import { DatevVorschauAntwort } from '../../core/api/api.contract';
 
 export type { DatevVorschauAntwort };
 
 @Injectable({ providedIn: 'root' })
 export class DatevService {
-  private readonly api = inject(ApiService);
+  private readonly datevApi = inject(DatevApiClient);
+  private readonly settingsApi = inject(SettingsApiClient);
 
   validierenUndVorschauLaden(
     jahr: number,
     monat: number,
   ): Observable<{ validierung: DatevVorschauAntwort; vorschau: DatevVorschauAntwort }> {
     return forkJoin({
-      validierung: this.api.validateDatev(jahr, monat),
-      vorschau: this.api.loadDatevPreview(jahr, monat),
+      validierung: this.datevApi.validateDatev(jahr, monat),
+      vorschau: this.datevApi.loadDatevPreview(jahr, monat),
     });
   }
 
   firmaLaden(): Observable<FirmaSettings> {
-    return this.api.loadSettings('firma');
+    return this.settingsApi.loadSettings('firma');
   }
 
   exportUrl(jahr: number, monat: number): string {
-    return this.api.getDatevExportUrl(jahr, monat);
+    return this.datevApi.getDatevExportUrl(jahr, monat);
   }
   excelUrl(jahr: number, monat: number): string {
-    return this.api.getDatevExcelUrl(jahr, monat);
+    return this.datevApi.getDatevExcelUrl(jahr, monat);
   }
 }

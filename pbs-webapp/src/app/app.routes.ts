@@ -203,6 +203,12 @@ export const routes: Routes = [
           import('./features/pdf-archiv/pdf-archiv.component').then((m) => m.PdfArchivComponent),
       },
       {
+        path: 'stempeluhr',
+        canActivate: [roleGuard(['admin', 'readonly'])],
+        loadComponent: () =>
+          import('./features/stempeluhr/stempeluhr.component').then((m) => m.StempeluhrComponent),
+      },
+      {
         path: 'audit-log',
         loadComponent: () =>
           import('./features/audit-log/audit-log.component').then((m) => m.AuditLogComponent),

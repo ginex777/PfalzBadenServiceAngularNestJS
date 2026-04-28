@@ -113,24 +113,53 @@ export class MuellplanComponent implements OnInit {
   }
 
   protected terminMonatFilterGeaendert(event: Event): void {
-    const val = (event.target as HTMLSelectElement).value;
-    this.facade.terminMonatFilter.set(val === '' ? '' : (parseInt(val) as number));
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) return;
+
+    const val = target.value;
+    this.facade.terminMonatFilter.set(val === '' ? '' : parseInt(val));
   }
 
   protected terminFeldGeaendert(feld: keyof TerminFormularDaten, event: Event): void {
-    const wert = (event.target as HTMLInputElement).value;
-    this.facade.terminFormularFeldAktualisieren(feld, wert);
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    this.facade.terminFormularFeldAktualisieren(feld, target.value);
   }
 
   protected vorlageFeldGeaendert(feld: keyof VorlageFormularDaten, event: Event): void {
-    const el = event.target as HTMLInputElement | HTMLTextAreaElement;
-    const wert = feld === 'jahr' ? parseInt(el.value) : el.value;
-    this.facade.vorlageFormularFeldAktualisieren(feld, wert as never);
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) && !(target instanceof HTMLTextAreaElement)) return;
+
+    const value = feld === 'jahr' ? parseInt(target.value) : target.value;
+    this.facade.vorlageFormularFeldAktualisieren(feld, value as never);
   }
 
   protected vorlagePdfHochladen(vorlageId: number, event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+
+    const file = target.files?.[0];
     if (file) this.facade.vorlagePdfHochladen(vorlageId, file);
+  }
+
+  protected muellartFilterGeaendert(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    this.facade.muellartFilter.set(target.value);
+  }
+
+  protected vergangeneAusblendenGeaendert(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    this.facade.vergangeneAusblenden.set(target.checked);
+  }
+
+  protected vorlageAnwendenIdGeaendert(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) return;
+
+    const value = target.value;
+    this.facade.vorlageAnwendenId.set(value ? parseInt(value) : null);
   }
 
   protected fmtDatum(s: string): string {

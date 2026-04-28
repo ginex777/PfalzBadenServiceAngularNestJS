@@ -6,7 +6,6 @@ import {
   MitarbeiterFormularDaten,
   StundenFormularDaten,
   StundenStatistik,
-  LEERES_MITARBEITER_FORMULAR,
   LEERES_STUNDEN_FORMULAR,
 } from './mitarbeiter.models';
 
@@ -36,7 +35,6 @@ export class MitarbeiterFacade {
   readonly loeschKandidat = signal<number | null>(null);
   readonly loeschStundenKandidat = signal<number | null>(null);
   readonly formularSichtbar = signal(false);
-  readonly formularDaten = signal<MitarbeiterFormularDaten>({ ...LEERES_MITARBEITER_FORMULAR });
   readonly stundenFormular = signal<StundenFormularDaten>({ ...LEERES_STUNDEN_FORMULAR });
 
   readonly statistik = computed<StundenStatistik>(() => {
@@ -82,19 +80,6 @@ export class MitarbeiterFacade {
 
   formularOeffnen(ma?: Mitarbeiter): void {
     this.bearbeiteterMitarbeiter.set(ma ?? null);
-    this.formularDaten.set(
-      ma
-        ? {
-            name: ma.name,
-            rolle: ma.rolle ?? '',
-            stundenlohn: ma.stundenlohn,
-            email: ma.email ?? '',
-            tel: ma.tel ?? '',
-            notiz: ma.notiz ?? '',
-            aktiv: ma.aktiv,
-          }
-        : { ...LEERES_MITARBEITER_FORMULAR },
-    );
     this.formularSichtbar.set(true);
   }
 
@@ -103,8 +88,7 @@ export class MitarbeiterFacade {
     this.bearbeiteterMitarbeiter.set(null);
   }
 
-  speichern(): void {
-    const daten = this.formularDaten();
+  speichern(daten: MitarbeiterFormularDaten): void {
     if (!daten.name) {
       this.toast.error('Bitte Name eingeben.');
       return;
@@ -262,13 +246,6 @@ export class MitarbeiterFacade {
     wert: StundenFormularDaten[K],
   ): void {
     this.stundenFormular.update((d) => ({ ...d, [feld]: wert }));
-  }
-
-  formularFeldAktualisieren<K extends keyof MitarbeiterFormularDaten>(
-    feld: K,
-    wert: MitarbeiterFormularDaten[K],
-  ): void {
-    this.formularDaten.update((d) => ({ ...d, [feld]: wert }));
   }
 
   // ── PDF Stundenabrechnung ─────────────────────────────────────────────────

@@ -27,6 +27,7 @@ const NAV_ACCESS: Record<string, readonly UserRole[]> = {
   '/verwaltung/mitarbeiter': ['admin'],
   '/verwaltung/vertraege': ['admin', 'readonly'],
   '/verwaltung/pdf-archiv': ['admin', 'readonly'],
+  '/verwaltung/stempeluhr': ['admin', 'readonly'],
   '/verwaltung/audit-log': ['admin', 'readonly'],
   '/verwaltung/einstellungen': ['admin'],
 
@@ -104,6 +105,11 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
         path: '/verwaltung/pdf-archiv',
         label: 'PDF-Archiv',
         roles: NAV_ACCESS['/verwaltung/pdf-archiv'] ?? [],
+      },
+      {
+        path: '/verwaltung/stempeluhr',
+        label: 'Stempeluhr',
+        roles: NAV_ACCESS['/verwaltung/stempeluhr'] ?? [],
       },
       {
         path: '/verwaltung/audit-log',

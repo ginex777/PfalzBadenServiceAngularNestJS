@@ -4,7 +4,6 @@
 
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../core/api/api.service';
 import {
   BuchhaltungEintrag,
   BuchhaltungJahr,
@@ -13,13 +12,20 @@ import {
   WiederkehrendeAusgabe,
   Beleg,
 } from '../../core/models';
+import {
+  AccountingApiClient,
+  ReceiptsApiClient,
+  RecurringExpensesApiClient,
+} from '../../core/api/clients';
 
 @Injectable({ providedIn: 'root' })
 export class BuchhaltungService {
-  private readonly api = inject(ApiService);
+  private readonly accountingApi = inject(AccountingApiClient);
+  private readonly recurringExpensesApi = inject(RecurringExpensesApiClient);
+  private readonly receiptsApi = inject(ReceiptsApiClient);
 
   jahresDateLaden(jahr: number): Observable<BuchhaltungJahr> {
-    return this.api.loadAccounting(jahr);
+    return this.accountingApi.loadAccounting(jahr);
   }
 
   batchSpeichern(
@@ -27,46 +33,46 @@ export class BuchhaltungService {
     monat: number,
     zeilen: Partial<BuchhaltungEintrag>[],
   ): Observable<BuchhaltungEintrag[]> {
-    return this.api.saveAccountingBatch(jahr, monat, zeilen);
+    return this.accountingApi.saveAccountingBatch(jahr, monat, zeilen);
   }
 
   eintragLoeschen(id: number): Observable<void> {
-    return this.api.deleteAccountingEntry(id);
+    return this.accountingApi.deleteAccountingEntry(id);
   }
 
   loadVst(jahr: number): Observable<VstPaid[]> {
-    return this.api.loadVst(jahr);
+    return this.accountingApi.loadVst(jahr);
   }
 
   saveVst(daten: Partial<VstPaid>): Observable<VstPaid> {
-    return this.api.saveVst(daten);
+    return this.accountingApi.saveVst(daten);
   }
 
   loadLockedMonths(jahr: number): Observable<GesperrterMonat[]> {
-    return this.api.loadLockedMonths(jahr);
+    return this.accountingApi.loadLockedMonths(jahr);
   }
 
   lockMonth(jahr: number, monat: number): Observable<GesperrterMonat> {
-    return this.api.lockMonth(jahr, monat);
+    return this.accountingApi.lockMonth(jahr, monat);
   }
 
   unlockMonth(jahr: number, monat: number): Observable<void> {
-    return this.api.unlockMonth(jahr, monat);
+    return this.accountingApi.unlockMonth(jahr, monat);
   }
 
   loadRecurringExpenses(): Observable<WiederkehrendeAusgabe[]> {
-    return this.api.loadRecurringExpenses();
+    return this.recurringExpensesApi.loadRecurringExpenses();
   }
 
   loadReceiptsForEntry(buchungId: number): Observable<Beleg[]> {
-    return this.api.loadReceiptsForEntry(buchungId);
+    return this.receiptsApi.loadReceiptsForEntry(buchungId);
   }
 
   uploadReceipt(formData: FormData): Observable<Beleg> {
-    return this.api.uploadReceipt(formData);
+    return this.receiptsApi.uploadReceipt(formData);
   }
 
   getReceiptDownloadUrl(id: number, inline = false): string {
-    return this.api.getReceiptDownloadUrl(id, inline);
+    return this.receiptsApi.getReceiptDownloadUrl(id, inline);
   }
 }

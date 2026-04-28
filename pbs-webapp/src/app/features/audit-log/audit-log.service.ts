@@ -1,14 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../core/api/api.service';
 import { AuditLogEntry, PaginatedResponse } from '../../core/models';
+import { AuditLogApiClient } from '../../core/api/clients';
 
 @Injectable({ providedIn: 'root' })
 export class AuditLogService {
-  private readonly api = inject(ApiService);
+  private readonly auditLogApi = inject(AuditLogApiClient);
 
   loadTables(): Observable<string[]> {
-    return this.api.loadAuditLogTables();
+    return this.auditLogApi.loadAuditLogTables();
   }
 
   loadPage(query: {
@@ -18,13 +18,13 @@ export class AuditLogService {
     aktion?: string;
     tabelle?: string;
   }): Observable<PaginatedResponse<AuditLogEntry>> {
-    return this.api.loadAuditLogPage(query);
+    return this.auditLogApi.loadAuditLogPage(query);
   }
 
   alleLaden(): Observable<AuditLogEntry[]> {
-    return this.api.loadAuditLogAll();
+    return this.auditLogApi.loadAuditLogAll();
   }
   fuerTabelleLaden(tabelle: string): Observable<AuditLogEntry[]> {
-    return this.api.loadAuditLogForTable(tabelle);
+    return this.auditLogApi.loadAuditLogForTable(tabelle);
   }
 }

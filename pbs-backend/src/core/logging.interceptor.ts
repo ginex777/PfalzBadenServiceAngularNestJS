@@ -3,25 +3,32 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
-  Logger,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Request } from 'express';
+import { PinoLogger } from 'nestjs-pino';
+
+type RequestWithId = Request & { id?: string };
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
-  private readonly logger = new Logger('HTTP');
+  constructor(private readonly logger: PinoLogger) {
+    this.logger.setContext('HTTP');
+  }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const req = context.switchToHttp().getRequest<Request>();
+    const req = context.switchToHttp().getRequest<RequestWithId>();
     const { method, url } = req;
     const start = Date.now();
 
     return next.handle().pipe(
       tap(() => {
         const ms = Date.now() - start;
-        this.logger.log(`${method} ${url} — ${ms}ms`);
+        this.logger.info(
+          { requestId: req.id, method, url, durationMs: ms },
+          'request completed',
+        );
       }),
     );
   }

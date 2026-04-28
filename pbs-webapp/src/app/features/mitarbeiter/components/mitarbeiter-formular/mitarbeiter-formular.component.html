@@ -1,0 +1,69 @@
+<div class="formular-content">
+  <div class="form-row">
+    <div class="form-field">
+      <label class="form-label">Name *</label>
+      <input
+        class="form-input"
+        type="text"
+        placeholder="Max Mustermann"
+        [formField]="mitarbeiterForm.name"
+      />
+      @if (mitarbeiterForm.name().touched() && mitarbeiterForm.name().invalid()) {
+        <span class="form-fehler">{{ mitarbeiterForm.name().errors()[0]?.message }}</span>
+      }
+    </div>
+    <div class="form-field">
+      <label class="form-label">Rolle</label>
+      <input
+        class="form-input"
+        type="text"
+        placeholder="z.B. Hausmeister"
+        [formField]="mitarbeiterForm.rolle"
+      />
+    </div>
+    <div class="form-field">
+      <label class="form-label">Stundenlohn (€)</label>
+      <input
+        class="form-input"
+        type="number"
+        min="0"
+        step="0.5"
+        [value]="formModell().stundenlohn"
+        (input)="stundenlohnGeaendert($event)"
+      />
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-field">
+      <label class="form-label">E-Mail</label>
+      <input
+        class="form-input"
+        type="email"
+        placeholder="max@firma.de"
+        [formField]="mitarbeiterForm.email"
+      />
+    </div>
+    <div class="form-field">
+      <label class="form-label">Telefon</label>
+      <input
+        class="form-input"
+        type="text"
+        placeholder="0621 123456"
+        [formField]="mitarbeiterForm.tel"
+      />
+    </div>
+    <div class="form-field form-field--checkbox">
+      <label class="form-label">Aktiv</label>
+      <input
+        type="checkbox"
+        [checked]="formModell().aktiv"
+        (change)="aktivGeaendert($event)"
+      />
+    </div>
+  </div>
+  <div class="form-aktionen">
+    <button class="btn btn-primary" [disabled]="!istGueltig()" (click)="speichern()">
+      Speichern
+    </button>
+  </div>
+</div>

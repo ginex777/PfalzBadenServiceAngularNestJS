@@ -4,7 +4,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { DEFAULT_PAGE_SIZE } from '../../core/constants';
-import { ApiService } from '../../core/api/api.service';
 import { Mitarbeiter, Objekt, Kunde } from '../../core/models';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { ZeiterfassungFilterComponent } from './zeiterfassung-filter.component';
@@ -17,6 +16,7 @@ import {
   ZeiterfassungListResponse,
 } from './zeiterfassung.models';
 import { ZeiterfassungService } from './zeiterfassung.service';
+import { CustomersApiClient, EmployeesApiClient, ObjectsApiClient } from '../../core/api/clients';
 
 function parseNumber(value: unknown): number | null {
   if (typeof value !== 'string') return null;
@@ -35,7 +35,9 @@ function parseNumber(value: unknown): number | null {
 export class StempeluhrComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly api = inject(ApiService);
+  private readonly customersApi = inject(CustomersApiClient);
+  private readonly objectsApi = inject(ObjectsApiClient);
+  private readonly employeesApi = inject(EmployeesApiClient);
   private readonly service = inject(ZeiterfassungService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -102,15 +104,50 @@ export class StempeluhrComponent {
     });
   }
 
+  protected csvExportieren(): void {
+    const rows = this.eintraege();
+    if (!rows.length) return;
+
+    const headers = ['Mitarbeiter', 'Kunde', 'Objekt', 'Start', 'Stop', 'Dauer (min)', 'Kommentar'];
+    const escape = (v: string | number | null | undefined): string => {
+      const s = v == null ? '' : String(v);
+      return s.includes(',') || s.includes('"') || s.includes('\n')
+        ? `"${s.replace(/"/g, '""')}"`
+        : s;
+    };
+    const lines = [
+      headers.join(','),
+      ...rows.map((e) =>
+        [
+          escape(e.mitarbeiterName),
+          escape(e.kundeName),
+          escape(e.objektName),
+          escape(e.start),
+          escape(e.stop),
+          escape(e.dauerMinuten),
+          escape(e.notiz),
+        ].join(','),
+      ),
+    ];
+
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `zeiterfassung_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   private loadFilterData(): void {
     forkJoin({
-      mitarbeiter: this.api
+      mitarbeiter: this.employeesApi
         .loadEmployees()
         .pipe(map((res: Mitarbeiter[]) => res.map((m) => ({ id: m.id, name: m.name })))),
-      objekte: this.api
+      objekte: this.objectsApi
         .loadObjects()
         .pipe(map((res: Objekt[]) => res.map((o) => ({ id: o.id, name: o.name })))),
-      kunden: this.api
+      kunden: this.customersApi
         .loadCustomers()
         .pipe(map((res: Kunde[]) => res.map((k) => ({ id: k.id, name: k.name })))),
     })

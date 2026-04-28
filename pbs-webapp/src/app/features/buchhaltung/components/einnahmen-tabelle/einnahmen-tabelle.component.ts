@@ -29,6 +29,12 @@ export class EinnahmenTabelleComponent {
   protected readonly mwstOptionen = [0, 7, 19];
   protected suchbegriff = '';
 
+  protected suchbegriffGeaendert(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    this.suchbegriff = target.value;
+  }
+
   protected gefilterteZeilen(): BuchhaltungZeile[] {
     const q = this.suchbegriff.toLowerCase();
     if (!q) return this.zeilen();

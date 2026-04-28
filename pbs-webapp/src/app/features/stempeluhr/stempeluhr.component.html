@@ -1,5 +1,10 @@
 <div class="page-wrap">
-  <app-page-title title="Zeiterfassung" subtitle="Alle Einträge mit Objekt & Kunde" />
+  <div class="page-header">
+    <app-page-title title="Zeiterfassung" subtitle="Alle Einträge mit Objekt & Kunde" />
+    <button class="btn btn-secondary" [disabled]="!eintraege().length" (click)="csvExportieren()">
+      CSV exportieren
+    </button>
+  </div>
 
   <app-zeiterfassung-filter
     [filters]="filters()"
@@ -22,3 +27,4 @@
     (pageSizeChange)="onPageSizeChange($event)"
   />
 </div>
+

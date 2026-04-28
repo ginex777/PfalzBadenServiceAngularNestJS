@@ -1,13 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Objekt, PaginatedResponse } from '../../core/models';
 import {
-  ApiService,
   ChecklistFieldApi,
   ChecklistSubmissionDetailApi,
   ChecklistSubmissionListItemApi,
   ChecklistTemplateApi,
-} from '../../core/api/api.service';
-import { Objekt, PaginatedResponse } from '../../core/models';
+} from '../../core/api/api.contract';
+import { ChecklistsApiClient, ObjectsApiClient } from '../../core/api/clients';
 
 export type ChecklistField = ChecklistFieldApi;
 export type ChecklistTemplate = ChecklistTemplateApi;
@@ -16,14 +16,15 @@ export type ChecklistSubmissionDetail = ChecklistSubmissionDetailApi;
 
 @Injectable({ providedIn: 'root' })
 export class ChecklistenService {
-  private readonly api = inject(ApiService);
+  private readonly objectsApi = inject(ObjectsApiClient);
+  private readonly checklistsApi = inject(ChecklistsApiClient);
 
   loadObjectsAll(): Observable<Objekt[]> {
-    return this.api.loadObjects();
+    return this.objectsApi.loadObjects();
   }
 
   loadTemplatesAll(): Observable<ChecklistTemplate[]> {
-    return this.api.loadChecklistTemplatesAll();
+    return this.checklistsApi.loadChecklistTemplatesAll();
   }
 
   loadTemplatesPage(query: {
@@ -31,7 +32,7 @@ export class ChecklistenService {
     pageSize: number;
     q?: string;
   }): Observable<PaginatedResponse<ChecklistTemplate>> {
-    return this.api.loadChecklistTemplatesPage(query);
+    return this.checklistsApi.loadChecklistTemplatesPage(query);
   }
 
   createTemplate(payload: {
@@ -40,7 +41,7 @@ export class ChecklistenService {
     fields: ChecklistField[];
     isActive?: boolean;
   }): Observable<ChecklistTemplate> {
-    return this.api.createChecklistTemplate(payload);
+    return this.checklistsApi.createChecklistTemplate(payload);
   }
 
   updateTemplate(
@@ -53,15 +54,15 @@ export class ChecklistenService {
       isActive: boolean;
     }>,
   ): Observable<ChecklistTemplate> {
-    return this.api.updateChecklistTemplate(id, payload);
+    return this.checklistsApi.updateChecklistTemplate(id, payload);
   }
 
   assignObjectsToTemplate(templateId: number, objektIds: number[]): Observable<{ ok: boolean }> {
-    return this.api.assignChecklistTemplateObjects(templateId, objektIds);
+    return this.checklistsApi.assignChecklistTemplateObjects(templateId, objektIds);
   }
 
   loadTemplatesForObject(objektId: number): Observable<ChecklistTemplate[]> {
-    return this.api.loadChecklistTemplatesForObject(objektId);
+    return this.checklistsApi.loadChecklistTemplatesForObject(objektId);
   }
 
   loadSubmissionsPage(query: {
@@ -70,14 +71,14 @@ export class ChecklistenService {
     objectId?: number;
     templateId?: number;
   }): Observable<PaginatedResponse<ChecklistSubmissionListItem>> {
-    return this.api.loadChecklistSubmissionsPage(query);
+    return this.checklistsApi.loadChecklistSubmissionsPage(query);
   }
 
   loadSubmission(id: number): Observable<ChecklistSubmissionDetail> {
-    return this.api.loadChecklistSubmission(id);
+    return this.checklistsApi.loadChecklistSubmission(id);
   }
 
   createSubmissionPdf(submissionId: number): Observable<{ token: string; url: string }> {
-    return this.api.createChecklistSubmissionPdf(submissionId);
+    return this.checklistsApi.createChecklistSubmissionPdf(submissionId);
   }
 }

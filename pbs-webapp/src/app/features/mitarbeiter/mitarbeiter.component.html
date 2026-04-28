@@ -67,82 +67,12 @@
             ✕
           </button>
         </div>
-
         <div class="modal-body">
-          <div class="form-row">
-            <div class="form-field">
-              <label class="form-label">Name *</label>
-              <input
-                class="form-input"
-                type="text"
-                placeholder="Max Mustermann"
-                [value]="facade.formularDaten().name"
-                (input)="nameGeaendert($event)"
-              />
-            </div>
-            <div class="form-field">
-              <label class="form-label">Rolle</label>
-              <input
-                class="form-input"
-                type="text"
-                placeholder="z.B. Hausmeister"
-                [value]="facade.formularDaten().rolle"
-                (input)="rolleGeaendert($event)"
-              />
-            </div>
-            <div class="form-field">
-              <label class="form-label">Stundenlohn (€)</label>
-              <input
-                class="form-input"
-                type="number"
-                min="0"
-                step="0.5"
-                [value]="facade.formularDaten().stundenlohn"
-                (input)="stundenlohnGeaendert($event)"
-              />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-field">
-              <label class="form-label">E-Mail</label>
-              <input
-                class="form-input"
-                type="email"
-                placeholder="max@firma.de"
-                [value]="facade.formularDaten().email"
-                (input)="emailGeaendert($event)"
-              />
-            </div>
-            <div class="form-field">
-              <label class="form-label">Telefon</label>
-              <input
-                class="form-input"
-                type="text"
-                placeholder="0621 123456"
-                [value]="facade.formularDaten().tel"
-                (input)="telGeaendert($event)"
-              />
-            </div>
-            <div class="form-field form-field--checkbox">
-              <label class="form-label">Aktiv</label>
-              <input
-                type="checkbox"
-                [checked]="facade.formularDaten().aktiv"
-                (change)="aktivGeaendert($event)"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn" (click)="facade.formularSchliessen()">Abbrechen</button>
-          <button
-            class="btn btn-primary"
-            [disabled]="!facade.formularDaten().name"
-            (click)="facade.speichern()"
-          >
-            Speichern
-          </button>
+          <app-mitarbeiter-formular
+            [bearbeiteterMitarbeiter]="facade.bearbeiteterMitarbeiter()"
+            (gespeichert)="speichern($event)"
+            (abgebrochen)="facade.formularSchliessen()"
+          />
         </div>
       </div>
     </div>

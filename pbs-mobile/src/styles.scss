@@ -76,6 +76,19 @@ ion-button {
   min-height: var(--touch-target-min);
 }
 
+/**
+ * Dev-safety: Ionic temporarily disables pointer events during transitions/overlays
+ * via `ion-disable-user-behavior`. If something crashes mid-transition while
+ * running in a desktop browser, the class can get "stuck" and block all clicks.
+ * Keep interactions working in browser testing.
+ */
+/* Allow browser testing even when Ionic's transition class gets stuck.
+   Keep native/hybrid behavior intact by excluding Capacitor (`.plt-hybrid`). */
+html.ion-disable-user-behavior:not(.plt-hybrid),
+body.ion-disable-user-behavior:not(.plt-hybrid) {
+  pointer-events: auto !important;
+}
+
 .app-page-grid {
   padding: var(--app-space-3);
   display: grid;

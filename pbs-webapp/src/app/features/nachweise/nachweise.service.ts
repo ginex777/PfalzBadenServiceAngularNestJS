@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ApiService } from '../../core/api/api.service';
 import { Objekt, PaginatedResponse } from '../../core/models';
+import { EvidenceApiClient, ObjectsApiClient } from '../../core/api/clients';
 
 interface EvidenceListItemApi {
   id: number;
@@ -50,10 +50,11 @@ function mapEvidence(item: EvidenceListItemApi): EvidenceListItem {
 
 @Injectable({ providedIn: 'root' })
 export class NachweiseService {
-  private readonly api = inject(ApiService);
+  private readonly objectsApi = inject(ObjectsApiClient);
+  private readonly evidenceApi = inject(EvidenceApiClient);
 
   loadObjectsAll(): Observable<Objekt[]> {
-    return this.api.loadObjects();
+    return this.objectsApi.loadObjects();
   }
 
   loadEvidencePage(query: {
@@ -61,7 +62,7 @@ export class NachweiseService {
     pageSize: number;
     objectId?: number;
   }): Observable<PaginatedResponse<EvidenceListItem>> {
-    return this.api.loadEvidencePage(query).pipe(
+    return this.evidenceApi.loadEvidencePage(query).pipe(
       map((r: PaginatedResponse<EvidenceListItemApi>) => ({
         ...r,
         data: r.data.map(mapEvidence),
@@ -70,6 +71,14 @@ export class NachweiseService {
   }
 
   getEvidenceDownloadUrl(id: number, inline = false): string {
-    return this.api.getEvidenceDownloadUrl(id, inline);
+    return this.evidenceApi.getEvidenceDownloadUrl(id, inline);
+  }
+
+  uploadEvidence(objectId: number, file: File, note?: string): Observable<EvidenceListItem> {
+    const fd = new FormData();
+    fd.append('photo', file);
+    fd.append('objectId', String(objectId));
+    if (note?.trim()) fd.append('note', note.trim());
+    return this.evidenceApi.uploadEvidence(fd).pipe(map(mapEvidence));
   }
 }

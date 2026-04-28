@@ -1,7 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
-import { ApiService } from '../../core/api/api.service';
 import { Rechnung, Angebot, Benachrichtigung, BuchhaltungJahr } from '../../core/models';
+import {
+  AccountingApiClient,
+  InvoicesApiClient,
+  NotificationsApiClient,
+  OffersApiClient,
+} from '../../core/api/clients';
 
 export interface DashboardData {
   invoices: Rechnung[];
@@ -12,26 +17,29 @@ export interface DashboardData {
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-  private readonly api = inject(ApiService);
+  private readonly invoicesApi = inject(InvoicesApiClient);
+  private readonly offersApi = inject(OffersApiClient);
+  private readonly notificationsApi = inject(NotificationsApiClient);
+  private readonly accountingApi = inject(AccountingApiClient);
 
   loadDashboardData(year: number): Observable<DashboardData> {
     return forkJoin({
-      invoices: this.api.loadInvoices(),
-      offers: this.api.loadOffers(),
-      notifications: this.api.loadNotifications(),
-      accounting: this.api.loadAccounting(year),
+      invoices: this.invoicesApi.loadInvoices(),
+      offers: this.offersApi.loadOffers(),
+      notifications: this.notificationsApi.loadNotifications(),
+      accounting: this.accountingApi.loadAccounting(year),
     });
   }
 
   markNotificationRead(id: number): Observable<void> {
-    return this.api.markNotificationRead(id);
+    return this.notificationsApi.markNotificationRead(id);
   }
 
   markAllNotificationsRead(): Observable<void> {
-    return this.api.markAllNotificationsRead();
+    return this.notificationsApi.markAllNotificationsRead();
   }
 
   reloadNotifications(): Observable<Benachrichtigung[]> {
-    return this.api.loadNotifications();
+    return this.notificationsApi.loadNotifications();
   }
 }

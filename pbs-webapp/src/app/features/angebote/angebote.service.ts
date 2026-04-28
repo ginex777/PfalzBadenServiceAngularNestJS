@@ -1,30 +1,38 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, firstValueFrom } from 'rxjs';
-import { ApiService } from '../../core/api/api.service';
 import { Angebot, Kunde, FirmaSettings, RechnungPosition } from '../../core/models';
+import {
+  CustomersApiClient,
+  OffersApiClient,
+  PdfApiClient,
+  SettingsApiClient,
+} from '../../core/api/clients';
 
 @Injectable({ providedIn: 'root' })
 export class AngeboteService {
-  private readonly api = inject(ApiService);
+  private readonly offersApi = inject(OffersApiClient);
+  private readonly customersApi = inject(CustomersApiClient);
+  private readonly settingsApi = inject(SettingsApiClient);
+  private readonly pdfApi = inject(PdfApiClient);
 
   angeboteUndKundenLaden(): Observable<{ angebote: Angebot[]; kunden: Kunde[] }> {
-    return forkJoin({ angebote: this.api.loadOffers(), kunden: this.api.loadCustomers() });
+    return forkJoin({ angebote: this.offersApi.loadOffers(), kunden: this.customersApi.loadCustomers() });
   }
 
   firmaEinstellungenLaden(): Observable<FirmaSettings> {
-    return this.api.loadSettings('firma');
+    return this.settingsApi.loadSettings('firma');
   }
 
   createOffer(daten: Partial<Angebot>): Observable<Angebot> {
-    return this.api.createOffer(daten);
+    return this.offersApi.createOffer(daten);
   }
 
   updateOffer(id: number, daten: Partial<Angebot>): Observable<Angebot> {
-    return this.api.updateOffer(id, daten);
+    return this.offersApi.updateOffer(id, daten);
   }
 
   deleteOffer(id: number): Observable<void> {
-    return this.api.deleteOffer(id);
+    return this.offersApi.deleteOffer(id);
   }
 
   createCustomer(daten: {
@@ -33,12 +41,12 @@ export class AngeboteService {
     ort?: string;
     email?: string;
   }): Observable<import('../../core/models').Kunde> {
-    return this.api.createCustomer(daten);
+    return this.customersApi.createCustomer(daten);
   }
 
   // PDF wird jetzt serverseitig mit Handlebars generiert — kein HTML vom Frontend
   async pdfOeffnen(angebot: Angebot, _firma: FirmaSettings): Promise<void> {
-    const response = await firstValueFrom(this.api.createOfferPdf(angebot.id));
+    const response = await firstValueFrom(this.pdfApi.createOfferPdf(angebot.id));
     window.open(response.url, '_blank');
   }
 

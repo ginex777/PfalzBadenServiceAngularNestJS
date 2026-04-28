@@ -1,22 +1,24 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../core/api/api.service';
 import { BuchhaltungJahr, FirmaSettings } from '../../core/models';
 import { EuerErgebnis } from './euer.models';
+import { AccountingApiClient, PdfApiClient, SettingsApiClient } from '../../core/api/clients';
 
 @Injectable({ providedIn: 'root' })
 export class EuerService {
-  private readonly api = inject(ApiService);
+  private readonly accountingApi = inject(AccountingApiClient);
+  private readonly settingsApi = inject(SettingsApiClient);
+  private readonly pdfApi = inject(PdfApiClient);
 
   loadAccounting(jahr: number): Observable<BuchhaltungJahr> {
-    return this.api.loadAccounting(jahr);
+    return this.accountingApi.loadAccounting(jahr);
   }
   firmaLaden(): Observable<FirmaSettings> {
-    return this.api.loadSettings('firma');
+    return this.settingsApi.loadSettings('firma');
   }
 
   // PDF wird serverseitig mit Handlebars generiert — nur Daten senden
   pdfErstellen(jahr: number, ergebnis: EuerErgebnis): Observable<{ token: string; url: string }> {
-    return this.api.createEuerPdf(jahr, ergebnis as unknown as Record<string, unknown>);
+    return this.pdfApi.createEuerPdf(jahr, ergebnis);
   }
 }

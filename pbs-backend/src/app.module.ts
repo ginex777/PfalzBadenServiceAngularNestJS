@@ -1,13 +1,17 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { LoggerModule } from 'nestjs-pino';
+import { randomUUID } from 'crypto';
 import { AuthModule } from './modules/auth/auth.module';
 import { VertraegeModule } from './modules/vertraege/vertraege.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { ReadonlyWriteBlockGuard } from './modules/auth/guards/readonly-write-block.guard';
 import { DatabaseModule } from './core/database/database.module';
+import { AllExceptionsFilter } from './core/http-exception.filter';
+import { LoggingInterceptor } from './core/logging.interceptor';
 import { KundenModule } from './modules/kunden/kunden.module';
 import { RechnungenModule } from './modules/rechnungen/rechnungen.module';
 import { AngeboteModule } from './modules/angebote/angebote.module';
@@ -41,6 +45,33 @@ import { HealthController } from './health.controller';
 
     // Rate limiting — 100 requests per 60 seconds per IP
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
+
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level:
+          process.env['LOG_LEVEL'] ??
+          (process.env['NODE_ENV'] === 'production' ? 'info' : 'debug'),
+        genReqId: (req, res) => {
+          const existing = req.headers['x-request-id'];
+          const requestId =
+            typeof existing === 'string' && existing.length > 0
+              ? existing
+              : randomUUID();
+          res.setHeader('x-request-id', requestId);
+          return requestId;
+        },
+        customProps: (req) => ({ requestId: req.id }),
+        redact: {
+          paths: [
+            'req.headers.authorization',
+            'req.headers.cookie',
+            'req.body.password',
+            'req.body.token',
+          ],
+          remove: true,
+        },
+      },
+    }),
 
     DatabaseModule,
     KundenModule,
@@ -76,6 +107,8 @@ import { HealthController } from './health.controller';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: ReadonlyWriteBlockGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_FILTER, useClass: AllExceptionsFilter },
+    { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
   ],
 })
 export class AppModule {}

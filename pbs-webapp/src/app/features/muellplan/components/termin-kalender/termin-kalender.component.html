@@ -18,7 +18,7 @@
       <input
         type="checkbox"
         [checked]="hidePast()"
-        (change)="hidePastChange.emit($any($event.target).checked)"
+        (change)="onHidePastChange($event)"
       />
       Vergangene
     </label>
@@ -122,7 +122,7 @@
                         ? 'Erst ab ' + datumFormatieren(t.rausstellen) + ' abhakbar'
                         : ''
                     "
-                    (change)="termDoneChange.emit({ id: t.id, done: $any($event.target).checked })"
+                    (change)="onTermDoneChange(t.id, $event)"
                   />
                 </td>
                 <td class="col-aktion">

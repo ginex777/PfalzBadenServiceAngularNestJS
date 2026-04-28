@@ -1,0 +1,121 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            pbs-backend/package-lock.json
+
+      - name: Install
+        run: npm ci --prefix pbs-backend
+
+      - name: Typecheck
+        run: npx tsc --noEmit -p pbs-backend/tsconfig.json
+
+      - name: Build
+        run: npm run build --prefix pbs-backend
+
+      - name: Tests
+        run: npm test --prefix pbs-backend
+
+  webapp:
+    name: Webapp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            pbs-webapp/package-lock.json
+
+      - name: Install
+        run: npm ci --prefix pbs-webapp
+
+      - name: Typecheck
+        run: npx tsc --noEmit -p pbs-webapp/tsconfig.json
+
+      - name: Build
+        run: npm run build --prefix pbs-webapp
+
+      - name: Tests
+        run: npm test --prefix pbs-webapp
+
+      - name: Upload Sentry sourcemaps (prod)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.SENTRY_AUTH_TOKEN != ''
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT_WEBAPP }}
+          SENTRY_RELEASE: ${{ github.sha }}
+        run: |
+          npm run build:prod --prefix pbs-webapp
+          npm run sentry:sourcemaps --prefix pbs-webapp
+
+  mobile:
+    name: Mobile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            pbs-mobile/package-lock.json
+
+      - name: Install
+        run: npm ci --prefix pbs-mobile
+
+      - name: Typecheck
+        run: npx tsc --noEmit -p pbs-mobile/tsconfig.json
+
+      - name: Build
+        run: npm run build --prefix pbs-mobile
+
+      - name: Upload Sentry sourcemaps (prod)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.SENTRY_AUTH_TOKEN != ''
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT_MOBILE }}
+          SENTRY_RELEASE: ${{ github.sha }}
+        run: |
+          npm run build:prod --prefix pbs-mobile
+          npm run sentry:sourcemaps --prefix pbs-mobile
+
+  docker:
+    name: Docker Compose Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build images (cached)
+        uses: docker/bake-action@v6
+        with:
+          files: docker-compose.yml
+          targets: backend,frontend,mobile
+          set: |
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max

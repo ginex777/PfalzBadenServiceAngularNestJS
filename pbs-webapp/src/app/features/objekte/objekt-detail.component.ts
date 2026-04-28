@@ -13,7 +13,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { Kunde, Mitarbeiter, Objekt } from '../../core/models';
-import { ApiService } from '../../core/api/api.service';
+import { EmployeesApiClient } from '../../core/api/clients';
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
 import { ErrorStateComponent } from '../../shared/ui/error-state/error-state.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
@@ -56,7 +56,7 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
   private readonly router = inject(Router);
   private readonly service = inject(ObjectsService);
   private readonly aktivitaetenService = inject(AktivitaetenService);
-  private readonly apiService = inject(ApiService);
+  private readonly employeesApi = inject(EmployeesApiClient);
   private readonly toast = inject(ToastService);
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
@@ -301,7 +301,7 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
 
     if (this.mitarbeiter().length === 0) {
       forkJoin({
-        mitarbeiter: this.apiService
+        mitarbeiter: this.employeesApi
           .loadEmployees()
           .pipe(catchError(() => of([] as Mitarbeiter[]))),
       })

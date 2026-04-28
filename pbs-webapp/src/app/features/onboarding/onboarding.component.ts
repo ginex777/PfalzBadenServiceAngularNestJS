@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ApiService } from '../../core/api/api.service';
+import { CustomersApiClient, InvoicesApiClient, SettingsApiClient } from '../../core/api/clients';
 
 const STORAGE_KEY = 'pbs-onboarding-erledigt';
 
@@ -13,7 +13,9 @@ const STORAGE_KEY = 'pbs-onboarding-erledigt';
   styleUrl: './onboarding.component.scss',
 })
 export class OnboardingComponent {
-  private readonly api = inject(ApiService);
+  private readonly settingsApi = inject(SettingsApiClient);
+  private readonly customersApi = inject(CustomersApiClient);
+  private readonly invoicesApi = inject(InvoicesApiClient);
 
   protected readonly sichtbar = signal(!localStorage.getItem(STORAGE_KEY));
 
@@ -35,19 +37,19 @@ export class OnboardingComponent {
   }
 
   private fortschrittPruefen(): void {
-    this.api.loadSettings('firma').subscribe({
+    this.settingsApi.loadSettings('firma').subscribe({
       next: (f) => {
         if (f && Object.keys(f).length > 0) this.schritte.update((s) => ({ ...s, firma: true }));
       },
       error: () => {},
     });
-    this.api.loadCustomers().subscribe({
+    this.customersApi.loadCustomers().subscribe({
       next: (k) => {
         if (k?.length > 0) this.schritte.update((s) => ({ ...s, kunde: true }));
       },
       error: () => {},
     });
-    this.api.loadInvoices().subscribe({
+    this.invoicesApi.loadInvoices().subscribe({
       next: (r) => {
         if (r?.length > 0) this.schritte.update((s) => ({ ...s, rechnung: true }));
       },

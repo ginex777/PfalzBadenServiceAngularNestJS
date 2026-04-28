@@ -4,7 +4,7 @@ export type {
   DatevValidierungsMeldung,
   DatevVorschauZeile,
   DatevVorschauAntwort,
-} from '../../core/api/api.service';
+} from '../../core/api/api.contract';
 
 export const QUARTAL_MONATE: Record<string, number[]> = {
   q1: [0, 1, 2],

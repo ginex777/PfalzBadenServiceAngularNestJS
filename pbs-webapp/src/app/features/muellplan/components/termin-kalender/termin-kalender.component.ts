@@ -94,7 +94,22 @@ export class TerminKalenderComponent {
   }
 
   protected onMonatFilter(event: Event): void {
-    const val = (event.target as HTMLSelectElement).value;
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) return;
+
+    const val = target.value;
     this.monthFilterChange.emit(val === '' ? null : parseInt(val));
+  }
+
+  protected onHidePastChange(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    this.hidePastChange.emit(target.checked);
+  }
+
+  protected onTermDoneChange(id: number, event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    this.termDoneChange.emit({ id, done: target.checked });
   }
 }

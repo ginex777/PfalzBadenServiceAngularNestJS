@@ -1,9 +1,9 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { WiederkehrendeRechnungenService } from './wiederkehrende-rechnungen.service';
 import { ToastService } from '../../core/services/toast.service';
-import { WiederkehrendeRechnung, Kunde, RechnungPosition } from '../../core/models';
-import { WrFormularDaten, LEERES_WR_FORMULAR } from './wiederkehrende-rechnungen.models';
+import { WiederkehrendeRechnung, Kunde } from '../../core/models';
+import { WrFormularDaten } from './wiederkehrende-rechnungen.models';
 
 @Injectable({ providedIn: 'root' })
 export class WiederkehrendeRechnungenFacade {
@@ -17,11 +17,6 @@ export class WiederkehrendeRechnungenFacade {
   readonly formularSichtbar = signal(false);
   readonly bearbeiteteRechnung = signal<WiederkehrendeRechnung | null>(null);
   readonly loeschKandidat = signal<number | null>(null);
-  readonly formularDaten = signal<WrFormularDaten>({ ...LEERES_WR_FORMULAR });
-
-  readonly brutto = computed(() =>
-    this.formularDaten().positionen.reduce((s, p) => s + (p.gesamtpreis || 0), 0),
-  );
 
   ladeDaten(): void {
     this.laedt.set(true);
@@ -40,30 +35,15 @@ export class WiederkehrendeRechnungenFacade {
 
   formularOeffnen(wr?: WiederkehrendeRechnung): void {
     this.bearbeiteteRechnung.set(wr ?? null);
-    this.formularDaten.set(
-      wr
-        ? {
-            kunden_id: wr.kunden_id ?? null,
-            titel: wr.titel,
-            intervall: wr.intervall,
-            aktiv: wr.aktiv,
-            positionen: wr.positionen?.length
-              ? wr.positionen
-              : [{ bez: '', stunden: '', einzelpreis: undefined, gesamtpreis: 0 }],
-          }
-        : { ...LEERES_WR_FORMULAR },
-    );
     this.formularSichtbar.set(true);
   }
 
   formularSchliessen(): void {
     this.formularSichtbar.set(false);
     this.bearbeiteteRechnung.set(null);
-    this.formularDaten.set({ ...LEERES_WR_FORMULAR });
   }
 
-  speichern(): void {
-    const daten = this.formularDaten();
+  speichern(daten: WrFormularDaten): void {
     if (!daten.titel) {
       this.toast.error('Titel ist ein Pflichtfeld.');
       return;
@@ -141,35 +121,4 @@ export class WiederkehrendeRechnungenFacade {
     });
   }
 
-  positionHinzufuegen(): void {
-    this.formularDaten.update((d) => ({
-      ...d,
-      positionen: [
-        ...d.positionen,
-        { bez: '', stunden: '', einzelpreis: undefined, gesamtpreis: 0 },
-      ],
-    }));
-  }
-
-  positionEntfernen(index: number): void {
-    this.formularDaten.update((d) => ({
-      ...d,
-      positionen: d.positionen.filter((_, i) => i !== index),
-    }));
-  }
-
-  positionAktualisieren(index: number, position: RechnungPosition): void {
-    this.formularDaten.update((d) => {
-      const positionen = [...d.positionen];
-      positionen[index] = position;
-      return { ...d, positionen };
-    });
-  }
-
-  formularFeldAktualisieren<K extends keyof WrFormularDaten>(
-    feld: K,
-    wert: WrFormularDaten[K],
-  ): void {
-    this.formularDaten.update((d) => ({ ...d, [feld]: wert }));
-  }
 }

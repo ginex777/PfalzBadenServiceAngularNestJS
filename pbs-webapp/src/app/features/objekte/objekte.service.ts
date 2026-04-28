@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
-import { ApiService } from '../../core/api/api.service';
 import { Kunde, Objekt } from '../../core/models';
+import { CustomersApiClient, ObjectsApiClient } from '../../core/api/clients';
 
 export interface ObjectsInitialData {
   objects: Objekt[];
@@ -10,28 +10,29 @@ export interface ObjectsInitialData {
 
 @Injectable({ providedIn: 'root' })
 export class ObjectsService {
-  private readonly api = inject(ApiService);
+  private readonly objectsApi = inject(ObjectsApiClient);
+  private readonly customersApi = inject(CustomersApiClient);
 
   loadInitialData(): Observable<ObjectsInitialData> {
     return forkJoin({
-      objects: this.api.loadObjects(),
-      customers: this.api.loadCustomers(),
+      objects: this.objectsApi.loadObjects(),
+      customers: this.customersApi.loadCustomers(),
     });
   }
 
   loadObjects(): Observable<Objekt[]> {
-    return this.api.loadObjects();
+    return this.objectsApi.loadObjects();
   }
 
   createObject(payload: Partial<Objekt>): Observable<Objekt> {
-    return this.api.createObject(payload);
+    return this.objectsApi.createObject(payload);
   }
 
   updateObject(id: number, payload: Partial<Objekt>): Observable<Objekt> {
-    return this.api.updateObject(id, payload);
+    return this.objectsApi.updateObject(id, payload);
   }
 
   deactivateObject(id: number): Observable<void> {
-    return this.api.deleteObject(id);
+    return this.objectsApi.deleteObject(id);
   }
 }

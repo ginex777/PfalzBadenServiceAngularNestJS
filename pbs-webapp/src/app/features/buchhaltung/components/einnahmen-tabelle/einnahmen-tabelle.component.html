@@ -9,7 +9,7 @@
       class="eingabe eingabe--suche"
       placeholder="Einnahmen durchsuchen…"
       [value]="suchbegriff"
-      (input)="suchbegriff = $any($event.target).value"
+      (input)="suchbegriffGeaendert($event)"
     />
   </div>
 

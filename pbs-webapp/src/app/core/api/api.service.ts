@@ -29,64 +29,37 @@ import {
   Vertrag,
   PaginatedResponse,
 } from '../models';
+import {
+  ChecklistSubmissionDetailApi,
+  ChecklistSubmissionListItemApi,
+  ChecklistFieldApi,
+  ChecklistTemplateApi,
+  DatevValidierungsMeldung,
+  DatevVorschauZeile,
+  DatevVorschauAntwort,
+  MobileFeedbackKindApi,
+  MobileFeedbackItemApi,
+  SmtpSettings,
+  UserAktualisierenPayload,
+  UserAnlegenPayload,
+  UserEintrag,
+} from './api.contract';
 
-export interface DatevValidierungsMeldung {
-  typ: 'error' | 'warning';
-  msg: string;
-}
-export interface DatevVorschauZeile {
-  datum: string;
-  typ: 'inc' | 'exp';
-  name: string;
-  belegnr?: string;
-  brutto: number;
-  mwst: number;
-  netto: number;
-  ust: number;
-  konto: string;
-  shKz: string;
-}
-export interface DatevVorschauAntwort {
-  rows: DatevVorschauZeile[];
-  stats?: {
-    totalInc: number;
-    totalExp: number;
-    sumIncNetto: number;
-    sumExpNetto: number;
-    zahllast: number;
-  };
-  warnings?: DatevValidierungsMeldung[];
-}
-
-export interface SmtpSettings {
-  host: string;
-  port: number;
-  secure: boolean;
-  user: string;
-  pass: string;
-  fromName?: string;
-}
-export interface UserEintrag {
-  id: string;
-  email: string;
-  rolle: string;
-  vorname: string | null;
-  nachname: string | null;
-  aktiv: boolean;
-  created_at: string;
-}
-export interface UserAnlegenPayload {
-  email: string;
-  password: string;
-  rolle: 'admin' | 'readonly' | 'mitarbeiter';
-  vorname?: string;
-  nachname?: string;
-}
-export interface UserAktualisierenPayload {
-  vorname?: string;
-  nachname?: string;
-  rolle?: string;
-}
+export type {
+  ChecklistFieldApi,
+  ChecklistSubmissionDetailApi,
+  ChecklistSubmissionListItemApi,
+  ChecklistTemplateApi,
+  DatevValidierungsMeldung,
+  DatevVorschauZeile,
+  DatevVorschauAntwort,
+  MobileFeedbackKindApi,
+  MobileFeedbackItemApi,
+  SmtpSettings,
+  UserAktualisierenPayload,
+  UserAnlegenPayload,
+  UserEintrag,
+} from './api.contract';
 
 interface Stempel {
   id: number;
@@ -110,59 +83,6 @@ interface EvidenceListItemApi {
   erstellt_am: string;
   erstellt_von: string;
   erstellt_von_name: string | null;
-}
-
-export interface ChecklistFieldApi {
-  fieldId: string;
-  label: string;
-  type: 'boolean' | 'text' | 'number' | 'select' | 'foto' | 'kommentar';
-  helperText?: string;
-  required?: boolean;
-  options?: string[];
-}
-
-export interface ChecklistTemplateApi {
-  id: number;
-  name: string;
-  description: string | null;
-  kategorie: string | null;
-  version: number;
-  isActive: boolean;
-  fields: ChecklistFieldApi[];
-  assignedObjectIds: number[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ChecklistSubmissionListItemApi {
-  id: number;
-  submittedAt: string;
-  object: { id: number; name: string };
-  template: { id: number; name: string; version: number };
-  employee: { id: number; name: string } | null;
-  createdByEmail: string;
-  createdByName: string | null;
-  note: string | null;
-}
-
-export interface ChecklistSubmissionDetailApi extends ChecklistSubmissionListItemApi {
-  templateSnapshot: unknown;
-  answers: unknown;
-}
-
-export type MobileFeedbackKindApi = 'EVIDENCE' | 'CHECKLIST';
-
-export interface MobileFeedbackItemApi {
-  kind: MobileFeedbackKindApi;
-  id: number;
-  createdAt: string;
-  objectId: number;
-  objectName: string;
-  title: string;
-  subtitle: string | null;
-  link: string;
-  createdByEmail: string | null;
-  createdByName: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -333,7 +253,7 @@ export class ApiService {
     kundenId?: number;
     von?: string;
     bis?: string;
-  }): Observable<any> {
+  }): Observable<unknown> {
     let params = new HttpParams();
     if (query.page) params = params.set('page', String(query.page));
     if (query.pageSize) params = params.set('pageSize', String(query.pageSize));
@@ -342,7 +262,7 @@ export class ApiService {
     if (query.kundenId) params = params.set('kundenId', String(query.kundenId));
     if (query.von) params = params.set('von', query.von);
     if (query.bis) params = params.set('bis', query.bis);
-    return this.http.get<any>(`${this.basis}/stempeluhr`, { params });
+    return this.http.get<unknown>(`${this.basis}/stempeluhr`, { params });
   }
 
   // ── Objekte ─────────────────────────────────────────────────────────────
@@ -358,7 +278,18 @@ export class ApiService {
   deleteObject(id: number): Observable<void> {
     return this.http.delete<void>(`${this.basis}/objekte/${id}`);
   }
-  getAktivitaeten(objektId: number, query?: any): Observable<any> {
+  getAktivitaeten(
+    objektId: number,
+    query?: {
+      type?: string;
+      userId?: number;
+      employeeId?: number;
+      createdFrom?: string;
+      createdTo?: string;
+      page?: number;
+      pageSize?: number;
+    },
+  ): Observable<unknown> {
     let params = new HttpParams();
     if (query?.type) params = params.set('type', query.type);
     if (query?.userId) params = params.set('userId', query.userId);
@@ -367,7 +298,7 @@ export class ApiService {
     if (query?.createdTo) params = params.set('createdTo', query.createdTo);
     if (query?.page) params = params.set('page', query.page);
     if (query?.pageSize) params = params.set('pageSize', query.pageSize);
-    return this.http.get<any>(`${this.basis}/objekte/${objektId}/aktivitaeten`, { params });
+    return this.http.get<unknown>(`${this.basis}/objekte/${objektId}/aktivitaeten`, { params });
   }
 
   // ── Müllplan ────────────────────────────────────────────────────────────
@@ -493,6 +424,10 @@ export class ApiService {
 
   getEvidenceDownloadUrl(id: number, inline = false): string {
     return `${this.basis}/nachweise/${id}/download${inline ? '?inline=1' : ''}`;
+  }
+
+  uploadEvidence(formData: FormData): Observable<EvidenceListItemApi> {
+    return this.http.post<EvidenceListItemApi>(`${this.basis}/nachweise/upload`, formData);
   }
 
   // ── Checklisten (Operativ: Templates + Kontrollen) ───────────────────────────

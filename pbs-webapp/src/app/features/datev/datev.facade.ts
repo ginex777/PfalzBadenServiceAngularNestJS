@@ -60,7 +60,7 @@ export class DatevFacade {
     this.service.validierenUndVorschauLaden(jahr, monat).subscribe({
       next: ({ validierung, vorschau }) => {
         this.meldungen.set(validierung.warnings ?? []);
-        let zeilen = vorschau.rows ?? [];
+        let zeilen: DatevVorschauZeile[] = vorschau.rows ?? [];
         const typ = this.zeitraumTyp();
         if (typ in QUARTAL_MONATE) {
           const qm = new Set(QUARTAL_MONATE[typ]);

@@ -1,28 +1,30 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../core/api/api.service';
 import { Kunde, Vertrag } from '../../core/models';
+import { ContractsApiClient, CustomersApiClient, PdfApiClient } from '../../core/api/clients';
 
 @Injectable({ providedIn: 'root' })
 export class VertraegeService {
-  private readonly api = inject(ApiService);
+  private readonly customersApi = inject(CustomersApiClient);
+  private readonly contractsApi = inject(ContractsApiClient);
+  private readonly pdfApi = inject(PdfApiClient);
 
   loadCustomers(): Observable<Kunde[]> {
-    return this.api.loadCustomers();
+    return this.customersApi.loadCustomers();
   }
   loadContracts(kundenId?: number): Observable<Vertrag[]> {
-    return this.api.loadContracts(kundenId);
+    return this.contractsApi.loadContracts(kundenId);
   }
   createContract(daten: Partial<Vertrag>): Observable<Vertrag> {
-    return this.api.createContract(daten);
+    return this.contractsApi.createContract(daten);
   }
   updateContract(id: number, daten: Partial<Vertrag>): Observable<Vertrag> {
-    return this.api.updateContract(id, daten);
+    return this.contractsApi.updateContract(id, daten);
   }
   deleteContract(id: number): Observable<void> {
-    return this.api.deleteContract(id);
+    return this.contractsApi.deleteContract(id);
   }
   createContractPdf(id: number): Observable<{ token: string; url: string }> {
-    return this.api.createContractPdf(id);
+    return this.pdfApi.createContractPdf(id);
   }
 }

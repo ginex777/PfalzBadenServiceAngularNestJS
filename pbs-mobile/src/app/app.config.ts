@@ -2,15 +2,17 @@ import {
   ApplicationConfig,
   APP_INITIALIZER,
   provideBrowserGlobalErrorListeners,
+  ErrorHandler,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { RouteReuseStrategy, provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { provideIonicAngular } from '@ionic/angular/standalone';
+import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { catchError, from, switchMap, throwError } from 'rxjs';
 import { MobileAuthService } from './core/auth.service';
 import { MobileApiConfigService } from './core/api-config.service';
+import { MobileGlobalErrorHandler } from './core/mobile-global-error-handler';
 import { routes } from './app.routes';
 
 const jwtInterceptor: HttpInterceptorFn = (req, next) => {
@@ -48,6 +50,7 @@ const jwtInterceptor: HttpInterceptorFn = (req, next) => {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
@@ -64,5 +67,6 @@ export const appConfig: ApplicationConfig = {
       deps: [MobileAuthService],
       multi: true,
     },
+    { provide: ErrorHandler, useClass: MobileGlobalErrorHandler },
   ],
 };
