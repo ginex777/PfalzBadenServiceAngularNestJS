@@ -5,7 +5,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
+import type { PrismaService } from '../../core/database/prisma.service';
 import * as nodemailer from 'nodemailer';
 import { Roles } from '../auth/decorators/roles.decorator';
 
@@ -66,7 +66,7 @@ export class EmailController {
       return { ok: true };
     } catch (e) {
       throw new HttpException(
-        'E-Mail konnte nicht gesendet werden: ' + (e as Error).message,
+        `E-Mail konnte nicht gesendet werden: ${(e as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -80,7 +80,7 @@ export class EmailController {
       return { ok: true, message: 'SMTP Verbindung erfolgreich' };
     } catch (e) {
       throw new HttpException(
-        'SMTP-Verbindung fehlgeschlagen: ' + (e as Error).message,
+        `SMTP-Verbindung fehlgeschlagen: ${(e as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

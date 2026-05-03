@@ -5,7 +5,7 @@
   <div class="card">
     <div class="zeitraum-zeile">
       <div>
-        <label class="feld-label">Jahr</label>
+        <label for="src-app-features-datev-datev-component-0" class="feld-label">Jahr</label>
         <select
           class="filter-select"
           [value]="facade.aktuellesJahr()"
@@ -17,7 +17,7 @@
         </select>
       </div>
       <div>
-        <label class="feld-label">Zeitraum</label>
+        <label for="src-app-features-datev-datev-component-1" class="feld-label">Zeitraum</label>
         <div class="zeitraum-btns">
           @for (typ of zeitraumTypen; track typ.id) {
             <button
@@ -32,7 +32,7 @@
       </div>
       @if (facade.zeitraumTyp() === 'month') {
         <div>
-          <label class="feld-label">Monat</label>
+          <label for="src-app-features-datev-datev-component-2" class="feld-label">Monat</label>
           <select
             class="filter-select"
             [value]="facade.aktiverMonat()"

@@ -1,8 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { BelegeService } from './belege.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Beleg } from '../../core/models';
-import { BelegeFilter } from './belege.models';
+import type { Beleg } from '../../core/models';
+import type { BelegeFilter } from './belege.models';
 import { dateigroesseFormatieren, datumFormatieren } from '../../core/utils/format.utils';
 
 @Injectable({ providedIn: 'root' })
@@ -31,7 +31,7 @@ export class BelegeFacade {
 
   readonly gesamtGroesse = computed(() => {
     const bytes = this.belege().reduce((s, b) => s + (b.filesize || 0), 0);
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    return `${(bytes / (1024 * 1024)).toFixed(1)  } MB`;
   });
 
   readonly spaetesteAufbewahrung = computed(() => {

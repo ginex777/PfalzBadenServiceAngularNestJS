@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { DatevFacade } from './datev.facade';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
-import { DatevZeitraumTyp } from './datev.models';
+import type { DatevZeitraumTyp } from './datev.models';
 import { MONATE } from '../../core/utils/format.utils';
 
 @Component({
@@ -15,7 +16,7 @@ import { MONATE } from '../../core/utils/format.utils';
 export class DatevComponent implements OnInit {
   protected readonly facade = inject(DatevFacade);
   protected readonly monate = MONATE;
-  protected readonly zeitraumTypen: { id: DatevZeitraumTyp; label: string }[] = [
+  protected readonly zeitraumTypen: Array<{ id: DatevZeitraumTyp; label: string }> = [
     { id: 'year', label: 'Gesamtjahr' },
     { id: 'q1', label: 'Q1 Jan–Mrz' },
     { id: 'q2', label: 'Q2 Apr–Jun' },

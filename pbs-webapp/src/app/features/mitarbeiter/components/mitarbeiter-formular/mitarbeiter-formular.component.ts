@@ -1,16 +1,18 @@
+import type {
+  OnChanges,
+  SimpleChanges} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnChanges,
-  SimpleChanges,
   input,
   output,
   signal,
   computed,
 } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
-import { Mitarbeiter } from '../../../../core/models';
-import { MitarbeiterFormularDaten, LEERES_MITARBEITER_FORMULAR } from '../../mitarbeiter.models';
+import type { Mitarbeiter } from '../../../../core/models';
+import type { MitarbeiterFormularDaten} from '../../mitarbeiter.models';
+import { LEERES_MITARBEITER_FORMULAR } from '../../mitarbeiter.models';
 
 @Component({
   selector: 'app-mitarbeiter-formular',

@@ -9,17 +9,17 @@ export interface EuerZeile {
 
 export interface EuerErgebnis {
   einnahmen: { inc0: number; inc7: number; inc19: number; summe: number };
-  ausgaben: { zeilen: { zeile: string; label: string; betrag: number }[]; summe: number };
+  ausgaben: { zeilen: Array<{ zeile: string; label: string; betrag: number }>; summe: number };
   gewinn: number;
   ust: { ust7: number; ust19: number; vstGesamt: number; zahllast: number };
 }
 
-export const EUER_AUSGABEN_ZEILEN: {
+export const EUER_AUSGABEN_ZEILEN: Array<{
   zeile: string;
   label: string;
   keys: string[];
   abzugFaktor?: number;
-}[] = [
+}> = [
   { zeile: '22', label: 'Waren, Roh- und Hilfsstoffe', keys: ['material', 'waren', 'roh'] },
   { zeile: '23', label: 'Bezogene Leistungen', keys: ['leistung', 'fremd', 'subunternehmer'] },
   { zeile: '46', label: 'Löhne und Gehälter', keys: ['lohn', 'gehalt'] },

@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { forkJoin, Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Kunde, Rechnung } from '../../core/models';
+import type { Kunde, Rechnung } from '../../core/models';
 import { CustomersApiClient, InvoicesApiClient, OffersApiClient } from '../../core/api/clients';
-import { KundeUmsatz } from './kunden.models';
+import type { KundeUmsatz } from './kunden.models';
 
 export interface KundenLadeErgebnis {
   kunden: Kunde[];

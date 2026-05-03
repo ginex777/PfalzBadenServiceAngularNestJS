@@ -1,9 +1,9 @@
 import { of } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { Benachrichtigung, BuchhaltungJahr, Angebot, Rechnung } from '../../core/models';
+import type { Benachrichtigung, BuchhaltungJahr, Angebot, Rechnung } from '../../core/models';
 import { ToastService } from '../../core/services/toast.service';
-import { DashboardData } from './dashboard.service';
+import type { DashboardData } from './dashboard.service';
 import { DashboardFacade } from './dashboard.facade';
 import { DashboardService } from './dashboard.service';
 

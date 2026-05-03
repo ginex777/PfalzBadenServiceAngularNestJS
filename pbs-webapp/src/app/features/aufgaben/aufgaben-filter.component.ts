@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { Kunde, Mitarbeiter, Objekt } from '../../core/models';
-import {
+import type { Kunde, Mitarbeiter, Objekt } from '../../core/models';
+import type {
   TaskFilterState,
   TaskStatus,
-  TaskType,
+  TaskType} from './aufgaben.models';
+import {
   TASK_STATUS_LABELS,
   TASK_TYPE_LABELS,
 } from './aufgaben.models';
@@ -44,7 +45,7 @@ export class AufgabenFilterComponent {
     })),
   );
 
-  protected customerOptions(): readonly { value: string; label: string }[] {
+  protected customerOptions(): ReadonlyArray<{ value: string; label: string }> {
     const options = this.customers()
       .slice()
       .sort((a, b) => a.name.localeCompare(b.name))
@@ -52,7 +53,7 @@ export class AufgabenFilterComponent {
     return [{ value: '', label: 'Alle Kunden' }, ...options];
   }
 
-  protected objectOptions(): readonly { value: string; label: string }[] {
+  protected objectOptions(): ReadonlyArray<{ value: string; label: string }> {
     const filters = this.filters();
     const customerId = filters.customerId;
     const list = this.objects()
@@ -63,7 +64,7 @@ export class AufgabenFilterComponent {
     return [{ value: '', label: 'Alle Objekte' }, ...list];
   }
 
-  protected employeeOptions(): readonly { value: string; label: string }[] {
+  protected employeeOptions(): ReadonlyArray<{ value: string; label: string }> {
     const list = this.employees()
       .slice()
       .sort((a, b) => a.name.localeCompare(b.name))
@@ -71,7 +72,7 @@ export class AufgabenFilterComponent {
     return [{ value: '', label: 'Alle Mitarbeiter' }, ...list];
   }
 
-  protected userOptions(): readonly { value: string; label: string }[] {
+  protected userOptions(): ReadonlyArray<{ value: string; label: string }> {
     const list = this.users()
       .slice()
       .sort((a, b) => a.label.localeCompare(b.label))

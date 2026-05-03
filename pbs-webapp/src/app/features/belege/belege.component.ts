@@ -1,21 +1,24 @@
+import type { OnInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   inject,
   signal,
   computed,
 } from '@angular/core';
 import { FormField, form, maxLength } from '@angular/forms/signals';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import type { SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { BelegeFacade } from './belege.facade';
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
+import { ModalComponent } from '../../shared/ui/modal/modal.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
 import { StatCardComponent } from '../../shared/ui/stat-card/stat-card.component';
 import { SkeletonRowsComponent } from '../../shared/ui/skeleton-rows/skeleton-rows.component';
-import { Beleg } from '../../core/models';
-import { BelegeFilter, BELEG_TYP_LABELS, NotizFormularDaten } from './belege.models';
+import type { Beleg } from '../../core/models';
+import type { BelegeFilter, NotizFormularDaten } from './belege.models';
+import { BELEG_TYP_LABELS } from './belege.models';
 import { datumFormatieren } from '../../core/utils/format.utils';
 
 @Component({
@@ -25,6 +28,7 @@ import { datumFormatieren } from '../../core/utils/format.utils';
   imports: [
     FormField,
     ConfirmModalComponent,
+    ModalComponent,
     PageTitleComponent,
     EmptyStateComponent,
     StatCardComponent,
@@ -45,7 +49,7 @@ export class BelegeComponent implements OnInit {
     return this.sanitizer.bypassSecurityTrustResourceUrl(this.facade.downloadUrl(beleg.id, true));
   });
 
-  protected readonly filterOptionen: { id: BelegeFilter; label: string }[] = [
+  protected readonly filterOptionen: Array<{ id: BelegeFilter; label: string }> = [
     { id: 'alle', label: 'Alle' },
     { id: 'beleg', label: 'Belege' },
     { id: 'rechnung', label: 'Rechnungen' },
@@ -98,5 +102,9 @@ export class BelegeComponent implements OnInit {
   protected notizSpeichern(id: number): void {
     if (this.notizForm().invalid()) return;
     this.facade.notizSpeichern(id, this.notizModell().notiz);
+  }
+
+  protected betragFormatieren(value: number | null | undefined): string {
+    return (value ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 });
   }
 }

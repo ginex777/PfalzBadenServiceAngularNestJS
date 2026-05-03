@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { EinstellungenFacade } from './einstellungen.facade';
 import { FirmaFormularComponent } from './components/firma-formular/firma-formular.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
-import { FirmaSettings } from '../../core/models';
+import type { FirmaSettings } from '../../core/models';
 import { ThemeService } from '../../core/services/theme.service';
 
 @Component({

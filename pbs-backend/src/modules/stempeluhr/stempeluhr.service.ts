@@ -1,19 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
-import {
+import type { PrismaService } from '../../core/database/prisma.service';
+import type {
   ListStempeluhrQueryDto,
   StempelEintragDto,
   StempeluhrListResponseDto,
 } from './dto/stempeluhr.dto';
+import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
 
 @Injectable()
 export class StempeluhrService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly accessPolicy: AccessPolicyService,
+  ) {}
 
-  async list(dto: ListStempeluhrQueryDto): Promise<StempeluhrListResponseDto> {
+  async list(
+    dto: ListStempeluhrQueryDto,
+    auth: AccessPolicyAuth,
+  ): Promise<StempeluhrListResponseDto> {
     const page = dto.page || 1;
     const pageSize = dto.pageSize || 50;
     const skip = (page - 1) * pageSize;
+
+    if (dto.objektId) {
+      await this.accessPolicy.assertCanAccessObject(auth, dto.objektId);
+    }
 
     const where = {
       ...(dto.mitarbeiterId && { mitarbeiter_id: BigInt(dto.mitarbeiterId) }),

@@ -1,20 +1,23 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, DestroyRef, signal, inject } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonContent, IonToast } from '@ionic/angular/standalone';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { IonButton, IonContent, IonToast } from '@ionic/angular/standalone';
+import { getApiErrorBody } from '../../core/api-error';
 import { MobileAuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-login-page',
   standalone: true,
   host: { class: 'ion-page' },
-  imports: [ReactiveFormsModule, IonContent, IonToast],
+  imports: [ReactiveFormsModule, IonButton, IonContent, IonToast],
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',
 })
 export class LoginPage {
   private readonly auth = inject(MobileAuthService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   form = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -33,7 +36,7 @@ export class LoginPage {
     }
     this.isLoading.set(true);
     const { email, password } = this.form.getRawValue();
-    this.auth.login(email ?? '', password ?? '').subscribe({
+    this.auth.login(email ?? '', password ?? '').pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.router.navigate(['/tabs/heute']),
       error: (err) => {
         this.isLoading.set(false);
@@ -52,7 +55,7 @@ export class LoginPage {
   }
 
   private resolveLoginErrorMessage(error: unknown): string {
-    const apiError = (error as { error?: { code?: string; message?: string; statusCode?: number } })?.error;
+    const apiError = getApiErrorBody(error);
     if (apiError?.code === 'MISSING_EMPLOYEE_MAPPING') {
       return 'Dein Benutzer ist noch keinem Mitarbeiterprofil zugeordnet. Bitte Admin kontaktieren.';
     }

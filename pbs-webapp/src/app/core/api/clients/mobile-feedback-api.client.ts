@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { PaginatedResponse } from '../../models';
-import { MobileFeedbackItemApi } from '../api.contract';
+import type { Observable } from 'rxjs';
+import type { PaginatedResponse } from '../../models';
+import type { MobileFeedbackItemApi } from '../api.contract';
 
 @Injectable({ providedIn: 'root' })
 export class MobileFeedbackApiClient {

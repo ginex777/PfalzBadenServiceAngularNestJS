@@ -6,7 +6,7 @@ import {
   NotificationsApiClient,
   OffersApiClient,
 } from '../../core/api/clients';
-import { BuchhaltungJahr, Rechnung, Angebot, Benachrichtigung } from '../../core/models';
+import type { BuchhaltungJahr, Rechnung, Angebot, Benachrichtigung } from '../../core/models';
 import { DashboardService } from './dashboard.service';
 
 describe('DashboardService', () => {

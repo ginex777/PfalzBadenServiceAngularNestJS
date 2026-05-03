@@ -1,13 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
-import { Objekt, MuellplanTermin, MuellplanVorlage, PaginatedResponse } from '../../core/models';
-import { TaskListItemApi } from '../aufgaben/aufgaben.models';
+import type { Objekt, MuellplanTermin, MuellplanVorlage, PaginatedResponse } from '../../core/models';
+import type { TaskListItemApi } from '../aufgaben/aufgaben.models';
 import { MuellplanApiClient, ObjectsApiClient } from '../../core/api/clients';
+import { BrowserService } from '../../core/services/browser.service';
 
 @Injectable({ providedIn: 'root' })
 export class MuellplanService {
   private readonly objectsApi = inject(ObjectsApiClient);
   private readonly muellplanApi = inject(MuellplanApiClient);
+  private readonly browser = inject(BrowserService);
 
   allesDatenLaden(): Observable<{
     objekte: Objekt[];
@@ -80,6 +82,6 @@ export class MuellplanService {
   async monatsabschlussPdfOeffnen(objektId: number): Promise<void> {
     const monat = new Date().toISOString().slice(0, 7);
     const data = await this.muellplanApi.createMonthlyClosurePdf(objektId, monat);
-    if (data.url) window.open(data.url, '_blank');
+    if (data.url) this.browser.openUrl(data.url);
   }
 }

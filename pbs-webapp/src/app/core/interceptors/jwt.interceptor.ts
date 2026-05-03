@@ -1,7 +1,8 @@
-import {
+import type {
   HttpInterceptorFn,
   HttpRequest,
-  HttpHandlerFn,
+  HttpHandlerFn} from '@angular/common/http';
+import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
@@ -29,7 +30,7 @@ export const jwtInterceptor: HttpInterceptorFn = (
       if (err instanceof HttpErrorResponse && err.status === 401 && !isAuthEndpoint) {
         // Try a silent refresh, then replay the original request once
         return auth.refreshTokens().pipe(
-          switchMap(({ accessToken }) => next(addBearer(req, accessToken))),
+          switchMap((res) => next(addBearer(req, res.accessToken))),
           catchError((refreshErr) => {
             // Refresh failed — auth.refreshTokens() already cleared the session
             return throwError(() => refreshErr);

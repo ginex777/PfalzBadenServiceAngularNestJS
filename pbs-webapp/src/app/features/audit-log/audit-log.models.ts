@@ -1,4 +1,4 @@
-import { AuditLogEntry } from '../../core/models';
+import type { AuditLogEntry } from '../../core/models';
 
 export type AuditAktion = 'alle' | 'CREATE' | 'UPDATE' | 'DELETE';
 

@@ -1,96 +1,25 @@
 @if (bezahltKandidat()) {
-  <div class="modal-overlay">
-    <div class="modal">
-      <div class="modal-header">
-        <h3>Rechnung als bezahlt markieren</h3>
-      </div>
-      <div class="modal-body">
-        <p>
-          Rechnung <strong>{{ bezahltKandidat()!.nr }}</strong> — {{ bezahltKandidat()!.empf }}
-        </p>
-        <p>
-          Betrag: <strong>{{ waehrungFormatieren(bezahltKandidat()!.brutto) }}</strong>
-        </p>
-        <div class="form-field">
-          <label>Zahlungsdatum</label>
-          <input type="date" [value]="bezahltDatum()" (input)="onDatumChange($event)" />
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-success" (click)="alsGezahltBestaetigen.emit()">
-          ✓ Als bezahlt markieren
-        </button>
-        <button class="btn" (click)="alsGezahltAbbrechen.emit()">Abbrechen</button>
-      </div>
+  <app-modal
+    [isOpen]="!!bezahltKandidat()"
+    title="Rechnung als bezahlt markieren"
+    size="sm"
+    (closed)="alsGezahltAbbrechen.emit()"
+  >
+    <p>
+      Rechnung <strong>{{ bezahltKandidat()!.nr }}</strong> — {{ bezahltKandidat()!.empf }}
+    </p>
+    <p>
+      Betrag: <strong>{{ waehrungFormatieren(bezahltKandidat()!.brutto) }}</strong>
+    </p>
+    <div class="form-field">
+      <label for="src-app-features-rechnungen-components-zahlungs-tracker-zahlungs-tracker-component-0">Zahlungsdatum</label>
+      <input id="src-app-features-rechnungen-components-zahlungs-tracker-zahlungs-tracker-component-0" type="date" [value]="bezahltDatum()" (input)="onDatumChange($event)" />
     </div>
-  </div>
-}
-
-@if (ueberfaelligeRechnungen().length > 0) {
-  <div class="alert-block">
-    <div class="alert-icon">⚠️</div>
-    <div>
-      <strong>{{ ueberfaelligeRechnungen().length }} überfällige Rechnung(en)</strong>
-      <div class="alert-list">
-        @for (r of ueberfaelligeRechnungen(); track r.id) {
-          <div class="alert-item">
-            <span class="alert-nr">{{ r.nr }}</span>
-            <span>{{ r.empf }}</span>
-            <span class="alert-amount">{{ waehrungFormatieren(r.brutto) }}</span>
-            <span class="overdue-days">{{ tageUeberfaellig(r) }} Tage überfällig</span>
-          </div>
-        }
-      </div>
+    <div class="modal-footer">
+      <button class="btn btn-success" (click)="alsGezahltBestaetigen.emit()">
+        ✓ Als bezahlt markieren
+      </button>
+      <button class="btn" (click)="alsGezahltAbbrechen.emit()">Abbrechen</button>
     </div>
-  </div>
-}
-
-@if (offeneRechnungen().length === 0) {
-  <div class="empty-tracker">
-    <div class="empty-icon">✅</div>
-    <div class="empty-text">Alle Rechnungen sind bezahlt</div>
-  </div>
-} @else {
-  <div class="tracker-summary">
-    <div class="summary-item">
-      <span class="summary-label">Offene Rechnungen</span>
-      <span class="summary-value">{{ offeneRechnungen().length }}</span>
-    </div>
-    <div class="summary-item">
-      <span class="summary-label">Offener Betrag</span>
-      <span class="summary-value text-warning">
-        {{ waehrungFormatieren(offenerBetrag()) }}
-      </span>
-    </div>
-    <div class="summary-item">
-      <span class="summary-label">Überfällig</span>
-      <span class="summary-value text-danger">{{ ueberfaelligeRechnungen().length }}</span>
-    </div>
-  </div>
-
-  <div class="tracker-list">
-    @for (r of offeneRechnungen(); track r.id) {
-      <div class="tracker-item" [class.tracker-item--ueberfaellig]="istUeberfaellig(r)">
-        <div class="tracker-item-header">
-          <span class="tracker-nr">{{ r.nr }}</span>
-          <span class="tracker-empf">{{ r.empf }}</span>
-          <span class="tracker-amount">{{ waehrungFormatieren(r.brutto) }}</span>
-        </div>
-        <div class="tracker-item-meta">
-          @if (r.frist) {
-            @if (istUeberfaellig(r)) {
-              <span class="badge badge--danger">{{ tageUeberfaellig(r) }} Tage überfällig</span>
-            } @else {
-              <span class="badge badge--warning"
-                >Fällig in {{ tageBisZahlung(r) }} Tagen ({{ datumFormatieren(r.frist) }})</span
-              >
-            }
-          }
-          @if (r.titel) {
-            <span class="tracker-titel">{{ r.titel }}</span>
-          }
-        </div>
-      </div>
-    }
-  </div>
+  </app-modal>
 }

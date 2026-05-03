@@ -3,29 +3,29 @@
     <!-- Neu anlegen -->
     <div class="form-grid">
       <div class="form-field">
-        <label class="form-label">Vorname</label>
-        <input class="form-input" type="text" placeholder="Max" [formField]="neuForm.vorname" />
+        <label for="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-0" class="form-hint">Vorname</label>
+        <input id="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-0" class="form-input" type="text" placeholder="Max" [formField]="neuForm.vorname" />
       </div>
       <div class="form-field">
-        <label class="form-label">Nachname</label>
-        <input class="form-input" type="text" placeholder="Mustermann" [formField]="neuForm.nachname" />
+        <label for="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-1" class="form-hint">Nachname</label>
+        <input id="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-1" class="form-input" type="text" placeholder="Mustermann" [formField]="neuForm.nachname" />
       </div>
       <div class="form-field">
-        <label class="form-label">E-Mail *</label>
-        <input class="form-input" type="email" placeholder="nutzer@beispiel.de" [formField]="neuForm.email" />
+        <label for="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-2" class="form-hint">E-Mail *</label>
+        <input id="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-2" class="form-input" type="email" placeholder="nutzer@beispiel.de" [formField]="neuForm.email" />
         @if (neuForm.email().touched() && neuForm.email().invalid()) {
           <span class="form-fehler">{{ neuForm.email().errors()[0]?.message }}</span>
         }
       </div>
       <div class="form-field">
-        <label class="form-label">Passwort * (min. 8 Zeichen)</label>
-        <input class="form-input" type="password" placeholder="••••••••" [formField]="neuForm.password" />
+        <label for="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-3" class="form-hint">Passwort * (min. 8 Zeichen)</label>
+        <input id="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-3" class="form-input" type="password" autocomplete="new-password" placeholder="••••••••" [formField]="neuForm.password" />
         @if (neuForm.password().touched() && neuForm.password().invalid()) {
           <span class="form-fehler">{{ neuForm.password().errors()[0]?.message }}</span>
         }
       </div>
       <div class="form-field">
-        <label class="form-label">Rolle</label>
+        <label for="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-4" class="form-hint">Rolle</label>
         <select
           class="form-input"
           [value]="neuModell().rolle"
@@ -41,15 +41,15 @@
     <!-- Bearbeiten -->
     <div class="form-grid">
       <div class="form-field">
-        <label class="form-label">Vorname</label>
-        <input class="form-input" type="text" [formField]="bearbeitenForm.vorname" />
+        <label for="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-5" class="form-hint">Vorname</label>
+        <input id="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-5" class="form-input" type="text" [formField]="bearbeitenForm.vorname" />
       </div>
       <div class="form-field">
-        <label class="form-label">Nachname</label>
-        <input class="form-input" type="text" [formField]="bearbeitenForm.nachname" />
+        <label for="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-6" class="form-hint">Nachname</label>
+        <input id="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-6" class="form-input" type="text" [formField]="bearbeitenForm.nachname" />
       </div>
       <div class="form-field">
-        <label class="form-label">Rolle</label>
+        <label for="src-app-features-benutzerverwaltung-components-benutzer-formular-benutzer-formular-component-7" class="form-hint">Rolle</label>
         <select
           class="form-input"
           [value]="bearbeitenModell().rolle"
@@ -64,13 +64,13 @@
   }
 
   <div class="form-aktionen">
-    <button class="btn" (click)="abbrechen()">Abbrechen</button>
+    <button class="btn btn-sm" type="button" (click)="abbrechen()">Abbrechen</button>
     <button
-      class="btn btn-primary"
-      [disabled]="laedt() || (istBearbeiten() ? !bearbeitenGueltig() : !neuGueltig())"
+      class="btn btn-sm btn-primary"
+      [disabled]="isLoading() || (istBearbeiten() ? !bearbeitenGueltig() : !neuGueltig())"
       (click)="speichern()"
     >
-      {{ laedt() ? 'Speichern…' : (istBearbeiten() ? 'Speichern' : 'Benutzer anlegen') }}
+      {{ isLoading() ? 'Speichern…' : (istBearbeiten() ? 'Speichern' : 'Benutzer anlegen') }}
     </button>
   </div>
 </div>

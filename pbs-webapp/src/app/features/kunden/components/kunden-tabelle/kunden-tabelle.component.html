@@ -1,5 +1,5 @@
 @if (laedt()) {
-  <app-skeleton-rows [anzahl]="6" />
+  <app-skeleton-rows [count]="6" />
 } @else if (kunden().length === 0 && !suchbegriff()) {
   <app-empty-state
     *roleAllowed="['admin']"
@@ -104,9 +104,6 @@
             </td>
             <td class="col-aktionen">
               <div class="aktionen">
-                <button class="btn-action" (click)="offenePosten.emit(kunde.id)">
-                  Offene Posten
-                </button>
                 <button
                   class="btn-action btn-action--primary"
                   *roleAllowed="['admin']"
@@ -121,26 +118,27 @@
                 >
                   Angebot
                 </button>
-                <button
-                  class="btn-action"
-                  *roleAllowed="['admin']"
-                  (click)="bearbeiten.emit(kunde)"
-                >
-                  Bearbeiten
-                </button>
-                @if (hatVerknuepfteDokumente(kunde.id)) {
-                  <span class="btn-action btn-action--disabled" title="Hat verknüpfte Dokumente"
-                    >Nicht löschbar</span
-                  >
-                } @else {
-                  <button
-                    class="btn-action btn-action--danger"
-                    *roleAllowed="['admin']"
-                    (click)="loeschen.emit(kunde.id)"
-                  >
-                    Löschen
+                <app-overflow-menu *roleAllowed="['admin']">
+                  <button class="btn-action" type="button" (click)="offenePosten.emit(kunde.id)">
+                    Offene Posten
                   </button>
-                }
+                  <button class="btn-action" type="button" (click)="bearbeiten.emit(kunde)">
+                    Bearbeiten
+                  </button>
+                  @if (hatVerknuepfteDokumente(kunde.id)) {
+                    <span class="btn-action btn-action--disabled" title="Hat verknüpfte Dokumente"
+                      >Nicht löschbar</span
+                    >
+                  } @else {
+                    <button
+                      class="btn-action btn-action--danger"
+                      type="button"
+                      (click)="loeschen.emit(kunde.id)"
+                    >
+                      Löschen
+                    </button>
+                  }
+                </app-overflow-menu>
               </div>
             </td>
           </tr>

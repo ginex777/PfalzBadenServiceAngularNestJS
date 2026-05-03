@@ -60,75 +60,55 @@
   }
 
   <!-- Modal: Angebot erstellen / bearbeiten / versenden -->
-  @if (facade.drawerOffen()) {
-    <div class="modal-overlay" (click)="facade.drawerSchliessen()">
-      <div class="modal modal--fullscreen" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3 class="modal-title">
-            @if (facade.drawerSchritt() === 'senden') {
-              Angebot versenden
-            } @else if (facade.bearbeitetesAngebot()) {
-              Angebot bearbeiten
-            } @else {
-              Neues Angebot
-            }
-          </h3>
-          <button class="modal-close" (click)="facade.drawerSchliessen()" title="Schließen">
-            ✕
-          </button>
-        </div>
+  <app-modal
+    [isOpen]="facade.drawerOffen()"
+    [title]="facade.drawerSchritt() === 'senden' ? 'Angebot versenden' : facade.bearbeitetesAngebot() ? 'Angebot bearbeiten' : 'Neues Angebot'"
+    size="lg"
+    (closed)="facade.drawerSchliessen()"
+  >
+    <div class="drawer-content">
+      @if (facade.drawerSchritt() === 'formular') {
+        <app-angebote-formular
+          [formularDaten]="facade.formularDaten()"
+          [kunden]="facade.kunden()"
+          [bearbeitetesAngebot]="facade.bearbeitetesAngebot()"
+          [speichert]="facade.speichert()"
+          [netto]="facade.netto()"
+          [brutto]="facade.brutto()"
+          [mwstBetrag]="facade.mwstBetrag()"
+          (speichern)="onSpeichern()"
+          (vorschau)="onVorschau()"
+          (abbrechen)="facade.drawerSchliessen()"
+          (positionHinzufuegen)="onPositionHinzufuegen()"
+          (positionEntfernen)="onPositionEntfernen($event)"
+          (positionKopieren)="onPositionKopieren($event)"
+          (positionAktualisieren)="onPositionAktualisieren($event)"
+          (feldAktualisieren)="onFeldAktualisieren($event)"
+          (kundeAuswaehlen)="onKundeAuswaehlen($event)"
+          (alsKundeSpeichern)="onAlsKundeSpeichern()"
+        />
+      }
 
-        <div class="modal-body">
-          <div class="drawer-content">
-            @if (facade.drawerSchritt() === 'formular') {
-              <app-angebote-formular
-                [formularDaten]="facade.formularDaten()"
-                [kunden]="facade.kunden()"
-                [bearbeitetesAngebot]="facade.bearbeitetesAngebot()"
-                [speichert]="facade.speichert()"
-                [netto]="facade.netto()"
-                [brutto]="facade.brutto()"
-                [mwstBetrag]="facade.mwstBetrag()"
-                (speichern)="onSpeichern()"
-                (vorschau)="onVorschau()"
-                (abbrechen)="facade.drawerSchliessen()"
-                (positionHinzufuegen)="onPositionHinzufuegen()"
-                (positionEntfernen)="onPositionEntfernen($event)"
-                (positionKopieren)="onPositionKopieren($event)"
-                (positionAktualisieren)="onPositionAktualisieren($event)"
-                (feldAktualisieren)="onFeldAktualisieren($event)"
-                (kundeAuswaehlen)="onKundeAuswaehlen($event)"
-                (alsKundeSpeichern)="onAlsKundeSpeichern()"
-              />
-            }
-
-            @if (facade.drawerSchritt() === 'senden') {
-              <div class="send-step">
-                <div class="send-info">
-                  <div><strong>An:</strong> {{ facade.sendModal()!.email }}</div>
-                  <div><strong>Betreff:</strong> {{ sendBetreff() }}</div>
-                </div>
-                <label class="send-label">E-Mail Text:</label>
-                <textarea
-                  class="form-input send-textarea"
-                  rows="9"
-                  [value]="sendText()"
-                  readonly
-                ></textarea>
-                <div class="send-actions">
-                  <button class="btn btn-primary" (click)="outlookOeffnen()">Outlook öffnen</button>
-                  <button class="btn" (click)="textKopieren()">Kopieren</button>
-                  <button class="btn" (click)="facade.sendModalSchliessen()">Schließen</button>
-                </div>
-              </div>
-            }
+      @if (facade.drawerSchritt() === 'senden') {
+        <div class="send-step">
+          <div class="send-info">
+            <div><strong>An:</strong> {{ facade.sendModal()!.email }}</div>
+            <div><strong>Betreff:</strong> {{ sendBetreff() }}</div>
+          </div>
+          <label for="src-app-features-angebote-angebote-component-0" class="send-label">E-Mail Text:</label>
+          <textarea
+            class="form-input send-textarea"
+            rows="9"
+            [value]="sendText()"
+            readonly
+          ></textarea>
+          <div class="send-actions">
+            <button class="btn btn-primary" (click)="outlookOeffnen()">Outlook öffnen</button>
+            <button class="btn" (click)="textKopieren()">Kopieren</button>
+            <button class="btn" (click)="facade.sendModalSchliessen()">Schließen</button>
           </div>
         </div>
-
-        <div class="modal-footer">
-          <!-- Footer actions handled within formular/send-step components -->
-        </div>
-      </div>
+      }
     </div>
-  }
+  </app-modal>
 </div>

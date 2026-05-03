@@ -1,7 +1,7 @@
 @if (errorMessage()) {
   <app-error-state [message]="errorMessage()!" actionLabel="Neu laden" (action)="reload.emit()" />
 } @else if (isLoading()) {
-  <app-skeleton-rows [anzahl]="8" />
+  <app-skeleton-rows [count]="8" />
 } @else if (!hasData()) {
   <app-empty-state
     title="Keine Aufgaben gefunden"
@@ -9,7 +9,7 @@
   />
 } @else {
   <div class="table-wrap">
-    <table class="table aufgaben-table" role="grid">
+    <table class="table aufgaben-table">
       <thead>
         <tr>
           <th>Aufgabe</th>
@@ -26,7 +26,12 @@
       </thead>
       <tbody>
         @for (t of tasks(); track t.id) {
-          <tr class="row-click" (click)="select(t)">
+          <tr
+            class="row-click"
+            tabindex="0"
+            (click)="select(t)"
+            (keydown)="onRowKeydown($event, t)"
+          >
             <td class="col-title">
               <div class="title">{{ t.title }}</div>
               <div class="sub">{{ formatDateTime(t.createdAt) }}</div>

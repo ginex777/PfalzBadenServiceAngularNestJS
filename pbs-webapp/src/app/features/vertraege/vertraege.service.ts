@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Kunde, Vertrag } from '../../core/models';
+import type { Observable } from 'rxjs';
+import type { Kunde, Vertrag } from '../../core/models';
 import { ContractsApiClient, CustomersApiClient, PdfApiClient } from '../../core/api/clients';
 
 @Injectable({ providedIn: 'root' })

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { DatevVorschauAntwort } from '../api.contract';
+import type { Observable } from 'rxjs';
+import type { DatevVorschauAntwort } from '../api.contract';
 
 @Injectable({ providedIn: 'root' })
 export class DatevApiClient {

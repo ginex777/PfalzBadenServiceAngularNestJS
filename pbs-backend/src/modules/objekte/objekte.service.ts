@@ -1,13 +1,15 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Prisma, Objekte, TaskType } from '@prisma/client';
-import { PrismaService } from '../../core/database/prisma.service';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import {
+import type { Prisma, Objekte, TaskType } from '@prisma/client';
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import type {
   AktivitaetenQueryDto,
   CreateObjektDto,
   UpdateObjektDto,
 } from './dto/objekte.dto';
+import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
 
 type ObjektResponse = {
   id: number;
@@ -44,7 +46,10 @@ type AktivitaetItem = {
 export class ObjekteService {
   private readonly logger = new Logger(ObjekteService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly accessPolicy: AccessPolicyService,
+  ) {}
 
   async findAll(
     pagination: PaginationDto,
@@ -89,12 +94,17 @@ export class ObjekteService {
     };
   }
 
-  async findAllUnpaginated(customerId?: number): Promise<ObjektResponse[]> {
+  async findAllUnpaginated(
+    customerId?: number,
+    auth?: AccessPolicyAuth,
+  ): Promise<ObjektResponse[]> {
+    const where = auth
+      ? this.accessPolicy.objectWhereForAuth(auth, customerId)
+      : typeof customerId === 'number'
+        ? { kunden_id: BigInt(customerId) }
+        : undefined;
     const rows = await this.prisma.objekte.findMany({
-      where:
-        typeof customerId === 'number'
-          ? { kunden_id: BigInt(customerId) }
-          : undefined,
+      where,
       include: { kunden: { select: { name: true } } },
       orderBy: { name: 'asc' },
       take: 5000,

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Mahnung } from '../../models';
+import type { Observable } from 'rxjs';
+import type { Mahnung } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class RemindersApiClient {
@@ -9,7 +9,7 @@ export class RemindersApiClient {
   private readonly baseUrl = '/api';
 
   loadReminders(invoiceId: number): Observable<Mahnung[]> {
-    return this.http.get<Mahnung[]>(`${this.baseUrl}/mahnungen/rechnung/${invoiceId}`);
+    return this.http.get<Mahnung[]>(`${this.baseUrl}/mahnungen/${invoiceId}`);
   }
 
   createReminder(data: Partial<Mahnung>): Observable<Mahnung> {
@@ -20,4 +20,3 @@ export class RemindersApiClient {
     return this.http.delete<void>(`${this.baseUrl}/mahnungen/${id}`);
   }
 }
-

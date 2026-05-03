@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { BuchhaltungZeile } from '../../buchhaltung.models';
+import type { BuchhaltungZeile } from '../../buchhaltung.models';
 import {
   waehrungFormatieren,
   nettoBerechnen,

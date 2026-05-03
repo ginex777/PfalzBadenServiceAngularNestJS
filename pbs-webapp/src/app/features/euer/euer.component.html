@@ -3,8 +3,8 @@
 
   <!-- Jahr-Auswahl -->
   <div class="jahr-toolbar">
-    <label class="jahr-label">Wirtschaftsjahr:</label>
-    <select class="select-sm" [value]="facade.aktuellesJahr()" (change)="jahrGeaendert($event)">
+    <label for="src-app-features-euer-euer-component-0" class="jahr-label">Wirtschaftsjahr:</label>
+    <select id="src-app-features-euer-euer-component-0" class="select-sm" [value]="facade.aktuellesJahr()" (change)="jahrGeaendert($event)">
       @for (j of facade.verfuegbareJahre(); track j) {
         <option [value]="j">{{ j }}</option>
       }

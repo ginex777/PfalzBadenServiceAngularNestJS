@@ -1,10 +1,7 @@
-import {
-  Injectable,
-  OnModuleInit,
-  OnModuleDestroy,
-  Logger,
-} from '@nestjs/common';
-import puppeteer, { Browser } from 'puppeteer';
+import type { OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import type { Browser } from 'puppeteer';
+import puppeteer from 'puppeteer';
 
 @Injectable()
 export class PuppeteerService implements OnModuleInit, OnModuleDestroy {

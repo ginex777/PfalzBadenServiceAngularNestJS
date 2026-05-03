@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { FirmaFormularComponent } from './firma-formular.component';
 
 describe('FirmaFormularComponent', () => {
@@ -7,11 +8,23 @@ describe('FirmaFormularComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [FirmaFormularComponent],
+      imports: [FirmaFormularComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FirmaFormularComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('firma', {
+      name: '',
+      strasse: '',
+      ort: '',
+      email: '',
+      telefon: '',
+      steuernummer: '',
+      ustId: '',
+      bank: '',
+      iban: '',
+      bic: '',
+    });
     fixture.detectChanges();
   });
 

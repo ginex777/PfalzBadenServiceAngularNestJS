@@ -1,0 +1,14 @@
+# Project-local Codex defaults for the PBS monorepo.
+# Loaded only when this project is trusted by Codex.
+
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
+web_search = "live"
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+
+[features]
+multi_agent = true
+skill_mcp_dependency_install = true
+shell_snapshot = true

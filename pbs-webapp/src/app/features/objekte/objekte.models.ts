@@ -1,4 +1,4 @@
-import { ObjectStatus } from '@pbs/types';
+import type { ObjectStatus } from '@pbs/types';
 
 export type ObjectStatusFilter = 'ALL' | ObjectStatus;
 

@@ -1,10 +1,18 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { Preferences } from '@capacitor/preferences';
 import { finalize } from 'rxjs/operators';
 import { ObjectListItem, ObjectsService } from './objects.service';
+
+const SELECTED_OBJECT_KEY_PREFIX = 'selected_object_id';
+
+function selectedObjectKey(userEmail: string): string {
+  return `${SELECTED_OBJECT_KEY_PREFIX}:${userEmail.trim().toLowerCase()}`;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ObjectContextService {
   private readonly objectsApi = inject(ObjectsService);
+  private selectedObjectStorageKey: string | null = null;
 
   readonly objects = signal<ObjectListItem[]>([]);
   readonly objectsLoading = signal(false);
@@ -47,5 +55,37 @@ export class ObjectContextService {
 
   setSelectedObjectId(objectId: number | null): void {
     this.selectedObjectId.set(objectId);
+    void this.persistSelectedObjectId(objectId);
+  }
+
+  async restoreSelectedObjectForUser(userEmail: string): Promise<void> {
+    this.selectedObjectStorageKey = selectedObjectKey(userEmail);
+    const { value } = await Preferences.get({ key: this.selectedObjectStorageKey });
+    const objectId = value ? Number(value) : NaN;
+    this.selectedObjectId.set(Number.isInteger(objectId) && objectId > 0 ? objectId : null);
+  }
+
+  async clearSelectedObjectForUser(userEmail: string): Promise<void> {
+    await Preferences.remove({ key: selectedObjectKey(userEmail) });
+    if (this.selectedObjectStorageKey === selectedObjectKey(userEmail)) {
+      this.selectedObjectId.set(null);
+    }
+  }
+
+  resetSessionState(): void {
+    this.selectedObjectStorageKey = null;
+    this.selectedObjectId.set(null);
+    this.objects.set([]);
+    this.objectsError.set(null);
+    this.objectsLoading.set(false);
+  }
+
+  private async persistSelectedObjectId(objectId: number | null): Promise<void> {
+    if (!this.selectedObjectStorageKey) return;
+    if (objectId == null) {
+      await Preferences.remove({ key: this.selectedObjectStorageKey });
+      return;
+    }
+    await Preferences.set({ key: this.selectedObjectStorageKey, value: String(objectId) });
   }
 }

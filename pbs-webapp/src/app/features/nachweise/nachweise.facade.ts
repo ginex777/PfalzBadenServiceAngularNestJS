@@ -1,7 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs/operators';
-import { Objekt } from '../../core/models';
-import { EvidenceListItem, NachweiseService } from './nachweise.service';
+import type { Objekt } from '../../core/models';
+import type { EvidenceListItem} from './nachweise.service';
+import { NachweiseService } from './nachweise.service';
 
 @Injectable({ providedIn: 'root' })
 export class NachweiseFacade {
@@ -56,8 +57,9 @@ export class NachweiseFacade {
       .subscribe({
         next: (rows) => {
           this.objects.set(rows);
-          if (this.selectedObjectId() == null && rows.length > 0) {
-            this.selectedObjectId.set(rows[0]!.id);
+          const firstObject = rows[0];
+          if (this.selectedObjectId() == null && firstObject) {
+            this.selectedObjectId.set(firstObject.id);
           }
         },
         error: () => {

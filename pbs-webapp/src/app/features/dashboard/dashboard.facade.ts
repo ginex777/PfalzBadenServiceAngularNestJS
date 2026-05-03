@@ -1,11 +1,10 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastService } from '../../core/services/toast.service';
-import { Benachrichtigung } from '../../core/models';
+import type { Benachrichtigung } from '../../core/models';
 import { DashboardService } from './dashboard.service';
-import { DashboardInvoiceRow, DashboardOfferRow, DashboardStats } from './dashboard.models';
+import type { DashboardInvoiceRow, DashboardOfferRow, DashboardStats } from './dashboard.models';
 import { MS_PER_DAY } from '../../core/constants';
-import { nettoBerechnen } from '../../core/utils/format.utils';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardFacade {
@@ -83,28 +82,10 @@ export class DashboardFacade {
 
         this.openOffers.set(openOffers.slice(0, 8));
 
-        const currentMonthIndex = new Date().getMonth();
-        let yearRevenueNet = 0;
-        let yearExpensesNet = 0;
-
-        for (let monthIndex = 0; monthIndex <= currentMonthIndex; monthIndex++) {
-          const month = data.accounting[monthIndex];
-          if (!month) continue;
-
-          (month.inc ?? []).forEach((row) => {
-            yearRevenueNet += nettoBerechnen(row.brutto, row.mwst ?? 19);
-          });
-
-          (month.exp ?? []).forEach((row) => {
-            const deduction = row.abzug ?? 100;
-            yearExpensesNet += nettoBerechnen(row.brutto, row.mwst ?? 19) * (deduction / 100);
-          });
-        }
-
         this.stats.set({
-          yearRevenueNet,
-          yearExpensesNet,
-          yearProfitNet: yearRevenueNet - yearExpensesNet,
+          yearRevenueNet: data.yearlyStats.revenueNet,
+          yearExpensesNet: data.yearlyStats.expensesNet,
+          yearProfitNet: data.yearlyStats.profitNet,
           openInvoicesCount: openInvoices.length,
           openInvoicesGrossTotal: openInvoices.reduce(
             (sum, invoice) => sum + (invoice.brutto ?? 0),
@@ -168,6 +149,6 @@ export class DashboardFacade {
   }
 
   navigateToAccounting(): void {
-    this.router.navigate(['/buchhaltung']);
+    this.router.navigate(['/finanzen/buchhaltung']);
   }
 }

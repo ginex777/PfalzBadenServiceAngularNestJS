@@ -7,7 +7,7 @@ import { DEFAULT_PAGE_SIZE } from '../../core/constants';
 import { Router } from '@angular/router';
 import { RechnungenService } from './rechnungen.service';
 import { ToastService } from '../../core/services/toast.service';
-import {
+import type {
   Rechnung,
   Kunde,
   FirmaSettings,
@@ -15,13 +15,14 @@ import {
   Mahnung,
   AuditLogEntry,
 } from '../../core/models';
-import {
+import type {
   RechnungFilter,
   RechnungFormularDaten,
   RechnungPrefill,
   AngebotKonvertierungsDaten,
   WiederkehrendPrefill,
-  RechnungStatistik,
+  RechnungStatistik} from './rechnungen.models';
+import {
   LEERES_RECHNUNGS_FORMULAR,
 } from './rechnungen.models';
 
@@ -149,7 +150,8 @@ export class RechnungenFacade {
       bezahltMonat: alle
         .filter((r) => r.bezahlt && r.bezahlt_am)
         .filter((r) => {
-          const d = new Date(r.bezahlt_am!);
+          if (!r.bezahlt_am) return false;
+          const d = new Date(r.bezahlt_am);
           return d.getMonth() === jetztMonat && d.getFullYear() === jetztJahr;
         })
         .reduce((s, r) => s + (r.brutto ?? 0), 0),
@@ -227,8 +229,6 @@ export class RechnungenFacade {
       return;
     }
     this.speichert.set(true);
-    const brutto = this.brutto();
-    const frist = this._fristBerechnen(daten.datum, daten.zahlungsziel);
     const payload: Partial<Rechnung> = {
       nr: daten.nr,
       empf: daten.empf,
@@ -242,8 +242,6 @@ export class RechnungenFacade {
       positionen: daten.positionen,
       mwst_satz: daten.mwst_satz,
       kunden_id: daten.kunden_id,
-      brutto,
-      frist,
     };
 
     const editId = this.bearbeiteteRechnung()?.id;
@@ -403,8 +401,6 @@ export class RechnungenFacade {
       return;
     }
     this.speichert.set(true);
-    const brutto = this.brutto();
-    const frist = this._fristBerechnen(daten.datum, daten.zahlungsziel);
     const payload: Partial<Rechnung> = {
       nr: daten.nr,
       empf: daten.empf,
@@ -418,8 +414,6 @@ export class RechnungenFacade {
       positionen: daten.positionen,
       mwst_satz: daten.mwst_satz,
       kunden_id: daten.kunden_id,
-      brutto,
-      frist,
     };
     const editId = this.bearbeiteteRechnung()?.id;
     const anfrage = editId
@@ -676,15 +670,4 @@ export class RechnungenFacade {
     this.drawerSchliessen();
   }
 
-  private _fristBerechnen(datum: string, tage: number): string {
-    if (!datum) return '';
-    const d = /^\d{4}-\d{2}-\d{2}$/.test(datum)
-      ? (() => {
-          const [y, m, day] = datum.split('-').map(Number);
-          return new Date(y, m - 1, day);
-        })()
-      : new Date(datum);
-    d.setDate(d.getDate() + tage);
-    return d.toISOString().split('T')[0];
-  }
 }

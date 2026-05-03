@@ -1,16 +1,18 @@
+import type {
+  OnChanges,
+  SimpleChanges} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
   input,
   output,
-  OnChanges,
-  SimpleChanges,
   signal,
   computed,
 } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
-import { Kunde } from '../../../../core/models';
-import { KundenFormularDaten, LEERES_FORMULAR } from '../../kunden.models';
+import type { Kunde } from '../../../../core/models';
+import type { KundenFormularDaten} from '../../kunden.models';
+import { LEERES_FORMULAR } from '../../kunden.models';
 
 @Component({
   selector: 'app-kunden-formular',
@@ -24,6 +26,7 @@ export class KundenFormularComponent implements OnChanges {
   readonly bearbeiteterKunde = input<Kunde | null>(null);
   readonly gespeichert = output<KundenFormularDaten>();
   readonly abgebrochen = output<void>();
+  readonly geaendert = output<void>();
 
   protected readonly formModell = signal<KundenFormularDaten>({ ...LEERES_FORMULAR });
 
@@ -79,15 +82,18 @@ export class KundenFormularComponent implements OnChanges {
     this.formModell.set({ ...LEERES_FORMULAR });
   }
 
+  protected onFeldGeaendert(): void {
+    this.geaendert.emit();
+  }
+
   protected abbrechen(): void {
     this.formModell.set({ ...LEERES_FORMULAR });
     this.abgebrochen.emit();
   }
 
   protected get titelText(): string {
-    return this.bearbeiteterKunde()
-      ? `Kunde bearbeiten: ${this.bearbeiteterKunde()!.name}`
-      : 'Neuer Kunde';
+    const kunde = this.bearbeiteterKunde();
+    return kunde ? `Kunde bearbeiten: ${kunde.name}` : 'Neuer Kunde';
   }
 
   protected get submitLabel(): string {

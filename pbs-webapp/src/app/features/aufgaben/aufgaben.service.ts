@@ -1,8 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { PaginatedResponse } from '../../core/models';
-import { TaskListItemApi, TaskListQuery, TaskUpdatePayload } from './aufgaben.models';
+import type { Observable } from 'rxjs';
+import type { PaginatedResponse } from '../../core/models';
+import type { TaskListItemApi, TaskListQuery, TaskUpdatePayload } from './aufgaben.models';
 
 @Injectable({ providedIn: 'root' })
 export class TasksService {

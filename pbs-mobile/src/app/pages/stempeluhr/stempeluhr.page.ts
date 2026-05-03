@@ -1,5 +1,6 @@
-import { Component, computed, signal, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, computed, effect, signal, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   IonButton,
   IonButtons,
@@ -12,6 +13,7 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { MobileAuthService } from '../../core/auth.service';
+import { getApiErrorMessage } from '../../core/api-error';
 import { ObjectContextService } from '../../core/object-context.service';
 import { StempelService } from '../../core/stempel.service';
 import { TimerStateService } from '../../core/timer-state.service';
@@ -39,6 +41,7 @@ import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-ko
 export class StempeluhrPage implements OnInit {
   private readonly auth = inject(MobileAuthService);
   private readonly stampService = inject(StempelService);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly context = inject(ObjectContextService);
   private readonly timerState = inject(TimerStateService);
   private readonly router = inject(Router);
@@ -49,6 +52,11 @@ export class StempeluhrPage implements OnInit {
   readonly statusMessage = signal('');
   readonly statusTone = signal<'success' | 'error' | 'info'>('info');
   readonly toastOpen = signal(false);
+
+  private readonly _sessionResetEffect = effect(() => {
+    this.auth.sessionResetVersion();
+    this.resetPageState();
+  });
 
   protected readonly canStart = computed(() => {
     return !this.isActive() && !this.isLoading() && this.context.selectedObjectId() != null;
@@ -72,13 +80,13 @@ export class StempeluhrPage implements OnInit {
 
   start() {
     if (!this.employeeId) {
-      this.setStatus('error', 'Kein Mitarbeiterprofil mit dem Benutzer verknuepft.');
+      this.setStatus('error', 'Kein Mitarbeiterprofil verknüpft – bitte Admin kontaktieren.');
       return;
     }
 
     const objectId = this.context.selectedObjectId();
     if (objectId == null) {
-      this.setStatus('error', 'Bitte ein Objekt auswaehlen.');
+      this.setStatus('error', 'Bitte zuerst ein Objekt auswählen.');
       return;
     }
 
@@ -89,7 +97,7 @@ export class StempeluhrPage implements OnInit {
     const note = trimmedNote ? trimmedNote : undefined;
 
     this.isLoading.set(true);
-    this.stampService.start(this.employeeId, objectId, note).subscribe({
+    this.stampService.start(this.employeeId, objectId, note).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (s) => {
         this.timerState.setActive({ id: s.id, start: new Date(s.start) });
         this.setStatus(
@@ -100,11 +108,11 @@ export class StempeluhrPage implements OnInit {
         );
         this.isLoading.set(false);
       },
-      error: (error: { error?: { message?: string } }) => {
+      error: (error: unknown) => {
         this.isLoading.set(false);
         this.setStatus(
           'error',
-          error?.error?.message ?? 'Starten fehlgeschlagen. Bitte erneut versuchen.',
+          getApiErrorMessage(error) ?? 'Starten fehlgeschlagen. Bitte erneut versuchen.',
         );
       },
     });
@@ -112,23 +120,23 @@ export class StempeluhrPage implements OnInit {
 
   stop() {
     if (!this.employeeId) {
-      this.setStatus('error', 'Kein Mitarbeiterprofil mit dem Benutzer verknuepft.');
+      this.setStatus('error', 'Kein Mitarbeiterprofil verknüpft – bitte Admin kontaktieren.');
       return;
     }
 
     this.isLoading.set(true);
-    this.stampService.stop(this.employeeId).subscribe({
+    this.stampService.stop(this.employeeId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (s) => {
-        const min = s.dauer_minuten ?? 0;
+        const min = s.durationMinutes ?? 0;
         this.timerState.clearActive();
         this.setStatus('success', `Gestoppt. ${min} Minuten erfasst.`);
         this.isLoading.set(false);
       },
-      error: (error: { error?: { message?: string } }) => {
+      error: (error: unknown) => {
         this.isLoading.set(false);
         this.setStatus(
           'error',
-          error?.error?.message ?? 'Stoppen fehlgeschlagen. Bitte erneut versuchen.',
+          getApiErrorMessage(error) ?? 'Stoppen fehlgeschlagen. Bitte erneut versuchen.',
         );
       },
     });
@@ -150,18 +158,20 @@ export class StempeluhrPage implements OnInit {
     const employeeId = this.employeeId;
     if (!employeeId) return;
 
-    this.stampService.getTimeEntries(employeeId).subscribe({
-      next: (entries) => {
-        const open = entries.find((e) => e.stop == null) ?? null;
-        if (!open) {
+    this.stampService.getActiveStamp(employeeId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (stamp) => {
+        if (!stamp) {
           this.timerState.clearActive();
           return;
         }
-
-        this.timerState.setActive({ id: open.id, start: new Date(open.start) });
-        if (open.objekt_id != null) {
-          this.context.setSelectedObjectId(open.objekt_id);
+        this.timerState.setActive({ id: stamp.id, start: new Date(stamp.start) });
+        if (stamp.objectId != null) {
+          this.context.setSelectedObjectId(stamp.objectId);
         }
+      },
+      error: () => {
+        this.timerState.clearActive();
+        this.setStatus('error', 'Timer-Status konnte nicht geladen werden.');
       },
     });
   }
@@ -178,5 +188,13 @@ export class StempeluhrPage implements OnInit {
     if (this.statusTone() === 'success') return 'success';
     if (this.statusTone() === 'error') return 'danger';
     return 'medium';
+  }
+
+  private resetPageState(): void {
+    this.note.set('');
+    this.isLoading.set(false);
+    this.statusMessage.set('');
+    this.statusTone.set('info');
+    this.toastOpen.set(false);
   }
 }

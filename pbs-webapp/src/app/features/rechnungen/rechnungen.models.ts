@@ -2,7 +2,7 @@
 // Rechnungen — Feature-spezifische Modelle
 // ============================================================
 
-import { RechnungPosition } from '../../core/models';
+import type { RechnungPosition } from '../../core/models';
 
 export type RechnungFilter = 'alle' | 'offen' | 'bezahlt' | 'ueberfaellig';
 

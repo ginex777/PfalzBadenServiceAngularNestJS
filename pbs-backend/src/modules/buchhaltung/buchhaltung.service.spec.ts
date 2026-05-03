@@ -1,8 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { BuchhaltungService } from './buchhaltung.service';
 import { PrismaService } from '../../core/database/prisma.service';
-import { BuchhaltungEintragDto } from './dto/buchhaltung.dto';
+import type { BuchhaltungEintragDto } from './dto/buchhaltung.dto';
 
 const mockTx = {
   buchhaltung: {
@@ -92,6 +93,52 @@ describe('BuchhaltungService', () => {
       mockPrisma.buchhaltung.findMany.mockResolvedValue([]);
       const result = await service.getYearData(2026);
       expect(Object.keys(result)).toHaveLength(12);
+    });
+  });
+
+  describe('getYearSummary()', () => {
+    it('berechnet Netto, Umsatzsteuer, Vorsteuer, Zahllast und Gewinn serverseitig', async () => {
+      mockPrisma.buchhaltung.findMany.mockResolvedValue([
+        {
+          id: 1n,
+          jahr: 2026,
+          monat: 0,
+          typ: 'inc',
+          brutto: 119,
+          mwst: 19,
+          abzug: 100,
+          beleg_id: null,
+        },
+        {
+          id: 2n,
+          jahr: 2026,
+          monat: 0,
+          typ: 'exp',
+          brutto: 59.5,
+          mwst: 19,
+          abzug: 50,
+          beleg_id: null,
+        },
+      ]);
+
+      const result = await service.getYearSummary(2026);
+
+      expect(result.months[0]).toEqual({
+        month: 0,
+        incomeNet: 100,
+        incomeVat: 19,
+        expenseNet: 25,
+        inputVat: 4.75,
+        vatLiability: 14.25,
+        profit: 75,
+      });
+      expect(result.quarters[0].elster).toEqual({
+        kz81: 100,
+        kz83: 19,
+        kz86: 0,
+        kz85: 0,
+        kz66: 4.75,
+      });
     });
   });
 

@@ -1,7 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { RechnungenController } from './rechnungen.controller';
 import { RechnungenService } from './rechnungen.service';
-import { CreateRechnungDto } from './dto/rechnung.dto';
+import type { CreateRechnungDto } from './dto/rechnung.dto';
 
 const mockService = {
   findAll: jest.fn(),

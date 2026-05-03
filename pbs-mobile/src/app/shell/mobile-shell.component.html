@@ -16,7 +16,7 @@
 
     <ion-tab-button tab="muellplan" href="/tabs/muellplan" class="mobile-tab-button">
       <ion-icon name="trash-outline" aria-hidden="true"></ion-icon>
-      <ion-label>Muellplan</ion-label>
+      <ion-label>Müll</ion-label>
     </ion-tab-button>
 
     @if (showOperativeTabs()) {
@@ -25,7 +25,7 @@
         @if (isTimerActive()) {
           <ion-badge class="timer-badge" color="danger"></ion-badge>
         }
-        <ion-label>Zeiterfassung</ion-label>
+        <ion-label>Stempel</ion-label>
       </ion-tab-button>
 
       <ion-tab-button tab="foto-upload" href="/tabs/foto-upload" class="mobile-tab-button">
@@ -35,7 +35,7 @@
 
       <ion-tab-button tab="checklisten" href="/tabs/checklisten" class="mobile-tab-button">
         <ion-icon name="list-outline" aria-hidden="true"></ion-icon>
-        <ion-label>Checklisten</ion-label>
+        <ion-label>Listen</ion-label>
       </ion-tab-button>
     }
   </ion-tab-bar>

@@ -9,8 +9,8 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { BuchhaltungService } from './buchhaltung.service';
-import {
+import type { BuchhaltungService } from './buchhaltung.service';
+import type {
   BuchhaltungEintragDto,
   BatchSpeichernDto,
   VstDto,
@@ -23,6 +23,12 @@ import { Roles } from '../auth/decorators/roles.decorator';
 @Controller('api')
 export class BuchhaltungController {
   constructor(private readonly service: BuchhaltungService) {}
+
+  @Get('buchhaltung/:jahr/summary')
+  @ApiOperation({ summary: 'Berechnete Jahreszusammenfassung laden' })
+  getYearSummary(@Param('jahr', ParseIntPipe) j: number) {
+    return this.service.getYearSummary(j);
+  }
 
   @Get('buchhaltung/:jahr')
   @ApiOperation({ summary: 'Jahres-Buchhaltungsdaten laden' })

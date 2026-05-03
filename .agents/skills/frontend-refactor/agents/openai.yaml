@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Refactor"
+  short_description: "Angular 21 hygiene for PBS frontends"
+  default_prompt: "Use $frontend-refactor to keep PBS Angular changes strict and consistent."

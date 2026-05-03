@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
 
 export type MobileFeedbackKind = 'EVIDENCE' | 'CHECKLIST';
 
@@ -25,16 +27,23 @@ export interface MobileFeedbackPage {
 
 @Injectable()
 export class MobileFeedbackService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly accessPolicy: AccessPolicyService,
+  ) {}
 
   async list(params: {
     page: number;
     pageSize: number;
     objectId?: number;
+    auth: AccessPolicyAuth;
   }): Promise<MobileFeedbackPage> {
     const page = Math.max(1, params.page);
     const pageSize = Math.min(Math.max(1, params.pageSize), 200);
     const objectId = params.objectId;
+    if (objectId) {
+      await this.accessPolicy.assertCanAccessObject(params.auth, objectId);
+    }
 
     const whereEvidence = objectId ? { objekt_id: BigInt(objectId) } : {};
     const whereChecklist = objectId ? { objekt_id: BigInt(objectId) } : {};

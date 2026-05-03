@@ -1,7 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { EinstellungenService, UserEintrag, UserAnlegenPayload } from './einstellungen.service';
+import type { UserEintrag, UserAnlegenPayload } from './einstellungen.service';
+import { EinstellungenService } from './einstellungen.service';
 import { ToastService } from '../../core/services/toast.service';
-import { FirmaSettings } from '../../core/models';
+import type { FirmaSettings } from '../../core/models';
 
 interface SmtpSettings {
   host: string;
@@ -156,7 +157,7 @@ export class EinstellungenFacade {
       },
       error: (e: Error) => {
         this.smtpTestLaedt.set(false);
-        this.toast.error('SMTP-Test fehlgeschlagen: ' + e.message);
+        this.toast.error(`SMTP-Test fehlgeschlagen: ${  e.message}`);
       },
     });
   }

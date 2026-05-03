@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormField, form, required, min } from '@angular/forms/signals';
-import { Mitarbeiter, MitarbeiterStunden } from '../../../../core/models';
-import {
+import type { Mitarbeiter, MitarbeiterStunden } from '../../../../core/models';
+import type {
   StundenFormularDaten,
-  StundenStatistik,
+  StundenStatistik} from '../../mitarbeiter.models';
+import {
   ZUSCHLAG_OPTIONEN,
 } from '../../mitarbeiter.models';
 import { datumFormatieren, waehrungFormatieren } from '../../../../core/utils/format.utils';

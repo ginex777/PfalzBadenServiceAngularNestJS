@@ -1,11 +1,9 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import {
-  ValidationPipe,
-  ClassSerializerInterceptor,
-} from '@nestjs/common';
+import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { json, urlencoded } from 'express';
+import cookieParser from 'cookie-parser';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { initSentry } from './core/sentry.util';
@@ -19,6 +17,7 @@ async function bootstrap() {
 
   // ── Security ────────────────────────────────────────────────────────────────
   app.use(helmet());
+  app.use(cookieParser());
 
   // ── CORS ────────────────────────────────────────────────────────────────────
   const frontendUrl = process.env['FRONTEND_URL'];

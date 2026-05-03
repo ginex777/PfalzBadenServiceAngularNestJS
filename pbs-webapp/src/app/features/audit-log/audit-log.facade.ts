@@ -1,8 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { AuditLogService } from './audit-log.service';
 import { ToastService } from '../../core/services/toast.service';
-import { AuditLogEntry } from '../../core/models';
-import { AuditAktion } from './audit-log.models';
+import type { AuditLogEntry } from '../../core/models';
+import type { AuditAktion } from './audit-log.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuditLogFacade {

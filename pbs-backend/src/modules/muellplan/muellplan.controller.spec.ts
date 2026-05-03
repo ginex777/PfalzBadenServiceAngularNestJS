@@ -1,5 +1,6 @@
 import { MuellplanService } from './muellplan.service';
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { MuellplanController } from './muellplan.controller';
 
 describe('MuellplanController', () => {

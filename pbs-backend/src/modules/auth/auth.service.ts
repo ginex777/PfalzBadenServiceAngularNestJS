@@ -9,13 +9,16 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '../../core/database/prisma.service';
 import { AuditService } from '../../modules/audit/audit.service';
-import { LoginDto } from './dto/login.dto';
-import { SetupDto } from './dto/setup.dto';
+import type { LoginDto } from './dto/login.dto';
+import type { SetupDto } from './dto/setup.dto';
+import type { UpdateUserDto, UserRole } from './dto/users.dto';
 
 const BCRYPT_ROUNDS = 12;
 const MISSING_EMPLOYEE_MAPPING_CODE = 'MISSING_EMPLOYEE_MAPPING';
+const MAX_SESSIONS_PER_USER = 5;
 
 @Injectable()
 export class AuthService {
@@ -80,6 +83,19 @@ export class AuthService {
       mitarbeiterId,
     );
 
+    // Session cap: delete oldest tokens beyond limit
+    const allTokens = await this.prisma.refreshTokens.findMany({
+      where: { user_id: user.id },
+      orderBy: { created_at: 'asc' },
+      select: { id: true },
+    });
+    if (allTokens.length > MAX_SESSIONS_PER_USER) {
+      const toDelete = allTokens.slice(0, allTokens.length - MAX_SESSIONS_PER_USER);
+      await this.prisma.refreshTokens.deleteMany({
+        where: { id: { in: toDelete.map((t) => t.id) } },
+      });
+    }
+
     await this.audit.log(
       'users',
       user.id,
@@ -103,26 +119,55 @@ export class AuthService {
   }
 
   async refresh(tokenHash: string) {
-    const stored = await this.findStoredRefreshToken(tokenHash);
-    if (!stored || stored.expires_at < new Date()) {
+    const { token: stored, userId, familyId } = await this.findStoredRefreshToken(tokenHash);
+
+    if (!stored) {
+      // Reuse detection: JWT verified but token not in DB
+      if (userId !== null && familyId !== null) {
+        const familyTokens = await this.prisma.refreshTokens.findMany({
+          where: { user_id: userId, family_id: familyId },
+          select: { id: true },
+        });
+        if (familyTokens.length > 0) {
+          await this.prisma.refreshTokens.deleteMany({
+            where: { user_id: userId, family_id: familyId },
+          });
+          this.logger.warn(
+            `Refresh token reuse detected for user ${userId.toString()} family ${familyId} — session invalidated`,
+          );
+          await this.audit.log(
+            'users',
+            userId,
+            'UPDATE',
+            null,
+            { aktion: 'token_reuse_detected', family_id: familyId },
+            'system',
+          );
+        }
+      }
       throw new UnauthorizedException('Session abgelaufen');
     }
+
+    if (stored.expires_at < new Date()) {
+      throw new UnauthorizedException('Session abgelaufen');
+    }
+
     const user = await this.prisma.users.findUnique({
       where: { id: stored.user_id },
     });
     if (!user || !user.aktiv) throw new UnauthorizedException();
 
-    // Rotate: delete old, issue new
+    // Rotate: delete old, issue new with SAME family_id
     await this.prisma.refreshTokens.delete({
       where: { id: stored.id },
     });
     const mitarbeiterId = await this._resolveMitarbeiterId(user.id, user.email);
     this.ensureEmployeeMapping(user.rolle, mitarbeiterId, user.email);
-    return this._issueTokens(user.id, user.email, user.rolle, mitarbeiterId);
+    return this._issueTokens(user.id, user.email, user.rolle, mitarbeiterId, stored.family_id);
   }
 
   async logout(refreshTokenHash: string) {
-    const stored = await this.findStoredRefreshToken(refreshTokenHash);
+    const { token: stored } = await this.findStoredRefreshToken(refreshTokenHash);
     if (stored) {
       await this.prisma.refreshTokens.delete({
         where: { id: stored.id },
@@ -136,6 +181,7 @@ export class AuthService {
     email: string,
     rolle: string,
     mitarbeiterId: number | null,
+    familyId?: string,
   ) {
     const payload = {
       sub: userId.toString(), // legacy compatibility
@@ -151,8 +197,11 @@ export class AuthService {
       this.config.get<string>('JWT_REFRESH_EXPIRES_IN') ?? '604800',
       10,
     );
-    const refreshRaw = this.jwt.sign(payload, {
-      secret: refreshSecret + '-refresh',
+
+    const resolvedFamilyId = familyId ?? randomUUID();
+    const refreshPayload = { ...payload, familyId: resolvedFamilyId };
+    const refreshRaw = this.jwt.sign(refreshPayload, {
+      secret: `${refreshSecret}-refresh`,
       expiresIn: refreshExpiresInSec,
     });
 
@@ -160,7 +209,7 @@ export class AuthService {
     const expiresAt = new Date(Date.now() + refreshExpiresInSec * 1000);
 
     await this.prisma.refreshTokens.create({
-      data: { user_id: userId, token_hash: hash, expires_at: expiresAt },
+      data: { user_id: userId, token_hash: hash, expires_at: expiresAt, family_id: resolvedFamilyId },
     });
 
     return { accessToken, refreshToken: refreshRaw };
@@ -220,38 +269,43 @@ export class AuthService {
     });
   }
 
-  private async findStoredRefreshToken(rawToken: string) {
-    const refreshSecret =
-      this.config.getOrThrow<string>('JWT_SECRET') + '-refresh';
+  private async findStoredRefreshToken(rawToken: string): Promise<{
+    token: { id: bigint; user_id: bigint; token_hash: string; expires_at: Date; family_id: string } | null;
+    userId: bigint | null;
+    familyId: string | null;
+  }> {
+    const refreshSecret = `${this.config.getOrThrow<string>('JWT_SECRET')}-refresh`;
     let payloadUserId: string | null = null;
+    let payloadFamilyId: string | null = null;
 
     try {
-      const payload = this.jwt.verify<{ userId?: string; sub?: string }>(
+      const payload = this.jwt.verify<{ userId?: string; sub?: string; familyId?: string }>(
         rawToken,
         {
           secret: refreshSecret,
         },
       );
       payloadUserId = payload.userId ?? payload.sub ?? null;
+      payloadFamilyId = payload.familyId ?? null;
     } catch {
-      return null;
+      return { token: null, userId: null, familyId: null };
     }
 
-    if (!payloadUserId) return null;
+    if (!payloadUserId) return { token: null, userId: null, familyId: null };
 
     const userId = BigInt(payloadUserId);
     const candidates = await this.prisma.refreshTokens.findMany({
       where: { user_id: userId },
-      select: { id: true, user_id: true, token_hash: true, expires_at: true },
+      select: { id: true, user_id: true, token_hash: true, expires_at: true, family_id: true },
     });
 
     for (const candidate of candidates) {
       if (await bcrypt.compare(rawToken, candidate.token_hash)) {
-        return candidate;
+        return { token: candidate, userId, familyId: candidate.family_id };
       }
     }
 
-    return null;
+    return { token: null, userId, familyId: payloadFamilyId };
   }
 
   async listUsers() {
@@ -273,7 +327,7 @@ export class AuthService {
   async createUser(
     email: string,
     password: string,
-    rolle: 'admin' | 'readonly' | 'mitarbeiter',
+    rolle: UserRole,
     erstelltVon: string,
     vorname?: string,
     nachname?: string,
@@ -346,12 +400,22 @@ export class AuthService {
 
   async updateUser(
     id: bigint,
-    daten: { vorname?: string; nachname?: string; rolle?: string },
+    daten: UpdateUserDto,
     geaendertVon: string,
     geaendertVonName?: string,
   ) {
     const user = await this.prisma.users.findUnique({ where: { id } });
     if (!user) throw new BadRequestException('Benutzer nicht gefunden');
+    if (user.rolle === 'admin' && daten.rolle && daten.rolle !== 'admin') {
+      const adminCount = await this.prisma.users.count({
+        where: { rolle: 'admin', aktiv: true },
+      });
+      if (adminCount <= 1) {
+        throw new BadRequestException(
+          'Der letzte Admin kann nicht herabgestuft werden',
+        );
+      }
+    }
     const updated = await this.prisma.users.update({
       where: { id },
       data: {

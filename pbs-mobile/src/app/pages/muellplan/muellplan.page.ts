@@ -1,8 +1,10 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   IonBadge,
   IonButton,
+  IonButtons,
   IonCard,
   IonCardContent,
   IonContent,
@@ -16,7 +18,8 @@ import {
   IonToolbar,
   IonToast,
 } from '@ionic/angular/standalone';
-import { forkJoin } from 'rxjs';
+import { Router } from '@angular/router';
+import { MobileAuthService } from '../../core/auth.service';
 import { ObjectContextService } from '../../core/object-context.service';
 import { WastePlanService, UpcomingWastePickup, WastePickup } from '../../core/waste-plan.service';
 import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-kontext.component';
@@ -30,6 +33,7 @@ import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-ko
     IonHeader,
     IonToolbar,
     IonTitle,
+    IonButtons,
     IonContent,
     IonCard,
     IonCardContent,
@@ -47,7 +51,10 @@ import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-ko
   styleUrl: './muellplan.page.scss',
 })
 export class MuellplanPage implements OnInit {
+  private readonly auth = inject(MobileAuthService);
+  private readonly router = inject(Router);
   private readonly wastePlan = inject(WastePlanService);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly context = inject(ObjectContextService);
 
   protected readonly selectedObjectId = this.context.selectedObjectId;
@@ -64,6 +71,7 @@ export class MuellplanPage implements OnInit {
   protected readonly toastColor = signal<'success' | 'danger'>('success');
 
   private readonly lastLoadedObjectId = signal<number | null>(null);
+  private pickupsRequestGen = 0;
   private readonly _pickupsEffect = effect(() => {
     const objectId = this.selectedObjectId();
     if (objectId == null) {
@@ -89,13 +97,14 @@ export class MuellplanPage implements OnInit {
   }
 
   protected markDone(pickup: WastePickup): void {
-    if (pickup.erledigt || this.markingDoneId() !== null) return;
+    if (pickup.isDone || this.markingDoneId() !== null) return;
     this.markingDoneId.set(pickup.id);
-    this.wastePlan.markPickupDone(pickup.id).subscribe({
+    this.wastePlan.markPickupDone(pickup.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (updated) => {
         this.objectPickups.update((list) =>
           list.map((p) => (p.id === updated.id ? updated : p)),
         );
+        this.upcomingPickups.update((list) => list.filter((p) => p.id !== updated.id));
         this.markingDoneId.set(null);
         this.showToast('Abgehakt!', 'success');
       },
@@ -112,22 +121,9 @@ export class MuellplanPage implements OnInit {
     return '#94a3b8';
   }
 
-  protected isPickupToday(dateValue: string): boolean {
-    const date = new Date(dateValue);
-    const today = new Date();
-    return (
-      date.getFullYear() === today.getFullYear() &&
-      date.getMonth() === today.getMonth() &&
-      date.getDate() === today.getDate()
-    );
-  }
-
-  protected isPickupDue(dateValue: string): boolean {
-    const date = new Date(dateValue);
-    date.setHours(0, 0, 0, 0);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date <= today;
+  protected async logout(): Promise<void> {
+    await this.auth.logout();
+    await this.router.navigate(['/login']);
   }
 
   protected closeToast(): void {
@@ -136,12 +132,12 @@ export class MuellplanPage implements OnInit {
 
   private reloadAll(onComplete?: () => void): void {
     this.isLoading.set(true);
-    this.lastLoadedObjectId.set(null);
+    const objectId = this.selectedObjectId();
+    this.lastLoadedObjectId.set(objectId);
 
-    forkJoin({ upcoming: this.wastePlan.getUpcoming(14) }).subscribe({
-      next: ({ upcoming }) => {
+    this.wastePlan.getUpcoming(14).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (upcoming) => {
         this.upcomingPickups.set(upcoming);
-        const objectId = this.selectedObjectId();
         if (objectId == null) {
           this.isLoading.set(false);
           onComplete?.();
@@ -155,7 +151,7 @@ export class MuellplanPage implements OnInit {
       error: () => {
         this.isLoading.set(false);
         onComplete?.();
-        this.showToast('Muellplan konnte nicht geladen werden.', 'danger');
+        this.showToast('Müllplan konnte nicht geladen werden.', 'danger');
       },
     });
   }
@@ -163,14 +159,17 @@ export class MuellplanPage implements OnInit {
   private loadPickupsForObject(objectId: number, onComplete?: () => void): void {
     this.isLoadingPickups.set(true);
     this.lastLoadedObjectId.set(objectId);
+    const gen = ++this.pickupsRequestGen;
 
-    this.wastePlan.getPickupsForObject(objectId).subscribe({
+    this.wastePlan.getPickupsForObject(objectId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (pickups) => {
+        if (gen !== this.pickupsRequestGen) return;
         this.objectPickups.set(pickups);
         this.isLoadingPickups.set(false);
         onComplete?.();
       },
       error: () => {
+        if (gen !== this.pickupsRequestGen) return;
         this.objectPickups.set([]);
         this.isLoadingPickups.set(false);
         onComplete?.();

@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { WiederkehrendeRechnungenComponent } from './wiederkehrende-rechnungen.component';
 
 describe('WiederkehrendeRechnungenComponent', () => {
@@ -7,7 +8,7 @@ describe('WiederkehrendeRechnungenComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [WiederkehrendeRechnungenComponent],
+      imports: [WiederkehrendeRechnungenComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WiederkehrendeRechnungenComponent);

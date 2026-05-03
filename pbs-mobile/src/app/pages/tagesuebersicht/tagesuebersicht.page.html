@@ -15,7 +15,7 @@
     <section class="hero-card">
       <p class="hero-label">Heute im Fokus</p>
       <h1 class="hero-title">{{ openTasksCount() }} offene Punkte</h1>
-      <p class="hero-text">Zeiterfassung, Abholungen und dein aktueller Status auf einen Blick.</p>
+      <p class="hero-text">Zeiterfassung, Abholungen und dein aktueller Status für: {{ dashboardScopeLabel() }}.</p>
       <div class="stats-row">
         <div class="stat-item">
           <span class="stat-caption">Zeit heute</span>
@@ -23,7 +23,7 @@
         </div>
         <div class="stat-item">
           <span class="stat-caption">Stempelstatus</span>
-          <strong>{{ openEntry() ? 'Aktiv' : 'Inaktiv' }}</strong>
+          <strong>{{ dashboardSummary()?.activeStampStatus === 'active' ? 'Aktiv' : 'Inaktiv' }}</strong>
         </div>
       </div>
 
@@ -59,7 +59,7 @@
         } @else if (openEntry()) {
           <ion-badge color="success">Aktiv seit {{ openEntry()!.start | date: 'HH:mm' }}</ion-badge>
         } @else if (!hasEmployeeContext()) {
-          <p class="hint">Kein Mitarbeiterprofil mit diesem Account verknuepft.</p>
+          <p class="hint">Kein Mitarbeiterprofil verknüpft – bitte Admin kontaktieren.</p>
         } @else {
           <ion-badge color="medium">Inaktiv</ion-badge>
         }
@@ -68,7 +68,7 @@
 
     <ion-card class="overview-card">
       <ion-card-content>
-        <h3 class="section-title">Anstehende Muelldienst-Termine</h3>
+        <h3 class="section-title">Anstehende Mülltermine</h3>
         @if (isLoading()) {
           <p class="hint">Lade Termine...</p>
         } @else if (upcomingPickups().length === 0) {
@@ -78,11 +78,13 @@
             @for (pickup of upcomingPickups(); track pickup.id) {
               <ion-item>
                 <ion-label>
-                  <h3>{{ pickup.muellart }} - {{ pickup.abholung | date: 'dd.MM.yyyy' }}</h3>
-                  <p>{{ pickup.objekt_name || ('Objekt #' + pickup.objekt_id) }}</p>
+                  <h3>{{ pickup.wasteType }} - {{ pickup.pickupDate | date: 'dd.MM.yyyy' }}</h3>
+                  <p>{{ pickup.objectName || ('Objekt #' + pickup.objectId) }}</p>
                 </ion-label>
-                @if (isPickupToday(pickup.abholung)) {
+                @if (pickup.isToday) {
                   <ion-badge slot="end" color="warning">Heute</ion-badge>
+                } @else if (pickup.isDue) {
+                  <ion-badge slot="end" color="danger">Fällig</ion-badge>
                 }
               </ion-item>
             }
@@ -93,23 +95,23 @@
 
     <ion-card class="overview-card">
       <ion-card-content>
-        <h3 class="section-title">Eintraege heute</h3>
+        <h3 class="section-title">Einträge heute</h3>
 
         @if (isLoading()) {
-          <p class="hint">Lade Eintraege...</p>
+          <p class="hint">Lade Einträge...</p>
         } @else if (!hasEmployeeContext()) {
-          <p class="hint">Stempel-Summary erst verfuegbar, wenn ein Mitarbeiterprofil zugeordnet ist.</p>
+          <p class="hint">Zeiterfassung nicht verfügbar – kein Mitarbeiterprofil zugeordnet.</p>
         } @else if (todayEntries().length === 0) {
-          <p class="hint">Keine Zeiteintraege fuer heute vorhanden.</p>
+          <p class="hint">Noch keine Zeiteinträge für heute – starte die Stempeluhr.</p>
         } @else {
           <ion-list lines="inset">
             @for (entry of todayEntries(); track entry.id) {
               <ion-item>
                 <ion-label>
                   <h3>{{ entry.start | date: 'HH:mm' }} - {{ entry.stop ? (entry.stop | date: 'HH:mm') : '...' }}</h3>
-                  <p>{{ formatDuration(entry.dauer_minuten) }}</p>
-                  @if (entry.notiz) {
-                    <p>{{ entry.notiz }}</p>
+                  <p>{{ formatDuration(entry.durationMinutes) }}</p>
+                  @if (entry.note) {
+                    <p>{{ entry.note }}</p>
                   }
                 </ion-label>
               </ion-item>

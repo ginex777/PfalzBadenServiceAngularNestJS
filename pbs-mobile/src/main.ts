@@ -3,12 +3,13 @@ import { appConfig } from './app/app.config';
 import { App } from './app/app';
 import { environment } from './environments/environment';
 import { getRuntimeConfig } from './app/core/runtime/runtime-config';
-import * as SentryCapacitor from '@sentry/capacitor';
 
-const runtime = getRuntimeConfig();
-const sentry = runtime.sentry;
+async function initializeSentry(): Promise<void> {
+  const runtime = getRuntimeConfig();
+  const sentry = runtime.sentry;
+  if (!environment.production || !sentry?.dsn) return;
 
-if (environment.production && sentry?.dsn) {
+  const SentryCapacitor = await import('@sentry/capacitor');
   SentryCapacitor.init({
     dsn: sentry.dsn,
     environment: sentry.environment ?? 'production',
@@ -16,4 +17,6 @@ if (environment.production && sentry?.dsn) {
   });
 }
 
-bootstrapApplication(App, appConfig).catch((err) => console.error(err));
+initializeSentry()
+  .then(() => bootstrapApplication(App, appConfig))
+  .catch((err) => console.error(err));

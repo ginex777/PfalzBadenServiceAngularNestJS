@@ -2,10 +2,11 @@
 // Buchhaltung — Smart Container Component
 // ============================================================
 
+import type {
+  OnInit} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   inject,
   signal,
   computed,
@@ -13,16 +14,18 @@ import {
 import { RouterLink } from '@angular/router';
 import { BuchhaltungFacade } from './buchhaltung.facade';
 import { BuchhaltungService } from './buchhaltung.service';
-import { BuchhaltungZeile } from './buchhaltung.models';
+import type { BuchhaltungZeile } from './buchhaltung.models';
 import { MonatsTabsComponent } from './components/monats-tabs/monats-tabs.component';
 import { EinnahmenTabelleComponent } from './components/einnahmen-tabelle/einnahmen-tabelle.component';
 import { AusgabenTabelleComponent } from './components/ausgaben-tabelle/ausgaben-tabelle.component';
 import { MonatsErgebnisComponent } from './components/monats-ergebnis/monats-ergebnis.component';
 import { JahresUebersichtComponent } from './components/jahres-uebersicht/jahres-uebersicht.component';
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
+import { ModalComponent } from '../../shared/ui/modal/modal.component';
 import { MONATE } from '../../core/utils/format.utils';
-import { Beleg } from '../../core/models';
+import type { Beleg } from '../../core/models';
 import { MAX_BELEG_BYTES } from '../../core/constants';
+import { BrowserService } from '../../core/services/browser.service';
 
 interface BelegModalState {
   offen: boolean;
@@ -45,6 +48,7 @@ interface BelegModalState {
     MonatsErgebnisComponent,
     JahresUebersichtComponent,
     ConfirmModalComponent,
+    ModalComponent,
   ],
   templateUrl: './buchhaltung.component.html',
   styleUrl: './buchhaltung.component.scss',
@@ -52,6 +56,7 @@ interface BelegModalState {
 export class BuchhaltungComponent implements OnInit {
   protected readonly facade = inject(BuchhaltungFacade);
   private readonly service = inject(BuchhaltungService);
+  private readonly browser = inject(BrowserService);
 
   hatUngespeicherteAenderungen(): boolean {
     return this.facade.speicherStatus().dirty;
@@ -73,7 +78,7 @@ export class BuchhaltungComponent implements OnInit {
 
   protected readonly aktuellerMonatName = computed(() => {
     const monat = this.facade.aktuellerMonat();
-    return MONATE[monat] + ' ' + this.facade.aktuellesJahr();
+    return `${MONATE[monat]  } ${  this.facade.aktuellesJahr()}`;
   });
 
   ngOnInit(): void {
@@ -131,16 +136,16 @@ export class BuchhaltungComponent implements OnInit {
 
   // ── Export ────────────────────────────────────────────────────────────────
   protected pdfExportieren(): void {
-    window.open('/api/pdf/archiv', '_blank');
+    this.browser.openUrl('/api/pdf/archiv');
   }
 
   protected excelExportieren(): void {
     const monat = this.facade.ansichtsModus() === 'monat' ? this.facade.aktuellerMonat() : -1;
-    window.open(`/api/datev/excel?jahr=${this.facade.aktuellesJahr()}&monat=${monat}`, '_blank');
+    this.browser.openUrl(`/api/datev/excel?jahr=${this.facade.aktuellesJahr()}&monat=${monat}`);
   }
 
   protected jahresabschlussExportieren(): void {
-    window.open(`/api/datev/excel?jahr=${this.facade.aktuellesJahr()}&monat=-1`, '_blank');
+    this.browser.openUrl(`/api/datev/excel?jahr=${this.facade.aktuellesJahr()}&monat=-1`);
   }
 
   // ── Einnahmen ─────────────────────────────────────────────────────────────
@@ -231,9 +236,10 @@ export class BuchhaltungComponent implements OnInit {
   private _belegModalAnzeigen(zeile: BuchhaltungZeile, typ: 'inc' | 'exp'): void {
     this.belegModal.set({ offen: true, zeile, typ, laedt: false, hochladen: false, beleg: null });
 
-    if (zeile.beleg_id) {
+    const entryId = zeile.id;
+    if (zeile.beleg_id && entryId) {
       this.belegModal.update((s) => ({ ...s, laedt: true }));
-      this.service.loadReceiptsForEntry(zeile.id!).subscribe({
+      this.service.loadReceiptsForEntry(entryId).subscribe({
         next: (belege) =>
           this.belegModal.update((s) => ({ ...s, beleg: belege[0] ?? null, laedt: false })),
         error: () => this.belegModal.update((s) => ({ ...s, laedt: false })),

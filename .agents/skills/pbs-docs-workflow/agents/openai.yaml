@@ -1,0 +1,4 @@
+interface:
+  display_name: "PBS Docs Workflow"
+  short_description: "Roadmap, specs, decisions, and audits"
+  default_prompt: "Use $pbs-docs-workflow to create or update PBS planning docs."

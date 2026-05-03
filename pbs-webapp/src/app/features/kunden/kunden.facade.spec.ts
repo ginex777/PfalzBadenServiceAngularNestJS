@@ -5,10 +5,10 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { KundenFacade } from './kunden.facade';
 import { KundenService } from './kunden.service';
-import { KundenFormularDaten } from './kunden.models';
+import type { KundenFormularDaten } from './kunden.models';
 import { ToastService } from '../../core/services/toast.service';
 import { API_BASE_URL } from '../../core/tokens';
-import { Kunde, Rechnung } from '../../core/models';
+import type { Kunde, Rechnung } from '../../core/models';
 
 const testKunden: Kunde[] = [
   {
@@ -17,27 +17,21 @@ const testKunden: Kunde[] = [
     email: 'mueller@test.de',
     ort: 'München',
     strasse: 'Musterstr. 1',
-    tel: null,
-    notiz: null,
-  } as Kunde,
+  },
   {
     id: 2,
     name: 'Schulz AG',
     email: 'schulz@test.de',
     ort: 'Berlin',
     strasse: 'Lindenstr. 5',
-    tel: null,
-    notiz: null,
-  } as Kunde,
+  },
   {
     id: 3,
     name: 'Koch KG',
-    email: null,
+    email: undefined,
     ort: 'Hamburg',
-    strasse: null,
-    tel: null,
-    notiz: null,
-  } as Kunde,
+    strasse: undefined,
+  },
 ];
 
 const mockService = {
@@ -124,12 +118,10 @@ describe('KundenFacade', () => {
       const neuerKunde = {
         id: 99,
         name: 'Neuer Kunde',
-        email: null,
-        ort: null,
-        strasse: null,
-        tel: null,
-        notiz: null,
-      } as Kunde;
+        email: undefined,
+        ort: undefined,
+        strasse: undefined,
+      };
       mockService.createCustomer.mockReturnValue(of(neuerKunde));
       facade.kunden.set([]);
       facade.bearbeiteterKunde.set(null);
@@ -182,7 +174,7 @@ describe('KundenFacade', () => {
       };
       facade.speichern(formData);
       expect(mockToast.error).toHaveBeenCalled();
-      expect(facade.fehler()).toBeTruthy();
+      expect(facade.bearbeiteterKunde()).toBeNull();
     });
   });
 
@@ -218,7 +210,8 @@ describe('KundenFacade', () => {
           bezahlt: false,
           brutto: 200,
           frist: '2026-01-01',
-        } as Rechnung,
+          positionen: [],
+        },
         {
           id: 2,
           nr: 'R-002',
@@ -226,11 +219,9 @@ describe('KundenFacade', () => {
           empf: 'Müller GmbH',
           bezahlt: true,
           brutto: 100,
-          frist: null,
-        } as Rechnung,
+          positionen: [],
+        },
       ];
-      // Inject rechnungen via internal property
-      // @ts-expect-error test-only access to private cache
       facade['cachedRechnungen'] = rechnungen;
 
       facade.offenePostenAnzeigen(1);

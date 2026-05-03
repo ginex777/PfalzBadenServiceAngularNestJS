@@ -1,11 +1,13 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MitarbeiterFacade } from './mitarbeiter.facade';
 import { MitarbeiterListeComponent } from './components/mitarbeiter-liste/mitarbeiter-liste.component';
 import { MitarbeiterFormularComponent } from './components/mitarbeiter-formular/mitarbeiter-formular.component';
 import { StundenErfassungComponent } from './components/stunden-erfassung/stunden-erfassung.component';
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
-import { MitarbeiterFormularDaten, StundenFormularDaten } from './mitarbeiter.models';
+import { DrawerComponent } from '../../shared/ui/drawer/drawer.component';
+import type { MitarbeiterFormularDaten, StundenFormularDaten } from './mitarbeiter.models';
 
 interface Stempel {
   id: number;
@@ -27,6 +29,7 @@ interface Stempel {
     StundenErfassungComponent,
     ConfirmModalComponent,
     PageTitleComponent,
+    DrawerComponent,
   ],
   templateUrl: './mitarbeiter.component.html',
   styleUrl: './mitarbeiter.component.scss',

@@ -1,4 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import {
   NotFoundException,
   ConflictException,
@@ -7,6 +8,7 @@ import {
 import { RechnungenService } from './rechnungen.service';
 import { PrismaService } from '../../core/database/prisma.service';
 import { AuditService } from '../../modules/audit/audit.service';
+import { Prisma } from '@prisma/client';
 
 const mockPrisma = {
   rechnungen: {
@@ -113,6 +115,43 @@ describe('RechnungenService', () => {
       await expect(service.create(daten)).rejects.toThrow(ConflictException);
       expect(mockPrisma.rechnungen.create).not.toHaveBeenCalled();
     });
+
+    it('berechnet Brutto und Frist serverseitig aus Positionen und Zahlungsziel', async () => {
+      const created = {
+        id: 1n,
+        nr: 'R-2026-010',
+        empf: 'Mustermann GmbH',
+        brutto: new Prisma.Decimal(238),
+        mwst_satz: new Prisma.Decimal(19),
+        bezahlt: false,
+        kunden_id: null,
+      };
+      mockPrisma.rechnungen.findUnique.mockResolvedValue(null);
+      mockPrisma.rechnungen.create.mockResolvedValue(created);
+      mockAudit.log.mockResolvedValue(undefined);
+
+      const result = await service.create({
+        nr: 'R-2026-010',
+        empf: 'Mustermann GmbH',
+        brutto: 1,
+        datum: '2026-05-01',
+        zahlungsziel: 14,
+        frist: '2099-01-01',
+        mwst_satz: 19,
+        positionen: [
+          { bez: 'Reinigung', gesamtpreis: 100 },
+          { bez: 'Pflege', gesamtpreis: 100 },
+        ],
+      });
+
+      expect(mockPrisma.rechnungen.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          brutto: new Prisma.Decimal(238),
+          frist: new Date('2026-05-15T00:00:00.000Z'),
+        }),
+      });
+      expect(result.brutto).toBe(238);
+    });
   });
 
   describe('update()', () => {
@@ -183,6 +222,46 @@ describe('RechnungenService', () => {
         updated,
         undefined,
       );
+    });
+
+    it('recomputes brutto on update and ignores submitted client brutto', async () => {
+      const alt = {
+        id: 1n,
+        nr: 'R-2026-020',
+        empf: 'Mustermann GmbH',
+        bezahlt: false,
+        brutto: new Prisma.Decimal(119),
+        mwst_satz: new Prisma.Decimal(19),
+        datum: new Date('2026-05-01T00:00:00.000Z'),
+        zahlungsziel: 14,
+        positionen: [{ bez: 'Alt', gesamtpreis: 100 }],
+        kunden_id: null,
+      };
+      const updated = {
+        ...alt,
+        brutto: new Prisma.Decimal(357),
+        positionen: [{ bez: 'Neu', gesamtpreis: 300 }],
+      };
+      mockPrisma.rechnungen.findUnique.mockResolvedValue(alt);
+      mockPrisma.rechnungen.findFirst.mockResolvedValue(null);
+      mockPrisma.rechnungen.update.mockResolvedValue(updated);
+      mockAudit.log.mockResolvedValue(undefined);
+
+      const result = await service.update(1, {
+        nr: 'R-2026-020',
+        empf: 'Mustermann GmbH',
+        brutto: 1,
+        mwst_satz: 19,
+        positionen: [{ bez: 'Neu', gesamtpreis: 300 }],
+      });
+
+      expect(mockPrisma.rechnungen.update).toHaveBeenCalledWith({
+        where: { id: 1n },
+        data: expect.objectContaining({
+          brutto: new Prisma.Decimal(357),
+        }),
+      });
+      expect(result.brutto).toBe(357);
     });
   });
 

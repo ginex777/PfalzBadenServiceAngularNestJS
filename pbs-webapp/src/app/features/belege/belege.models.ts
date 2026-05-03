@@ -1,4 +1,4 @@
-import { Beleg } from '../../core/models';
+import type { Beleg } from '../../core/models';
 
 export type BelegeFilter = 'alle' | 'beleg' | 'rechnung' | 'quittung' | 'sonstiges';
 

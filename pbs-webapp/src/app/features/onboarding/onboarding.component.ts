@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CustomersApiClient, InvoicesApiClient, SettingsApiClient } from '../../core/api/clients';
 
 const STORAGE_KEY = 'pbs-onboarding-erledigt';
+const SESSION_KEY = 'pbs-onboarding-session-dismissed';
 
 @Component({
   selector: 'app-onboarding',
@@ -17,48 +18,54 @@ export class OnboardingComponent {
   private readonly customersApi = inject(CustomersApiClient);
   private readonly invoicesApi = inject(InvoicesApiClient);
 
-  protected readonly sichtbar = signal(!localStorage.getItem(STORAGE_KEY));
+  protected readonly visible = signal(
+    !localStorage.getItem(STORAGE_KEY) && !sessionStorage.getItem(SESSION_KEY),
+  );
 
-  protected readonly schritte = signal({
-    firma: false,
-    kunde: false,
-    rechnung: false,
+  protected readonly steps = signal({
+    company: false,
+    customer: false,
+    invoice: false,
   });
 
-  protected readonly alleErledigt = computed(() => {
-    const s = this.schritte();
-    return s.firma && s.kunde && s.rechnung;
+  protected readonly allDone = computed(() => {
+    const currentSteps = this.steps();
+    return currentSteps.company && currentSteps.customer && currentSteps.invoice;
   });
 
   constructor() {
-    if (this.sichtbar()) {
-      this.fortschrittPruefen();
+    if (this.visible()) {
+      this.checkProgress();
     }
   }
 
-  private fortschrittPruefen(): void {
+  private checkProgress(): void {
     this.settingsApi.loadSettings('firma').subscribe({
       next: (f) => {
-        if (f && Object.keys(f).length > 0) this.schritte.update((s) => ({ ...s, firma: true }));
+        if (f && Object.keys(f).length > 0) this.steps.update((s) => ({ ...s, company: true }));
       },
       error: () => {},
     });
     this.customersApi.loadCustomers().subscribe({
       next: (k) => {
-        if (k?.length > 0) this.schritte.update((s) => ({ ...s, kunde: true }));
+        if (k?.length > 0) this.steps.update((s) => ({ ...s, customer: true }));
       },
       error: () => {},
     });
     this.invoicesApi.loadInvoices().subscribe({
       next: (r) => {
-        if (r?.length > 0) this.schritte.update((s) => ({ ...s, rechnung: true }));
+        if (r?.length > 0) this.steps.update((s) => ({ ...s, invoice: true }));
       },
       error: () => {},
     });
   }
 
-  protected schliessen(): void {
-    localStorage.setItem(STORAGE_KEY, '1');
-    this.sichtbar.set(false);
+  protected close(): void {
+    if (this.allDone()) {
+      localStorage.setItem(STORAGE_KEY, '1');
+    } else {
+      sessionStorage.setItem(SESSION_KEY, '1');
+    }
+    this.visible.set(false);
   }
 }

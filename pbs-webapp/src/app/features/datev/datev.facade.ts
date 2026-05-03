@@ -2,11 +2,12 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { DatevService } from './datev.service';
 import { BrowserService } from '../../core/services/browser.service';
 import { ToastService } from '../../core/services/toast.service';
-import { FirmaSettings } from '../../core/models';
-import {
+import type { FirmaSettings } from '../../core/models';
+import type {
   DatevZeitraumTyp,
   DatevVorschauZeile,
-  DatevValidierungsMeldung,
+  DatevValidierungsMeldung} from './datev.models';
+import {
   QUARTAL_MONATE,
   QUARTAL_LABELS,
 } from './datev.models';

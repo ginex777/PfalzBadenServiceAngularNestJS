@@ -6,28 +6,47 @@ import {
   Patch,
   Body,
   Req,
+  Res,
   Param,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
-import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { SetupDto } from './dto/setup.dto';
+import { Throttle } from '@nestjs/throttler';
+import type { Request, Response, CookieOptions } from 'express';
+import type { AuthService } from './auth.service';
+import type { LoginDto } from './dto/login.dto';
+import type { SetupDto } from './dto/setup.dto';
+import type { CreateUserDto, UpdateUserDto } from './dto/users.dto';
 import { Public } from './decorators/public.decorator';
 import { Roles } from './decorators/roles.decorator';
 import { RolesGuard } from './guards/roles.guard';
+
+const REFRESH_COOKIE = 'refreshToken';
 
 @ApiTags('Auth')
 @Controller('api/auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
+  private get refreshCookieOptions(): CookieOptions {
+    const maxAge =
+      parseInt(process.env['JWT_REFRESH_EXPIRES_IN'] ?? '604800', 10) * 1000;
+    return {
+      httpOnly: true,
+      secure: process.env['NODE_ENV'] === 'production',
+      sameSite: 'strict',
+      path: '/api/auth',
+      maxAge,
+    };
+  }
+
   /** First-run setup — only works when 0 users exist */
   @Public()
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @Post('setup')
   setup(@Body() dto: SetupDto) {
     return this.auth.setup(dto);
@@ -42,24 +61,47 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() dto: LoginDto, @Req() req: Request) {
+  async login(
+    @Body() dto: LoginDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const ip = (req.headers['x-forwarded-for'] as string) ?? req.ip;
-    return this.auth.login(dto, ip);
+    const result = await this.auth.login(dto, ip);
+    res.cookie(REFRESH_COOKIE, result.refreshToken, this.refreshCookieOptions);
+    return result;
   }
 
   @Public()
+  @Throttle({ default: { ttl: 60_000, limit: 20 } })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  refresh(@Body('refreshToken') token: string) {
-    return this.auth.refresh(token);
+  async refresh(
+    @Req() req: Request & { cookies: Record<string, string> },
+    @Body('refreshToken') bodyToken: string | undefined,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = req.cookies[REFRESH_COOKIE] ?? bodyToken;
+    if (!token) throw new UnauthorizedException('Kein Refresh-Token');
+    const result = await this.auth.refresh(token);
+    res.cookie(REFRESH_COOKIE, result.refreshToken, this.refreshCookieOptions);
+    return result;
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@Body('refreshToken') token: string) {
-    return this.auth.logout(token);
+  async logout(
+    @Req() req: Request & { cookies: Record<string, string> },
+    @Body('refreshToken') bodyToken: string | undefined,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = req.cookies[REFRESH_COOKIE] ?? bodyToken;
+    res.clearCookie(REFRESH_COOKIE, { path: '/api/auth' });
+    if (token) return this.auth.logout(token);
+    return { message: 'Abgemeldet' };
   }
 
   @Get('users')
@@ -73,14 +115,7 @@ export class AuthController {
   @UseGuards(RolesGuard)
   @Roles('admin')
   createUser(
-    @Body()
-    body: {
-      email: string;
-      password: string;
-      rolle: 'admin' | 'readonly' | 'mitarbeiter';
-      vorname?: string;
-      nachname?: string;
-    },
+    @Body() body: CreateUserDto,
     @Req() req: Request & { user?: { email: string; fullName?: string } },
   ) {
     const erstelltVon = req.user?.email ?? 'admin';
@@ -114,7 +149,7 @@ export class AuthController {
   @Roles('admin')
   updateUser(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { vorname?: string; nachname?: string; rolle?: string },
+    @Body() body: UpdateUserDto,
     @Req() req: Request & { user?: { email: string; fullName?: string } },
   ) {
     const geaendertVon = req.user?.email ?? 'admin';

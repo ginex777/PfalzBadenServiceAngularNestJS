@@ -5,7 +5,7 @@
 <div class="form-section">
   <div class="form-row">
     <div class="form-field">
-      <label>Angebots-Nr. *</label>
+      <label for="src-app-features-angebote-components-angebote-formular-angebote-formular-component-0">Angebots-Nr. *</label>
       <input
         type="text"
         [value]="formularDaten().nr"
@@ -19,11 +19,11 @@
       }
     </div>
     <div class="form-field">
-      <label>Datum</label>
-      <input type="date" [value]="formularDaten().datum" (input)="onFeldChange('datum', $event)" />
+      <label for="src-app-features-angebote-components-angebote-formular-angebote-formular-component-1">Datum</label>
+      <input id="src-app-features-angebote-components-angebote-formular-angebote-formular-component-1" type="date" [value]="formularDaten().datum" (input)="onFeldChange('datum', $event)" />
     </div>
     <div class="form-field">
-      <label>Titel *</label>
+      <label for="src-app-features-angebote-components-angebote-formular-angebote-formular-component-2">Titel *</label>
       <input
         type="text"
         [value]="formularDaten().titel"
@@ -35,8 +35,8 @@
 
   <div class="form-row">
     <div class="form-field">
-      <label>Kunde auswählen</label>
-      <select (change)="onKundeChange($event)">
+      <label for="src-app-features-angebote-components-angebote-formular-angebote-formular-component-3">Kunde auswählen</label>
+      <select id="src-app-features-angebote-components-angebote-formular-angebote-formular-component-3" (change)="onKundeChange($event)">
         <option value="">-- Kunde wählen --</option>
         @for (kunde of kunden(); track kunde.id) {
           <option [value]="kunde.id" [selected]="formularDaten().kunden_id === kunde.id">
@@ -46,7 +46,7 @@
       </select>
     </div>
     <div class="form-field">
-      <label>Empfänger *</label>
+      <label for="src-app-features-angebote-components-angebote-formular-angebote-formular-component-4">Empfänger *</label>
       <div class="empf-row">
         <input
           type="text"
@@ -74,7 +74,7 @@
 
   <div class="form-row">
     <div class="form-field">
-      <label>Straße / Postfach</label>
+      <label for="src-app-features-angebote-components-angebote-formular-angebote-formular-component-5">Straße / Postfach</label>
       <input
         type="text"
         [value]="formularDaten().str"
@@ -83,7 +83,7 @@
       />
     </div>
     <div class="form-field">
-      <label>PLZ Ort</label>
+      <label for="src-app-features-angebote-components-angebote-formular-angebote-formular-component-6">PLZ Ort</label>
       <input
         type="text"
         [value]="formularDaten().ort"
@@ -92,7 +92,7 @@
       />
     </div>
     <div class="form-field">
-      <label>E-Mail</label>
+      <label for="src-app-features-angebote-components-angebote-formular-angebote-formular-component-7">E-Mail</label>
       <input
         type="email"
         [value]="formularDaten().email"
@@ -104,7 +104,7 @@
 
   <div class="form-row">
     <div class="form-field">
-      <label>Gültig bis</label>
+      <label for="src-app-features-angebote-components-angebote-formular-angebote-formular-component-8">Gültig bis</label>
       <input
         type="date"
         [value]="formularDaten().gueltig_bis"
@@ -198,15 +198,15 @@
 
 <div class="totals-block">
   <div class="totals-row">
-    <span>Nettobetrag:</span>
+    <span>Nettobetrag (UI-Vorschau):</span>
     <span>{{ waehrungFormatieren(netto()) }}</span>
   </div>
   <div class="totals-row">
-    <span>MwSt. 19 %:</span>
+    <span>MwSt. 19 % (UI-Vorschau):</span>
     <span>{{ waehrungFormatieren(mwstBetrag()) }}</span>
   </div>
   <div class="totals-row totals-row--total">
-    <span>Gesamtbetrag:</span>
+    <span>Gesamtbetrag (UI-Vorschau):</span>
     <span>{{ waehrungFormatieren(brutto()) }}</span>
   </div>
 </div>

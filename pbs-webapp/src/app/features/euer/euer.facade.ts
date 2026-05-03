@@ -1,7 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { EuerService } from './euer.service';
-import { BuchhaltungJahr, FirmaSettings } from '../../core/models';
-import { EuerErgebnis, EUER_AUSGABEN_ZEILEN } from './euer.models';
+import type { BuchhaltungJahr, FirmaSettings } from '../../core/models';
+import type { EuerErgebnis} from './euer.models';
+import { EUER_AUSGABEN_ZEILEN } from './euer.models';
 import { BrowserService } from '../../core/services/browser.service';
 import { ToastService } from '../../core/services/toast.service';
 
@@ -23,13 +24,13 @@ export class EuerFacade {
 
   readonly ergebnis = computed<EuerErgebnis>(() => {
     const daten = this.buchhaltungDaten();
-    const alleZeilen: {
+    const alleZeilen: Array<{
       typ: string;
       brutto: number;
       mwst: number;
       abzug: number;
       kategorie?: string;
-    }[] = [];
+    }> = [];
     Object.values(daten).forEach((monat) => {
       (monat.inc || []).forEach((r) =>
         alleZeilen.push({

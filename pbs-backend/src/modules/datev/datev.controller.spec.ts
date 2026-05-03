@@ -1,4 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { DatevController } from './datev.controller';
 import { PrismaService } from '../../core/database/prisma.service';
 

@@ -109,8 +109,22 @@
         <span class="header-nav__user-text">{{ userDisplayName() }}</span>
       </div>
 
-      <button class="header-nav__theme" type="button" (click)="onThemeToggle()">
-        <span class="header-nav__theme-label">{{ isDarkMode() ? 'Light' : 'Dark' }}</span>
+      <button
+        class="header-nav__theme"
+        type="button"
+        (click)="onThemeToggle()"
+        [attr.aria-label]="isDarkMode() ? 'Zu Hell-Modus wechseln' : 'Zu Dunkel-Modus wechseln'"
+      >
+        <span class="header-nav__theme-label" aria-hidden="true">{{ isDarkMode() ? 'Light' : 'Dark' }}</span>
+      </button>
+
+      <button
+        class="header-nav__logout"
+        type="button"
+        (click)="onLogout()"
+        aria-label="Abmelden"
+      >
+        Abmelden
       </button>
     </div>
   </div>

@@ -4,16 +4,17 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { DEFAULT_PAGE_SIZE } from '../../core/constants';
-import { Mitarbeiter, Objekt, Kunde } from '../../core/models';
+import type { Mitarbeiter, Objekt, Kunde } from '../../core/models';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { ZeiterfassungFilterComponent } from './zeiterfassung-filter.component';
 import { ZeiterfassungListeComponent } from './zeiterfassung-liste.component';
-import {
-  DEFAULT_ZEITERFASSUNG_FILTER,
+import type {
   DropdownOption,
   ZeiterfassungEintrag,
   ZeiterfassungFilterState,
-  ZeiterfassungListResponse,
+  ZeiterfassungListResponse} from './zeiterfassung.models';
+import {
+  DEFAULT_ZEITERFASSUNG_FILTER
 } from './zeiterfassung.models';
 import { ZeiterfassungService } from './zeiterfassung.service';
 import { CustomersApiClient, EmployeesApiClient, ObjectsApiClient } from '../../core/api/clients';

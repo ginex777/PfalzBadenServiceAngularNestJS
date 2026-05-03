@@ -85,28 +85,6 @@
               >
                 PDF
               </button>
-              <button
-                class="btn-action"
-                *roleAllowed="['admin']"
-                title="Kopieren"
-                (click)="kopieren.emit(angebot)"
-              >
-                Kopie
-              </button>
-
-              @if (!angebot.angenommen) {
-                <select
-                  class="filter-select select-xs"
-                  *roleAllowed="['admin']"
-                  (change)="onStatusChange(angebot, $event)"
-                >
-                  <option value="">Status…</option>
-                  <option value="offen">Offen</option>
-                  <option value="gesendet">Gesendet</option>
-                  <option value="angenommen">Angenommen</option>
-                  <option value="abgelehnt">Abgelehnt</option>
-                </select>
-              }
 
               @if (angebot.angenommen) {
                 <button
@@ -121,23 +99,33 @@
               }
 
               @if (!angebot.angenommen) {
-                <button
-                  class="btn-action"
+                <select
+                  class="filter-select select-xs"
                   *roleAllowed="['admin']"
-                  title="Bearbeiten"
-                  (click)="bearbeiten.emit(angebot)"
+                  (change)="onStatusChange(angebot, $event)"
                 >
-                  Bearbeiten
-                </button>
+                  <option value="">Status…</option>
+                  <option value="offen">Offen</option>
+                  <option value="gesendet">Gesendet</option>
+                  <option value="angenommen">Angenommen</option>
+                  <option value="abgelehnt">Abgelehnt</option>
+                </select>
+                <app-overflow-menu *roleAllowed="['admin']">
+                  <button class="btn-action" type="button" (click)="kopieren.emit(angebot)">
+                    Kopie
+                  </button>
+                  <button class="btn-action" type="button" (click)="bearbeiten.emit(angebot)">
+                    Bearbeiten
+                  </button>
+                  <button
+                    class="btn-action btn-action--danger"
+                    type="button"
+                    (click)="loeschenBestaetigen(angebot.id)"
+                  >
+                    Löschen
+                  </button>
+                </app-overflow-menu>
               }
-              <button
-                class="btn-action btn-action--danger"
-                *roleAllowed="['admin']"
-                title="Löschen"
-                (click)="loeschenBestaetigen(angebot.id)"
-              >
-                Löschen
-              </button>
             </td>
           </tr>
         }

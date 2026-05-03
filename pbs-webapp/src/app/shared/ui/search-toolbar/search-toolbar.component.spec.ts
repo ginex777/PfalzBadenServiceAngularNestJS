@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { SearchToolbarComponent } from './search-toolbar.component';
 
 describe('SearchToolbarComponent', () => {
@@ -7,7 +8,7 @@ describe('SearchToolbarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SearchToolbarComponent],
+      imports: [SearchToolbarComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SearchToolbarComponent);

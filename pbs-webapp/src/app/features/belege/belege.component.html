@@ -1,7 +1,6 @@
 <div class="page-wrap">
   <app-page-title title="Beleg-Archiv" subtitle="Digitale Belegverwaltung (GoBD-konform)" />
 
-  <!-- Upload -->
   <div class="card upload-card">
     <h3 class="section-title">Beleg hochladen</h3>
     <div class="upload-zeile">
@@ -37,7 +36,6 @@
     <div class="hint">Erlaubte Formate: PDF, JPG, PNG · GoBD: 10 Jahre Aufbewahrungspflicht</div>
   </div>
 
-  <!-- Stats -->
   <div class="stats-grid stats-3-col">
     <app-stat-card
       title="Belege gesamt"
@@ -56,12 +54,11 @@
     />
   </div>
 
-  <!-- Filter + Suche -->
   <div class="toolbar">
     <input
       class="form-input toolbar__search"
       type="search"
-      placeholder="Suchen…"
+      placeholder="Suchen..."
       [value]="facade.suchbegriff()"
       (input)="suchbegriffGeaendert($event)"
     />
@@ -92,7 +89,7 @@
   </div>
 
   @if (facade.laedt()) {
-    <app-skeleton-rows [anzahl]="6" />
+    <app-skeleton-rows [count]="6" />
   } @else if (!facade.gefilterteBelege().length) {
     <app-empty-state
       title="Keine Belege vorhanden"
@@ -121,19 +118,21 @@
                   <span class="typ-badge">{{ typLabels[b.typ] }}</span>
                 </td>
                 <td class="td-datei">
-                  <a class="link" (click)="facade.viewerOeffnen(b)">{{ b.filename }}</a>
+                  <button class="link link-button" type="button" (click)="facade.viewerOeffnen(b)">
+                    {{ b.filename }}
+                  </button>
                 </td>
                 <td>
                   @if (b.buchung_name) {
                     <div class="buchung-name">{{ b.buchung_name }}</div>
-                    @if (b.buchung_brutto) {
+                    @if (b.buchung_brutto !== null && b.buchung_brutto !== undefined) {
                       <div class="buchung-betrag">
-                        {{ b.buchung_brutto.toLocaleString('de-DE', { minimumFractionDigits: 2 }) }}
-                        €
+                        {{ betragFormatieren(b.buchung_brutto) }}
+                        EUR
                       </div>
                     }
                   } @else {
-                    –
+                    -
                   }
                 </td>
                 <td class="td-notiz">
@@ -144,17 +143,22 @@
                         type="text"
                         [formField]="notizForm.notiz"
                       />
-                      <button class="btn btn-sm btn-primary" (click)="notizSpeichern(b.id)">
+                      <button class="btn btn-sm btn-primary" type="button" (click)="notizSpeichern(b.id)">
                         Speichern
                       </button>
-                      <button class="btn btn-sm" (click)="facade.notizBearbeitungAbbrechen()">
-                        ✕
+                      <button
+                        class="btn btn-sm"
+                        type="button"
+                        aria-label="Notizbearbeitung abbrechen"
+                        (click)="facade.notizBearbeitungAbbrechen()"
+                      >
+                        x
                       </button>
                     </div>
                   } @else {
-                    <span class="notiz-text" (click)="notizBearbeitungStarten(b)">
+                    <button class="notiz-text notiz-button" type="button" (click)="notizBearbeitungStarten(b)">
                       {{ b.notiz || '+ Notiz' }}
-                    </span>
+                    </button>
                   }
                 </td>
                 <td class="grau-text">{{ facade.dateigroesseFormatieren(b.filesize) }}</td>
@@ -164,6 +168,7 @@
                   <a [href]="facade.downloadUrl(b.id)" class="btn btn-sm">Download</a>
                   <button
                     class="btn-action btn-action--danger"
+                    type="button"
                     title="Löschen"
                     (click)="facade.loeschenBestaetigen(b.id)"
                   >
@@ -181,10 +186,11 @@
       <div class="pagination">
         <button
           class="btn btn-sm"
+          type="button"
           [disabled]="facade.aktuelleSeite() <= 1"
           (click)="facade.seiteZurueck()"
         >
-          ← Zurück
+          Zurück
         </button>
         <span class="pagination-info"
           >Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{
@@ -194,44 +200,41 @@
         >
         <button
           class="btn btn-sm"
+          type="button"
           [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()"
           (click)="facade.seiteVor()"
         >
-          Weiter →
+          Weiter
         </button>
       </div>
     }
   }
 
-  <!-- Inline-Viewer Modal -->
-  @if (facade.viewerBeleg()) {
-    <div class="modal-overlay" (click)="facade.viewerSchliessen()">
-      <div class="modal modal--xl viewer-modal" (click)="$event.stopPropagation()">
-        <div class="viewer-header">
-          <span class="viewer-title">{{ facade.viewerBeleg()!.filename }}</span>
-          <div class="viewer-actions">
-            <a [href]="facade.downloadUrl(facade.viewerBeleg()!.id)" class="btn btn-sm">Download</a>
-            <button class="btn btn-sm" (click)="facade.viewerSchliessen()">Schließen</button>
-          </div>
-        </div>
-        <div class="viewer-body">
-          @if (facade.istBild(facade.viewerBeleg()!)) {
-            <img
-              [src]="viewerSafeUrl()"
-              class="viewer-img"
-              alt="{{ facade.viewerBeleg()!.filename }}"
-            />
-          } @else {
-            <iframe
-              [src]="viewerSafeUrl()"
-              class="viewer-frame"
-              title="{{ facade.viewerBeleg()!.filename }}"
-            ></iframe>
-          }
-        </div>
+  <app-modal
+    [isOpen]="!!facade.viewerBeleg()"
+    [title]="facade.viewerBeleg()?.filename ?? null"
+    size="lg"
+    (closed)="facade.viewerSchliessen()"
+  >
+    @if (facade.viewerBeleg()) {
+      <a [href]="facade.downloadUrl(facade.viewerBeleg()!.id)" class="btn btn-sm">Download</a>
+      <div class="viewer-body">
+        @if (facade.istBild(facade.viewerBeleg()!)) {
+          <img
+            [src]="viewerSafeUrl()"
+            class="viewer-img"
+            alt="{{ facade.viewerBeleg()!.filename }}"
+          />
+        } @else {
+          <iframe
+            [src]="viewerSafeUrl()"
+            class="viewer-frame"
+            title="{{ facade.viewerBeleg()!.filename }}"
+          ></iframe>
+        }
       </div>
-    </div>
-  }
+    }
+  </app-modal>
 
   @if (facade.loeschKandidat() !== null) {
     <app-confirm-modal

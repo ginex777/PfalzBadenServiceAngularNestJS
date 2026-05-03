@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { Objekt } from '../../../../core/models';
+import type { Objekt } from '../../../../core/models';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 
 @Component({
@@ -14,7 +14,7 @@ export class ObjektListeComponent {
   readonly objects = input.required<Objekt[]>();
   readonly currentObject = input<Objekt | null>(null);
 
-  readonly select = output<Objekt>();
+  readonly objectSelected = output<Objekt>();
 
   protected adresseFormatieren(obj: Objekt): string {
     return [obj.strasse, obj.plz, obj.ort].filter((v) => !!v).join(' ');

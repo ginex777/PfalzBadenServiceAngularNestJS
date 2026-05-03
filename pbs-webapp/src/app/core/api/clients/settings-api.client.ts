@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { FirmaSettings, SettingsKey } from '../../models';
+import type { Observable } from 'rxjs';
+import type { FirmaSettings, SettingsKey } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class SettingsApiClient {

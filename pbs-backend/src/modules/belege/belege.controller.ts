@@ -13,27 +13,23 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import type { Response } from 'express';
-import { BelegeService } from './belege.service';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import type { BelegeService } from './belege.service';
+import { contentDispositionHeader } from '../../common/http/content-disposition';
 import { Roles } from '../auth/decorators/roles.decorator';
+import type { BelegeQueryDto } from './dto/belege-query.dto';
 
 @Roles('admin', 'readonly')
 @Controller('api/belege')
 export class BelegeController {
   constructor(private readonly service: BelegeService) {}
 
-  @Get() belegeLaden(
-    @Query() pagination: PaginationDto,
-    @Query('jahr') jahr?: string,
-    @Query('q') q?: string,
-    @Query('typ') typ?: string,
-  ) {
-    return this.service.belegeLaden(
-      pagination,
-      jahr ? parseInt(jahr) : undefined,
-      { q, typ },
-    );
+  @Get() belegeLaden(@Query() query: BelegeQueryDto) {
+    return this.service.belegeLaden(query, query.jahr, {
+      q: query.q,
+      typ: query.typ,
+    });
   }
   @Get('buchhaltung/:buchId') belegeFuerBuchung(
     @Param('buchId', ParseIntPipe) id: number,
@@ -54,15 +50,23 @@ export class BelegeController {
     res.setHeader('Content-Type', b.mimetype);
     res.setHeader(
       'Content-Disposition',
-      `${inline === '1' ? 'inline' : 'attachment'}; filename="${b.filename}"`,
+      contentDispositionHeader(
+        inline === '1' ? 'inline' : 'attachment',
+        b.filename,
+      ),
     );
     res.send(b.data);
   }
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('beleg'))
+  @UseInterceptors(
+    FileInterceptor('beleg', {
+      storage: memoryStorage(),
+      limits: { fileSize: 20 * 1024 * 1024 },
+    }),
+  )
   belegHochladen(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File | undefined,
     @Body('buchhaltung_id') buchungId?: string,
     @Body('typ') typ?: string,
     @Body('notiz') notiz?: string,

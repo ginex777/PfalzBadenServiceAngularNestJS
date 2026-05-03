@@ -43,13 +43,13 @@
   <div class="ergebnis-abschnitt">
     <div class="ergebnis-zeile ergebnis-zeile--gesamt">
       <span class="ergebnis-label">{{ zahllastLabel() }}</span>
-      <span class="ergebnis-wert ergebnis-wert--gross" [class]="zahllastKlasse()">
+      <span [attr.class]="'ergebnis-wert ergebnis-wert--gross ' + zahllastKlasse()">
         {{ formatieren(ergebnis().zahllast) }}
       </span>
     </div>
     <div class="ergebnis-zeile ergebnis-zeile--gesamt">
       <span class="ergebnis-label">Gewinn / Verlust</span>
-      <span class="ergebnis-wert ergebnis-wert--gross" [class]="gewinnKlasse()">
+      <span [attr.class]="'ergebnis-wert ergebnis-wert--gross ' + gewinnKlasse()">
         {{ formatieren(ergebnis().gewinn) }}
       </span>
     </div>

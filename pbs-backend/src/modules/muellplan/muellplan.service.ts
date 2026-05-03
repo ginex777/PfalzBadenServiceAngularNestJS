@@ -1,16 +1,19 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
-import { Prisma, MuellplanVorlagen } from '@prisma/client';
-import {
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { Prisma, MuellplanVorlagen } from '@prisma/client';
+import type {
   CreateMuellplanTerminDto,
   CreateMuellplanVorlageDto,
   ErledigunDto,
   MuellplanVorlagenTerminDto,
   UpdateMuellplanTerminDto,
 } from './dto/muellplan.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import { TasksService } from '../tasks/tasks.service';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import type { TasksService } from '../tasks/tasks.service';
+import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
+import { toPrismaBytes } from '../../common/files/upload-file';
 
 @Injectable()
 export class MuellplanService {
@@ -19,9 +22,11 @@ export class MuellplanService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tasksService: TasksService,
+    private readonly accessPolicy: AccessPolicyService,
   ) {}
 
-  async termineLaden(objektId: number) {
+  async termineLaden(objektId: number, auth: AccessPolicyAuth) {
+    await this.accessPolicy.assertCanAccessObject(auth, objektId);
     const rows = await this.prisma.muellplan.findMany({
       where: { objekt_id: BigInt(objektId) },
       orderBy: { abholung: 'asc' },
@@ -35,11 +40,19 @@ export class MuellplanService {
     return rows.map((r) => this.mapTermin(r));
   }
 
-  async anstehendeTermineLaden(limit = 5) {
-    const heute = new Date();
-    heute.setHours(0, 0, 0, 0);
+  async anstehendeTermineLaden(limit = 5, auth: AccessPolicyAuth) {
+    const heute = this.startOfToday();
+    const accessibleObjectIds =
+      await this.accessPolicy.accessibleObjectIds(auth);
     const rows = await this.prisma.muellplan.findMany({
-      where: { abholung: { gte: heute }, erledigt: false, aktiv: true },
+      where: {
+        abholung: { gte: heute },
+        erledigt: false,
+        aktiv: true,
+        ...(accessibleObjectIds
+          ? { objekt_id: { in: accessibleObjectIds } }
+          : {}),
+      },
       orderBy: { abholung: 'asc' },
       take: limit,
       include: {
@@ -112,11 +125,12 @@ export class MuellplanService {
     return this.mapTermin(r);
   }
 
-  async terminErledigen(id: number, d: ErledigunDto) {
+  async terminErledigen(id: number, d: ErledigunDto, auth: AccessPolicyAuth) {
     const row = await this.prisma.muellplan.findUnique({
       where: { id: BigInt(id) },
     });
     if (!row) throw new NotFoundException();
+    await this.accessPolicy.assertCanAccessObject(auth, Number(row.objekt_id));
     const r = await this.prisma.muellplan.update({
       where: { id: BigInt(id) },
       data: { erledigt: true },
@@ -260,7 +274,7 @@ export class MuellplanService {
     await this.prisma.muellplanVorlagen.update({
       where: { id: BigInt(id) },
       data: {
-        pdf_data: buffer as unknown as Uint8Array<ArrayBuffer>,
+        pdf_data: toPrismaBytes(buffer),
         pdf_name: filename,
       },
     });
@@ -288,7 +302,7 @@ export class MuellplanService {
       data: {
         objekte: { connect: { id: BigInt(objektId) } },
         filename,
-        pdf_data: buffer as unknown as Uint8Array<ArrayBuffer>,
+        pdf_data: toPrismaBytes(buffer),
         verified: false,
       },
     });
@@ -303,7 +317,9 @@ export class MuellplanService {
   async muellplanPdfBestaetigen(
     objektId: number,
     termine: MuellplanVorlagenTerminDto[],
+    auth: AccessPolicyAuth,
   ) {
+    await this.accessPolicy.assertCanAccessObject(auth, objektId);
     const objectRow = await this.prisma.objekte.findUnique({
       where: { id: BigInt(objektId) },
       select: { id: true, name: true },
@@ -342,8 +358,8 @@ export class MuellplanService {
     await this.prisma.benachrichtigungen.create({
       data: {
         typ: 'MOBILE_WASTEPLAN_CONFIRM',
-        titel: `MÃ¼llplan bestÃ¤tigt: ${objectRow.name}`,
-        nachricht: added > 0 ? `${added} Termine Ã¼bernommen.` : undefined,
+        titel: `Müllplan bestätigt: ${objectRow.name}`,
+        nachricht: added > 0 ? `${added} Termine übernommen.` : undefined,
         link: `/muellplan`,
         gelesen: false,
       },
@@ -351,7 +367,8 @@ export class MuellplanService {
     return { ok: true, added };
   }
 
-  async muellplanPdfMetadatenLaden(objektId: number) {
+  async muellplanPdfMetadatenLaden(objektId: number, auth: AccessPolicyAuth) {
+    await this.accessPolicy.assertCanAccessObject(auth, objektId);
     const r = await this.prisma.muellplanPdf.findFirst({
       where: { objekt_id: BigInt(objektId) },
       select: { id: true, filename: true, verified: true, created_at: true },
@@ -384,6 +401,8 @@ export class MuellplanService {
       nachname: string | null;
     } | null;
   }) {
+    const pickupDate = this.dateOnly(r.abholung);
+    const today = this.startOfToday();
     return {
       id: Number(r.id),
       objekt_id: Number(r.objekt_id),
@@ -391,6 +410,8 @@ export class MuellplanService {
       farbe: r.farbe,
       abholung: r.abholung.toISOString().slice(0, 10),
       erledigt: r.erledigt,
+      isToday: pickupDate.getTime() === today.getTime(),
+      isDue: pickupDate.getTime() <= today.getTime(),
       beschreibung: r.beschreibung ?? null,
       aktiv: r.aktiv ?? true,
       user_id: r.user_id ? Number(r.user_id) : null,
@@ -403,5 +424,17 @@ export class MuellplanService {
           }
         : null,
     };
+  }
+
+  private startOfToday(): Date {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  }
+
+  private dateOnly(value: Date): Date {
+    const date = new Date(value);
+    date.setHours(0, 0, 0, 0);
+    return date;
   }
 }

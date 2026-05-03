@@ -37,6 +37,7 @@
 .object-row {
   --padding-start: 0.85rem;
   --inner-padding-end: 0.85rem;
+  --min-height: 3.75rem;
   border-radius: 0.85rem;
   margin-bottom: 0.5rem;
   border: 1px solid var(--app-border);
@@ -53,6 +54,5 @@
 
 .object-row--selected {
   border-color: rgba(255, 122, 0, 0.45);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 122, 0, 0.08) 100%);
+  background: var(--app-warm-surface);
 }
-

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Design"
+  short_description: "PBS UI polish and usability standards"
+  default_prompt: "Use $frontend-design to polish PBS Angular UI with cohesive, accessible design."

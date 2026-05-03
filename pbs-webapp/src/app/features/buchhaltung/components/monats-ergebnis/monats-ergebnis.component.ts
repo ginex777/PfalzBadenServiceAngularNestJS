@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { MonatsDaten } from '../../buchhaltung.models';
+import type { MonatsDaten } from '../../buchhaltung.models';
 import { waehrungFormatieren } from '../../../../core/utils/format.utils';
 
 @Component({

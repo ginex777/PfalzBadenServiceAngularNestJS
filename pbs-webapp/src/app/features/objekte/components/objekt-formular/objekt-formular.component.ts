@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { Kunde } from '../../../../core/models';
-import { ObjectFormData } from '../../objekte.models';
+import type { Kunde } from '../../../../core/models';
+import type { ObjectFormData } from '../../objekte.models';
 
 @Component({
   selector: 'app-objekt-formular',
@@ -22,12 +22,12 @@ export class ObjektFormularComponent {
   protected onText(key: keyof ObjectFormData, event: Event): void {
     const target = event.target;
     if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) return;
-    this.update(key, target.value as never);
+    this.update(key, target.value as ObjectFormData[typeof key]);
   }
 
   protected onSelect(key: keyof ObjectFormData, event: Event): void {
     const target = event.target;
     if (!(target instanceof HTMLSelectElement)) return;
-    this.update(key, target.value as never);
+    this.update(key, target.value as ObjectFormData[typeof key]);
   }
 }

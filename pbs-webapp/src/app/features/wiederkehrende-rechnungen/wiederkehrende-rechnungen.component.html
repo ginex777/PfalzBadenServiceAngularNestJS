@@ -1,31 +1,27 @@
 <app-page-title title="Wiederkehrende Rechnungen" subtitle="Vorlagen für regelmäßige Rechnungen" />
 
-<!-- Formular Modal -->
+<!-- Formular Drawer -->
 @if (facade.formularSichtbar()) {
-  <div class="modal-overlay" (click)="facade.formularSchliessen()">
-    <div class="modal modal--lg" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3 class="modal-title">
-          @if (facade.bearbeiteteRechnung()) {
-            Vorlage bearbeiten
-          } @else {
-            Neue Vorlage
-          }
-        </h3>
-        <button class="modal-close" (click)="facade.formularSchliessen()" title="Schließen">
-          ✕
-        </button>
-      </div>
-      <div class="modal-body">
-        <app-wr-formular
-          [bearbeiteteRechnung]="facade.bearbeiteteRechnung()"
-          [kunden]="facade.kunden()"
-          (gespeichert)="speichern($event)"
-          (abgebrochen)="facade.formularSchliessen()"
-        />
-      </div>
+  <app-drawer [isOpen]="facade.formularSichtbar()" ariaLabel="Vorlage Formular" position="right" (closed)="facade.formularSchliessen()">
+    <div class="drawer-header">
+      <h3 class="drawer-title">
+        @if (facade.bearbeiteteRechnung()) {
+          Vorlage bearbeiten
+        } @else {
+          Neue Vorlage
+        }
+      </h3>
+      <button class="app-modal__close" type="button" (click)="facade.formularSchliessen()" aria-label="Schließen">×</button>
     </div>
-  </div>
+    <div class="drawer-body">
+      <app-wr-formular
+        [bearbeiteteRechnung]="facade.bearbeiteteRechnung()"
+        [kunden]="facade.kunden()"
+        (gespeichert)="speichern($event)"
+        (abgebrochen)="facade.formularSchliessen()"
+      />
+    </div>
+  </app-drawer>
 }
 
 <!-- Toolbar -->
@@ -76,8 +72,13 @@
               />
             </td>
             <td class="td-aktionen">
-              <button class="btn btn-sm btn-primary" (click)="facade.jetztErstellen(wr)">
-                Jetzt erstellen
+              <button
+                class="btn btn-sm btn-primary"
+                type="button"
+                [disabled]="facade.erstelltGeradeId() !== null"
+                (click)="facade.jetztErstellen(wr)"
+              >
+                {{ facade.erstelltGeradeId() === wr.id ? 'Erstelle…' : 'Jetzt erstellen' }}
               </button>
               <button class="btn-action" title="Bearbeiten" (click)="facade.formularOeffnen(wr)">
                 Bearbeiten

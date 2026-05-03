@@ -51,30 +51,26 @@
     />
   }
 
-  <!-- Mitarbeiter erstellen / bearbeiten Modal -->
+  <!-- Mitarbeiter erstellen / bearbeiten Drawer -->
   @if (facade.formularSichtbar()) {
-    <div class="modal-overlay" (click)="facade.formularSchliessen()">
-      <div class="modal modal--lg" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3 class="modal-title">
-            @if (facade.bearbeiteterMitarbeiter()) {
-              Mitarbeiter bearbeiten
-            } @else {
-              Neuer Mitarbeiter
-            }
-          </h3>
-          <button class="modal-close" (click)="facade.formularSchliessen()" title="Schließen">
-            ✕
-          </button>
-        </div>
-        <div class="modal-body">
-          <app-mitarbeiter-formular
-            [bearbeiteterMitarbeiter]="facade.bearbeiteterMitarbeiter()"
-            (gespeichert)="speichern($event)"
-            (abgebrochen)="facade.formularSchliessen()"
-          />
-        </div>
+    <app-drawer [isOpen]="facade.formularSichtbar()" ariaLabel="Mitarbeiter Formular" position="right" (closed)="facade.formularSchliessen()">
+      <div class="drawer-header">
+        <h3 class="drawer-title">
+          @if (facade.bearbeiteterMitarbeiter()) {
+            Mitarbeiter bearbeiten
+          } @else {
+            Neuer Mitarbeiter
+          }
+        </h3>
+        <button class="app-modal__close" type="button" (click)="facade.formularSchliessen()" aria-label="Schließen">×</button>
       </div>
-    </div>
+      <div class="drawer-body">
+        <app-mitarbeiter-formular
+          [bearbeiteterMitarbeiter]="facade.bearbeiteterMitarbeiter()"
+          (gespeichert)="speichern($event)"
+          (abgebrochen)="facade.formularSchliessen()"
+        />
+      </div>
+    </app-drawer>
   }
 </div>

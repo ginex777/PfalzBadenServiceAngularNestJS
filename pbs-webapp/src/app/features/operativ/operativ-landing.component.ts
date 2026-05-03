@@ -54,6 +54,12 @@ const TILES: readonly OperativTile[] = [
     description: 'Fotodokumentation',
     roles: ['admin', 'mitarbeiter'],
   },
+  {
+    path: 'aufgaben',
+    label: 'Aufgaben',
+    description: 'Aufgaben & To-Dos verwalten',
+    roles: ['admin', 'readonly'],
+  },
 ];
 
 @Component({

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
+import type { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()
 export class DashboardService {
@@ -66,6 +66,44 @@ export class DashboardService {
         brutto: wert?.['brutto'] != null ? Number(wert['brutto']) : undefined,
       };
     });
+  }
+
+  async yearlyStats(year: number) {
+    const currentMonth = new Date().getMonth();
+    const rows = await this.prisma.buchhaltung.findMany({
+      where: { jahr: year, monat: { lte: currentMonth } },
+    });
+
+    let revenueNet = 0;
+    let expensesNet = 0;
+
+    for (const row of rows) {
+      const gross = Number(row.brutto);
+      const vatRate = Number(row.mwst);
+      const businessShare = Number(row.abzug) / 100;
+      const vat =
+        vatRate <= 0
+          ? 0
+          : Math.round((gross - gross / (1 + vatRate / 100)) * 100) / 100;
+      const net = Math.round((gross - vat) * 100) / 100;
+
+      if (row.typ === 'inc') {
+        revenueNet += net;
+      } else {
+        expensesNet += net * businessShare;
+      }
+    }
+
+    revenueNet = Math.round(revenueNet * 100) / 100;
+    expensesNet = Math.round(expensesNet * 100) / 100;
+
+    return {
+      year,
+      upToMonth: currentMonth,
+      revenueNet,
+      expensesNet,
+      profitNet: Math.round((revenueNet - expensesNet) * 100) / 100,
+    };
   }
 
   async revenueTrend(months: number) {

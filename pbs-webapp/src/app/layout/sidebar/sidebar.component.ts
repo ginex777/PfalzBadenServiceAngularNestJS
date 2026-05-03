@@ -9,9 +9,10 @@ import {
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import {
+import type {
   NavigationGroup,
-  UserRole,
+  UserRole} from '../navigation/navigation.config';
+import {
   filterNavigationGroupsForRole,
   getInitialOpenGroupId,
 } from '../navigation/navigation.config';
@@ -69,5 +70,10 @@ export class SidebarComponent {
 
   protected onNavigate(): void {
     this.closed.emit();
+  }
+
+  protected onLogout(): void {
+    this.closed.emit();
+    this.authService.logout();
   }
 }

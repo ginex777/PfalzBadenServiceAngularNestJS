@@ -1,12 +1,16 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { getApiErrorMessage } from '../../core/api-error';
 import { AuthService } from '../../core/services/auth.service';
 import { NutzerService } from '../../core/services/nutzer.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -15,6 +19,7 @@ export class LoginComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly nutzerService = inject(NutzerService);
 
   email = signal('');
@@ -25,11 +30,11 @@ export class LoginComponent implements OnInit {
   sessionAbgelaufen = signal(false);
 
   ngOnInit() {
-    this.route.queryParams.subscribe((p) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((p) => {
       if (p['reason'] === 'session') this.sessionAbgelaufen.set(true);
     });
     // Check first-run
-    this.auth.checkSetupRequired().subscribe({
+    this.auth.checkSetupRequired().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => this.setupModus.set(res.setupRequired),
       error: () => {},
     });
@@ -47,10 +52,10 @@ export class LoginComponent implements OnInit {
       ? this.auth.setup(this.email(), this.password())
       : this.auth.login(this.email(), this.password());
 
-    action$.subscribe({
+    action$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         if (this.setupModus()) {
-          this.auth.login(this.email(), this.password()).subscribe({
+          this.auth.login(this.email(), this.password()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: () => {
               this._autoSetNutzer();
               this._redirect();
@@ -64,8 +69,7 @@ export class LoginComponent implements OnInit {
       },
       error: (err) => {
         this.laedt.set(false);
-        const msg = err?.error?.message;
-        this.fehler.set(msg ?? 'Anmeldung fehlgeschlagen.');
+        this.fehler.set(getApiErrorMessage(err) ?? 'Anmeldung fehlgeschlagen.');
       },
     });
   }

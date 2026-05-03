@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import * as Handlebars from 'handlebars';
-import { PrismaService } from '../../../core/database/prisma.service';
-import { PdfRenderService } from '../pdf-render.service';
-import { PdfTokenService } from '../pdf-token.service';
+import type { PrismaService } from '../../../core/database/prisma.service';
+import type { PdfRenderService } from '../pdf-render.service';
+import type { PdfTokenService } from '../pdf-token.service';
 
 @Injectable()
 export class AngebotPdfGenerator {
@@ -21,12 +21,12 @@ export class AngebotPdfGenerator {
     const firma = await this.render.loadFirma();
 
     const positionen =
-      (angebot.positionen as {
+      (angebot.positionen as Array<{
         bez: string;
         stunden?: string;
         einzelpreis?: number;
         gesamtpreis: number;
-      }[]) ?? [];
+      }>) ?? [];
     const netto = positionen.reduce(
       (s, p) => s + (Number(p.gesamtpreis) || 0),
       0,

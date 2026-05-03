@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { AusgabenTabelleComponent } from './ausgaben-tabelle.component';
 
 describe('AusgabenTabelleComponent', () => {
@@ -7,11 +8,12 @@ describe('AusgabenTabelleComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AusgabenTabelleComponent],
+      imports: [AusgabenTabelleComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AusgabenTabelleComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('zeilen', []);
     fixture.detectChanges();
   });
 

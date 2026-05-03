@@ -20,7 +20,12 @@ const NAV_ACCESS: Record<string, readonly UserRole[]> = {
 
   '/finanzen/rechnungen': ['admin', 'readonly'],
   '/finanzen/angebote': ['admin', 'readonly'],
-  '/finanzen/buchhaltung': ['admin', 'readonly'],
+  '/finanzen/buchhaltung/uebersicht': ['admin', 'readonly'],
+  '/finanzen/buchhaltung/belege': ['admin', 'readonly'],
+  '/finanzen/buchhaltung/fixkosten': ['admin', 'readonly'],
+  '/finanzen/buchhaltung/wiederkehrende-rechnungen': ['admin', 'readonly'],
+  '/finanzen/buchhaltung/euer': ['admin', 'readonly'],
+  '/finanzen/buchhaltung/datev': ['admin', 'readonly'],
 
   '/verwaltung/kunden': ['admin', 'readonly'],
   '/verwaltung/objekte': ['admin', 'readonly'],
@@ -70,9 +75,34 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
     rootPath: '/finanzen/buchhaltung',
     links: [
       {
-        path: '/finanzen/buchhaltung',
-        label: 'Buchhaltung',
-        roles: NAV_ACCESS['/finanzen/buchhaltung'] ?? [],
+        path: '/finanzen/buchhaltung/uebersicht',
+        label: 'Übersicht',
+        roles: NAV_ACCESS['/finanzen/buchhaltung/uebersicht'] ?? [],
+      },
+      {
+        path: '/finanzen/buchhaltung/belege',
+        label: 'Belege',
+        roles: NAV_ACCESS['/finanzen/buchhaltung/belege'] ?? [],
+      },
+      {
+        path: '/finanzen/buchhaltung/fixkosten',
+        label: 'Fixkosten',
+        roles: NAV_ACCESS['/finanzen/buchhaltung/fixkosten'] ?? [],
+      },
+      {
+        path: '/finanzen/buchhaltung/wiederkehrende-rechnungen',
+        label: 'Wied. Rechnungen',
+        roles: NAV_ACCESS['/finanzen/buchhaltung/wiederkehrende-rechnungen'] ?? [],
+      },
+      {
+        path: '/finanzen/buchhaltung/euer',
+        label: 'EÜR',
+        roles: NAV_ACCESS['/finanzen/buchhaltung/euer'] ?? [],
+      },
+      {
+        path: '/finanzen/buchhaltung/datev',
+        label: 'DATEV',
+        roles: NAV_ACCESS['/finanzen/buchhaltung/datev'] ?? [],
       },
     ],
   },

@@ -19,7 +19,7 @@
             placeholder="name@firma.de"
           />
           @if (showFieldError('email')) {
-            <p class="field-error">Bitte eine gueltige E-Mail eingeben.</p>
+            <p class="field-error">Bitte eine gültige E-Mail eingeben.</p>
           }
         </div>
 
@@ -38,9 +38,9 @@
           }
         </div>
 
-        <button type="submit" class="submit-button" [disabled]="isLoading()">
+        <ion-button type="submit" expand="block" [disabled]="isLoading()">
           {{ isLoading() ? 'Bitte warten...' : 'Anmelden' }}
-        </button>
+        </ion-button>
       </form>
     </div>
   </div>

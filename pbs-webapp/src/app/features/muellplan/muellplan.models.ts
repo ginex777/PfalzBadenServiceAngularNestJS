@@ -1,4 +1,4 @@
-import { MuellplanTermin } from '../../core/models';
+import type { MuellplanTermin } from '../../core/models';
 
 export interface TerminAnzeige extends MuellplanTermin {
   diffTage: number;

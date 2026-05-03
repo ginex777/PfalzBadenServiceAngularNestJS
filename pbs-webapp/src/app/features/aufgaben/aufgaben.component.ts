@@ -12,8 +12,8 @@ import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { DEFAULT_PAGE_SIZE } from '../../core/constants';
 import { AuthService } from '../../core/services/auth.service';
-import { Kunde, Mitarbeiter, Objekt, PaginatedResponse } from '../../core/models';
-import { UserEintrag } from '../../core/api/api.contract';
+import type { Kunde, Mitarbeiter, Objekt, PaginatedResponse } from '../../core/models';
+import type { UserEintrag } from '../../core/api/api.contract';
 import {
   CustomersApiClient,
   EmployeesApiClient,
@@ -23,15 +23,17 @@ import {
 import { DrawerComponent } from '../../shared/ui/drawer/drawer.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { AufgabeDetailComponent } from './aufgabe-detail.component';
-import { AufgabenFilterComponent, UserOption } from './aufgaben-filter.component';
+import type { UserOption } from './aufgaben-filter.component';
+import { AufgabenFilterComponent } from './aufgaben-filter.component';
 import { AufgabenListeComponent } from './aufgaben-liste.component';
-import {
-  DEFAULT_TASK_FILTERS,
+import type {
   TaskFilterState,
   TaskListItemApi,
   TaskListQuery,
   TaskStatus,
-  TaskType,
+  TaskType} from './aufgaben.models';
+import {
+  DEFAULT_TASK_FILTERS
 } from './aufgaben.models';
 import { TasksService } from './aufgaben.service';
 

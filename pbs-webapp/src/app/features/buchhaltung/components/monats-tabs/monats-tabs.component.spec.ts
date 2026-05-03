@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { MonatsTabsComponent } from './monats-tabs.component';
 
 describe('MonatsTabsComponent', () => {
@@ -7,11 +8,15 @@ describe('MonatsTabsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MonatsTabsComponent],
+      imports: [MonatsTabsComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MonatsTabsComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('aktuellerMonat', 0);
+    fixture.componentRef.setInput('ansichtsModus', 'monat');
+    fixture.componentRef.setInput('gesperrteMonateSet', new Set<number>());
+    fixture.componentRef.setInput('monatHatDaten', () => false);
     fixture.detectChanges();
   });
 

@@ -14,7 +14,7 @@
         <option [value]="$index">{{ monat }}</option>
       }
     </select>
-    <label class="btn btn-sm vergangene-toggle">
+    <label for="src-app-features-muellplan-components-termin-kalender-termin-kalender-component-0" class="btn btn-sm vergangene-toggle">
       <input
         type="checkbox"
         [checked]="hidePast()"
@@ -62,7 +62,7 @@
     <div class="naechste-termine">
       <span class="naechste-termine__label">Nächste:</span>
       @for (t of nextTerms(); track t.id) {
-        <div class="naechster-termin" [class]="'naechster-termin--' + t.status">
+        <div [attr.class]="'naechster-termin naechster-termin--' + t.status">
           <span class="termin-punkt" [style.background]="t.farbe"></span>
           {{ t.muellart }} — {{ naechsterLabel(t) }}
           <span class="naechster-termin__abholung"
@@ -108,7 +108,7 @@
                   <span class="muell-badge" [style.background]="t.farbe">{{ t.muellart }}</span>
                 </td>
                 <td>
-                  <span class="status-badge" [class]="'status-badge--' + t.status">
+                  <span [attr.class]="'status-badge status-badge--' + t.status">
                     {{ statusLabel(t) }}
                   </span>
                 </td>
@@ -126,7 +126,7 @@
                   />
                 </td>
                 <td class="col-aktion">
-                  <button class="btn-action btn-action-danger" (click)="deleteTerm.emit(t.id)">
+                  <button class="btn-action btn-action--danger" (click)="deleteTerm.emit(t.id)">
                     Löschen
                   </button>
                 </td>

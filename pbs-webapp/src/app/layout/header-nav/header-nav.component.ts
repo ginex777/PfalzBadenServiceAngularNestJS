@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   HostListener,
   computed,
   inject,
@@ -10,7 +11,8 @@ import {
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { NavigationGroup, filterNavigationGroupsForRole } from '../navigation/navigation.config';
+import type { NavigationGroup} from '../navigation/navigation.config';
+import { filterNavigationGroupsForRole } from '../navigation/navigation.config';
 
 @Component({
   selector: 'app-header-nav',
@@ -29,6 +31,7 @@ export class HeaderNavComponent {
   readonly isDarkMode = input<boolean>(false);
 
   private readonly authService = inject(AuthService);
+  private readonly elementRef = inject(ElementRef);
 
   protected readonly openGroupId = signal<string | null>(null);
 
@@ -62,15 +65,17 @@ export class HeaderNavComponent {
     this.themeToggle.emit();
   }
 
+  protected onLogout(): void {
+    this.authService.logout();
+  }
+
   protected readonly hasNotifications = computed(() => this.notificationCount() > 0);
 
   @HostListener('document:click', ['$event'])
   protected onDocumentClick(event: MouseEvent): void {
     const target = event.target;
     if (!(target instanceof Node)) return;
-    const header = document.querySelector('.header-nav');
-    if (!header) return;
-    if (header.contains(target)) return;
+    if ((this.elementRef.nativeElement as HTMLElement).contains(target)) return;
     this.closeMenus();
   }
 }

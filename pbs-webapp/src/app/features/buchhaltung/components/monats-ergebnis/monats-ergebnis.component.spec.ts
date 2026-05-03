@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { MonatsErgebnisComponent } from './monats-ergebnis.component';
 
 describe('MonatsErgebnisComponent', () => {
@@ -7,11 +8,20 @@ describe('MonatsErgebnisComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MonatsErgebnisComponent],
+      imports: [MonatsErgebnisComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MonatsErgebnisComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('monatName', 'Januar');
+    fixture.componentRef.setInput('ergebnis', {
+      einnahmenNetto: 0,
+      einnahmenUst: 0,
+      ausgabenNetto: 0,
+      vorsteuer: 0,
+      zahllast: 0,
+      gewinn: 0,
+    });
     fixture.detectChanges();
   });
 

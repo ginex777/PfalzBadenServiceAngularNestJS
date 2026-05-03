@@ -1,5 +1,6 @@
-import { Component, ChangeDetectionStrategy, computed, effect, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   IonButton,
   IonCard,
@@ -49,15 +50,16 @@ export class ObjektAuswahlPage {
   protected readonly context = inject(ObjectContextService);
 
   protected readonly query = signal('');
-  private readonly returnUrl = signal<string | null>(null);
+  private readonly queryParams = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
+  private readonly returnUrl = computed(() => {
+    const url = this.queryParams().get('returnUrl');
+    return url && url.startsWith('/') ? url : null;
+  });
 
   protected readonly objects = computed<ObjectListItem[]>(() => this.context.activeObjects());
   protected readonly selectedObjectId = this.context.selectedObjectId;
-
-  private readonly _initEffect = effect(() => {
-    const url = this.route.snapshot.queryParamMap.get('returnUrl');
-    this.returnUrl.set(url && url.startsWith('/') ? url : null);
-  });
 
   ionViewWillEnter(): void {
     this.context.ensureObjectsLoaded();
@@ -94,9 +96,9 @@ export class ObjektAuswahlPage {
       [obj.street, obj.houseNumber].filter(Boolean).join(' ').trim(),
       [obj.postalCode, obj.city].filter(Boolean).join(' ').trim(),
     ].filter((p) => p.length > 0);
-    const address = parts.join(' · ');
+    const address = parts.join(' - ');
     const customer = obj.customerName?.trim() ? obj.customerName.trim() : null;
-    if (address && customer) return `${address} · ${customer}`;
+    if (address && customer) return `${address} - ${customer}`;
     return address || customer;
   }
 

@@ -1,18 +1,18 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
-import {
-  Prisma,
+import type { PrismaService } from '../../core/database/prisma.service';
+import type {
   WiederkehrendeAusgaben,
   WiederkehrendeRechnungen,
 } from '@prisma/client';
-import {
+import { Prisma } from '@prisma/client';
+import type {
   CreateWiederkehrendeAusgabeDto,
   CreateWiederkehrendeRechnungDto,
   UpdateWiederkehrendeAusgabeDto,
   UpdateWiederkehrendeRechnungDto,
 } from './dto/wiederkehrend.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class WiederkehrendService {

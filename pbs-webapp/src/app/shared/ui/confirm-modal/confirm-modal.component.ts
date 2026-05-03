@@ -1,9 +1,10 @@
+import type {
+  OnInit} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   HostListener,
-  OnInit,
   inject,
   input,
   output,

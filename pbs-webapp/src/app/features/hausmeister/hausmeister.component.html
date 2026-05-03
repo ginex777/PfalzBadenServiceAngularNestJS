@@ -81,13 +81,13 @@
             </div>
             <div class="wochen-eintraege">
               @for (e of einsaetzeProTag()[i]; track e.id) {
-                <div class="wochen-karte" (click)="einsatzBearbeiten(e)">
+                <button type="button" class="wochen-karte" (click)="einsatzBearbeiten(e)">
                   <div class="wochen-karte__ma">{{ e.mitarbeiter_name }}</div>
                   <div class="wochen-karte__kunde">{{ e.kunden_name || '–' }}</div>
                   <div class="wochen-karte__std">
                     {{ e.stunden_gesamt.toLocaleString('de-DE', { minimumFractionDigits: 1 }) }} h
                   </div>
-                </div>
+                </button>
               }
               @if (!einsaetzeProTag()[i].length) {
                 <div class="wochen-leer">–</div>
@@ -108,21 +108,36 @@
   </div>
 
   @if (facade.formularSichtbar()) {
-    <app-einsatz-formular
-      [daten]="facade.formularDaten()"
-      [mitarbeiter]="facade.mitarbeiter()"
-      [kunden]="facade.kunden()"
-      [bearbeiteterEinsatz]="facade.bearbeiteterEinsatz()"
-      [stundenGesamt]="facade.stundenGesamt()"
-      (speichern)="onEinsatzSpeichern($event)"
-      (abbrechen)="facade.formularSchliessen()"
-      (mitarbeiterAuswaehlen)="facade.mitarbeiterAuswaehlen($event)"
-      (kundeAuswaehlen)="facade.kundeAuswaehlen($event)"
-      (taetigkeitHinzufuegen)="facade.taetigkeitHinzufuegen()"
-      (taetigkeitEntfernen)="facade.taetigkeitEntfernen($event)"
-      (taetigkeitAktualisieren)="facade.taetigkeitAktualisieren($event.index, $event.taetigkeit)"
-      (feldAktualisieren)="facade.formularFeldAktualisieren($event.feld, $event.wert)"
-    />
+    <app-drawer
+      [isOpen]="facade.formularSichtbar()"
+      [ariaLabel]="facade.bearbeiteterEinsatz() ? 'Einsatz bearbeiten' : 'Neuer Einsatz'"
+      position="right"
+      (closed)="facade.formularSchliessen()"
+    >
+      <div class="drawer-header">
+        <h3 class="drawer-title">
+          {{ facade.bearbeiteterEinsatz() ? 'Einsatz bearbeiten' : 'Neuer Einsatz' }}
+        </h3>
+        <button class="app-modal__close" type="button" (click)="facade.formularSchliessen()" aria-label="Schließen">×</button>
+      </div>
+      <div class="drawer-body">
+        <app-einsatz-formular
+          [daten]="facade.formularDaten()"
+          [mitarbeiter]="facade.mitarbeiter()"
+          [kunden]="facade.kunden()"
+          [bearbeiteterEinsatz]="facade.bearbeiteterEinsatz()"
+          [stundenGesamt]="facade.stundenGesamt()"
+          (speichern)="onEinsatzSpeichern($event)"
+          (abbrechen)="facade.formularSchliessen()"
+          (mitarbeiterAuswaehlen)="facade.mitarbeiterAuswaehlen($event)"
+          (kundeAuswaehlen)="facade.kundeAuswaehlen($event)"
+          (taetigkeitHinzufuegen)="facade.taetigkeitHinzufuegen()"
+          (taetigkeitEntfernen)="facade.taetigkeitEntfernen($event)"
+          (taetigkeitAktualisieren)="facade.taetigkeitAktualisieren($event.index, $event.taetigkeit)"
+          (feldAktualisieren)="facade.formularFeldAktualisieren($event.feld, $event.wert)"
+        />
+      </div>
+    </app-drawer>
   }
 
   @if (facade.loeschKandidat() !== null) {

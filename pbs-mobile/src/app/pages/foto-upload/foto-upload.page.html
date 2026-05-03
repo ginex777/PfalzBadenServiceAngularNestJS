@@ -15,7 +15,7 @@
     <section class="app-hero">
       <p class="app-hero-label">Dokumentation</p>
       <h1 class="app-hero-title">Foto-Nachweis erfassen</h1>
-      <p class="app-hero-text">Nimm ein Bild auf oder waehle eins aus der Galerie und lade es direkt hoch.</p>
+      <p class="app-hero-text">Nimm ein Bild auf oder wähle eins aus der Galerie und lade es direkt hoch.</p>
     </section>
 
     <ion-card class="app-card form-card">
@@ -44,7 +44,7 @@
       <div class="app-card photo-empty">
         <div class="photo-empty-inner">
           <div class="photo-empty-title">Noch kein Foto</div>
-          <div class="photo-empty-text">Nimm ein Foto auf oder waehle eins aus der Galerie.</div>
+          <div class="photo-empty-text">Nimm ein Foto auf oder wähle eins aus der Galerie.</div>
         </div>
         <div class="btn-group">
           <ion-button class="photo-action photo-action--primary" expand="block" (click)="takePhoto()">
@@ -56,7 +56,7 @@
             fill="outline"
             (click)="pickFromGallery()"
           >
-            Aus Galerie waehlen
+            Aus Galerie wählen
           </ion-button>
         </div>
       </div>
@@ -66,6 +66,10 @@
           <img [src]="previewDataUrl()!" class="preview-img" alt="Vorschau" />
 
           <div class="preview-actions">
+            @if (uploadFailed()) {
+              <div class="upload-retry-hint">Upload fehlgeschlagen — erneut versuchen?</div>
+            }
+
             <ion-button
               class="photo-action photo-action--primary"
               expand="block"
@@ -75,6 +79,8 @@
               @if (isUploading()) {
                 <ion-spinner class="btn-spinner" name="crescent" aria-hidden="true"></ion-spinner>
                 Hochladen...
+              } @else if (uploadFailed()) {
+                Erneut hochladen
               } @else {
                 Hochladen
               }

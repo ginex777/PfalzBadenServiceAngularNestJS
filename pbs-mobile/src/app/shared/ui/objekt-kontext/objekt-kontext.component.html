@@ -1,4 +1,4 @@
-<div class="objekt-kontext">
+<div class="objekt-kontext" [class.objekt-kontext--locked]="disabled()">
   <div class="objekt-kontext__text">
     <div class="objekt-kontext__label">Objekt</div>
     @if (objectTitle()) {
@@ -7,17 +7,21 @@
         <div class="objekt-kontext__sub">{{ objectSubtitle() }}</div>
       }
     } @else {
-      <div class="objekt-kontext__empty">Kein Objekt gewaehlt</div>
+      <div class="objekt-kontext__empty">Kein Objekt gewählt</div>
+    }
+    @if (disabled()) {
+      <div class="objekt-kontext__locked-hint">Timer aktiv – Wechsel gesperrt</div>
     }
   </div>
 
-  <ion-button
-    class="objekt-kontext__btn"
-    fill="clear"
-    size="small"
-    [disabled]="disabled()"
-    (click)="changeObject()"
-  >
-    @if (objectTitle()) { Wechseln } @else { Auswaehlen }
-  </ion-button>
+  @if (!disabled()) {
+    <ion-button
+      class="objekt-kontext__btn"
+      fill="clear"
+      size="small"
+      (click)="changeObject()"
+    >
+      @if (objectTitle()) { Wechseln } @else { Auswählen }
+    </ion-button>
+  }
 </div>

@@ -3,7 +3,7 @@ import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.com
 import { ErrorStateComponent } from '../../shared/ui/error-state/error-state.component';
 import { PaginierungComponent } from '../../shared/ui/paginierung/paginierung.component';
 import { SkeletonRowsComponent } from '../../shared/ui/skeleton-rows/skeleton-rows.component';
-import { ZeiterfassungEintrag } from './zeiterfassung.models';
+import type { ZeiterfassungEintrag } from './zeiterfassung.models';
 
 @Component({
   selector: 'app-zeiterfassung-liste',

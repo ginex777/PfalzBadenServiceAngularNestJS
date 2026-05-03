@@ -1,12 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, firstValueFrom } from 'rxjs';
-import { HausmeisterEinsatz, Mitarbeiter, Kunde, MitarbeiterStunden } from '../../core/models';
+import type { Observable} from 'rxjs';
+import { forkJoin, firstValueFrom } from 'rxjs';
+import type { HausmeisterEinsatz, Mitarbeiter, Kunde, MitarbeiterStunden } from '../../core/models';
 import {
   CustomersApiClient,
   EmployeesApiClient,
   HausmeisterApiClient,
   PdfApiClient,
 } from '../../core/api/clients';
+import { BrowserService } from '../../core/services/browser.service';
 
 @Injectable({ providedIn: 'root' })
 export class HausmeisterService {
@@ -14,6 +16,7 @@ export class HausmeisterService {
   private readonly employeesApi = inject(EmployeesApiClient);
   private readonly customersApi = inject(CustomersApiClient);
   private readonly pdfApi = inject(PdfApiClient);
+  private readonly browser = inject(BrowserService);
 
   allesDatenLaden(): Observable<{
     einsaetze: HausmeisterEinsatz[];
@@ -52,7 +55,7 @@ export class HausmeisterService {
   // Einzelner Einsatz als PDF
   async einsatzPdfOeffnen(einsatzId: number): Promise<void> {
     const response = await firstValueFrom(this.pdfApi.createServiceAssignmentPdf(einsatzId));
-    window.open(response.url, '_blank');
+    this.browser.openUrl(response.url);
   }
 
   // Monatsnachweis als PDF (optional gefiltert nach Mitarbeiter)
@@ -60,6 +63,6 @@ export class HausmeisterService {
     const response = await firstValueFrom(
       this.pdfApi.createServiceMonthlyReportPdf(monat, mitarbeiterName),
     );
-    window.open(response.url, '_blank');
+    this.browser.openUrl(response.url);
   }
 }

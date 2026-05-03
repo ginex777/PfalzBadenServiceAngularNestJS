@@ -11,9 +11,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags, ApiSecurity, ApiOperation } from '@nestjs/swagger';
-import { AngeboteService } from './angebote.service';
-import { CreateAngebotDto, UpdateAngebotDto } from './dto/angebot.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import type { AngeboteService } from './angebote.service';
+import type { CreateAngebotDto, UpdateAngebotDto } from './dto/angebot.dto';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Angebote')

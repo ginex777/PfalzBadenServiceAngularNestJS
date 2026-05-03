@@ -18,7 +18,10 @@
         } @else if (objects().length === 0) {
           <p class="form-hint">Keine Objekte verfügbar.</p>
         } @else {
-          <select id="objekt" class="form-control" (change)="onObjectChange($event)">
+          <select id="objekt" class="form-control" [value]="selectedObjectId() ?? ''" (change)="onObjectChange($event)">
+            @if (objects().length > 1) {
+              <option value="" disabled>– Objekt wählen –</option>
+            }
             @for (o of objects(); track o.id) {
               <option [value]="o.id">{{ o.name }}</option>
             }

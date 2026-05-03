@@ -1,19 +1,22 @@
+import type {
+  OnChanges,
+  SimpleChanges} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnChanges,
-  SimpleChanges,
   computed,
   input,
   output,
   signal,
 } from '@angular/core';
-import { FormField, SchemaPathTree, applyEach, form, required } from '@angular/forms/signals';
-import { Kunde, RechnungPosition, WiederkehrendeRechnung } from '../../../../core/models';
+import type { SchemaPathTree} from '@angular/forms/signals';
+import { FormField, applyEach, form, required } from '@angular/forms/signals';
+import type { Kunde, RechnungPosition, WiederkehrendeRechnung } from '../../../../core/models';
+import type {
+  WrFormularDaten} from '../../wiederkehrende-rechnungen.models';
 import {
   INTERVALL_OPTIONEN,
-  LEERES_WR_FORMULAR,
-  WrFormularDaten,
+  LEERES_WR_FORMULAR
 } from '../../wiederkehrende-rechnungen.models';
 import { waehrungFormatieren } from '../../../../core/utils/format.utils';
 

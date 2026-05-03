@@ -9,10 +9,13 @@ import { ZahlungsTrackerComponent } from './components/zahlungs-tracker/zahlungs
 import { StatCardComponent } from '../../shared/ui/stat-card/stat-card.component';
 import { SearchToolbarComponent } from '../../shared/ui/search-toolbar/search-toolbar.component';
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
+import { ModalComponent } from '../../shared/ui/modal/modal.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
-import { Rechnung, RechnungPosition } from '../../core/models';
-import { RechnungFilter, RechnungFormularDaten } from './rechnungen.models';
+import type { Rechnung, RechnungPosition } from '../../core/models';
+import type { RechnungFilter, RechnungFormularDaten } from './rechnungen.models';
 import { waehrungFormatieren } from '../../core/utils/format.utils';
+import { ConfirmService } from '../../shared/services/confirm.service';
+import { BrowserService } from '../../core/services/browser.service';
 
 @Component({
   selector: 'app-rechnungen',
@@ -25,6 +28,7 @@ import { waehrungFormatieren } from '../../core/utils/format.utils';
     StatCardComponent,
     SearchToolbarComponent,
     ConfirmModalComponent,
+    ModalComponent,
     PageTitleComponent,
     DecimalPipe,
     DatePipe,
@@ -35,6 +39,8 @@ import { waehrungFormatieren } from '../../core/utils/format.utils';
 export class RechnungenComponent {
   protected readonly facade = inject(RechnungenFacade);
   private readonly route = inject(ActivatedRoute);
+  private readonly confirm = inject(ConfirmService);
+  private readonly browser = inject(BrowserService);
   protected readonly waehrungFormatieren = waehrungFormatieren;
   private urlId: number | null = null;
 
@@ -102,7 +108,7 @@ export class RechnungenComponent {
     const r = this.facade.sendModalRechnung();
     if (!r) return;
     const mailto = `mailto:${r.email}?subject=${this.facade.sendBetreff()}&body=${encodeURIComponent(this.facade.sendText())}`;
-    window.open(mailto, '_blank');
+    this.browser.openUrl(mailto);
   }
 
   protected onTextKopieren(): void {
@@ -144,8 +150,11 @@ export class RechnungenComponent {
     this.facade.kundeAuswaehlen(kundeId);
   }
 
-  protected onBulkLoeschen(ids: number[]): void {
-    if (!confirm(`${ids.length} Rechnungen unwiderruflich löschen?`)) return;
+  protected async onBulkLoeschen(ids: number[]): Promise<void> {
+    const ok = await this.confirm.confirm({
+      message: `${ids.length} Rechnungen unwiderruflich löschen?`,
+    });
+    if (!ok) return;
     ids.forEach((id) => this.facade.loeschenSofort(id));
   }
 

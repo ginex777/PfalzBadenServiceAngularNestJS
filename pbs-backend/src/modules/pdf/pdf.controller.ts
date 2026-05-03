@@ -13,12 +13,13 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import type { Request } from 'express';
-import { PdfService } from './pdf.service';
+import type { PdfService } from './pdf.service';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AllowReadonlyWrite } from '../auth/decorators/allow-readonly-write.decorator';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import {
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import { contentDispositionHeader } from '../../common/http/content-disposition';
+import type {
   CreateAngebotPdfDto,
   CreateChecklistSubmissionPdfDto,
   CreateEuerPdfDto,
@@ -62,18 +63,31 @@ export class PdfController {
   @Roles('admin', 'mitarbeiter')
   async createHausmeisterEinsatzPdf(
     @Body() body: CreateHausmeisterEinsatzPdfDto,
+    @Req() req: AuthRequest,
   ) {
-    return this.service.createHausmeisterEinsatzPdf(body.einsatz_id);
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.createHausmeisterEinsatzPdf(body.einsatz_id, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
 
   @Post('hausmeister/monat')
   @Roles('admin', 'mitarbeiter')
   async createHausmeisterMonatsnachweisPdf(
     @Body() body: CreateHausmeisterMonatsnachweisPdfDto,
+    @Req() req: AuthRequest,
   ) {
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
     return this.service.createHausmeisterMonatsnachweisPdf(
       body.monat,
       body.mitarbeiter_name,
+      {
+        role: user.rolle,
+        employeeId: user.mitarbeiterId ?? null,
+      },
     );
   }
 
@@ -115,9 +129,11 @@ export class PdfController {
         .json({ error: 'PDF nicht gefunden oder abgelaufen (5 Min. Limit)' });
       return;
     }
-    const safe = filename.replace(/[^\w\-äöüÄÖÜß.]/g, '_').slice(0, 100);
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; filename="${safe}"`);
+    res.setHeader(
+      'Content-Disposition',
+      contentDispositionHeader('inline', filename.slice(0, 100)),
+    );
     res.setHeader('Content-Length', entry.pdf.length);
     res.send(entry.pdf);
   }
@@ -141,7 +157,10 @@ export class PdfController {
   ) {
     const pdf = await this.service.regenerateArchive(id);
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'inline; filename="regeneriert.pdf"');
+    res.setHeader(
+      'Content-Disposition',
+      contentDispositionHeader('inline', 'regeneriert.pdf'),
+    );
     res.send(pdf);
   }
 

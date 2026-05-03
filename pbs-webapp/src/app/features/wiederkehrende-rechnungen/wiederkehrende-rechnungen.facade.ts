@@ -2,8 +2,8 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { WiederkehrendeRechnungenService } from './wiederkehrende-rechnungen.service';
 import { ToastService } from '../../core/services/toast.service';
-import { WiederkehrendeRechnung, Kunde } from '../../core/models';
-import { WrFormularDaten } from './wiederkehrende-rechnungen.models';
+import type { WiederkehrendeRechnung, Kunde } from '../../core/models';
+import type { WrFormularDaten } from './wiederkehrende-rechnungen.models';
 
 @Injectable({ providedIn: 'root' })
 export class WiederkehrendeRechnungenFacade {
@@ -17,6 +17,7 @@ export class WiederkehrendeRechnungenFacade {
   readonly formularSichtbar = signal(false);
   readonly bearbeiteteRechnung = signal<WiederkehrendeRechnung | null>(null);
   readonly loeschKandidat = signal<number | null>(null);
+  readonly erstelltGeradeId = signal<number | null>(null);
 
   ladeDaten(): void {
     this.laedt.set(true);
@@ -104,8 +105,10 @@ export class WiederkehrendeRechnungenFacade {
   }
 
   jetztErstellen(wr: WiederkehrendeRechnung): void {
+    if (this.erstelltGeradeId() !== null) return;
+    this.erstelltGeradeId.set(wr.id);
     const kunde = wr.kunden_id ? this.kunden().find((k) => k.id === wr.kunden_id) : null;
-    this.router.navigate(['/rechnungen'], {
+    void this.router.navigate(['/rechnungen'], {
       state: {
         convertFrom: 'wiederkehrend',
         data: {

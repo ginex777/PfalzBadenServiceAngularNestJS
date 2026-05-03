@@ -1,12 +1,14 @@
-import { ChangeDetectionStrategy, Component, HostListener, input, output } from '@angular/core';
-import { OffenePostenDaten } from '../../kunden.models';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+
+import type { OffenePostenDaten } from '../../kunden.models';
 import { waehrungFormatieren, datumFormatieren } from '../../../../core/utils/format.utils';
+import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
 
 @Component({
   selector: 'app-offene-posten-modal',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [ModalComponent],
   templateUrl: './offene-posten-modal.component.html',
   styleUrl: './offene-posten-modal.component.scss',
 })
@@ -19,11 +21,6 @@ export class OffenePostenModalComponent {
 
   protected readonly waehrungFormatieren = waehrungFormatieren;
   protected readonly datumFormatieren = datumFormatieren;
-
-  @HostListener('document:keydown.escape')
-  protected onEscape(): void {
-    this.geschlossen.emit();
-  }
 
   protected schliessen(): void {
     this.geschlossen.emit();

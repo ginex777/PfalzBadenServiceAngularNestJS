@@ -9,8 +9,6 @@
 @import '@ionic/angular/css/flex-utils.css';
 @import '@ionic/angular/css/display.css';
 
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
-
 :root {
   --app-bg: #f6f7fb;
   --app-surface: #ffffff;
@@ -21,6 +19,10 @@
   --app-accent: #ff7a00;
   --app-accent-strong: #d45f00;
   --app-accent-soft: #ffd8b0;
+  --app-hero-bg: #1f324f;
+  --app-primary-action-bg: #ff7a00;
+  --app-danger-action-bg: #d45f00;
+  --app-warm-surface: #fff8f0;
 
   --app-shadow-soft: 0 8px 24px rgba(18, 24, 38, 0.08);
   --app-shadow: 0 16px 36px rgba(18, 24, 38, 0.12);
@@ -30,7 +32,7 @@
 
   --ion-background-color: var(--app-bg);
   --ion-text-color: var(--app-text-strong);
-  --ion-font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ion-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
   --ion-color-primary: var(--app-accent);
   --ion-color-primary-rgb: 255, 122, 0;
   --ion-color-primary-contrast: #ffffff;
@@ -98,7 +100,7 @@ body.ion-disable-user-behavior:not(.plt-hybrid) {
 .app-hero {
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.25);
-  background: linear-gradient(140deg, #162138, #233555);
+  background: var(--app-hero-bg);
   color: #fff;
   padding: var(--app-space-3);
   box-shadow: 0 14px 26px rgba(12, 23, 41, 0.25);
@@ -174,7 +176,7 @@ body.ion-disable-user-behavior:not(.plt-hybrid) {
 
 .app-btn--primary {
   color: #fff;
-  background: linear-gradient(135deg, #ff7a00, #ff9a2f);
+  background: var(--app-primary-action-bg);
 }
 
 .app-btn--secondary {
@@ -185,5 +187,5 @@ body.ion-disable-user-behavior:not(.plt-hybrid) {
 
 .app-btn--danger {
   color: #fff;
-  background: linear-gradient(135deg, #d45f00, #ff7a00);
+  background: var(--app-danger-action-bg);
 }

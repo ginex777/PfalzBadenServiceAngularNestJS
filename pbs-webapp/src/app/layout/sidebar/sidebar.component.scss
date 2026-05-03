@@ -37,7 +37,7 @@
   display: block;
   font-size: var(--app-text-sm);
   font-weight: 850;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
 .sidebar__logo-sub {
@@ -224,6 +224,31 @@
     &:hover {
       background: var(--app-color-surface-raised);
       border-color: var(--app-color-border-strong);
+    }
+  }
+}
+
+.sidebar__logout-btn {
+  height: 38px;
+  padding: 0 var(--app-space-3);
+  border-radius: var(--app-radius-full);
+  border: 1px solid var(--app-color-border);
+  background: transparent;
+  color: var(--app-color-text-muted);
+  font-size: var(--app-text-sm);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--app-motion-fast),
+    color var(--app-motion-fast),
+    background var(--app-motion-fast);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: var(--app-color-danger, #e53e3e);
+      color: var(--app-color-danger, #e53e3e);
+      background: color-mix(in srgb, var(--app-color-danger, #e53e3e) 8%, transparent);
     }
   }
 }

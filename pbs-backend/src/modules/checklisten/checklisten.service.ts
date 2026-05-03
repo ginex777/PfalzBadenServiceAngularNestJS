@@ -5,9 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
-import { PrismaService } from '../../core/database/prisma.service';
-import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import { TasksService } from '../tasks/tasks.service';
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import type { TasksService } from '../tasks/tasks.service';
+import type { AccessPolicyService } from '../access-policy/access-policy.service';
 import type {
   ChecklistFieldDto,
   ChecklistFieldType,
@@ -70,7 +71,7 @@ function toJsonFields(fields: ChecklistFieldDto[]): Prisma.InputJsonArray {
 }
 
 function toJsonAnswers(
-  answers: { fieldId: string; value: ChecklistAnswerValue }[],
+  answers: Array<{ fieldId: string; value: ChecklistAnswerValue }>,
 ): Prisma.InputJsonArray {
   return answers.map((a) => ({
     fieldId: a.fieldId,
@@ -164,8 +165,8 @@ function normalizeAnswerValue(
 
 export function validateAndNormalizeAnswers(params: {
   fields: ChecklistFieldDto[];
-  answers: { fieldId: string; value?: unknown }[];
-}): { normalized: { fieldId: string; value: ChecklistAnswerValue }[] } {
+  answers: Array<{ fieldId: string; value?: unknown }>;
+}): { normalized: Array<{ fieldId: string; value: ChecklistAnswerValue }> } {
   const { fields, answers } = params;
 
   const fieldById = new Map<string, ChecklistFieldDto>();
@@ -242,6 +243,7 @@ export class ChecklistenService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tasksService: TasksService,
+    private readonly accessPolicy: AccessPolicyService,
   ) {}
 
   async templatesAllActive(): Promise<ChecklistTemplateListItem[]> {
@@ -373,7 +375,13 @@ export class ChecklistenService {
     const skip = (page - 1) * pageSize;
 
     const where: Prisma.ChecklistenSubmissionsWhereInput = {};
-    if (query.objectId) where.objekt_id = BigInt(query.objectId);
+    if (query.objectId) {
+      await this.accessPolicy.assertCanAccessObject(
+        { role: auth.role, employeeId: auth.employeeId },
+        query.objectId,
+      );
+      where.objekt_id = BigInt(query.objectId);
+    }
     if (query.templateId) where.template_id = BigInt(query.templateId);
 
     if (auth.role === 'mitarbeiter') {
@@ -385,6 +393,16 @@ export class ChecklistenService {
         });
       }
       where.mitarbeiter_id = BigInt(auth.employeeId);
+      const accessibleObjectIds = await this.accessPolicy.accessibleObjectIds({
+        role: auth.role,
+        employeeId: auth.employeeId,
+      });
+      if (accessibleObjectIds) {
+        where.objekt_id =
+          query.objectId != null
+            ? BigInt(query.objectId)
+            : { in: accessibleObjectIds };
+      }
     }
 
     const [rows, total] = await this.prisma.$transaction([
@@ -451,6 +469,10 @@ export class ChecklistenService {
       },
     });
     if (!row) throw new NotFoundException('Submission nicht gefunden');
+    await this.accessPolicy.assertCanAccessObject(
+      { role: auth.role, employeeId: auth.employeeId },
+      Number(row.objekt.id),
+    );
 
     if (auth.role === 'mitarbeiter') {
       if (auth.employeeId == null) {
@@ -528,6 +550,33 @@ export class ChecklistenService {
           'Kein Mitarbeiter-Mapping vorhanden. Bitte Admin kontaktieren (User \u2194 Mitarbeiter zuordnen).',
       });
     }
+    await this.accessPolicy.assertCanAccessObject(
+      { role: auth.role, employeeId: auth.employeeId },
+      dto.objectId,
+    );
+
+    const templateObjectCount =
+      await this.prisma.checklistenTemplateObjekte.count({
+        where: { template_id: BigInt(dto.templateId) },
+      });
+    if (templateObjectCount > 0) {
+      const assignment =
+        await this.prisma.checklistenTemplateObjekte.findUnique({
+          where: {
+            template_id_objekt_id: {
+              template_id: BigInt(dto.templateId),
+              objekt_id: BigInt(dto.objectId),
+            },
+          },
+          select: { template_id: true },
+        });
+      if (!assignment) {
+        throw new BadRequestException({
+          code: 'TEMPLATE_NOT_ASSIGNED_TO_OBJECT',
+          message: 'Template ist diesem Objekt nicht zugeordnet.',
+        });
+      }
+    }
 
     const fields = parseJsonFields(template.fields);
 
@@ -583,7 +632,12 @@ export class ChecklistenService {
 
   async templatesForObject(
     objektId: number,
+    auth: Pick<AuthContext, 'role' | 'employeeId'>,
   ): Promise<ChecklistTemplateListItem[]> {
+    await this.accessPolicy.assertCanAccessObject(
+      { role: auth.role, employeeId: auth.employeeId },
+      objektId,
+    );
     const rows = await this.prisma.checklistenTemplates.findMany({
       where: { is_active: true },
       orderBy: [{ name: 'asc' }, { id: 'asc' }],

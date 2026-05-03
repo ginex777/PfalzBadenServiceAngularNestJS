@@ -13,19 +13,15 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { Response, Request } from 'express';
+import type { Response } from 'express';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { EvidenceListQueryDto, UploadEvidenceDto } from './dto/nachweise.dto';
-import { NachweiseService } from './nachweise.service';
-
-type AuthRequest = Request & {
-  user?: {
-    email: string;
-    rolle: string;
-    fullName?: string;
-    mitarbeiterId?: number | null;
-  };
-};
+import type {
+  EvidenceListQueryDto,
+  UploadEvidenceDto,
+} from './dto/nachweise.dto';
+import type { NachweiseService } from './nachweise.service';
+import type { AuthRequest } from '../auth/auth-request.type';
+import { contentDispositionHeader } from '../../common/http/content-disposition';
 
 @Controller('api/nachweise')
 @Roles('admin', 'readonly', 'mitarbeiter')
@@ -33,13 +29,23 @@ export class NachweiseController {
   constructor(private readonly service: NachweiseService) {}
 
   @Get()
-  list(@Query() query: EvidenceListQueryDto) {
-    return this.service.list(query);
+  list(@Query() query: EvidenceListQueryDto, @Req() req: AuthRequest) {
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.list(query, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
 
   @Get(':id')
-  get(@Param('id', ParseIntPipe) id: number) {
-    return this.service.get(id);
+  get(@Param('id', ParseIntPipe) id: number, @Req() req: AuthRequest) {
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.get(id, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
 
   @Get(':id/download')
@@ -47,12 +53,21 @@ export class NachweiseController {
     @Param('id', ParseIntPipe) id: number,
     @Query('inline') inline: string,
     @Res() res: Response,
+    @Req() req: AuthRequest,
   ) {
-    const row = await this.service.download(id);
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    const row = await this.service.download(id, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
     res.setHeader('Content-Type', row.mimetype);
     res.setHeader(
       'Content-Disposition',
-      `${inline === '1' ? 'inline' : 'attachment'}; filename="${row.filename}"`,
+      contentDispositionHeader(
+        inline === '1' ? 'inline' : 'attachment',
+        row.filename,
+      ),
     );
     res.send(row.data);
   }
@@ -85,6 +100,7 @@ export class NachweiseController {
         fullName: user.fullName ?? user.email,
       },
       employeeId,
+      auth: { role: user.rolle, employeeId },
     });
   }
 }

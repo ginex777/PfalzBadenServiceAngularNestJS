@@ -1,0 +1,4 @@
+interface:
+  display_name: "PBS Security"
+  short_description: "Threat modeling and security review"
+  default_prompt: "Use $pbs-security to review PBS security risks and backend-owned mitigations."

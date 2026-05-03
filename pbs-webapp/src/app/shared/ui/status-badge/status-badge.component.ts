@@ -10,6 +10,8 @@ export type StatusBadgeTyp =
   | 'entwurf'
   | 'aktiv'
   | 'inaktiv'
+  | 'beendet'
+  | 'gekuendigt'
   | 'neu'
   | 'interesse'
   | 'kein-interesse'
@@ -37,6 +39,8 @@ const BADGE_KONFIGURATIONEN: Record<StatusBadgeTyp, BadgeKonfiguration> = {
   entwurf: { label: 'Entwurf', klasse: 'neutral' },
   aktiv: { label: 'Aktiv', klasse: 'success' },
   inaktiv: { label: 'Inaktiv', klasse: 'neutral' },
+  beendet: { label: 'Beendet', klasse: 'neutral' },
+  gekuendigt: { label: 'Gekündigt', klasse: 'danger' },
   neu: { label: 'Neu', klasse: 'neutral' },
   interesse: { label: 'Interesse', klasse: 'primary' },
   'kein-interesse': { label: 'Kein Interesse', klasse: 'danger' },
@@ -59,13 +63,13 @@ const BADGE_KONFIGURATIONEN: Record<StatusBadgeTyp, BadgeKonfiguration> = {
 })
 export class StatusBadgeComponent {
   readonly status = input.required<StatusBadgeTyp>();
-  readonly benutzerdefiniert = input<string>('');
+  readonly customLabel = input<string>('');
 
   protected readonly konfiguration = computed<BadgeKonfiguration>(() => {
     return BADGE_KONFIGURATIONEN[this.status()] ?? { label: this.status(), klasse: 'neutral' };
   });
 
   protected readonly anzeigeLabel = computed<string>(() => {
-    return this.benutzerdefiniert() || this.konfiguration().label;
+    return this.customLabel() || this.konfiguration().label;
   });
 }

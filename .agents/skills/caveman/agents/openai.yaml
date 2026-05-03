@@ -1,0 +1,4 @@
+interface:
+  display_name: "Caveman"
+  short_description: "Terse, direct engineering communication"
+  default_prompt: "Use $caveman to answer tersely, challenge bad ideas, and skip filler."

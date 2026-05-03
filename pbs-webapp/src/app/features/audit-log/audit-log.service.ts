@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { AuditLogEntry, PaginatedResponse } from '../../core/models';
+import type { Observable } from 'rxjs';
+import type { AuditLogEntry, PaginatedResponse } from '../../core/models';
 import { AuditLogApiClient } from '../../core/api/clients';
 
 @Injectable({ providedIn: 'root' })

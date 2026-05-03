@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { SmtpSettings, UserAktualisierenPayload, UserAnlegenPayload, UserEintrag } from '../../core/api/api.contract';
-import { BackupInfo, FirmaSettings } from '../../core/models';
+import type { Observable } from 'rxjs';
+import type { SmtpSettings, UserAktualisierenPayload, UserAnlegenPayload, UserEintrag } from '../../core/api/api.contract';
+import type { BackupInfo, FirmaSettings } from '../../core/models';
 import { BackupApiClient, EmailApiClient, SettingsApiClient, SmtpApiClient, UsersApiClient } from '../../core/api/clients';
 
 export type { SmtpSettings, UserEintrag, UserAnlegenPayload, UserAktualisierenPayload };

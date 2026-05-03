@@ -3,11 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, TaskStatus, TaskType, Tasks } from '@prisma/client';
-import { PrismaService } from '../../core/database/prisma.service';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import {
+import type { Prisma, Tasks } from '@prisma/client';
+import { TaskStatus, TaskType } from '@prisma/client';
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import type {
   CreateTaskDto,
   TaskListQueryDto,
   UpdateTaskDto,

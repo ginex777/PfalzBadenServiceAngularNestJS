@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { TerminListeComponent } from './termin-liste.component';
 
 describe('TerminListeComponent', () => {
@@ -7,11 +8,12 @@ describe('TerminListeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TerminListeComponent],
+      imports: [TerminListeComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TerminListeComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('termine', []);
     fixture.detectChanges();
   });
 

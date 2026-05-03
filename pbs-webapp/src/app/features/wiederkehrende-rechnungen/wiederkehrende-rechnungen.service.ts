@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { WiederkehrendeRechnung, Kunde } from '../../core/models';
+import type { WiederkehrendeRechnung, Kunde } from '../../core/models';
 import { forkJoin } from 'rxjs';
 import { CustomersApiClient, RecurringInvoicesApiClient } from '../../core/api/clients';
 

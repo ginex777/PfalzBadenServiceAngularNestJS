@@ -1,7 +1,7 @@
 <div class="formular-content">
   <div class="form-row">
     <div class="form-field">
-      <label class="form-label">Titel *</label>
+      <label for="src-app-features-wiederkehrende-rechnungen-components-wr-formular-wr-formular-component-0" class="form-label">Titel *</label>
       <input
         class="form-input"
         type="text"
@@ -13,7 +13,7 @@
       }
     </div>
     <div class="form-field">
-      <label class="form-label">Kunde</label>
+      <label for="src-app-features-wiederkehrende-rechnungen-components-wr-formular-wr-formular-component-1" class="form-label">Kunde</label>
       <select
         class="form-select"
         [value]="formModell().kunden_id ?? ''"
@@ -26,7 +26,7 @@
       </select>
     </div>
     <div class="form-field">
-      <label class="form-label">Intervall</label>
+      <label for="src-app-features-wiederkehrende-rechnungen-components-wr-formular-wr-formular-component-2" class="form-label">Intervall</label>
       <select
         class="form-select"
         [value]="formModell().intervall"
@@ -38,7 +38,7 @@
       </select>
     </div>
     <div class="form-field form-field--checkbox">
-      <label class="form-label">Aktiv</label>
+      <label for="src-app-features-wiederkehrende-rechnungen-components-wr-formular-wr-formular-component-3" class="form-label">Aktiv</label>
       <input
         type="checkbox"
         [checked]="formModell().aktiv"
@@ -49,7 +49,7 @@
 
   <div class="positionen-bereich">
     <div class="positionen-kopf">
-      <label class="form-label">Positionen</label>
+      <label for="src-app-features-wiederkehrende-rechnungen-components-wr-formular-wr-formular-component-4" class="form-label">Positionen</label>
       <button class="btn btn-sm" (click)="positionHinzufuegen()">Position</button>
     </div>
     @for (pos of formModell().positionen; track $index) {

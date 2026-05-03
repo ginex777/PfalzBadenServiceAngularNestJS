@@ -1,6 +1,7 @@
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
-import { AuditService } from '../audit/audit.service';
+import type { OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { AuditService } from '../audit/audit.service';
 import type { Prisma } from '@prisma/client';
 
 type WiederkehrendeRechnungRow = {
@@ -125,8 +126,9 @@ export class WiederkehrendScheduler implements OnApplicationBootstrap {
       }
     } catch (error) {
       this.logger.error(
-        'Fehler beim Prüfen wiederkehrender Rechnungen: ' +
-          (error as Error).message,
+        `Fehler beim Prüfen wiederkehrender Rechnungen: ${
+          (error as Error).message
+        }`,
       );
     }
   }

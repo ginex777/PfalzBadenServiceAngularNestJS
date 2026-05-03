@@ -1,5 +1,6 @@
-import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   IonBadge,
   IonButton,
@@ -21,22 +22,13 @@ import {
   IonToggle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { MobileAuthService } from '../../core/auth.service';
+import { getApiErrorMessage } from '../../core/api-error';
 import { ChecklistField, ChecklistService, ChecklistTemplate } from '../../core/checklist.service';
 import { ObjectContextService } from '../../core/object-context.service';
 import { EvidenceService } from '../../core/evidence.service';
+import { PhotoCaptureService, isCameraCancel } from '../../core/photo-capture.service';
 import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-kontext.component';
-
-function base64ToBlob(dataUrl: string, mimeType = 'image/jpeg'): Blob {
-  const byteString = atob(dataUrl.split(',')[1]);
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i += 1) {
-    ia[i] = byteString.charCodeAt(i);
-  }
-  return new Blob([ab], { type: mimeType });
-}
 
 type AnswerValue = string | number | boolean | null;
 
@@ -72,9 +64,11 @@ type AnswerValue = string | number | boolean | null;
 export class ChecklistenPage implements OnInit {
   private readonly auth = inject(MobileAuthService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly context = inject(ObjectContextService);
   private readonly checklist = inject(ChecklistService);
   private readonly evidence = inject(EvidenceService);
+  private readonly photoCapture = inject(PhotoCaptureService);
 
   readonly templates = signal<ChecklistTemplate[]>([]);
   readonly selectedObjectId = this.context.selectedObjectId;
@@ -110,15 +104,33 @@ export class ChecklistenPage implements OnInit {
 
   readonly fields = computed<ChecklistField[]>(() => this.selectedTemplate()?.fields ?? []);
 
+  readonly requiredFieldErrors = computed<Record<string, string>>(() => {
+    const errors: Record<string, string> = {};
+    for (const field of this.fields()) {
+      if (!field.required) continue;
+      const val = this.answers()[field.fieldId];
+      if (val == null || val === '' || (typeof val === 'string' && val.trim() === '')) {
+        errors[field.fieldId] = 'Pflichtfeld';
+      }
+    }
+    return errors;
+  });
+
   readonly canSubmit = computed(() => {
     const uploading = this.photoUploading();
     const anyUploading = Object.values(uploading).some((v) => v);
-    return !!this.selectedObjectId() && !!this.selectedTemplateId() && !this.submitting() && !anyUploading;
+    const anyRequired = Object.keys(this.requiredFieldErrors()).length > 0;
+    return !!this.selectedObjectId() && !!this.selectedTemplateId() && !this.submitting() && !anyUploading && !anyRequired;
   });
 
   readonly toastOpen = signal(false);
   readonly toastMessage = signal('');
   readonly toastTone = signal<'success' | 'error' | 'info'>('info');
+
+  private readonly _sessionResetEffect = effect(() => {
+    this.auth.sessionResetVersion();
+    this.resetPageState();
+  });
 
   ngOnInit(): void {
     this.context.ensureObjectsLoaded();
@@ -146,12 +158,14 @@ export class ChecklistenPage implements OnInit {
   private loadTemplatesForObject(objectId: number): void {
     this.errorMessage.set(null);
     this.templatesLoading.set(true);
-    this.checklist.getTemplatesForObject(objectId).subscribe({
+    this.checklist.getTemplatesForObject(objectId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (templates) => {
         this.templates.set(templates);
-        if (this.selectedTemplateId() == null) {
+        const currentId = this.selectedTemplateId();
+        const stillValid = currentId != null && templates.some((t) => t.id === currentId);
+        if (!stillValid) {
           this.selectedTemplateId.set(templates.at(0)?.id ?? null);
-          this.resetAnswers();
+          this.resetForm();
         }
         this.templatesLoading.set(false);
       },
@@ -165,7 +179,7 @@ export class ChecklistenPage implements OnInit {
   protected onTemplateChanged(value: unknown): void {
     const parsed = typeof value === 'number' ? value : value != null ? Number(value) : NaN;
     this.selectedTemplateId.set(Number.isFinite(parsed) ? parsed : null);
-    this.resetAnswers();
+    this.resetForm();
   }
 
   protected setTextAnswer(fieldId: string, value: string): void {
@@ -201,20 +215,14 @@ export class ChecklistenPage implements OnInit {
     }
 
     try {
-      const photo = await Camera.getPhoto({
-        resultType: CameraResultType.DataUrl,
-        source: CameraSource.Prompt,
-        quality: 80,
-      });
+      const result = await this.photoCapture.captureWithPrompt();
+      if (!result) return;
 
-      if (!photo.dataUrl) return;
-
-      const blob = base64ToBlob(photo.dataUrl);
       const filename = `checklist-${Date.now()}.jpg`;
-
       this.photoUploading.update((p) => ({ ...p, [fieldId]: true }));
+      this.photoErrors.update((p) => ({ ...p, [fieldId]: null }));
 
-      this.evidence.upload({ objectId, photo: blob, filename }).subscribe({
+      this.evidence.upload({ objectId, photo: result.blob, filename }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (ev) => {
           this.answers.update((prev) => ({ ...prev, [fieldId]: String(ev.id) }));
           this.photoUploading.update((p) => ({ ...p, [fieldId]: false }));
@@ -222,11 +230,14 @@ export class ChecklistenPage implements OnInit {
         },
         error: () => {
           this.photoUploading.update((p) => ({ ...p, [fieldId]: false }));
+          this.photoErrors.update((p) => ({ ...p, [fieldId]: 'Foto-Upload fehlgeschlagen.' }));
           this.setToast('error', 'Foto-Upload fehlgeschlagen.');
         },
       });
-    } catch {
-      // user cancelled camera
+    } catch (err) {
+      if (!isCameraCancel(err)) {
+        this.setToast('error', 'Kamera-Zugriff verweigert.');
+      }
     }
   }
 
@@ -252,7 +263,7 @@ export class ChecklistenPage implements OnInit {
     const objectId = this.selectedObjectId();
     const template = this.selectedTemplate();
     if (!objectId || !template) {
-      this.setToast('error', 'Bitte Objekt und Checkliste auswaehlen.');
+      this.setToast('error', 'Bitte Objekt und Checkliste auswählen.');
       return;
     }
 
@@ -270,16 +281,16 @@ export class ChecklistenPage implements OnInit {
         note: note ? note : undefined,
         answers,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.submitting.set(false);
           this.setToast('success', 'Checkliste gespeichert.');
-          this.note.set('');
-          this.resetAnswers();
+          this.resetForm();
         },
-        error: (error: { error?: { message?: string } }) => {
+        error: (error: unknown) => {
           this.submitting.set(false);
-          this.setToast('error', error?.error?.message ?? 'Senden fehlgeschlagen.');
+          this.setToast('error', getApiErrorMessage(error) ?? 'Senden fehlgeschlagen.');
         },
       });
   }
@@ -300,13 +311,31 @@ export class ChecklistenPage implements OnInit {
     this.toastOpen.set(true);
   }
 
-  private resetAnswers(): void {
+  private resetForm(): void {
     const next: Record<string, AnswerValue> = {};
     for (const field of this.fields()) {
       if (field.type === 'boolean') next[field.fieldId] = false;
       else next[field.fieldId] = null;
     }
     this.answers.set(next);
+    this.note.set('');
     this.photoUploading.set({});
+    this.photoErrors.set({});
+  }
+
+  private resetPageState(): void {
+    this.templates.set([]);
+    this.selectedTemplateId.set(null);
+    this.note.set('');
+    this.templatesLoading.set(false);
+    this.submitting.set(false);
+    this.errorMessage.set(null);
+    this.answers.set({});
+    this.photoUploading.set({});
+    this.photoErrors.set({});
+    this.lastLoadedObjectId.set(null);
+    this.toastOpen.set(false);
+    this.toastMessage.set('');
+    this.toastTone.set('info');
   }
 }

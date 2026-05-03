@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { SkeletonRowsComponent } from '../../shared/ui/skeleton-rows/skeleton-rows.component';

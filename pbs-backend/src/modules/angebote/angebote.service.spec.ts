@@ -1,8 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { AngeboteService } from './angebote.service';
 import { PrismaService } from '../../core/database/prisma.service';
 import { AuditService } from '../../modules/audit/audit.service';
+import { Prisma } from '@prisma/client';
 
 const mockPrisma = {
   angebote: {
@@ -87,6 +89,38 @@ describe('AngeboteService', () => {
       );
       expect(result.id).toBe(1);
     });
+
+    it('berechnet Brutto serverseitig und ignoriert clientseitige Angebotssumme', async () => {
+      const daten = {
+        nr: 'A-002',
+        empf: 'Test GmbH',
+        brutto: 1,
+        positionen: [
+          { bez: 'Reinigung', gesamtpreis: 150 },
+          { bez: 'Pflege', gesamtpreis: 50 },
+        ],
+      };
+      const created = {
+        id: 2n,
+        ...daten,
+        brutto: new Prisma.Decimal(238),
+        angenommen: false,
+        abgelehnt: false,
+        gesendet: false,
+        kunden_id: null,
+      };
+      mockPrisma.angebote.create.mockResolvedValue(created);
+      mockAudit.log.mockResolvedValue(undefined);
+
+      const result = await service.create(daten);
+
+      expect(mockPrisma.angebote.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          brutto: new Prisma.Decimal(238),
+        }),
+      });
+      expect(result.brutto).toBe(238);
+    });
   });
 
   describe('update()', () => {
@@ -135,6 +169,42 @@ describe('AngeboteService', () => {
         updated,
         undefined,
       );
+    });
+
+    it('recomputes brutto on update and ignores submitted client brutto', async () => {
+      const alt = {
+        id: 1n,
+        nr: 'A-001',
+        empf: 'Alt',
+        brutto: new Prisma.Decimal(119),
+        angenommen: false,
+        abgelehnt: false,
+        gesendet: false,
+        kunden_id: null,
+      };
+      const updated = {
+        ...alt,
+        brutto: new Prisma.Decimal(357),
+        positionen: [{ bez: 'Neu', gesamtpreis: 300 }],
+      };
+      mockPrisma.angebote.findUnique.mockResolvedValue(alt);
+      mockPrisma.angebote.update.mockResolvedValue(updated);
+      mockAudit.log.mockResolvedValue(undefined);
+
+      const result = await service.update(1, {
+        nr: 'A-001',
+        empf: 'Alt',
+        brutto: 1,
+        positionen: [{ bez: 'Neu', gesamtpreis: 300 }],
+      });
+
+      expect(mockPrisma.angebote.update).toHaveBeenCalledWith({
+        where: { id: 1n },
+        data: expect.objectContaining({
+          brutto: new Prisma.Decimal(357),
+        }),
+      });
+      expect(result.brutto).toBe(357);
     });
   });
 

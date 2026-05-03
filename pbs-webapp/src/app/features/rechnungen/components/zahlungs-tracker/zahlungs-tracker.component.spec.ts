@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { ZahlungsTrackerComponent } from './zahlungs-tracker.component';
 
 describe('ZahlungsTrackerComponent', () => {
@@ -7,11 +8,12 @@ describe('ZahlungsTrackerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZahlungsTrackerComponent],
+      imports: [ZahlungsTrackerComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZahlungsTrackerComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('rechnungen', []);
     fixture.detectChanges();
   });
 

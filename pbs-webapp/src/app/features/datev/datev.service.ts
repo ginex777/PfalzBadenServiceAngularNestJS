@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin } from 'rxjs';
-import { FirmaSettings } from '../../core/models';
+import type { Observable} from 'rxjs';
+import { forkJoin } from 'rxjs';
+import type { FirmaSettings } from '../../core/models';
 import { DatevApiClient, SettingsApiClient } from '../../core/api/clients';
-import { DatevVorschauAntwort } from '../../core/api/api.contract';
+import type { DatevVorschauAntwort } from '../../core/api/api.contract';
 
 export type { DatevVorschauAntwort };
 

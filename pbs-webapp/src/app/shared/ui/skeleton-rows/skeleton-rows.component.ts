@@ -52,8 +52,9 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   ],
 })
 export class SkeletonRowsComponent {
-  readonly anzahl = input(5);
-  protected rows() {
-    return Array(this.anzahl());
+  readonly count = input(5);
+
+  protected rows(): unknown[] {
+    return Array(this.count());
   }
 }

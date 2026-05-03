@@ -10,12 +10,12 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
-import {
+import type {
   CreateTaskDto,
   TaskListQueryDto,
   UpdateTaskDto,
 } from './dto/tasks.dto';
-import { TasksService } from './tasks.service';
+import type { TasksService } from './tasks.service';
 
 @ApiTags('Aufgaben')
 @ApiSecurity('x-nutzer')

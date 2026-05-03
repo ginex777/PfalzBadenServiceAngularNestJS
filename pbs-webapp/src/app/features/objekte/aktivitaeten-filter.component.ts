@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
+import type {
   AktivitaetenFilterState,
-  DropdownOption,
+  DropdownOption} from './aktivitaeten.models';
+import {
   AKTIVITAET_TYPE_LABELS,
 } from './aktivitaeten.models';
 

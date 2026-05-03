@@ -10,6 +10,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  quality:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Mojibake scan
+        run: npm run check:mojibake
+
+      - name: Unsafe cast scan
+        run: npm run check:unsafe-casts
+
   backend:
     name: Backend
     runs-on: ubuntu-latest
@@ -28,6 +44,9 @@ jobs:
 
       - name: Typecheck
         run: npx tsc --noEmit -p pbs-backend/tsconfig.json
+
+      - name: Lint check
+        run: npm run lint:check --prefix pbs-backend
 
       - name: Build
         run: npm run build --prefix pbs-backend
@@ -57,8 +76,14 @@ jobs:
       - name: Build
         run: npm run build --prefix pbs-webapp
 
+      - name: Lint check
+        run: npm run lint:check --prefix pbs-webapp
+
       - name: Tests
         run: npm test --prefix pbs-webapp
+
+      - name: Coverage
+        run: npm run test:coverage --prefix pbs-webapp -- --run
 
       - name: Upload Sentry sourcemaps (prod)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.SENTRY_AUTH_TOKEN != ''
@@ -92,6 +117,12 @@ jobs:
 
       - name: Build
         run: npm run build --prefix pbs-mobile
+
+      - name: Lint check
+        run: npm run lint:check --prefix pbs-mobile
+
+      - name: Coverage
+        run: npm run test:coverage --prefix pbs-mobile
 
       - name: Upload Sentry sourcemaps (prod)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.SENTRY_AUTH_TOKEN != ''

@@ -1,4 +1,5 @@
-import { ErrorHandler, Injectable, inject } from '@angular/core';
+import type { ErrorHandler} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ToastService } from './services/toast.service';
 import * as Sentry from '@sentry/angular';
 

@@ -27,3 +27,25 @@
   right: 0;
   border-right: none;
 }
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--app-space-4) var(--app-space-5) var(--app-space-3);
+  border-bottom: 1px solid var(--app-color-border);
+  position: sticky;
+  top: 0;
+  background: var(--app-color-surface);
+  z-index: 1;
+}
+
+.drawer-title {
+  margin: 0;
+  font-size: var(--app-text-md);
+  font-weight: 700;
+}
+
+.drawer-body {
+  padding: var(--app-space-5);
+}

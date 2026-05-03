@@ -1,7 +1,7 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
+import type { PrismaService } from '../../core/database/prisma.service';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { AuditListQueryDto } from './dto/audit-list-query.dto';
+import type { AuditListQueryDto } from './dto/audit-list-query.dto';
 
 @Roles('admin', 'readonly')
 @Controller('api/audit')

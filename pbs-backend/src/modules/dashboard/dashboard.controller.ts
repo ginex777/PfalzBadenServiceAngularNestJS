@@ -5,7 +5,7 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
-import { DashboardService } from './dashboard.service';
+import type { DashboardService } from './dashboard.service';
 
 @Controller('api/dashboard')
 export class DashboardController {
@@ -19,6 +19,14 @@ export class DashboardController {
   @Get('activity')
   activity() {
     return this.service.activity();
+  }
+
+  @Get('yearly-stats')
+  yearlyStats(
+    @Query('year', new DefaultValuePipe(new Date().getFullYear()), ParseIntPipe)
+    year: number,
+  ) {
+    return this.service.yearlyStats(year);
   }
 
   @Get('revenue-trend')

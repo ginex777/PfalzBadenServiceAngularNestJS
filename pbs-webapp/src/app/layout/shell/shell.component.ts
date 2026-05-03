@@ -1,8 +1,9 @@
+import type {
+  OnInit} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  OnInit,
   inject,
   signal,
   computed,
@@ -18,7 +19,7 @@ import { ToastComponent } from '../../shared/ui/toast/toast.component';
 import { OnboardingComponent } from '../../features/onboarding/onboarding.component';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
-import { Benachrichtigung } from '../../core/models';
+import type { Benachrichtigung } from '../../core/models';
 
 @Component({
   selector: 'app-shell',

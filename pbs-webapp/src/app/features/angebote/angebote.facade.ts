@@ -6,11 +6,12 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngeboteService } from './angebote.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Angebot, Kunde, FirmaSettings, RechnungPosition } from '../../core/models';
-import {
+import type { Angebot, Kunde, FirmaSettings, RechnungPosition } from '../../core/models';
+import type {
   AngebotFilter,
   AngebotFormularDaten,
-  AngebotPrefill,
+  AngebotPrefill} from './angebote.models';
+import {
   LEERES_ANGEBOTS_FORMULAR,
 } from './angebote.models';
 
@@ -32,6 +33,7 @@ export class AngeboteFacade {
   readonly bearbeitetesAngebot = signal<Angebot | null>(null);
   readonly loeschKandidat = signal<number | null>(null);
   readonly formularDaten = signal<AngebotFormularDaten>({ ...LEERES_ANGEBOTS_FORMULAR });
+  readonly formularSnapshot = signal<string>('');
 
   // Send-Modal nach Speichern
   readonly sendModal = signal<{ angebot: Angebot; email: string } | null>(null);
@@ -99,7 +101,9 @@ export class AngeboteFacade {
 
   readonly netto = computed(() => this.service.nettoBerechnen(this.formularDaten().positionen));
 
-  readonly brutto = computed(() => this.service.bruttoBerechnen(this.formularDaten().positionen));
+  readonly brutto = computed(() =>
+    this.service.bruttoBerechnen(this.formularDaten().positionen, this.formularDaten().mwst_satz),
+  );
 
   readonly mwstBetrag = computed(() => this.brutto() - this.netto());
 
@@ -151,7 +155,6 @@ export class AngeboteFacade {
       return;
     }
     this.speichert.set(true);
-    const brutto = this.brutto();
     const emailSnapshot = daten.email ?? '';
     const payload: Partial<Angebot> = {
       nr: daten.nr,
@@ -164,7 +167,6 @@ export class AngeboteFacade {
       positionen: daten.positionen,
       zusatz: daten.zusatz,
       kunden_id: daten.kunden_id,
-      brutto,
       angenommen: false,
       abgelehnt: false,
       gesendet: false,
@@ -219,6 +221,7 @@ export class AngeboteFacade {
       positionen: angebot.positionen?.length
         ? angebot.positionen
         : [{ bez: '', stunden: '', einzelpreis: undefined, gesamtpreis: 0 }],
+      mwst_satz: 19,
       zusatz: angebot.zusatz ?? '',
       kunden_id: angebot.kunden_id,
     });
@@ -291,7 +294,6 @@ export class AngeboteFacade {
       return;
     }
     this.speichert.set(true);
-    const brutto = this.brutto();
     const payload: Partial<Angebot> = {
       nr: daten.nr,
       empf: daten.empf,
@@ -303,7 +305,6 @@ export class AngeboteFacade {
       positionen: daten.positionen,
       zusatz: daten.zusatz,
       kunden_id: daten.kunden_id,
-      brutto,
       angenommen: false,
       abgelehnt: false,
       gesendet: false,
@@ -346,6 +347,7 @@ export class AngeboteFacade {
       positionen: angebot.positionen?.length
         ? angebot.positionen.map((p) => ({ ...p }))
         : [{ bez: '', stunden: '', einzelpreis: undefined, gesamtpreis: 0 }],
+      mwst_satz: 19,
       zusatz: angebot.zusatz ?? '',
       kunden_id: angebot.kunden_id,
     });
@@ -447,6 +449,7 @@ export class AngeboteFacade {
   drawerOeffnen(): void {
     this.drawerOffen.set(true);
     this.drawerSchritt.set('formular');
+    this.formularSnapshot.set(JSON.stringify(this.formularDaten()));
   }
 
   drawerSchliessen(): void {

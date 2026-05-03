@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { MuellplanTermin } from '../../../../core/models';
+import type { MuellplanTermin } from '../../../../core/models';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { datumFormatieren } from '../../../../core/utils/format.utils';
 

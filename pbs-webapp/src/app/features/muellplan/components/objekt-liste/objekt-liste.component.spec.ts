@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { ObjektListeComponent } from './objekt-liste.component';
 
 describe('ObjektListeComponent', () => {
@@ -7,11 +8,12 @@ describe('ObjektListeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ObjektListeComponent],
+      imports: [ObjektListeComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ObjektListeComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('objects', []);
     fixture.detectChanges();
   });
 

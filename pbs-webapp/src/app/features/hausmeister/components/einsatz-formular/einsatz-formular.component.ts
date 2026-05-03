@@ -7,8 +7,8 @@ import {
   linkedSignal,
 } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
-import { HausmeisterEinsatz, Mitarbeiter, Kunde, Taetigkeit } from '../../../../core/models';
-import { HausmeisterFormularDaten } from '../../hausmeister.models';
+import type { HausmeisterEinsatz, Mitarbeiter, Kunde, Taetigkeit } from '../../../../core/models';
+import type { HausmeisterFormularDaten } from '../../hausmeister.models';
 
 @Component({
   selector: 'app-einsatz-formular',

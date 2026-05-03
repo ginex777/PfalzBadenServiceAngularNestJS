@@ -22,7 +22,7 @@ export class CreateAngebotDto {
   @ApiPropertyOptional() @IsOptional() @IsString() ort?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() titel?: string;
   @ApiPropertyOptional() @IsOptional() @IsDateString() datum?: string;
-  @ApiProperty() @IsNumber() @Min(0) brutto!: number;
+  @ApiPropertyOptional() @IsOptional() @IsNumber() @Min(0) brutto?: number;
   @ApiPropertyOptional() @IsOptional() @IsDateString() gueltig_bis?: string;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() angenommen?: boolean;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() abgelehnt?: boolean;

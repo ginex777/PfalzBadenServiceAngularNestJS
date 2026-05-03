@@ -1,10 +1,17 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
-import { AuditService } from '../../modules/audit/audit.service';
-import { Prisma, Angebote } from '@prisma/client';
-import { CreateAngebotDto, UpdateAngebotDto } from './dto/angebot.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { AuditService } from '../../modules/audit/audit.service';
+import type { Angebote } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import type { CreateAngebotDto, UpdateAngebotDto } from './dto/angebot.dto';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import {
+  calculateBillingTotals,
+  positionsToJson,
+} from '../billing/billing-calculations';
+
+const DEFAULT_OFFER_VAT_RATE = 19;
 
 @Injectable()
 export class AngeboteService {
@@ -115,7 +122,10 @@ export class AngeboteService {
     if (d.ort !== undefined) data.ort = d.ort ?? null;
     if (d.titel !== undefined) data.titel = d.titel ?? null;
     if (d.datum !== undefined) data.datum = d.datum ? new Date(d.datum) : null;
-    if (d.brutto !== undefined) data.brutto = new Prisma.Decimal(d.brutto);
+    if (d.positionen !== undefined)
+      data.brutto = new Prisma.Decimal(
+        calculateBillingTotals(d.positionen, DEFAULT_OFFER_VAT_RATE).brutto,
+      );
     if (d.gueltig_bis !== undefined)
       data.gueltig_bis = d.gueltig_bis ? new Date(d.gueltig_bis) : null;
     if (d.angenommen !== undefined) data.angenommen = d.angenommen;
@@ -123,7 +133,7 @@ export class AngeboteService {
     if (d.gesendet !== undefined) data.gesendet = d.gesendet;
     if (d.zusatz !== undefined) data.zusatz = d.zusatz ?? null;
     if (d.positionen !== undefined)
-      data.positionen = d.positionen as unknown as Prisma.InputJsonValue;
+      data.positionen = positionsToJson(d.positionen);
     if (d.kunden_id !== undefined) {
       data.kunden = d.kunden_id
         ? { connect: { id: BigInt(d.kunden_id) } }
@@ -133,6 +143,8 @@ export class AngeboteService {
   }
 
   private mapDataCreate(d: CreateAngebotDto): Prisma.AngeboteCreateInput {
+    const totals = calculateBillingTotals(d.positionen, DEFAULT_OFFER_VAT_RATE);
+
     return {
       nr: d.nr,
       empf: d.empf,
@@ -140,14 +152,13 @@ export class AngeboteService {
       ort: d.ort ?? null,
       titel: d.titel ?? null,
       datum: d.datum ? new Date(d.datum) : null,
-      brutto: new Prisma.Decimal(d.brutto),
+      brutto: new Prisma.Decimal(totals.brutto),
       gueltig_bis: d.gueltig_bis ? new Date(d.gueltig_bis) : null,
       angenommen: d.angenommen ?? false,
       abgelehnt: d.abgelehnt ?? false,
       gesendet: d.gesendet ?? false,
       zusatz: d.zusatz ?? null,
-      positionen:
-        (d.positionen as unknown as Prisma.InputJsonValue) ?? Prisma.JsonNull,
+      positionen: positionsToJson(d.positionen),
       kunden: d.kunden_id
         ? { connect: { id: BigInt(d.kunden_id) } }
         : undefined,

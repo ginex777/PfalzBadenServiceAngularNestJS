@@ -1,3 +1,4 @@
+export * from './dashboard-api.client';
 export * from './muellplan-api.client';
 export * from './objects-api.client';
 export * from './customers-api.client';

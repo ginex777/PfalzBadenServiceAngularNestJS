@@ -1,9 +1,10 @@
 import { computed, signal } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Benachrichtigung } from '../../core/models';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import type { Benachrichtigung } from '../../core/models';
 import { DashboardFacade } from './dashboard.facade';
 import { DashboardComponent } from './dashboard.component';
-import { DashboardInvoiceRow, DashboardOfferRow, DashboardStats } from './dashboard.models';
+import type { DashboardInvoiceRow, DashboardOfferRow, DashboardStats } from './dashboard.models';
 
 class DashboardFacadeStub {
   readonly isLoading = signal(false);

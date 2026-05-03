@@ -15,7 +15,7 @@
 
     <div class="filter-row">
       <div class="form-field form-field--wide">
-        <label class="form-hint">Suche</label>
+        <label for="src-app-features-objekte-objekte-liste-component-0" class="form-hint">Suche</label>
         <input
           class="form-input"
           type="search"
@@ -26,8 +26,8 @@
       </div>
 
       <div class="form-field form-field--narrow-200">
-        <label class="form-hint">Status</label>
-        <select class="form-input" [value]="statusFilter()" (change)="onStatusFilter($event)">
+        <label for="src-app-features-objekte-objekte-liste-component-1" class="form-hint">Status</label>
+        <select id="src-app-features-objekte-objekte-liste-component-1" class="form-input" [value]="statusFilter()" (change)="onStatusFilter($event)">
           <option value="ALL">Alle</option>
           <option value="AKTIV">Aktiv</option>
           <option value="INAKTIV">Inaktiv</option>
@@ -35,8 +35,8 @@
       </div>
 
       <div class="form-field form-field--narrow-260">
-        <label class="form-hint">Kunde</label>
-        <select class="form-input" [value]="customerFilter()" (change)="onCustomerFilter($event)">
+        <label for="src-app-features-objekte-objekte-liste-component-2" class="form-hint">Kunde</label>
+        <select id="src-app-features-objekte-objekte-liste-component-2" class="form-input" [value]="customerFilter()" (change)="onCustomerFilter($event)">
           @for (opt of customerOptions(); track opt.value) {
             <option [value]="opt.value">{{ opt.label }}</option>
           }
@@ -61,7 +61,7 @@
       />
     } @else {
       <div class="table-wrap">
-        <table class="table objekte-table" role="grid">
+        <table class="table objekte-table">
           <thead>
             <tr>
               <th>Objekt</th>
@@ -73,7 +73,12 @@
           </thead>
           <tbody>
             @for (o of pageObjects(); track o.id) {
-              <tr class="row-click" (click)="navigateToDetail(o.id)">
+              <tr
+                class="row-click"
+                tabindex="0"
+                (click)="navigateToDetail(o.id)"
+                (keydown)="onRowKeydown($event, o.id)"
+              >
                 <td class="col-name">
                   <div class="name">{{ o.name }}</div>
                   @if (o.notiz) {

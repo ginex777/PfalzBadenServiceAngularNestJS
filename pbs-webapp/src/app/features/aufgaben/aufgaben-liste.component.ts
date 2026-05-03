@@ -5,7 +5,7 @@ import { PaginierungComponent } from '../../shared/ui/paginierung/paginierung.co
 import { SkeletonRowsComponent } from '../../shared/ui/skeleton-rows/skeleton-rows.component';
 import { AufgabenStatusBadgeComponent } from './aufgaben-status-badge.component';
 import { AufgabenTypBadgeComponent } from './aufgaben-typ-badge.component';
-import { TaskListItemApi } from './aufgaben.models';
+import type { TaskListItemApi } from './aufgaben.models';
 
 @Component({
   selector: 'app-aufgaben-liste',
@@ -39,6 +39,13 @@ export class AufgabenListeComponent {
 
   protected select(task: TaskListItemApi): void {
     this.taskSelected.emit(task);
+  }
+
+  protected onRowKeydown(event: KeyboardEvent, task: TaskListItemApi): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.select(task);
+    }
   }
 
   protected onPageChange(nextPage: number): void {

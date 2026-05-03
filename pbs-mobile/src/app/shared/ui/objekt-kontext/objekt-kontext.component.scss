@@ -46,3 +46,14 @@
   font-weight: 800;
 }
 
+.objekt-kontext__locked-hint {
+  font-size: 0.72rem;
+  color: var(--ion-color-warning, #ffc409);
+  font-weight: 600;
+  margin-top: 0.1rem;
+}
+
+.objekt-kontext--locked {
+  opacity: 0.8;
+}
+

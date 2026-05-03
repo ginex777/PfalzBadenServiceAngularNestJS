@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { ZeiterfassungFilterState, DropdownOption } from './zeiterfassung.models';
+import type { ZeiterfassungFilterState, DropdownOption } from './zeiterfassung.models';
 
 @Component({
   selector: 'app-zeiterfassung-filter',

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { PaginatedResponse } from '../../models';
+import type { Observable } from 'rxjs';
+import type { PaginatedResponse } from '../../models';
 
 interface EvidenceListItemApi {
   id: number;
@@ -43,7 +43,6 @@ export class EvidenceApiClient {
   }
 
   uploadEvidence(formData: FormData): Observable<EvidenceListItemApi> {
-    return this.http.post<EvidenceListItemApi>(`${this.baseUrl}/nachweise`, formData);
+    return this.http.post<EvidenceListItemApi>(`${this.baseUrl}/nachweise/upload`, formData);
   }
 }
-

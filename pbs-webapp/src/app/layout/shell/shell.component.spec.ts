@@ -1,5 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { ShellComponent } from './shell.component';
+import { sharedTestProviders } from '../../testing/shared-test-providers';
 
 describe('ShellComponent', () => {
   let component: ShellComponent;
@@ -7,7 +9,8 @@ describe('ShellComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ShellComponent],
+      imports: [ShellComponent],
+      providers: sharedTestProviders,
     }).compileComponents();
 
     fixture = TestBed.createComponent(ShellComponent);

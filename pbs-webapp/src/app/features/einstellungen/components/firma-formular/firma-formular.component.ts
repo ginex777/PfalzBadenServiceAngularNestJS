@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { FirmaSettings } from '../../../../core/models';
+import type { FirmaSettings } from '../../../../core/models';
 
 @Component({
   selector: 'app-firma-formular',

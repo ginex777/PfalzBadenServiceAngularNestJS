@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { TaskStatus, TASK_STATUS_LABELS } from './aufgaben.models';
+import type { TaskStatus} from './aufgaben.models';
+import { TASK_STATUS_LABELS } from './aufgaben.models';
 
 type BadgeTone = 'neutral' | 'warning' | 'info' | 'success' | 'danger';
 

@@ -1,8 +1,6 @@
 .onboarding-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -11,7 +9,18 @@
   animation: fadeIn 0.2s ease;
 }
 
+.onboarding-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  cursor: default;
+}
+
 .onboarding-modal {
+  position: relative;
   background: var(--surface);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
@@ -20,6 +29,10 @@
   padding: 32px;
   border: 1px solid var(--border);
   animation: slideUp 0.25s ease;
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .onboarding-header {

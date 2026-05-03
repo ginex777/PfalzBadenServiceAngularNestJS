@@ -2,7 +2,7 @@
 // Buchhaltung — Feature-spezifische Modelle
 // ============================================================
 
-import { BuchhaltungEintrag } from '../../core/models';
+import type { BuchhaltungEintrag } from '../../core/models';
 
 /** Berechnete Monatsdaten für Anzeige und Zusammenfassung */
 export interface MonatsDaten {

@@ -37,7 +37,7 @@
   </div>
 
   @if (facade.loading() && facade.entries().length === 0) {
-    <app-skeleton-rows [anzahl]="6" />
+    <app-skeleton-rows [count]="6" />
   } @else if (facade.errorMessage()) {
     <div class="card fehler-card">
       <div class="form-fehler">{{ facade.errorMessage() }}</div>

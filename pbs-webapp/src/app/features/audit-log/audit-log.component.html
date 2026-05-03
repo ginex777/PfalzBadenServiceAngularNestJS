@@ -36,7 +36,7 @@
   </div>
 
   @if (facade.isLoading()) {
-    <app-skeleton-rows [anzahl]="8" />
+    <app-skeleton-rows [count]="8" />
   } @else if (!facade.entries().length) {
     <app-empty-state
       title="Keine Einträge gefunden"
@@ -67,7 +67,7 @@
                 </td>
                 <td class="td-id">{{ e.datensatz_id }}</td>
                 <td>
-                  <span class="badge" [class]="aktionKlassen[e.aktion]">
+                  <span [attr.class]="'badge ' + aktionKlassen[e.aktion]">
                     {{ aktionLabels[e.aktion] }}
                   </span>
                 </td>

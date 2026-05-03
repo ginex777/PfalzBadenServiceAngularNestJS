@@ -14,7 +14,8 @@ import { BrowserService } from '../../core/services/browser.service';
 import { TasksService } from './aufgaben.service';
 import { AufgabenStatusBadgeComponent } from './aufgaben-status-badge.component';
 import { AufgabenTypBadgeComponent } from './aufgaben-typ-badge.component';
-import { TaskListItemApi, TaskStatus, TASK_STATUS_LABELS } from './aufgaben.models';
+import type { TaskListItemApi, TaskStatus} from './aufgaben.models';
+import { TASK_STATUS_LABELS } from './aufgaben.models';
 
 @Component({
   selector: 'app-aufgabe-detail',

@@ -1,10 +1,11 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs/operators';
-import { Objekt } from '../../core/models';
-import {
+import type { Objekt } from '../../core/models';
+import type {
   ChecklistSubmissionDetail,
   ChecklistSubmissionListItem,
-  ChecklistTemplate,
+  ChecklistTemplate} from './checklisten.service';
+import {
   ChecklistenService,
 } from './checklisten.service';
 
@@ -101,8 +102,9 @@ export class ChecklistenFacade {
       .subscribe({
         next: (rows) => {
           this.objects.set(rows);
-          if (this.selectedObjectId() == null && rows.length > 0) {
-            this.selectedObjectId.set(rows[0]!.id);
+          const firstObject = rows[0];
+          if (this.selectedObjectId() == null && firstObject) {
+            this.selectedObjectId.set(firstObject.id);
           }
         },
         error: () => {

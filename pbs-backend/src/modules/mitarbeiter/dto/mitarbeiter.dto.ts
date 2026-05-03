@@ -8,6 +8,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
 
 export class CreateMitarbeiterDto {
   @IsString()
@@ -60,7 +61,7 @@ export class CreateMitarbeiterStundenDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  lohn?: number;
+  lohn_satz?: number;
 
   @IsOptional()
   @IsNumber()
@@ -76,7 +77,9 @@ export class CreateMitarbeiterStundenDto {
   bezahlt?: boolean;
 }
 
-export class UpdateMitarbeiterStundenDto extends CreateMitarbeiterStundenDto {}
+export class UpdateMitarbeiterStundenDto extends PartialType(
+  CreateMitarbeiterStundenDto,
+) {}
 
 export class StempelStartDto {
   @IsOptional()

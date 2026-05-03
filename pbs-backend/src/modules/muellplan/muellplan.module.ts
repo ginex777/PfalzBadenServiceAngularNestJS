@@ -4,9 +4,14 @@ import { memoryStorage } from 'multer';
 import { MuellplanController } from './muellplan.controller';
 import { MuellplanService } from './muellplan.service';
 import { TasksModule } from '../tasks/tasks.module';
+import { AccessPolicyModule } from '../access-policy/access-policy.module';
 
 @Module({
-  imports: [MulterModule.register({ storage: memoryStorage() }), TasksModule],
+  imports: [
+    MulterModule.register({ storage: memoryStorage() }),
+    TasksModule,
+    AccessPolicyModule,
+  ],
   controllers: [MuellplanController],
   providers: [MuellplanService],
 })

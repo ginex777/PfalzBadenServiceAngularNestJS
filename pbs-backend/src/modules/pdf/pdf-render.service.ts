@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
-import { PuppeteerService } from './puppeteer.service';
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { PuppeteerService } from './puppeteer.service';
 import * as Handlebars from 'handlebars';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -25,10 +25,10 @@ export interface FirmaSettings {
 Handlebars.registerHelper(
   'fmtEur',
   (n: number) =>
-    (n || 0).toLocaleString('de-DE', {
+    `${(n || 0).toLocaleString('de-DE', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }) + ' €',
+    })} €`,
 );
 Handlebars.registerHelper('posNr', (idx: number) => idx + 1);
 Handlebars.registerHelper('fmtStunden', (n: number) =>
@@ -87,7 +87,7 @@ export class PdfRenderService {
       this.logoBase64 = fs.readFileSync(logoTxtPath, 'utf-8').trim();
     } catch {
       this.logoBase64 = '';
-      this.logger.warn('Logo-Base64 nicht gefunden: ' + logoTxtPath);
+      this.logger.warn(`Logo-Base64 nicht gefunden: ${logoTxtPath}`);
     }
     this.registerPartial('header', 'partials/header.hbs');
     this.registerPartial('footer', 'partials/footer.hbs');
@@ -117,10 +117,10 @@ export class PdfRenderService {
 
   async createPdfFromHtml(html: string): Promise<Buffer> {
     const cacheKey = crypto.createHash('md5').update(html).digest('hex');
-    if (this.pdfCache.has(cacheKey)) return this.pdfCache.get(cacheKey)!;
+    const cachedPdf = this.pdfCache.get(cacheKey);
+    if (cachedPdf) return cachedPdf;
     const pdf = await this.puppeteer.htmlZuPdf(html);
-    if (this.pdfCache.size >= this.CACHE_MAX)
-      this.pdfCache.delete(this.pdfCache.keys().next().value);
+    if (this.pdfCache.size >= this.CACHE_MAX) this.deleteOldestCacheEntry();
     this.pdfCache.set(cacheKey, pdf);
     return pdf;
   }
@@ -135,7 +135,8 @@ export class PdfRenderService {
       .createHash('md5')
       .update(html + headerTemplate + footerTemplate)
       .digest('hex');
-    if (this.pdfCache.has(cacheKey)) return this.pdfCache.get(cacheKey)!;
+    const cachedPdf = this.pdfCache.get(cacheKey);
+    if (cachedPdf) return cachedPdf;
 
     // Native header/footer: reserves margin space (no overlap) and paginates correctly.
     const pdf = await this.puppeteer.htmlZuPdf(html, {
@@ -143,8 +144,7 @@ export class PdfRenderService {
       footerTemplate,
     });
 
-    if (this.pdfCache.size >= this.CACHE_MAX)
-      this.pdfCache.delete(this.pdfCache.keys().next().value);
+    if (this.pdfCache.size >= this.CACHE_MAX) this.deleteOldestCacheEntry();
     this.pdfCache.set(cacheKey, pdf);
     return pdf;
   }
@@ -184,12 +184,10 @@ export class PdfRenderService {
   }
 
   formatEuro(n: number): string {
-    return (
-      (n || 0).toLocaleString('de-DE', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }) + ' €'
-    );
+    return `${(n || 0).toLocaleString('de-DE', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} €`;
   }
 
   private buildHeaderFooterTemplates(firma: FirmaSettings): {
@@ -218,10 +216,11 @@ export class PdfRenderService {
 </style>`;
 
     const headerTemplate = headerCss + Handlebars.compile('{{> header}}')(ctx);
-    const footerTemplate =
-      footerCss +
-      `<div style="border-top:0.75px solid #aaa; margin: 0 20mm 2mm;"></div>` +
-      Handlebars.compile('{{> footer}}')(ctx);
+    const footerTemplate = `${
+      footerCss
+    }<div style="border-top:0.75px solid #aaa; margin: 0 20mm 2mm;"></div>${Handlebars.compile(
+      '{{> footer}}',
+    )(ctx)}`;
 
     return { headerTemplate, footerTemplate };
   }
@@ -234,5 +233,10 @@ export class PdfRenderService {
     } catch {
       this.logger.warn(`Partial '${name}' nicht gefunden: ${pfad}`);
     }
+  }
+
+  private deleteOldestCacheEntry(): void {
+    const firstKey = this.pdfCache.keys().next().value;
+    if (firstKey) this.pdfCache.delete(firstKey);
   }
 }

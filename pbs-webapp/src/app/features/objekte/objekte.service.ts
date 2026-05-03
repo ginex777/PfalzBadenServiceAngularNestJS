@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin } from 'rxjs';
-import { Kunde, Objekt } from '../../core/models';
+import type { Observable} from 'rxjs';
+import { forkJoin } from 'rxjs';
+import type { Kunde, Objekt } from '../../core/models';
 import { CustomersApiClient, ObjectsApiClient } from '../../core/api/clients';
 
 export interface ObjectsInitialData {

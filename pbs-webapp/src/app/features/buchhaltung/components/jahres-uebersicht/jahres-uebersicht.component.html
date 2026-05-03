@@ -34,11 +34,11 @@
               <td class="zahl">{{ formatieren(quartal.elster.kz86) }}</td>
               <td class="zahl">{{ formatieren(quartal.elster.kz83 + quartal.elster.kz85) }}</td>
               <td class="zahl zahl--gruen">{{ formatieren(quartal.elster.kz66) }}</td>
-              <td class="zahl" [class]="zahllastKlasse(quartal.zahllast)">
+              <td [attr.class]="'zahl ' + zahllastKlasse(quartal.zahllast)">
                 {{ formatieren(quartal.zahllast) }}
               </td>
               <td class="mitte">
-                <label class="checkbox-label">
+                <label for="src-app-features-buchhaltung-components-jahres-uebersicht-jahres-uebersicht-component-0" class="checkbox-label">
                   <input
                     type="checkbox"
                     [checked]="quartal.bezahlt"
@@ -54,7 +54,7 @@
                   <span class="leer">–</span>
                 }
               </td>
-              <td class="zahl" [class]="quartal.offen > 0 ? 'zahl--verlust' : 'zahl--gruen'">
+              <td [attr.class]="'zahl ' + (quartal.offen > 0 ? 'zahl--verlust' : 'zahl--gruen')">
                 {{ quartal.offen > 0 ? formatieren(quartal.offen) : '–' }}
               </td>
             </tr>
@@ -96,10 +96,10 @@
                 <td class="zahl zahl--rot">{{ formatieren(quartal.einnahmenUst) }}</td>
                 <td class="zahl">{{ formatieren(quartal.ausgabenNetto) }}</td>
                 <td class="zahl zahl--gruen">{{ formatieren(quartal.vorsteuer) }}</td>
-                <td class="zahl" [class]="zahllastKlasse(quartal.zahllast)">
+                <td [attr.class]="'zahl ' + zahllastKlasse(quartal.zahllast)">
                   {{ formatieren(quartal.zahllast) }}
                 </td>
-                <td class="zahl" [class]="gewinnKlasse(quartal.gewinn)">
+                <td [attr.class]="'zahl ' + gewinnKlasse(quartal.gewinn)">
                   {{ formatieren(quartal.gewinn) }}
                 </td>
               </tr>
@@ -118,10 +118,10 @@
             <td class="zahl zahl--rot">{{ formatieren(quartalGesamtUst()) }}</td>
             <td class="zahl">{{ formatieren(quartalGesamtAusgaben()) }}</td>
             <td class="zahl zahl--gruen">{{ formatieren(quartalGesamtVorsteuer()) }}</td>
-            <td class="zahl" [class]="zahllastKlasse(quartalGesamtZahllast())">
+            <td [attr.class]="'zahl ' + zahllastKlasse(quartalGesamtZahllast())">
               {{ formatieren(quartalGesamtZahllast()) }}
             </td>
-            <td class="zahl" [class]="gewinnKlasse(quartalGesamtGewinn())">
+            <td [attr.class]="'zahl ' + gewinnKlasse(quartalGesamtGewinn())">
               {{ formatieren(quartalGesamtGewinn()) }}
             </td>
           </tr>
@@ -153,10 +153,10 @@
                 <td class="zahl zahl--rot">{{ formatieren(monat.einnahmenUst) }}</td>
                 <td class="zahl">{{ formatieren(monat.ausgabenNetto) }}</td>
                 <td class="zahl zahl--gruen">{{ formatieren(monat.vorsteuer) }}</td>
-                <td class="zahl" [class]="zahllastKlasse(monat.zahllast)">
+                <td [attr.class]="'zahl ' + zahllastKlasse(monat.zahllast)">
                   {{ formatieren(monat.zahllast) }}
                 </td>
-                <td class="zahl" [class]="gewinnKlasse(monat.gewinn)">
+                <td [attr.class]="'zahl ' + gewinnKlasse(monat.gewinn)">
                   {{ formatieren(monat.gewinn) }}
                 </td>
               </tr>
@@ -175,10 +175,10 @@
             <td class="zahl zahl--rot">{{ formatieren(jahresGesamtUst()) }}</td>
             <td class="zahl">{{ formatieren(jahresGesamtAusgaben()) }}</td>
             <td class="zahl zahl--gruen">{{ formatieren(jahresGesamtVorsteuer()) }}</td>
-            <td class="zahl" [class]="zahllastKlasse(jahresGesamtZahllast())">
+            <td [attr.class]="'zahl ' + zahllastKlasse(jahresGesamtZahllast())">
               {{ formatieren(jahresGesamtZahllast()) }}
             </td>
-            <td class="zahl" [class]="gewinnKlasse(jahresGesamtGewinn())">
+            <td [attr.class]="'zahl ' + gewinnKlasse(jahresGesamtGewinn())">
               {{ formatieren(jahresGesamtGewinn()) }}
             </td>
           </tr>

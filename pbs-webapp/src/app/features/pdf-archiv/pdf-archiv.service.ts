@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { BrowserService } from '../../core/services/browser.service';
-import { PaginatedResponse, PdfArchiveEntry } from '../../core/models';
+import type { PaginatedResponse, PdfArchiveEntry } from '../../core/models';
 import { PdfArchiveApiClient } from '../../core/api/clients';
 
 @Injectable({ providedIn: 'root' })

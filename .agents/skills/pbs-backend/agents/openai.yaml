@@ -1,0 +1,4 @@
+interface:
+  display_name: "PBS Backend"
+  short_description: "NestJS, Prisma, Postgres guardrails"
+  default_prompt: "Use $pbs-backend to implement or review backend work in PBS."

@@ -1,26 +1,21 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { FormField, form, required, min } from '@angular/forms/signals';
-import { WiederkehrendeAusgabenFacade } from './wiederkehrende-ausgaben.facade';
+import type { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormField, form, min, required } from '@angular/forms/signals';
+import type { WiederkehrendeAusgabe } from '../../core/models';
+import { KATEGORIEN, nettoBerechnen, steuerBerechnen, waehrungFormatieren } from '../../core/utils/format.utils';
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
-import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
+import { DrawerComponent } from '../../shared/ui/drawer/drawer.component';
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
-import { WiederkehrendeAusgabe } from '../../core/models';
-import {
-  WiederkehrendeAusgabeFormularDaten,
-  LEERES_FORMULAR,
-} from './wiederkehrende-ausgaben.models';
-import {
-  waehrungFormatieren,
-  nettoBerechnen,
-  steuerBerechnen,
-  KATEGORIEN,
-} from '../../core/utils/format.utils';
+import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
+import { WiederkehrendeAusgabenFacade } from './wiederkehrende-ausgaben.facade';
+import type { WiederkehrendeAusgabeFormularDaten } from './wiederkehrende-ausgaben.models';
+import { LEERES_FORMULAR } from './wiederkehrende-ausgaben.models';
 
 @Component({
   selector: 'app-wiederkehrende-ausgaben',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormField, ConfirmModalComponent, PageTitleComponent, EmptyStateComponent],
+  imports: [FormField, ConfirmModalComponent, PageTitleComponent, EmptyStateComponent, DrawerComponent],
   templateUrl: './wiederkehrende-ausgaben.component.html',
   styleUrl: './wiederkehrende-ausgaben.component.scss',
 })
@@ -62,8 +57,7 @@ export class WiederkehrendeAusgabenComponent implements OnInit {
 
   protected speichern(): void {
     if (this.ausgabeForm().invalid()) return;
-    const daten = this.ausgabeModell();
-    this.facade.formularDaten.set(daten);
+    this.facade.formularDaten.set(this.ausgabeModell());
     this.facade.speichern();
   }
 
@@ -92,16 +86,15 @@ export class WiederkehrendeAusgabenComponent implements OnInit {
     this.facade.aktivToggle(id, (event.target as HTMLInputElement).checked);
   }
 
-  protected fmt(n: number): string {
-    return waehrungFormatieren(n);
+  protected fmt(value: number): string {
+    return waehrungFormatieren(value);
   }
 
-  // FIXED: Use shared calculation functions for consistency
-  protected nettoBerechnen(a: WiederkehrendeAusgabe): number {
-    return nettoBerechnen(a.brutto, a.mwst);
+  protected nettoBerechnen(ausgabe: WiederkehrendeAusgabe): number {
+    return nettoBerechnen(ausgabe.brutto, ausgabe.mwst);
   }
 
-  protected vstBerechnen(a: WiederkehrendeAusgabe): number {
-    return steuerBerechnen(a.brutto, a.mwst) * (a.abzug / 100);
+  protected vstBerechnen(ausgabe: WiederkehrendeAusgabe): number {
+    return steuerBerechnen(ausgabe.brutto, ausgabe.mwst) * (ausgabe.abzug / 100);
   }
 }

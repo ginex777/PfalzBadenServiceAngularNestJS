@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { UserAktualisierenPayload, UserAnlegenPayload, UserEintrag } from '../api.contract';
+import type { Observable } from 'rxjs';
+import type { UserAktualisierenPayload, UserAnlegenPayload, UserEintrag } from '../api.contract';
 
 @Injectable({ providedIn: 'root' })
 export class UsersApiClient {

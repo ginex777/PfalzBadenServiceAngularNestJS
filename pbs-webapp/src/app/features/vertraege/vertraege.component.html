@@ -1,33 +1,17 @@
 <div class="page-wrap">
-  <!-- ── Header ─────────────────────────────────────────────────── -->
-  <div class="page-header">
-    <div class="page-header__left">
-      <h1 class="page-title">Verträge</h1>
-      @if (ansicht() === 'liste') {
-        <span class="count">{{ gefilterteVertraege().length }} Einträge</span>
-      }
-    </div>
-    @if (ansicht() === 'liste') {
-      <button class="btn-primary" (click)="neuStarten()">Neuer Vertrag</button>
-    }
-  </div>
+  <app-page-title title="Verträge" subtitle="Übersicht & Verwaltung" />
 
-  <!-- ── Toasts ─────────────────────────────────────────────────── -->
-  @if (erfolg()) {
-    <div class="toast toast-ok">{{ erfolg() }}</div>
-  }
-  <!-- ══════════════════════ LISTE ════════════════════════════════ -->
-  @if (ansicht() === 'liste') {
-    <div class="filter-bar">
+  <div class="card">
+    <div class="toolbar">
       <input
-        class="search-input"
+        class="form-input"
         type="search"
         placeholder="Suchen…"
         [ngModel]="suchbegriff()"
         (ngModelChange)="suchbegriff.set($event)"
       />
       <select
-        class="filter-select"
+        class="form-input"
         [ngModel]="statusFilter()"
         (ngModelChange)="statusFilter.set($event)"
       >
@@ -36,15 +20,20 @@
         <option value="beendet">Beendet</option>
         <option value="gekuendigt">Gekündigt</option>
       </select>
+      <div style="margin-left:auto">
+        <button class="btn btn-sm btn-primary" type="button" (click)="neuStarten()">Neuer Vertrag</button>
+      </div>
     </div>
 
     @if (laedt()) {
-      <p class="hint">Lade Verträge…</p>
+      <p class="loading-hint">Lade Verträge…</p>
     } @else if (gefilterteVertraege().length === 0) {
-      <div class="empty-state">
-        <p>Keine Verträge vorhanden.</p>
-        <button class="btn-primary" (click)="neuStarten()">Ersten Vertrag erstellen</button>
-      </div>
+      <app-empty-state
+        title="Keine Verträge"
+        description="Legen Sie einen neuen Vertrag an."
+        actionLabel="Neuen Vertrag anlegen"
+        (action)="neuStarten()"
+      />
     } @else {
       <div class="card-grid">
         @for (v of gefilterteVertraege(); track v.id) {
@@ -54,7 +43,7 @@
                 <div class="vc-titel">{{ v.titel }}</div>
                 <div class="vc-kunde">{{ v.kunden_name }}</div>
               </div>
-              <span class="badge" [class]="statusBadge(v.status)">{{ v.status }}</span>
+              <app-status-badge [status]="statusBadge(v.status)" />
             </div>
 
             <div class="vc-meta">
@@ -72,192 +61,204 @@
               </div>
               <div class="vc-meta-row">
                 <span class="meta-label">Rate / Monat</span>
-                <span>{{
-                  v.monatliche_rate | currency: 'EUR' : 'symbol' : '1.2-2' : 'de-DE'
-                }}</span>
+                <span>{{ v.monatliche_rate | currency: 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</span>
               </div>
             </div>
 
             <div class="vc-actions">
-              <button class="btn-sm btn-pdf" [disabled]="pdfLaedt()" (click)="pdfErstellen(v)">
-                PDF
-              </button>
-              <button class="btn-sm btn-edit" (click)="bearbeiten(v)">Bearbeiten</button>
-              <button class="btn-sm btn-del" (click)="loeschen(v)">Löschen</button>
+              <button class="btn-action" type="button" [disabled]="pdfLaedt()" (click)="pdfErstellen(v)">PDF</button>
+              <button class="btn-action" type="button" (click)="bearbeiten(v)">Bearbeiten</button>
+              <button class="btn-action btn-action--danger" type="button" (click)="loeschen(v)">Löschen</button>
             </div>
           </div>
         }
       </div>
     }
-  }
+  </div>
 
-  <!-- ══════════════════════ FORMULAR ═════════════════════════════ -->
-  @if (ansicht() === 'neu' || ansicht() === 'bearbeiten') {
-    <div class="form-wrap">
-      <h2>{{ ansicht() === 'neu' ? 'Neuer Vertrag' : 'Vertrag bearbeiten' }}</h2>
-
-      <div class="form-section">
-        <h3>Auftraggeber</h3>
-        <div class="form-grid">
-          <label class="form-label">
-            Kunde wählen
-            <select
-              class="form-input"
-              [ngModel]="formVertrag().kunden_id ?? ''"
-              (ngModelChange)="kundeGewaehlt($event)"
-            >
-              <option value="">– Kunden auswählen –</option>
-              @for (k of kunden(); track k.id) {
-                <option [value]="k.id">{{ k.name }}</option>
-              }
-            </select>
-          </label>
-
-          <label class="form-label">
-            Name *
-            <input
-              class="form-input"
-              type="text"
-              [ngModel]="formVertrag().kunden_name ?? ''"
-              (ngModelChange)="formVertrag.update((f) => ({ ...f, kunden_name: $event }))"
-            />
-          </label>
-
-          <label class="form-label">
-            Straße
-            <input
-              class="form-input"
-              type="text"
-              [ngModel]="formVertrag().kunden_strasse ?? ''"
-              (ngModelChange)="formVertrag.update((f) => ({ ...f, kunden_strasse: $event }))"
-            />
-          </label>
-
-          <label class="form-label">
-            Ort
-            <input
-              class="form-input"
-              type="text"
-              [ngModel]="formVertrag().kunden_ort ?? ''"
-              (ngModelChange)="formVertrag.update((f) => ({ ...f, kunden_ort: $event }))"
-            />
-          </label>
-        </div>
+  @if (formularSichtbar()) {
+    <app-drawer
+      [isOpen]="formularSichtbar()"
+      [ariaLabel]="ansicht() === 'neu' ? 'Neuer Vertrag' : 'Vertrag bearbeiten'"
+      position="right"
+      (closed)="abbrechen()"
+    >
+      <div class="drawer-header">
+        <h3 class="drawer-title">{{ ansicht() === 'neu' ? 'Neuer Vertrag' : 'Vertrag bearbeiten' }}</h3>
+        <button class="app-modal__close" type="button" (click)="abbrechen()" aria-label="Schließen">×</button>
       </div>
+      <div class="drawer-body">
 
-      <div class="form-section">
-        <h3>Vertragsart</h3>
-        <div class="vorlage-grid">
-          @for (vl of vorlagen; track vl.id) {
-            <button
-              class="vorlage-btn"
-              [class.vorlage-btn--aktiv]="formVertrag().vorlage === vl.id"
-              (click)="titelAktualisieren(vl.id)"
-            >
-              <strong>{{ vl.label }}</strong>
-              <span>{{ vl.beschreibung }}</span>
-            </button>
-          }
-        </div>
-      </div>
-
-      <div class="form-section">
-        <h3>Vertragsdaten</h3>
-        <div class="form-grid">
-          <label class="form-label span-2">
-            Titel *
-            <input
-              class="form-input"
-              type="text"
-              [ngModel]="formVertrag().titel ?? ''"
-              (ngModelChange)="formVertrag.update((f) => ({ ...f, titel: $event }))"
-            />
-          </label>
-
-          <label class="form-label">
-            Vertragsbeginn *
-            <input
-              class="form-input"
-              type="date"
-              [ngModel]="formVertrag().vertragsbeginn ?? ''"
-              (ngModelChange)="formVertrag.update((f) => ({ ...f, vertragsbeginn: $event }))"
-            />
-          </label>
-
-          <label class="form-label">
-            Laufzeit (Monate)
-            <input
-              class="form-input"
-              type="number"
-              min="1"
-              [ngModel]="formVertrag().laufzeit_monate ?? 12"
-              (ngModelChange)="formVertrag.update((f) => ({ ...f, laufzeit_monate: +$event }))"
-            />
-          </label>
-
-          <label class="form-label">
-            Monatliche Rate (€)
-            <input
-              class="form-input"
-              type="number"
-              min="0"
-              step="0.01"
-              [ngModel]="formVertrag().monatliche_rate ?? 0"
-              (ngModelChange)="formVertrag.update((f) => ({ ...f, monatliche_rate: +$event }))"
-            />
-          </label>
-
-          <label class="form-label">
-            Kündigungsfrist (Monate)
-            <input
-              class="form-input"
-              type="number"
-              min="1"
-              [ngModel]="formVertrag().kuendigungsfrist ?? 3"
-              (ngModelChange)="formVertrag.update((f) => ({ ...f, kuendigungsfrist: +$event }))"
-            />
-          </label>
-
-          @if (ansicht() === 'bearbeiten') {
-            <label class="form-label">
-              Status
+        <div class="form-section">
+          <h3>Auftraggeber</h3>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-hint" for="vertrag-kunde">Kunde wählen</label>
               <select
+                id="vertrag-kunde"
                 class="form-input"
-                [ngModel]="formVertrag().status ?? 'aktiv'"
-                (ngModelChange)="formVertrag.update((f) => ({ ...f, status: $event }))"
+                [ngModel]="formVertrag().kunden_id ?? ''"
+                (ngModelChange)="kundeGewaehlt($event)"
               >
-                <option value="aktiv">Aktiv</option>
-                <option value="beendet">Beendet</option>
-                <option value="gekuendigt">Gekündigt</option>
+                <option value="">– Kunden auswählen –</option>
+                @for (k of kunden(); track k.id) {
+                  <option [value]="k.id">{{ k.name }}</option>
+                }
               </select>
-            </label>
-          }
+            </div>
 
-          <label class="form-label span-2">
-            Leistungsumfang
-            <textarea
-              class="form-input"
-              rows="4"
-              [ngModel]="formVertrag().leistungsumfang ?? ''"
-              (ngModelChange)="formVertrag.update((f) => ({ ...f, leistungsumfang: $event }))"
-              placeholder="Beschreibung der zu erbringenden Leistungen…"
-            ></textarea>
-          </label>
+            <div class="form-field">
+              <label class="form-hint" for="vertrag-kunden-name">Name *</label>
+              <input
+                id="vertrag-kunden-name"
+                class="form-input"
+                type="text"
+                [ngModel]="formVertrag().kunden_name ?? ''"
+                (ngModelChange)="formVertrag.update((f) => ({ ...f, kunden_name: $event }))"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="form-hint" for="vertrag-strasse">Straße</label>
+              <input
+                id="vertrag-strasse"
+                class="form-input"
+                type="text"
+                [ngModel]="formVertrag().kunden_strasse ?? ''"
+                (ngModelChange)="formVertrag.update((f) => ({ ...f, kunden_strasse: $event }))"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="form-hint" for="vertrag-ort">Ort</label>
+              <input
+                id="vertrag-ort"
+                class="form-input"
+                type="text"
+                [ngModel]="formVertrag().kunden_ort ?? ''"
+                (ngModelChange)="formVertrag.update((f) => ({ ...f, kunden_ort: $event }))"
+              />
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="form-actions">
-        <button class="btn-secondary" (click)="abbrechen()">Abbrechen</button>
-        <button class="btn-primary" [disabled]="laedt()" (click)="speichern()">
-          {{
-            laedt()
-              ? 'Speichern…'
-              : ansicht() === 'neu'
-                ? 'Vertrag erstellen'
-                : 'Änderungen speichern'
-          }}
-        </button>
+        <div class="form-section">
+          <h3>Vertragsart</h3>
+          <div class="vorlage-grid">
+            @for (vl of vorlagen; track vl.id) {
+              <button
+                type="button"
+                class="vorlage-btn"
+                [class.vorlage-btn--aktiv]="formVertrag().vorlage === vl.id"
+                (click)="titelAktualisieren(vl.id)"
+              >
+                <strong>{{ vl.label }}</strong>
+                <span>{{ vl.beschreibung }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Vertragsdaten</h3>
+          <div class="form-grid">
+            <div class="form-field span-2">
+              <label class="form-hint" for="vertrag-titel">Titel *</label>
+              <input
+                id="vertrag-titel"
+                class="form-input"
+                type="text"
+                [ngModel]="formVertrag().titel ?? ''"
+                (ngModelChange)="formVertrag.update((f) => ({ ...f, titel: $event }))"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="form-hint" for="vertrag-beginn">Vertragsbeginn *</label>
+              <input
+                id="vertrag-beginn"
+                class="form-input"
+                type="date"
+                [ngModel]="formVertrag().vertragsbeginn ?? ''"
+                (ngModelChange)="formVertrag.update((f) => ({ ...f, vertragsbeginn: $event }))"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="form-hint" for="vertrag-laufzeit">Laufzeit (Monate)</label>
+              <input
+                id="vertrag-laufzeit"
+                class="form-input"
+                type="number"
+                min="1"
+                [ngModel]="formVertrag().laufzeit_monate ?? 12"
+                (ngModelChange)="formVertrag.update((f) => ({ ...f, laufzeit_monate: +$event }))"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="form-hint" for="vertrag-rate">Monatliche Rate (€)</label>
+              <input
+                id="vertrag-rate"
+                class="form-input"
+                type="number"
+                min="0"
+                step="0.01"
+                [ngModel]="formVertrag().monatliche_rate ?? 0"
+                (ngModelChange)="formVertrag.update((f) => ({ ...f, monatliche_rate: +$event }))"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="form-hint" for="vertrag-kuendigungsfrist">Kündigungsfrist (Monate)</label>
+              <input
+                id="vertrag-kuendigungsfrist"
+                class="form-input"
+                type="number"
+                min="1"
+                [ngModel]="formVertrag().kuendigungsfrist ?? 3"
+                (ngModelChange)="formVertrag.update((f) => ({ ...f, kuendigungsfrist: +$event }))"
+              />
+            </div>
+
+            @if (ansicht() === 'bearbeiten') {
+              <div class="form-field">
+                <label class="form-hint" for="vertrag-status">Status</label>
+                <select
+                  id="vertrag-status"
+                  class="form-input"
+                  [ngModel]="formVertrag().status ?? 'aktiv'"
+                  (ngModelChange)="formVertrag.update((f) => ({ ...f, status: $event }))"
+                >
+                  <option value="aktiv">Aktiv</option>
+                  <option value="beendet">Beendet</option>
+                  <option value="gekuendigt">Gekündigt</option>
+                </select>
+              </div>
+            }
+
+            <div class="form-field span-2">
+              <label class="form-hint" for="vertrag-leistungsumfang">Leistungsumfang</label>
+              <textarea
+                id="vertrag-leistungsumfang"
+                class="form-input"
+                rows="4"
+                [ngModel]="formVertrag().leistungsumfang ?? ''"
+                (ngModelChange)="formVertrag.update((f) => ({ ...f, leistungsumfang: $event }))"
+                placeholder="Beschreibung der zu erbringenden Leistungen…"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-sm" type="button" (click)="abbrechen()">Abbrechen</button>
+          <button class="btn btn-sm btn-primary" type="button" [disabled]="laedt()" (click)="speichern()">
+            {{ laedt() ? 'Speichern…' : ansicht() === 'neu' ? 'Vertrag erstellen' : 'Änderungen speichern' }}
+          </button>
+        </div>
+
       </div>
-    </div>
+    </app-drawer>
   }
 </div>

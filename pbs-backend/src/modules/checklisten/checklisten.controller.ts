@@ -11,9 +11,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 
-import type { Request } from 'express';
 import { Roles } from '../auth/decorators/roles.decorator';
-import {
+import type {
   AssignTemplateObjekteDto,
   ChecklistSubmissionListQueryDto,
   ChecklistTemplateListQueryDto,
@@ -21,16 +20,8 @@ import {
   CreateChecklistTemplateDto,
   UpdateChecklistTemplateDto,
 } from './dto/checklisten.dto';
-import { ChecklistenService } from './checklisten.service';
-
-type AuthRequest = Request & {
-  user?: {
-    email: string;
-    rolle: string;
-    fullName?: string;
-    mitarbeiterId?: number | null;
-  };
-};
+import type { ChecklistenService } from './checklisten.service';
+import type { AuthRequest } from '../auth/auth-request.type';
 
 @Controller('api/checklisten')
 export class ChecklistenController {
@@ -55,8 +46,16 @@ export class ChecklistenController {
 
   @Get('templates/for-object/:objektId')
   @Roles('admin', 'readonly', 'mitarbeiter')
-  templatesForObject(@Param('objektId', ParseIntPipe) objektId: number) {
-    return this.service.templatesForObject(objektId);
+  templatesForObject(
+    @Param('objektId', ParseIntPipe) objektId: number,
+    @Req() req: AuthRequest,
+  ) {
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.templatesForObject(objektId, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
 
   @Get('templates/:id')

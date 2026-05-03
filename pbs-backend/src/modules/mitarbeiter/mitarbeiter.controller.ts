@@ -8,10 +8,12 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
-import { MitarbeiterService } from './mitarbeiter.service';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import {
+import type { MitarbeiterService } from './mitarbeiter.service';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import type {
   CreateMitarbeiterDto,
   CreateMitarbeiterStundenDto,
   StempelStartDto,
@@ -19,6 +21,7 @@ import {
   UpdateMitarbeiterStundenDto,
 } from './dto/mitarbeiter.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
+import type { AuthRequest } from '../auth/auth-request.type';
 
 @Roles('admin', 'mitarbeiter')
 @Controller('api/mitarbeiter')
@@ -81,15 +84,47 @@ export class MitarbeiterController {
   @Post(':id/stempel/start') stempelStart(
     @Param('id', ParseIntPipe) id: number,
     @Body() b: StempelStartDto,
+    @Req() req: AuthRequest,
   ) {
-    return this.service.stempelStart(id, b);
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.stempelStart(id, b, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
-  @Post(':id/stempel/stop') stempelStop(@Param('id', ParseIntPipe) id: number) {
-    return this.service.stempelStop(id);
+  @Post(':id/stempel/stop') stempelStop(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthRequest,
+  ) {
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.stempelStop(id, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
   @Get(':id/zeiterfassung') zeiterfassungLaden(
     @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthRequest,
   ) {
-    return this.service.zeiterfassungLaden(id);
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.zeiterfassungLaden(id, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
+  }
+
+  @Get(':id/stempel/aktiv') aktiverStempel(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthRequest,
+  ) {
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.aktiverStempel(id, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
 }

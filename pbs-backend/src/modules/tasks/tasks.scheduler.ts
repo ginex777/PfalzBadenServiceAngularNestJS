@@ -1,5 +1,6 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { TasksService } from './tasks.service';
+import type { OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import type { TasksService } from './tasks.service';
 
 @Injectable()
 export class TasksScheduler implements OnModuleInit {
@@ -19,7 +20,7 @@ export class TasksScheduler implements OnModuleInit {
       await this.tasksService.syncMuellplanTasks();
       this.logger.debug('Task sync completed');
     } catch (e) {
-      this.logger.warn('Task sync failed: ' + (e as Error).message);
+      this.logger.warn(`Task sync failed: ${(e as Error).message}`);
     }
   }
 }

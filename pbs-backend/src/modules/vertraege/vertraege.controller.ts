@@ -12,14 +12,15 @@ import {
   Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { Request, Response } from 'express';
-import { VertraegeService } from './vertraege.service';
-import { PdfService } from '../pdf/pdf.service';
+import type { Request, Response } from 'express';
+import type { VertraegeService } from './vertraege.service';
+import type { PdfService } from '../pdf/pdf.service';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AllowReadonlyWrite } from '../auth/decorators/allow-readonly-write.decorator';
-import { CreateVertragDto, UpdateVertragDto } from './dto/vertrag.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import type { CreateVertragDto, UpdateVertragDto } from './dto/vertrag.dto';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import { contentDispositionHeader } from '../../common/http/content-disposition';
 
 @ApiTags('Vertraege')
 @Roles('admin', 'readonly')
@@ -84,7 +85,7 @@ export class VertraegeController {
     if (!entry) return res.status(410).json({ message: 'Token abgelaufen' });
     res.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `inline; filename="${entry.filename}"`,
+      'Content-Disposition': contentDispositionHeader('inline', entry.filename),
     });
     res.send(entry.pdf);
   }

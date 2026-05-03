@@ -1,12 +1,19 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { VertraegeService } from './vertraege.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Kunde, Vertrag, VertragVorlage } from '../../core/models';
+import type { Kunde, Vertrag, VertragVorlage } from '../../core/models';
 import { BrowserService } from '../../core/services/browser.service';
+import { ConfirmService } from '../../shared/services/confirm.service';
+import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
+import { StatusBadgeComponent, type StatusBadgeTyp } from '../../shared/ui/status-badge/status-badge.component';
+import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
+import { DrawerComponent } from '../../shared/ui/drawer/drawer.component';
+import { getApiErrorMessage } from '../../core/api-error';
 
-const VORLAGEN: { id: VertragVorlage; label: string; beschreibung: string }[] = [
+const VORLAGEN: Array<{ id: VertragVorlage; label: string; beschreibung: string }> = [
   {
     id: 'Wartungsvertrag',
     label: 'Wartungsvertrag',
@@ -29,7 +36,8 @@ type Ansicht = 'liste' | 'neu' | 'bearbeiten';
 @Component({
   selector: 'app-vertraege',
   standalone: true,
-  imports: [FormsModule, DatePipe, CurrencyPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FormsModule, DatePipe, CurrencyPipe, PageTitleComponent, StatusBadgeComponent, EmptyStateComponent, DrawerComponent],
   templateUrl: './vertraege.component.html',
   styleUrl: './vertraege.component.scss',
 })
@@ -37,6 +45,7 @@ export class VertraegeComponent implements OnInit {
   private readonly service = inject(VertraegeService);
   private readonly browser = inject(BrowserService);
   private readonly toast = inject(ToastService);
+  private readonly confirm = inject(ConfirmService);
 
   readonly vorlagen = VORLAGEN;
 
@@ -45,7 +54,6 @@ export class VertraegeComponent implements OnInit {
   ansicht = signal<Ansicht>('liste');
   laedt = signal(false);
   pdfLaedt = signal(false);
-  erfolg = signal('');
 
   // Form state
   formVertrag = signal<Partial<Vertrag>>({
@@ -61,6 +69,8 @@ export class VertraegeComponent implements OnInit {
   // Filter
   suchbegriff = signal('');
   statusFilter = signal<string>('alle');
+
+  readonly formularSichtbar = computed(() => this.ansicht() !== 'liste');
 
   readonly gefilterteVertraege = computed(() => {
     let v = this.vertraege();
@@ -133,8 +143,9 @@ export class VertraegeComponent implements OnInit {
     }
     this.laedt.set(true);
 
-    const action$ = this.bearbeiteteId()
-      ? this.service.updateContract(this.bearbeiteteId()!, f)
+    const contractId = this.bearbeiteteId();
+    const action$ = contractId
+      ? this.service.updateContract(contractId, f)
       : this.service.createContract(f);
 
     action$.subscribe({
@@ -146,21 +157,22 @@ export class VertraegeComponent implements OnInit {
         }
         this.laedt.set(false);
         this.ansicht.set('liste');
-        this._toast(this.bearbeiteteId() ? 'Vertrag aktualisiert.' : 'Vertrag erstellt.');
+        this.toast.success(this.bearbeiteteId() ? 'Vertrag aktualisiert.' : 'Vertrag erstellt.');
       },
       error: (err) => {
         this.laedt.set(false);
-        this.toast.error(err?.error?.message ?? 'Fehler beim Speichern.');
+        this.toast.error(getApiErrorMessage(err) ?? 'Fehler beim Speichern.');
       },
     });
   }
 
-  loeschen(v: Vertrag) {
-    if (!confirm(`Vertrag "${v.titel}" wirklich löschen?`)) return;
+  async loeschen(v: Vertrag) {
+    const ok = await this.confirm.confirm({ message: `Vertrag "${v.titel}" wirklich löschen?` });
+    if (!ok) return;
     this.service.deleteContract(v.id).subscribe({
       next: () => {
         this.vertraege.update((list) => list.filter((x) => x.id !== v.id));
-        this._toast('Vertrag gelöscht.');
+        this.toast.success('Vertrag gelöscht.');
       },
     });
   }
@@ -183,16 +195,11 @@ export class VertraegeComponent implements OnInit {
     this.ansicht.set('liste');
   }
 
-  statusBadge(status: string): string {
-    return status === 'aktiv'
-      ? 'badge-aktiv'
-      : status === 'beendet'
-        ? 'badge-beendet'
-        : 'badge-gekuendigt';
+  statusBadge(status: string): StatusBadgeTyp {
+    if (status === 'aktiv') return 'aktiv';
+    if (status === 'beendet') return 'beendet';
+    if (status === 'gekuendigt') return 'gekuendigt';
+    return 'aktiv';
   }
 
-  private _toast(msg: string) {
-    this.erfolg.set(msg);
-    setTimeout(() => this.erfolg.set(''), 3000);
-  }
 }

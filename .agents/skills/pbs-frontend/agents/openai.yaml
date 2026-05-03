@@ -1,0 +1,4 @@
+interface:
+  display_name: "PBS Frontend"
+  short_description: "Angular and Ionic frontend guardrails"
+  default_prompt: "Use $pbs-frontend with $angular-developer, $frontend-design, and $frontend-refactor for PBS frontend work."

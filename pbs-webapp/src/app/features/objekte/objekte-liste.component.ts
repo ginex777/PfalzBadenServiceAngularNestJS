@@ -3,15 +3,16 @@ import { Router } from '@angular/router';
 import { DEFAULT_PAGE_SIZE } from '../../core/constants';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Kunde, Objekt } from '../../core/models';
+import type { Kunde, Objekt } from '../../core/models';
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/ui/error-state/error-state.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { PaginierungComponent } from '../../shared/ui/paginierung/paginierung.component';
 import { StatusBadgeComponent } from '../../shared/ui/status-badge/status-badge.component';
 import { ObjectsService } from './objekte.service';
-import { ObjectStatusFilter } from './objekte.models';
+import type { ObjectStatusFilter } from './objekte.models';
 import { RoleAllowedDirective } from '../../core/directives/role-allowed.directive';
+import { ConfirmService } from '../../shared/services/confirm.service';
 
 type CustomerFilterValue = 'ALL' | number;
 
@@ -34,6 +35,7 @@ export class ObjekteListeComponent {
   private readonly service = inject(ObjectsService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly confirm = inject(ConfirmService);
   protected readonly auth = inject(AuthService);
 
   protected readonly isLoading = signal(false);
@@ -123,6 +125,13 @@ export class ObjekteListeComponent {
     this.router.navigate(['/verwaltung/objekte', objectId]);
   }
 
+  protected onRowKeydown(event: KeyboardEvent, objectId: number): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.navigateToDetail(objectId);
+    }
+  }
+
   protected onPageChange(nextPage: number): void {
     this.page.set(nextPage);
   }
@@ -132,8 +141,12 @@ export class ObjekteListeComponent {
     this.page.set(1);
   }
 
-  protected deactivateFromList(objectId: number): void {
-    if (!confirm('Dieses Objekt wirklich deaktivieren?')) return;
+  protected async deactivateFromList(objectId: number): Promise<void> {
+    const ok = await this.confirm.confirm({
+      message: 'Dieses Objekt wirklich deaktivieren?',
+      confirmLabel: 'Deaktivieren',
+    });
+    if (!ok) return;
     this.service.deactivateObject(objectId).subscribe({
       next: () => {
         this.objects.update((list) =>
@@ -159,7 +172,7 @@ export class ObjekteListeComponent {
     return this.auth.currentUser()?.rolle === 'admin';
   }
 
-  protected customerOptions(): readonly { value: string; label: string }[] {
+  protected customerOptions(): ReadonlyArray<{ value: string; label: string }> {
     const options = this.customers()
       .slice()
       .sort((a, b) => a.name.localeCompare(b.name))

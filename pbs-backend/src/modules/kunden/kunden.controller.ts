@@ -11,9 +11,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags, ApiSecurity, ApiOperation } from '@nestjs/swagger';
-import { KundenService } from './kunden.service';
-import { CreateKundeDto, UpdateKundeDto } from './dto/kunde.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import type { KundenService } from './kunden.service';
+import type { CreateKundeDto, UpdateKundeDto } from './dto/kunde.dto';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Kunden')

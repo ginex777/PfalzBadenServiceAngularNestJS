@@ -9,15 +9,15 @@ import {
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
-import { WiederkehrendService } from './wiederkehrend.service';
-import {
+import type { WiederkehrendService } from './wiederkehrend.service';
+import type {
   CreateWiederkehrendeAusgabeDto,
   CreateWiederkehrendeRechnungDto,
   UpdateWiederkehrendeAusgabeDto,
   UpdateWiederkehrendeRechnungDto,
 } from './dto/wiederkehrend.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Roles('admin', 'readonly')
 @Controller('api')

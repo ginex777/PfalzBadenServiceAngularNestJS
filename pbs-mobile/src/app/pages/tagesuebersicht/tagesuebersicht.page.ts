@@ -1,6 +1,7 @@
-import { Component, computed, signal, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, computed, effect, signal, inject, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   IonBadge,
   IonButton,
@@ -16,11 +17,14 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { forkJoin, of } from 'rxjs';
 import { MobileAuthService } from '../../core/auth.service';
+import {
+  MobileSummaryService,
+  type MobileDashboardSummary,
+} from '../../core/mobile-summary.service';
 import { ObjectContextService } from '../../core/object-context.service';
-import { StempelService, StempelEintrag } from '../../core/stempel.service';
-import { WastePlanService, UpcomingWastePickup } from '../../core/waste-plan.service';
+import type { StampEntry } from '../../core/stempel.service';
+import type { UpcomingWastePickup } from '../../core/waste-plan.service';
 import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-kontext.component';
 
 @Component({
@@ -50,23 +54,39 @@ import { ObjektKontextComponent } from '../../shared/ui/objekt-kontext/objekt-ko
 export class TagesuebersichtPage implements OnInit {
   private readonly auth = inject(MobileAuthService);
   private readonly router = inject(Router);
-  private readonly stempel = inject(StempelService);
-  private readonly wastePlanService = inject(WastePlanService);
+  private readonly mobileSummary = inject(MobileSummaryService);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly context = inject(ObjectContextService);
 
-  protected readonly todayEntries = signal<StempelEintrag[]>([]);
+  protected readonly dashboardSummary = signal<MobileDashboardSummary | null>(
+    null,
+  );
+  protected readonly todayEntries = signal<StampEntry[]>([]);
   protected readonly upcomingPickups = signal<UpcomingWastePickup[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly hasEmployeeContext = signal(true);
   protected readonly toastMessage = signal('');
   protected readonly toastOpen = signal(false);
+  private readonly viewActive = signal(false);
 
-  protected readonly openEntry = computed(() => this.todayEntries().find((entry) => entry.stop == null) ?? null);
+  private readonly _sessionResetEffect = effect(() => {
+    this.auth.sessionResetVersion();
+    this.resetPageState();
+  });
 
-  protected readonly totalTrackedMinutes = computed(() =>
-    this.todayEntries()
-      .filter((entry) => entry.dauer_minuten != null)
-      .reduce((sum, entry) => sum + (entry.dauer_minuten ?? 0), 0),
+  private readonly _selectedObjectEffect = effect(() => {
+    this.context.selectedObjectId();
+    if (this.viewActive()) {
+      this.loadDashboardData();
+    }
+  });
+
+  protected readonly openEntry = computed(
+    () => this.dashboardSummary()?.activeStamp ?? null,
+  );
+
+  protected readonly totalTrackedMinutes = computed(
+    () => this.dashboardSummary()?.totalTrackedMinutes ?? 0,
   );
 
   ngOnInit(): void {
@@ -74,38 +94,37 @@ export class TagesuebersichtPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    this.loadDashboardData();
+    this.viewActive.set(true);
   }
 
-  protected readonly canUseOperativeActions = computed(() => this.context.selectedObjectId() != null);
+  ionViewDidLeave(): void {
+    this.viewActive.set(false);
+  }
+
+  protected readonly canUseOperativeActions = computed(
+    () => this.context.selectedObjectId() != null,
+  );
 
   protected loadDashboardData(): void {
     const employeeId = this.auth.currentUser()?.mitarbeiterId ?? null;
     this.hasEmployeeContext.set(employeeId != null);
     this.isLoading.set(true);
+    const objectId = this.selectedObjectId();
 
-    const timeEntriesRequest = employeeId
-      ? this.stempel.getTimeEntries(employeeId)
-      : of<StempelEintrag[]>([]);
-
-    forkJoin({
-      timeEntries: timeEntriesRequest,
-      upcomingPickups: this.wastePlanService.getUpcoming(6),
-    }).subscribe({
-      next: ({ timeEntries, upcomingPickups }) => {
-        this.todayEntries.set(timeEntries.filter((entry) => this.isCurrentDate(entry.start)));
-        this.upcomingPickups.set(upcomingPickups);
+    this.mobileSummary.getDashboardSummary({ objectId, limit: 6 }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (summary) => {
+        this.dashboardSummary.set(summary);
+        this.todayEntries.set(summary.todayEntries);
+        this.upcomingPickups.set(summary.upcomingPickups);
         this.isLoading.set(false);
       },
       error: () => {
-        this.showToast('Daten konnten nicht geladen werden. Bitte erneut versuchen.');
+        this.showToast(
+          'Daten konnten nicht geladen werden. Bitte erneut versuchen.',
+        );
         this.isLoading.set(false);
       },
     });
-  }
-
-  protected isPickupToday(dateValue: string): boolean {
-    return this.isCurrentDate(dateValue);
   }
 
   protected formatDuration(minutes: number | null): string {
@@ -115,23 +134,17 @@ export class TagesuebersichtPage implements OnInit {
     return hours > 0 ? `${hours}h ${remainingMinutes}min` : `${remainingMinutes}min`;
   }
 
-  private isCurrentDate(dateValue: string | Date): boolean {
-    const parsedDate = new Date(dateValue);
-    const today = new Date();
-    return (
-      parsedDate.getFullYear() === today.getFullYear() &&
-      parsedDate.getMonth() === today.getMonth() &&
-      parsedDate.getDate() === today.getDate()
-    );
-  }
+  protected readonly selectedObjectId = this.context.selectedObjectId;
 
-  protected readonly openTasksCount = computed(() => {
-    const activeStamp = this.openEntry() ? 1 : 0;
-    const pickupsToday = this.upcomingPickups().filter((pickup) =>
-      this.isPickupToday(pickup.abholung),
-    ).length;
-    return activeStamp + pickupsToday;
-  });
+  protected readonly openTasksCount = computed(
+    () => this.dashboardSummary()?.openPointsCount ?? 0,
+  );
+
+  protected readonly dashboardScopeLabel = computed(() =>
+    this.dashboardSummary()?.scope === 'accessible-objects'
+      ? 'Alle zugewiesenen Objekte'
+      : 'Ausgewähltes Objekt',
+  );
 
   protected async logout(): Promise<void> {
     await this.auth.logout();
@@ -140,7 +153,7 @@ export class TagesuebersichtPage implements OnInit {
 
   protected openTimeClock(): void {
     if (!this.canUseOperativeActions()) {
-      this.showToast('Bitte zuerst ein Objekt auswaehlen.');
+      this.showToast('Bitte zuerst ein Objekt auswählen.');
       return;
     }
     void this.router.navigate(['/tabs/stempeluhr']);
@@ -148,7 +161,7 @@ export class TagesuebersichtPage implements OnInit {
 
   protected openPhotoUpload(): void {
     if (!this.canUseOperativeActions()) {
-      this.showToast('Bitte zuerst ein Objekt auswaehlen.');
+      this.showToast('Bitte zuerst ein Objekt auswählen.');
       return;
     }
     void this.router.navigate(['/tabs/foto-upload']);
@@ -163,4 +176,13 @@ export class TagesuebersichtPage implements OnInit {
     this.toastOpen.set(true);
   }
 
+  private resetPageState(): void {
+    this.dashboardSummary.set(null);
+    this.todayEntries.set([]);
+    this.upcomingPickups.set([]);
+    this.isLoading.set(false);
+    this.hasEmployeeContext.set(true);
+    this.toastMessage.set('');
+    this.toastOpen.set(false);
+  }
 }

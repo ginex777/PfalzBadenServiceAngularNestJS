@@ -8,8 +8,8 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { MahnungenService } from './mahnungen.service';
-import { CreateMahnungDto } from './dto/mahnung.dto';
+import type { MahnungenService } from './mahnungen.service';
+import type { CreateMahnungDto } from './dto/mahnung.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AllowReadonlyWrite } from '../auth/decorators/allow-readonly-write.decorator';
 

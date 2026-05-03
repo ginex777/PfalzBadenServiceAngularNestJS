@@ -95,6 +95,42 @@ export interface BuchhaltungEintrag {
 
 export type BuchhaltungJahr = Record<number, { inc: BuchhaltungEintrag[]; exp: BuchhaltungEintrag[] }>;
 
+export interface AccountingMonthSummary {
+  month: number;
+  incomeNet: number;
+  incomeVat: number;
+  expenseNet: number;
+  inputVat: number;
+  vatLiability: number;
+  profit: number;
+}
+
+export interface AccountingElsterSummary {
+  kz81: number;
+  kz83: number;
+  kz86: number;
+  kz85: number;
+  kz66: number;
+}
+
+export interface AccountingQuarterSummary {
+  key: string;
+  label: string;
+  months: number[];
+  incomeNet: number;
+  incomeVat: number;
+  expenseNet: number;
+  inputVat: number;
+  vatLiability: number;
+  profit: number;
+  elster: AccountingElsterSummary;
+}
+
+export interface AccountingYearSummary {
+  months: AccountingMonthSummary[];
+  quarters: AccountingQuarterSummary[];
+}
+
 export interface VstPaid {
   id: number;
   jahr: number;
@@ -136,6 +172,7 @@ export interface MitarbeiterStunden {
   stunden: number;
   beschreibung?: string;
   ort?: string;
+  lohn_satz?: number;
   lohn: number;
   zuschlag: number;
   zuschlag_typ?: string;

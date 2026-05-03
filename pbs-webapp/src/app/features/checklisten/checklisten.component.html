@@ -37,7 +37,7 @@
   </div>
 
   @if (facade.loading() && facade.submissions().length === 0) {
-    <app-skeleton-rows [anzahl]="6" />
+    <app-skeleton-rows [count]="6" />
   } @else if (facade.errorMessage()) {
     <div class="card fehler-card">
       <div class="form-fehler">{{ facade.errorMessage() }}</div>
@@ -50,7 +50,7 @@
   } @else {
     <div class="card">
       <div class="tabelle-scroll">
-        <table class="data-table">
+        <table class="table">
           <thead>
             <tr>
               <th>Objekt</th>
@@ -96,253 +96,70 @@
   }
 
   @if (facade.selectedSubmissionId()) {
-    <div class="modal-overlay" (click)="clearSelection()">
-      <div class="modal modal--lg" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3 class="modal-title">Details</h3>
-          <button class="modal-close" (click)="clearSelection()" title="Schließen">✕</button>
-        </div>
-
-        <div class="modal-body">
-          @if (facade.detailLoading()) {
-            <app-skeleton-rows [anzahl]="6" />
-          } @else if (facade.detailError()) {
-            <div class="form-fehler">{{ facade.detailError() }}</div>
-          } @else if (facade.selectedSubmission()) {
-            <div class="detail-meta">
-              <div>
-                <span class="k">Objekt:</span> {{ facade.selectedSubmission()!.object.name }}
-              </div>
-              <div>
-                <span class="k">Checkliste:</span>
-                {{ facade.selectedSubmission()!.template.name }} (v{{
-                  facade.selectedSubmission()!.template.version
-                }})
-              </div>
-              <div>
-                <span class="k">Abgegeben:</span>
-                {{ facade.selectedSubmission()!.submittedAt | date: 'short' }}
-              </div>
-              <div>
-                <span class="k">Von:</span>
-                {{
-                  facade.selectedSubmission()!.createdByName ||
-                    facade.selectedSubmission()!.createdByEmail
-                }}
-              </div>
-            </div>
-
-            <div class="detail-actions">
-              <button class="btn" type="button" (click)="openPdf(facade.selectedSubmission()!.id)">
-                PDF erstellen
-              </button>
-            </div>
-
-            <div class="tabelle-scroll detail-table">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Feld</th>
-                    <th>Antwort</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (i of detailItems(); track i.label) {
-                    <tr>
-                      <td>{{ i.label }}</td>
-                      <td class="detail-value">{{ i.value }}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-  }
-
-  @if (isAdmin()) {
-    <div class="card admin-card">
-      <div class="admin-head">
-        <div class="admin-title">Templates bearbeiten</div>
-        <button class="btn btn-sm" type="button" (click)="startCreate()">Neu</button>
-      </div>
-
-      @if (adminTemplatesLoading()) {
-        <app-skeleton-rows [anzahl]="5" />
-      } @else if (adminTemplatesError()) {
-        <div class="form-fehler">{{ adminTemplatesError() }}</div>
-      }
-
-      <div class="admin-grid">
-        <div class="admin-list">
-          <div class="admin-list__label">Vorhanden</div>
-          <div class="admin-list__items">
-            @for (t of adminTemplates(); track t.id) {
-              <button
-                class="admin-item"
-                type="button"
-                [class.is-active]="editing()?.id === t.id"
-                (click)="startEdit(t)"
-              >
-                <div class="admin-item__name">{{ t.name }}</div>
-                <div class="admin-item__meta">
-                  v{{ t.version }} ·
-                  @if (t.isActive) {
-                    aktiv
-                  } @else {
-                    inaktiv
-                  }
-                </div>
-              </button>
-            }
+    <app-modal [isOpen]="!!facade.selectedSubmissionId()" title="Details" size="lg" (closed)="clearSelection()">
+      @if (facade.detailLoading()) {
+        <app-skeleton-rows [count]="6" />
+      } @else if (facade.detailError()) {
+        <div class="form-fehler">{{ facade.detailError() }}</div>
+      } @else if (facade.selectedSubmission()) {
+        <div class="detail-meta">
+          <div>
+            <span class="k">Objekt:</span> {{ facade.selectedSubmission()!.object.name }}
+          </div>
+          <div>
+            <span class="k">Checkliste:</span>
+            {{ facade.selectedSubmission()!.template.name }} (v{{
+              facade.selectedSubmission()!.template.version
+            }})
+          </div>
+          <div>
+            <span class="k">Abgegeben:</span>
+            {{ facade.selectedSubmission()!.submittedAt | date: 'short' }}
+          </div>
+          <div>
+            <span class="k">Von:</span>
+            {{
+              facade.selectedSubmission()!.createdByName ||
+                facade.selectedSubmission()!.createdByEmail
+            }}
           </div>
         </div>
 
-        <div class="admin-editor">
-          @if (!editing()) {
-            <div class="admin-empty">Bitte ein Template wählen oder „Neu“ klicken.</div>
-          } @else {
-            <div class="admin-form">
-              <label class="form-label">
-                <span>Name</span>
-                <input class="form-input" [(ngModel)]="editing()!.name" name="tplName" />
-              </label>
-
-              <label class="form-label">
-                <span>Beschreibung</span>
-                <textarea
-                  class="form-textarea"
-                  rows="3"
-                  [(ngModel)]="editing()!.description"
-                  name="tplDesc"
-                ></textarea>
-              </label>
-
-              <label class="form-label">
-                <span>Kategorie</span>
-                <input
-                  class="form-input"
-                  [(ngModel)]="editing()!.kategorie"
-                  name="tplKategorie"
-                  placeholder="z.B. Winterdienst, Reinigung…"
-                />
-              </label>
-
-              <label class="form-checkbox">
-                <input type="checkbox" [(ngModel)]="editing()!.isActive" name="tplActive" />
-                <span>Aktiv</span>
-              </label>
-
-              <div class="form-label">
-                <span>Objekt-Zuordnung</span>
-                <div class="objekt-assign-list">
-                  @if (!facade.objects().length) {
-                    <span class="form-hint">Keine Objekte vorhanden.</span>
-                  }
-                  @for (o of facade.objects(); track o.id) {
-                    <label class="form-checkbox form-checkbox--sm">
-                      <input
-                        type="checkbox"
-                        [checked]="editing()!.assignedObjectIds.includes(o.id)"
-                        (change)="toggleObjectAssignment(o.id)"
-                      />
-                      <span>{{ o.name }}</span>
-                    </label>
-                  }
-                </div>
-                <div class="form-hint">Leer = für alle Objekte sichtbar.</div>
-              </div>
-
-              <div class="fields-head">
-                <div class="fields-title">Felder</div>
-                <button class="btn btn-sm" type="button" (click)="addField()">
-                  Feld hinzufügen
-                </button>
-              </div>
-
-              <div class="fields">
-                @for (f of editing()!.fields; track $index) {
-                  <div class="field-row">
-                    <label class="form-label">
-                      <span>ID</span>
-                      <input
-                        class="form-input"
-                        [(ngModel)]="f.fieldId"
-                        name="fieldId{{ $index }}"
-                      />
-                    </label>
-                    <label class="form-label">
-                      <span>Label</span>
-                      <input
-                        class="form-input"
-                        [(ngModel)]="f.label"
-                        name="fieldLabel{{ $index }}"
-                      />
-                    </label>
-                    <label class="form-label">
-                      <span>Typ</span>
-                      <select class="form-select" [(ngModel)]="f.type" name="fieldType{{ $index }}">
-                        <option value="boolean">Ja/Nein</option>
-                        <option value="text">Text</option>
-                        <option value="kommentar">Kommentar</option>
-                        <option value="number">Zahl</option>
-                        <option value="select">Auswahl</option>
-                        <option value="foto">Foto</option>
-                      </select>
-                    </label>
-
-                    <label class="form-checkbox">
-                      <input type="checkbox" [(ngModel)]="f.required" name="fieldReq{{ $index }}" />
-                      <span>Pflicht</span>
-                    </label>
-
-                    <label class="form-label field-helper">
-                      <span>Helper</span>
-                      <input
-                        class="form-input"
-                        [(ngModel)]="f.helperText"
-                        name="fieldHelp{{ $index }}"
-                      />
-                    </label>
-
-                    @if (f.type === 'select') {
-                      <label class="form-label field-options">
-                        <span>Optionen (1 pro Zeile)</span>
-                        <textarea
-                          class="form-textarea"
-                          rows="3"
-                          [(ngModel)]="f.optionsText"
-                          name="fieldOpt{{ $index }}"
-                        ></textarea>
-                      </label>
-                    }
-
-                    <button
-                      class="btn btn btn-sm btn-danger"
-                      type="button"
-                      (click)="removeField($index)"
-                    >
-                      Entfernen
-                    </button>
-                  </div>
-                }
-              </div>
-
-              <div class="admin-actions">
-                <button class="btn" type="button" (click)="saveTemplate()" [disabled]="saving()">
-                  @if (saving()) {
-                    Speichern…
-                  } @else {
-                    Speichern
-                  }
-                </button>
-              </div>
-            </div>
-          }
+        <div class="detail-actions">
+          <button class="btn" type="button" (click)="openPdf(facade.selectedSubmission()!.id)">
+            PDF erstellen
+          </button>
         </div>
-      </div>
-    </div>
+
+        <div class="tabelle-scroll detail-table">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Feld</th>
+                <th>Antwort</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of detailItems(); track i.label) {
+                <tr>
+                  <td>{{ i.label }}</td>
+                  <td class="detail-value">
+                    @if (i.evidenceId) {
+                      <a [href]="evidenceUrl(i.evidenceId)" target="_blank" rel="noopener">{{ i.value }}</a>
+                    } @else {
+                      {{ i.value }}
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </app-modal>
+  }
+
+  @if (isAdmin()) {
+    <app-checklisten-template-editor />
   }
 </div>

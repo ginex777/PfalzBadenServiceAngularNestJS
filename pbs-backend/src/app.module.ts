@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { randomUUID } from 'crypto';
 import { AuthModule } from './modules/auth/auth.module';
@@ -33,6 +33,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { NachweiseModule } from './modules/nachweise/nachweise.module';
 import { ChecklistenModule } from './modules/checklisten/checklisten.module';
 import { MobileFeedbackModule } from './modules/mobile-feedback/mobile-feedback.module';
+import { MobileSummaryModule } from './modules/mobile-summary/mobile-summary.module';
 import { ObjekteModule } from './modules/objekte/objekte.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { StempeluhrModule } from './modules/stempeluhr/stempeluhr.module';
@@ -92,6 +93,7 @@ import { HealthController } from './health.controller';
     NachweiseModule,
     ChecklistenModule,
     MobileFeedbackModule,
+    MobileSummaryModule,
     TasksModule,
     StempeluhrModule,
     DatevModule,
@@ -104,6 +106,7 @@ import { HealthController } from './health.controller';
   controllers: [HealthController],
   providers: [
     // Global JWT guard — all routes protected unless @Public() is applied
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: ReadonlyWriteBlockGuard },
     { provide: APP_GUARD, useClass: RolesGuard },

@@ -1,7 +1,7 @@
 @if (errorMessage()) {
   <app-error-state [message]="errorMessage()!" />
 } @else if (isLoading()) {
-  <app-skeleton-rows [anzahl]="8" />
+  <app-skeleton-rows [count]="8" />
 } @else if (!hasData()) {
   <app-empty-state
     title="Keine Einträge gefunden"

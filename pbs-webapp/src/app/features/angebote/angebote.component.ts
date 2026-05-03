@@ -1,13 +1,17 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, effect } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, effect } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AngeboteFacade } from './angebote.facade';
 import { AngeboteTabelleComponent } from './components/angebote-tabelle/angebote-tabelle.component';
 import { AngeboteFormularComponent } from './components/angebote-formular/angebote-formular.component';
 import { SearchToolbarComponent } from '../../shared/ui/search-toolbar/search-toolbar.component';
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
+import { ModalComponent } from '../../shared/ui/modal/modal.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
-import { Angebot, RechnungPosition } from '../../core/models';
-import { AngebotFilter, AngebotFormularDaten } from './angebote.models';
+import type { Angebot, RechnungPosition } from '../../core/models';
+import type { AngebotFilter, AngebotFormularDaten } from './angebote.models';
+import { BrowserService } from '../../core/services/browser.service';
 
 @Component({
   selector: 'app-angebote',
@@ -18,6 +22,7 @@ import { AngebotFilter, AngebotFormularDaten } from './angebote.models';
     AngeboteFormularComponent,
     SearchToolbarComponent,
     ConfirmModalComponent,
+    ModalComponent,
     PageTitleComponent,
   ],
   templateUrl: './angebote.component.html',
@@ -27,10 +32,12 @@ export class AngeboteComponent implements OnInit {
   protected readonly facade = inject(AngeboteFacade);
 
   hatUngespeicherteAenderungen(): boolean {
-    const d = this.facade.formularDaten();
-    return !!(d.empf?.trim() || d.titel?.trim() || d.positionen.some((p) => p.bez?.trim()));
+    if (!this.facade.drawerOffen()) return false;
+    return JSON.stringify(this.facade.formularDaten()) !== this.facade.formularSnapshot();
   }
   private readonly route = inject(ActivatedRoute);
+  private readonly browser = inject(BrowserService);
+  private readonly destroyRef = inject(DestroyRef);
   private urlId: number | null = null;
 
   constructor() {
@@ -46,7 +53,7 @@ export class AngeboteComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       if (params['id']) this.urlId = parseInt(params['id']);
     });
     this.facade.ladeDaten();
@@ -147,7 +154,7 @@ export class AngeboteComponent implements OnInit {
     const d = this.facade.sendModal();
     if (!d) return;
     const mailto = `mailto:${d.email}?subject=${encodeURIComponent(this.sendBetreff())}&body=${encodeURIComponent(this.sendText())}`;
-    window.open(mailto, '_blank');
+    this.browser.openUrl(mailto);
   }
 
   protected textKopieren(): void {

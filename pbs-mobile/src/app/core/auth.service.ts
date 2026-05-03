@@ -1,9 +1,13 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Preferences } from '@capacitor/preferences';
-import { firstValueFrom } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { firstValueFrom, from } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { MobileApiConfigService } from './api-config.service';
+import { MobileTokenStorageService } from './mobile-token-storage.service';
+import { ObjectContextService } from './object-context.service';
+import { TimerStateService } from './timer-state.service';
 
 export interface AuthUser {
   email: string;
@@ -11,11 +15,24 @@ export interface AuthUser {
   mitarbeiterId?: number | null;
 }
 
+interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  email: string;
+  rolle: string;
+  mitarbeiterId: number | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class MobileAuthService {
+  private readonly router = inject(Router);
+  private readonly tokenStorage = inject(MobileTokenStorageService);
+  private readonly objectContext = inject(ObjectContextService);
+  private readonly timerState = inject(TimerStateService);
   private readonly apiConfig: MobileApiConfigService;
   readonly accessToken = signal<string | null>(null);
   readonly currentUser = signal<AuthUser | null>(null);
+  readonly sessionResetVersion = signal(0);
   readonly isLoggedIn = computed(() => !!this.accessToken() && !!this.currentUser());
   private refreshPromise: Promise<string | null> | null = null;
 
@@ -27,13 +44,15 @@ export class MobileAuthService {
   }
 
   async restoreSession(): Promise<void> {
-    const { value: token } = await Preferences.get({ key: 'access_token' });
+    await this.tokenStorage.migrateLegacyPreferenceTokens();
+    const token = await this.tokenStorage.getAccessToken();
     const { value: userRaw } = await Preferences.get({ key: 'auth_user' });
     if (token) this.accessToken.set(token);
     if (userRaw) {
       try {
         const user = JSON.parse(userRaw) as AuthUser;
         this.currentUser.set(user);
+        await this.objectContext.restoreSelectedObjectForUser(user.email);
       } catch {
         /**/
       }
@@ -42,7 +61,7 @@ export class MobileAuthService {
 
   async getAccessToken(): Promise<string | null> {
     if (this.accessToken()) return this.accessToken();
-    const { value } = await Preferences.get({ key: 'access_token' });
+    const value = await this.tokenStorage.getAccessToken();
     if (value) {
       this.accessToken.set(value);
     }
@@ -52,36 +71,19 @@ export class MobileAuthService {
   login(email: string, password: string) {
     const baseUrl = this.apiConfig.apiBaseUrl();
     return this.http
-      .post<{
-        accessToken: string;
-        refreshToken: string;
-        email: string;
-        rolle: string;
-        mitarbeiterId: number | null;
-      }>(`${baseUrl}/api/auth/login`, { email, password })
+      .post<LoginResponse>(`${baseUrl}/api/auth/login`, { email, password })
       .pipe(
-        tap(async (res) => {
-          await Preferences.set({ key: 'access_token', value: res.accessToken });
-          await Preferences.set({ key: 'refresh_token', value: res.refreshToken });
-          const user: AuthUser = {
-            email: res.email,
-            rolle: res.rolle,
-            mitarbeiterId: res.mitarbeiterId,
-          };
-          await Preferences.set({ key: 'auth_user', value: JSON.stringify(user) });
-          this.accessToken.set(res.accessToken);
-          this.currentUser.set(user);
-        }),
+        switchMap((res) => from(this.persistLogin(res)).pipe(map(() => res))),
       );
   }
 
   async logout() {
     const baseUrl = this.apiConfig.apiBaseUrl();
-    const { value: refresh } = await Preferences.get({ key: 'refresh_token' });
+    const refresh = await this.tokenStorage.getRefreshToken();
     if (refresh) {
       this.http.post(`${baseUrl}/api/auth/logout`, { refreshToken: refresh }).subscribe();
     }
-    await this.clearSession();
+    await this.resetSessionState();
   }
 
   async refreshAccessToken(): Promise<string | null> {
@@ -97,7 +99,7 @@ export class MobileAuthService {
 
   private async performRefresh(): Promise<string | null> {
     const baseUrl = this.apiConfig.apiBaseUrl();
-    const { value: refreshToken } = await Preferences.get({ key: 'refresh_token' });
+    const refreshToken = await this.tokenStorage.getRefreshToken();
     if (!refreshToken) return null;
 
     try {
@@ -106,21 +108,50 @@ export class MobileAuthService {
           refreshToken,
         }),
       );
-      await Preferences.set({ key: 'access_token', value: res.accessToken });
-      await Preferences.set({ key: 'refresh_token', value: res.refreshToken });
+      await this.tokenStorage.setTokens(res);
       this.accessToken.set(res.accessToken);
       return res.accessToken;
     } catch {
-      await this.clearSession();
+      await this.resetSessionState({ redirectToLogin: true });
       return null;
     }
   }
 
-  private async clearSession(): Promise<void> {
-    await Preferences.remove({ key: 'access_token' });
-    await Preferences.remove({ key: 'refresh_token' });
+  private async persistLogin(res: LoginResponse): Promise<void> {
+    const previousUser = this.currentUser();
+    if (previousUser && previousUser.email !== res.email) {
+      await this.objectContext.clearSelectedObjectForUser(previousUser.email);
+      this.objectContext.resetSessionState();
+      this.timerState.clearActive();
+      this.sessionResetVersion.update((version) => version + 1);
+    }
+
+    await this.tokenStorage.setTokens(res);
+    const user: AuthUser = {
+      email: res.email,
+      rolle: res.rolle,
+      mitarbeiterId: res.mitarbeiterId,
+    };
+    await Preferences.set({ key: 'auth_user', value: JSON.stringify(user) });
+    this.accessToken.set(res.accessToken);
+    this.currentUser.set(user);
+    await this.objectContext.restoreSelectedObjectForUser(user.email);
+  }
+
+  private async resetSessionState(options?: { redirectToLogin?: boolean }): Promise<void> {
+    const user = this.currentUser();
+    if (user) {
+      await this.objectContext.clearSelectedObjectForUser(user.email);
+    }
+    await this.tokenStorage.clearTokens();
     await Preferences.remove({ key: 'auth_user' });
     this.accessToken.set(null);
     this.currentUser.set(null);
+    this.objectContext.resetSessionState();
+    this.timerState.clearActive();
+    this.sessionResetVersion.update((version) => version + 1);
+    if (options?.redirectToLogin) {
+      await this.router.navigate(['/login']);
+    }
   }
 }

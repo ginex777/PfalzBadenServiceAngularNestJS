@@ -43,7 +43,7 @@ export class CreateRechnungDto {
   @IsNumber()
   @IsPositive()
   kunden_id?: number;
-  @ApiProperty() @IsNumber() @Min(0) brutto!: number;
+  @ApiPropertyOptional() @IsOptional() @IsNumber() @Min(0) brutto?: number;
   @ApiPropertyOptional() @IsOptional() @IsDateString() frist?: string;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() bezahlt?: boolean;
   @ApiPropertyOptional() @IsOptional() @IsDateString() bezahlt_am?: string;

@@ -14,7 +14,7 @@
   <div class="app-page-grid page-stempeluhr">
     <section class="app-hero">
       <p class="app-hero-label">Zeiterfassung</p>
-      <h1 class="app-hero-title">{{ isActive() ? 'Timer laeuft' : 'Bereit zum Stempeln' }}</h1>
+      <h1 class="app-hero-title">{{ isActive() ? 'Timer läuft' : 'Bereit zum Stempeln' }}</h1>
       <p class="app-hero-text">{{ user() ? ('Angemeldet als ' + user()!.email) : 'Nicht angemeldet' }}</p>
     </section>
 
@@ -45,7 +45,6 @@
             [disabled]="isActive()"
             placeholder="z. B. Keller, Hausflur, Hof"
           />
-          <p class="object-hint">Temporarer Freitext-Fallback (spaeter ggf. deaktiviert).</p>
         </div>
 
         @if (isActive()) {

@@ -1,5 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { KundenComponent } from './kunden.component';
+import { sharedTestProviders } from '../../testing/shared-test-providers';
 
 describe('KundenComponent', () => {
   let component: KundenComponent;
@@ -7,7 +9,8 @@ describe('KundenComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [KundenComponent],
+      imports: [KundenComponent],
+      providers: sharedTestProviders,
     }).compileComponents();
 
     fixture = TestBed.createComponent(KundenComponent);

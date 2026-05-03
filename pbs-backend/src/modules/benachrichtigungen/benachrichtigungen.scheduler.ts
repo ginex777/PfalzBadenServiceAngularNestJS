@@ -1,5 +1,6 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
+import type { OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import type { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()
 export class BenachrichtigungenScheduler implements OnModuleInit {
@@ -136,7 +137,7 @@ export class BenachrichtigungenScheduler implements OnModuleInit {
       this.logger.debug('Benachrichtigungs-Check abgeschlossen');
     } catch (e) {
       this.logger.warn(
-        'Benachrichtigungs-Check fehlgeschlagen: ' + (e as Error).message,
+        `Benachrichtigungs-Check fehlgeschlagen: ${(e as Error).message}`,
       );
     }
   }

@@ -1,4 +1,4 @@
-import { Taetigkeit } from '../../core/models';
+import type { Taetigkeit } from '../../core/models';
 
 export interface HausmeisterFormularDaten {
   mitarbeiter_id: number | null;

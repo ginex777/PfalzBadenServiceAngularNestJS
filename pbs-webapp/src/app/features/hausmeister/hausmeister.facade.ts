@@ -1,10 +1,11 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HausmeisterService } from './hausmeister.service';
 import { ToastService } from '../../core/services/toast.service';
-import { HausmeisterEinsatz, Mitarbeiter, Kunde, Taetigkeit } from '../../core/models';
-import {
+import type { HausmeisterEinsatz, Mitarbeiter, Kunde, Taetigkeit } from '../../core/models';
+import type {
   HausmeisterFormularDaten,
-  HausmeisterFilter,
+  HausmeisterFilter} from './hausmeister.models';
+import {
   LEERES_EINSATZ_FORMULAR,
 } from './hausmeister.models';
 

@@ -3,8 +3,8 @@ import { MS_PER_DAY, DEFAULT_PAGE_SIZE } from '../../core/constants';
 import { Router } from '@angular/router';
 import { KundenService } from './kunden.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Kunde, Rechnung } from '../../core/models';
-import {
+import type { Kunde, Rechnung } from '../../core/models';
+import type {
   KundeUmsatz,
   KundenFormularDaten,
   OffenePostenDaten,
@@ -22,6 +22,7 @@ export class KundenFacade {
   readonly umsaetze = signal<KundeUmsatz[]>([]);
   readonly suchbegriff = signal('');
   readonly bearbeiteterKunde = signal<Kunde | null>(null);
+  readonly formGeaendert = signal(false);
   readonly loeschKandidat = signal<number | null>(null);
   readonly formularSichtbar = signal(false);
   readonly offenePosten = signal<OffenePostenDaten | null>(null);
@@ -123,6 +124,7 @@ export class KundenFacade {
 
   bearbeitungStarten(kunde: Kunde | null): void {
     this.bearbeiteterKunde.set(kunde);
+    this.formGeaendert.set(false);
     this.formularSichtbar.set(true);
   }
 
@@ -216,7 +218,9 @@ export class KundenFacade {
     const gesamtBrutto = ueberfaellig.reduce((s, r) => s + (r.brutto ?? 0), 0);
     const reList = ueberfaellig
       .map((r) => {
-        const tage = Math.ceil((heute.getTime() - new Date(r.frist!).getTime()) / MS_PER_DAY);
+        const frist = r.frist;
+        if (!frist) return `  - Rechnung ${r.nr}: ${(r.brutto ?? 0).toFixed(2)} €`;
+        const tage = Math.ceil((heute.getTime() - new Date(frist).getTime()) / MS_PER_DAY);
         return `  - Rechnung ${r.nr}: ${(r.brutto ?? 0).toFixed(2)} € (${tage} Tage überfällig)`;
       })
       .join('\n');

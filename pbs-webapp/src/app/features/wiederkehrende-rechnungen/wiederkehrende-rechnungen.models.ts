@@ -1,4 +1,4 @@
-import { RechnungPosition } from '../../core/models';
+import type { RechnungPosition } from '../../core/models';
 
 export interface WrFormularDaten {
   kunden_id: number | null;

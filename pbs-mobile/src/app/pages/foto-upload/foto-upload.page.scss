@@ -55,7 +55,7 @@ ion-content {
 }
 
 .photo-action--primary {
-  --background: linear-gradient(135deg, #ff7a00, #ff9a2f);
+  --background: var(--app-primary-action-bg);
 }
 
 .photo-action--secondary {
@@ -70,9 +70,16 @@ ion-content {
 .preview-img {
   width: 100%;
   max-height: 52vh;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 0.85rem;
   background: var(--app-surface-2, #0f172a);
+}
+
+.upload-retry-hint {
+  font-size: 0.82rem;
+  color: var(--ion-color-danger);
+  text-align: center;
+  padding: 0.25rem 0;
 }
 
 .preview-actions {
@@ -112,7 +119,7 @@ ion-content {
 
   .photo-empty-title {
     font-weight: 800;
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
   }
 
   .photo-empty-text {

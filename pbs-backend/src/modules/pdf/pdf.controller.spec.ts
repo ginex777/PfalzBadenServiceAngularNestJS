@@ -1,5 +1,6 @@
 import { PdfService } from './pdf.service';
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { PdfController } from './pdf.controller';
 
 describe('PdfController', () => {

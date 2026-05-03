@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { ShellComponent } from './layout/shell/shell.component';
 import { ThemeService } from './core/services/theme.service';
+import { ConfirmHostComponent } from './shared/ui/confirm-host/confirm-host.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [ShellComponent],
+  imports: [ShellComponent, ConfirmHostComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

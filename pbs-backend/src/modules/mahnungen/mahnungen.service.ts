@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
-import { PdfService } from '../pdf/pdf.service';
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { PdfService } from '../pdf/pdf.service';
 import { Prisma } from '@prisma/client';
-import { CreateMahnungDto } from './dto/mahnung.dto';
+import type { CreateMahnungDto } from './dto/mahnung.dto';
 
 @Injectable()
 export class MahnungenService {

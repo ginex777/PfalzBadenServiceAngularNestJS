@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { datumFormatieren, waehrungFormatieren } from '../../core/utils/format.utils';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';

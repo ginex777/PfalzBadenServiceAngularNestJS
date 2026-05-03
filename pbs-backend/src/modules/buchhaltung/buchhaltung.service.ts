@@ -4,9 +4,43 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
-import { Prisma, Buchhaltung } from '@prisma/client';
-import { BuchhaltungEintragDto, VstDto } from './dto/buchhaltung.dto';
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { Buchhaltung } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import type { BuchhaltungEintragDto, VstDto } from './dto/buchhaltung.dto';
+
+export interface AccountingMonthSummary {
+  month: number;
+  incomeNet: number;
+  incomeVat: number;
+  expenseNet: number;
+  inputVat: number;
+  vatLiability: number;
+  profit: number;
+}
+
+export interface AccountingElsterSummary {
+  kz81: number;
+  kz83: number;
+  kz86: number;
+  kz85: number;
+  kz66: number;
+}
+
+export interface AccountingQuarterSummary extends Omit<
+  AccountingMonthSummary,
+  'month'
+> {
+  key: string;
+  label: string;
+  months: number[];
+  elster: AccountingElsterSummary;
+}
+
+export interface AccountingYearSummary {
+  months: AccountingMonthSummary[];
+  quarters: AccountingQuarterSummary[];
+}
 
 @Injectable()
 export class BuchhaltungService {
@@ -37,6 +71,14 @@ export class BuchhaltungService {
       else ergebnis[monat].exp.push(mapped);
     });
     return ergebnis;
+  }
+
+  async getYearSummary(jahr: number): Promise<AccountingYearSummary> {
+    const rows = await this.prisma.buchhaltung.findMany({
+      where: { jahr },
+      orderBy: [{ monat: 'asc' }, { id: 'asc' }],
+    });
+    return this.calculateYearSummary(rows);
   }
 
   async create(daten: BuchhaltungEintragDto) {
@@ -194,5 +236,135 @@ export class BuchhaltungService {
       abzug: Number(r.abzug),
       beleg_id: r.beleg_id ? Number(r.beleg_id) : null,
     };
+  }
+
+  private calculateYearSummary(rows: Buchhaltung[]): AccountingYearSummary {
+    const months = Array.from({ length: 12 }, (_, month) =>
+      this.calculateMonthSummary(
+        month,
+        rows.filter((row) => row.monat === month),
+      ),
+    );
+    const quarterDefinitions = [
+      { key: 'q0', label: 'Q1 (Jan-Mrz)', months: [0, 1, 2] },
+      { key: 'q1', label: 'Q2 (Apr-Jun)', months: [3, 4, 5] },
+      { key: 'q2', label: 'Q3 (Jul-Sep)', months: [6, 7, 8] },
+      { key: 'q3', label: 'Q4 (Okt-Dez)', months: [9, 10, 11] },
+    ];
+    const quarters = quarterDefinitions.map((quarter) => {
+      const quarterMonths = months.filter((summary) =>
+        quarter.months.includes(summary.month),
+      );
+      const elster = this.calculateElsterSummary(
+        rows.filter((row) => quarter.months.includes(row.monat)),
+      );
+      const incomeNet = this.sum(quarterMonths.map((month) => month.incomeNet));
+      const incomeVat = this.sum(quarterMonths.map((month) => month.incomeVat));
+      const expenseNet = this.sum(
+        quarterMonths.map((month) => month.expenseNet),
+      );
+      const inputVat = this.sum(quarterMonths.map((month) => month.inputVat));
+      return {
+        key: quarter.key,
+        label: quarter.label,
+        months: quarter.months,
+        elster,
+        incomeNet,
+        incomeVat,
+        expenseNet,
+        inputVat,
+        vatLiability: this.roundCurrency(incomeVat - inputVat),
+        profit: this.roundCurrency(incomeNet - expenseNet),
+      };
+    });
+    return { months, quarters };
+  }
+
+  private calculateMonthSummary(
+    month: number,
+    rows: Buchhaltung[],
+  ): AccountingMonthSummary {
+    let incomeNet = 0;
+    let incomeVat = 0;
+    let expenseNet = 0;
+    let inputVat = 0;
+
+    for (const row of rows) {
+      const gross = Number(row.brutto);
+      const vatRate = Number(row.mwst);
+      const businessShare = Number(row.abzug) / 100;
+      const vat = this.calculateVatFromGross(gross, vatRate);
+      const net = this.roundCurrency(gross - vat);
+
+      if (row.typ === 'inc') {
+        incomeVat += vat;
+        incomeNet += net;
+      } else {
+        inputVat += vat * businessShare;
+        expenseNet += net * businessShare;
+      }
+    }
+
+    incomeNet = this.roundCurrency(incomeNet);
+    incomeVat = this.roundCurrency(incomeVat);
+    expenseNet = this.roundCurrency(expenseNet);
+    inputVat = this.roundCurrency(inputVat);
+
+    return {
+      month,
+      incomeNet,
+      incomeVat,
+      expenseNet,
+      inputVat,
+      vatLiability: this.roundCurrency(incomeVat - inputVat),
+      profit: this.roundCurrency(incomeNet - expenseNet),
+    };
+  }
+
+  private calculateElsterSummary(rows: Buchhaltung[]): AccountingElsterSummary {
+    let kz81 = 0;
+    let kz83 = 0;
+    let kz86 = 0;
+    let kz85 = 0;
+    let kz66 = 0;
+
+    for (const row of rows) {
+      const gross = Number(row.brutto);
+      const vatRate = Number(row.mwst);
+      const vat = this.calculateVatFromGross(gross, vatRate);
+      const net = this.roundCurrency(gross - vat);
+      if (row.typ === 'inc' && vatRate === 19) {
+        kz81 += net;
+        kz83 += vat;
+      } else if (row.typ === 'inc' && vatRate === 7) {
+        kz86 += net;
+        kz85 += vat;
+      } else if (row.typ === 'exp') {
+        kz66 += vat * (Number(row.abzug) / 100);
+      }
+    }
+
+    return {
+      kz81: this.roundCurrency(kz81),
+      kz83: this.roundCurrency(kz83),
+      kz86: this.roundCurrency(kz86),
+      kz85: this.roundCurrency(kz85),
+      kz66: this.roundCurrency(kz66),
+    };
+  }
+
+  private calculateVatFromGross(gross: number, vatRate: number): number {
+    if (vatRate <= 0) return 0;
+    return this.roundCurrency(gross - gross / (1 + vatRate / 100));
+  }
+
+  private sum(values: number[]): number {
+    return this.roundCurrency(
+      values.reduce((total, value) => total + value, 0),
+    );
+  }
+
+  private roundCurrency(value: number): number {
+    return Math.round(value * 100) / 100;
   }
 }

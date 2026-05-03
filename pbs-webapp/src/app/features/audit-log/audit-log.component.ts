@@ -1,11 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuditLogFacade } from './audit-log.facade';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
 import { SkeletonRowsComponent } from '../../shared/ui/skeleton-rows/skeleton-rows.component';
 import { PaginierungComponent } from '../../shared/ui/paginierung/paginierung.component';
-import { AuditAktion, AKTION_LABELS, AKTION_KLASSEN, TABELLEN_LABELS } from './audit-log.models';
+import type { AuditAktion} from './audit-log.models';
+import { AKTION_LABELS, AKTION_KLASSEN, TABELLEN_LABELS } from './audit-log.models';
 
 @Component({
   selector: 'app-audit-log',
@@ -19,11 +22,12 @@ export class AuditLogComponent implements OnInit {
   protected readonly facade = inject(AuditLogFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly aktionLabels = AKTION_LABELS;
   protected readonly aktionKlassen = AKTION_KLASSEN;
   protected readonly tabellenLabels = TABELLEN_LABELS;
 
-  protected readonly aktionOptionen: { id: AuditAktion; label: string }[] = [
+  protected readonly aktionOptionen: Array<{ id: AuditAktion; label: string }> = [
     { id: 'alle', label: 'Alle Aktionen' },
     { id: 'CREATE', label: 'Erstellt' },
     { id: 'UPDATE', label: 'Geändert' },
@@ -32,7 +36,7 @@ export class AuditLogComponent implements OnInit {
 
   ngOnInit(): void {
     this.facade.init();
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const page = params['page'] ? Number(params['page']) : 1;
       const pageSize = params['pageSize'] ? Number(params['pageSize']) : 25;
       const q = (params['q'] ?? '') as string;

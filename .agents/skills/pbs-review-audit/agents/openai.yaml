@@ -1,0 +1,4 @@
+interface:
+  display_name: "PBS Review Audit"
+  short_description: "Structured PBS audits and action lists"
+  default_prompt: "Use $pbs-review-audit to perform a PBS review with findings and actions."

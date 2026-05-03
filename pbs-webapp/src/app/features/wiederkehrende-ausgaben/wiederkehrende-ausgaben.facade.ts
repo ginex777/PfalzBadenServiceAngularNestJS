@@ -1,11 +1,9 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { WiederkehrendeAusgabenService } from './wiederkehrende-ausgaben.service';
 import { ToastService } from '../../core/services/toast.service';
-import { WiederkehrendeAusgabe } from '../../core/models';
-import {
-  WiederkehrendeAusgabeFormularDaten,
-  LEERES_FORMULAR,
-} from './wiederkehrende-ausgaben.models';
+import type { WiederkehrendeAusgabe } from '../../core/models';
+import type { WiederkehrendeAusgabeFormularDaten } from './wiederkehrende-ausgaben.models';
+import { LEERES_FORMULAR } from './wiederkehrende-ausgaben.models';
 import { KATEGORIEN } from '../../core/utils/format.utils';
 
 @Injectable({ providedIn: 'root' })

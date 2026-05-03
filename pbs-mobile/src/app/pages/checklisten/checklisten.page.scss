@@ -11,7 +11,7 @@
 
 .error-card {
   border: 1px solid rgba(220, 38, 38, 0.2);
-  background: linear-gradient(180deg, rgba(254, 242, 242, 0.9) 0%, rgba(255, 255, 255, 0.85) 100%);
+  background: #fff7f7;
 }
 
 .error-title {
@@ -31,7 +31,7 @@
 .answers-title {
   font-weight: 800;
   font-size: 1rem;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .answers-sub {
@@ -40,17 +40,35 @@
   font-size: 0.92rem;
 }
 
+.answers-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.answer-item {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
 .answer-label__title {
   display: flex;
   align-items: baseline;
   gap: 0.35rem;
   font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .answer-label__hint {
   margin-top: 0.25rem;
   color: var(--app-text-muted);
   font-size: 0.85rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .req {
@@ -58,9 +76,48 @@
   font-weight: 800;
 }
 
+.field-required-hint {
+  margin: -0.25rem 0 0;
+  font-size: 0.75rem;
+  color: var(--ion-color-danger, #eb445a);
+  font-weight: 600;
+}
+
+.answer-control {
+  min-width: 0;
+}
+
+.answer-input,
+.answer-select,
 .answer-textarea {
   width: 100%;
-  margin-top: 0.5rem;
+  --background: rgba(248, 250, 252, 0.9);
+  --border-color: var(--app-border);
+  --border-radius: 0.75rem;
+  --padding-start: 0.75rem;
+  --padding-end: 0.75rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.75rem;
+}
+
+.answer-toggle-row {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0;
+  font-weight: 700;
+}
+
+.foto-field {
+  display: grid;
+  gap: 0.65rem;
+  align-items: stretch;
+}
+
+.foto-button {
+  min-height: 44px;
 }
 
 .submit-wrap {

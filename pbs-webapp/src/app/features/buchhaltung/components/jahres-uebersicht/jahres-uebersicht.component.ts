@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { QuartalsDaten, VstQuartal } from '../../buchhaltung.models';
+import type { QuartalsDaten, VstQuartal } from '../../buchhaltung.models';
 import { waehrungFormatieren, datumFormatieren } from '../../../../core/utils/format.utils';
 
 interface JahresMonatsDaten {

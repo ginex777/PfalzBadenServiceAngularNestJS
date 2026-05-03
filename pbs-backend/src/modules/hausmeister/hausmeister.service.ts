@@ -1,18 +1,23 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
+import type { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import {
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import type {
   CreateHausmeisterEinsatzDto,
   UpdateHausmeisterEinsatzDto,
 } from './dto/hausmeister.dto';
+import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
 
 @Injectable()
 export class HausmeisterService {
   private readonly logger = new Logger(HausmeisterService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly accessPolicy: AccessPolicyService,
+  ) {}
 
   async alleEinsaetzeLaden(
     pagination: PaginationDto,
@@ -87,7 +92,11 @@ export class HausmeisterService {
     };
   }
 
-  async einsaetzeFuerMitarbeiterLaden(mitarbeiterId: number) {
+  async einsaetzeFuerMitarbeiterLaden(
+    mitarbeiterId: number,
+    auth: AccessPolicyAuth,
+  ) {
+    await this.accessPolicy.assertCanAccessEmployee(auth, mitarbeiterId);
     const rows = await this.prisma.hausmeisterEinsaetze.findMany({
       where: { mitarbeiter_id: BigInt(mitarbeiterId) },
       orderBy: { datum: 'desc' },

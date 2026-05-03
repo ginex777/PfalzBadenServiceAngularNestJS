@@ -3,9 +3,9 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '../../../core/database/prisma.service';
-import { PdfRenderService } from '../pdf-render.service';
-import { PdfTokenService } from '../pdf-token.service';
+import type { PrismaService } from '../../../core/database/prisma.service';
+import type { PdfRenderService } from '../pdf-render.service';
+import type { PdfTokenService } from '../pdf-token.service';
 
 type AuthContext = { role: string; employeeId: number | null };
 

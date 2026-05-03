@@ -1,13 +1,15 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { PdfArchivService } from './pdf-archiv.service';
 import { ToastService } from '../../core/services/toast.service';
-import { PdfArchiveEntry } from '../../core/models';
-import { PdfArchivFilter } from './pdf-archiv.models';
+import { ConfirmService } from '../../shared/services/confirm.service';
+import type { PdfArchiveEntry } from '../../core/models';
+import type { PdfArchivFilter } from './pdf-archiv.models';
 
 @Injectable({ providedIn: 'root' })
 export class PdfArchivFacade {
   private readonly service = inject(PdfArchivService);
   private readonly toast = inject(ToastService);
+  private readonly confirm = inject(ConfirmService);
 
   readonly isLoading = signal(false);
   readonly isClearing = signal(false);
@@ -99,9 +101,12 @@ export class PdfArchivFacade {
     });
   }
 
-  clearLog(): void {
-    if (!confirm('Alle PDF-Einträge aus dem Protokoll löschen? Die Dateien bleiben erhalten.'))
-      return;
+  async clearLog(): Promise<void> {
+    const ok = await this.confirm.confirm({
+      message: 'Alle PDF-Einträge aus dem Protokoll löschen? Die Dateien bleiben erhalten.',
+      confirmLabel: 'Löschen',
+    });
+    if (!ok) return;
     this.isClearing.set(true);
     this.service.alleLoeschen().subscribe({
       next: () => {

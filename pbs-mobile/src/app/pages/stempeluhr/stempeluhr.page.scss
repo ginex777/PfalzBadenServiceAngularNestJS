@@ -113,9 +113,9 @@ ion-content {
 }
 
 .primary-action--start {
-  --background: linear-gradient(135deg, #ff7a00, #ff9a2f);
+  --background: var(--app-primary-action-bg);
 }
 
 .primary-action--danger {
-  --background: linear-gradient(135deg, #d45f00, #ff7a00);
+  --background: var(--app-danger-action-bg);
 }

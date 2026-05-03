@@ -1,0 +1,11 @@
+@if (confirmService.state(); as state) {
+  <app-confirm-modal
+    [title]="state.title"
+    [message]="state.message"
+    [confirmLabel]="state.confirmLabel"
+    [cancelLabel]="state.cancelLabel"
+    [isDangerous]="state.isDangerous"
+    (confirmed)="confirmService.confirmed()"
+    (canceled)="confirmService.canceled()"
+  />
+}

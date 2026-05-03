@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { Rechnung } from '../../../../core/models';
+import type { Rechnung } from '../../../../core/models';
 import { waehrungFormatieren, datumFormatieren } from '../../../../core/utils/format.utils';
 import { MS_PER_DAY } from '../../../../core/constants';
+import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
 
 @Component({
   selector: 'app-zahlungs-tracker',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [ModalComponent],
   templateUrl: './zahlungs-tracker.component.html',
   styleUrl: './zahlungs-tracker.component.scss',
 })

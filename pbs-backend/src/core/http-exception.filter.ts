@@ -1,13 +1,7 @@
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
-import { PinoLogger } from 'nestjs-pino';
+import type { ExceptionFilter, ArgumentsHost } from '@nestjs/common';
+import { Catch, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import type { Request, Response } from 'express';
+import type { PinoLogger } from 'nestjs-pino';
 import { Sentry, isSentryEnabled } from './sentry.util';
 
 type RequestWithId = Request & { id?: string };
@@ -58,7 +52,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
           status,
           error:
             exception instanceof Error
-              ? { name: exception.name, message: exception.message, stack: exception.stack }
+              ? {
+                  name: exception.name,
+                  message: exception.message,
+                  stack: exception.stack,
+                }
               : String(exception),
         },
         'unhandled exception',

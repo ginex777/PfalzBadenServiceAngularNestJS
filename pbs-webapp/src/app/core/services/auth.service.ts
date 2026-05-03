@@ -1,7 +1,8 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError, share } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { tap, catchError, throwError, share, of, map } from 'rxjs';
 import { API_BASE_URL } from '../tokens';
 
 export interface AuthUser {
@@ -11,8 +12,6 @@ export interface AuthUser {
   nachname?: string | null;
 }
 
-const ACCESS_KEY = 'pbs-access-token';
-const REFRESH_KEY = 'pbs-refresh-token';
 const USER_KEY = 'pbs-auth-user';
 
 @Injectable({ providedIn: 'root' })
@@ -21,13 +20,35 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly base = inject(API_BASE_URL);
 
-  readonly accessToken = signal<string | null>(this._load(ACCESS_KEY));
+  readonly accessToken = signal<string | null>(null);
   readonly currentUser = signal<AuthUser | null>(this._loadUser());
   readonly isLoggedIn = computed(() => !!this.accessToken());
 
   /** In-flight refresh observable — shared so concurrent requests only trigger one refresh */
-  private _refreshInFlight$: Observable<{ accessToken: string; refreshToken: string }> | null =
-    null;
+  private _refreshInFlight$: Observable<{ accessToken: string }> | null = null;
+
+  /** Called once at app startup — restores session via HttpOnly cookie if still valid */
+  initializeSession(): Observable<void> {
+    const user = this._loadUser();
+    if (!user) return of(undefined);
+
+    return this.http
+      .post<{ accessToken: string; refreshToken: string }>(
+        `${this.base}/auth/refresh`,
+        {},
+      )
+      .pipe(
+        tap((res) => {
+          this.accessToken.set(res.accessToken);
+          this.currentUser.set(user);
+        }),
+        catchError(() => {
+          this._clearSession();
+          return of(undefined);
+        }),
+        map(() => undefined),
+      );
+  }
 
   login(email: string, password: string) {
     return this.http
@@ -41,50 +62,33 @@ export class AuthService {
       }>(`${this.base}/auth/login`, { email, password })
       .pipe(
         tap((res) =>
-          this._storeSession(
-            res.accessToken,
-            res.refreshToken,
-            res.email,
-            res.rolle,
-            res.vorname,
-            res.nachname,
-          ),
+          this._storeSession(res.accessToken, res.email, res.rolle, res.vorname, res.nachname),
         ),
       );
   }
 
-  /** Attempt a silent token refresh using the stored refresh token.
-   *  Returns the new token pair or throws if the refresh token is missing/expired. */
-  refreshTokens(): Observable<{ accessToken: string; refreshToken: string }> {
+  /** Silent token refresh — cookie sent automatically by browser.
+   *  Returns new access token or throws if cookie is missing/expired. */
+  refreshTokens(): Observable<{ accessToken: string }> {
     if (this._refreshInFlight$) return this._refreshInFlight$;
 
-    const refreshToken = localStorage.getItem(REFRESH_KEY);
-    if (!refreshToken) {
-      this._clearSession();
-      return throwError(() => new Error('Kein Refresh-Token vorhanden'));
-    }
-
     this._refreshInFlight$ = this.http
-      .post<{
-        accessToken: string;
-        refreshToken: string;
-      }>(`${this.base}/auth/refresh`, { refreshToken })
+      .post<{ accessToken: string; refreshToken: string }>(
+        `${this.base}/auth/refresh`,
+        {},
+      )
       .pipe(
         tap((res) => {
-          localStorage.setItem(ACCESS_KEY, res.accessToken);
-          localStorage.setItem(REFRESH_KEY, res.refreshToken);
           this.accessToken.set(res.accessToken);
         }),
         catchError((err) => {
           this._clearSession();
-          this.router.navigate(['/login']);
+          void this.router.navigate(['/login']);
           return throwError(() => err);
         }),
-        // Complete the shared observable so the next 401 starts a fresh refresh
         share(),
       );
 
-    // Reset after the refresh completes (success or error)
     this._refreshInFlight$.subscribe({
       complete: () => {
         this._refreshInFlight$ = null;
@@ -98,12 +102,9 @@ export class AuthService {
   }
 
   logout() {
-    const refresh = localStorage.getItem(REFRESH_KEY);
     this._clearSession();
-    if (refresh) {
-      this.http.post(`${this.base}/auth/logout`, { refreshToken: refresh }).subscribe();
-    }
-    this.router.navigate(['/login']);
+    this.http.post(`${this.base}/auth/logout`, {}).subscribe();
+    void this.router.navigate(['/login']);
   }
 
   checkSetupRequired() {
@@ -116,14 +117,11 @@ export class AuthService {
 
   private _storeSession(
     accessToken: string,
-    refreshToken: string,
     email: string,
     rolle: string,
     vorname?: string | null,
     nachname?: string | null,
   ) {
-    localStorage.setItem(ACCESS_KEY, accessToken);
-    localStorage.setItem(REFRESH_KEY, refreshToken);
     const user: AuthUser = { email, rolle: rolle as AuthUser['rolle'], vorname, nachname };
     localStorage.setItem(USER_KEY, JSON.stringify(user));
     this.accessToken.set(accessToken);
@@ -131,25 +129,15 @@ export class AuthService {
   }
 
   private _clearSession() {
-    localStorage.removeItem(ACCESS_KEY);
-    localStorage.removeItem(REFRESH_KEY);
     localStorage.removeItem(USER_KEY);
     this.accessToken.set(null);
     this.currentUser.set(null);
   }
 
-  private _load(key: string): string | null {
-    try {
-      return localStorage.getItem(key);
-    } catch {
-      return null;
-    }
-  }
-
   private _loadUser(): AuthUser | null {
     try {
       const raw = localStorage.getItem(USER_KEY);
-      return raw ? JSON.parse(raw) : null;
+      return raw ? (JSON.parse(raw) as AuthUser) : null;
     } catch {
       return null;
     }

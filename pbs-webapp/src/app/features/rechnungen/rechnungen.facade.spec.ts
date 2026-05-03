@@ -1,13 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { RechnungenFacade } from './rechnungen.facade';
 import { API_BASE_URL } from '../../core/tokens';
-import { Rechnung } from '../../core/models';
+import type { Rechnung } from '../../core/models';
 
 describe('RechnungenFacade', () => {
   let facade: RechnungenFacade;
+  let http: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -20,6 +21,11 @@ describe('RechnungenFacade', () => {
       ],
     });
     facade = TestBed.inject(RechnungenFacade);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    http.verify();
   });
 
   it('sollte erstellt werden', () => {
@@ -165,6 +171,43 @@ describe('RechnungenFacade', () => {
     it('sollte true sein wenn Titel gesetzt', () => {
       facade.formularDaten.update((d) => ({ ...d, titel: 'Rechnung Mai' }));
       expect(facade.formularGeaendert()).toBe(true);
+    });
+  });
+
+  describe('speichern()', () => {
+    it('sendet nur Eingabedaten und keine autoritativen berechneten Werte', () => {
+      facade.formularDaten.set({
+        nr: 'R-2026-100',
+        empf: 'Backend Truth GmbH',
+        str: '',
+        ort: '',
+        email: '',
+        datum: '2026-05-01',
+        leistungsdatum: '',
+        zahlungsziel: 14,
+        titel: 'Test',
+        positionen: [{ bez: 'Pos 1', gesamtpreis: 100 }],
+        mwst_satz: 19,
+        kunden_id: undefined,
+      });
+
+      facade.speichern();
+
+      const request = http.expectOne('/api/rechnungen');
+      expect(request.request.method).toBe('POST');
+      expect(request.request.body.brutto).toBeUndefined();
+      expect(request.request.body.frist).toBeUndefined();
+      expect(request.request.body.positionen).toEqual([{ bez: 'Pos 1', gesamtpreis: 100 }]);
+      request.flush({
+        id: 1,
+        nr: 'R-2026-100',
+        empf: 'Backend Truth GmbH',
+        brutto: 119,
+        frist: '2026-05-15',
+        bezahlt: false,
+        positionen: [{ bez: 'Pos 1', gesamtpreis: 100 }],
+        mwst_satz: 19,
+      });
     });
   });
 });

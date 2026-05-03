@@ -63,7 +63,15 @@
       "Bash(curl -s http://localhost:80)",
       "Bash(curl -s http://localhost:8080)",
       "Bash(cd \"c:\\\\\\\\Users\\\\\\\\Schuh\\\\\\\\Desktop\\\\\\\\Entwicklung\\\\\\\\PBS Angular NESTJS\\\\\\\\pbs-webapp\")",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(dir /b \"c:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\docs\")",
+      "Bash(node_modules/.bin/tsc --noEmit -p pbs-backend/tsconfig.json)",
+      "Bash(node \"c:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\pbs-backend\\\\node_modules\\\\.bin\\\\tsc\" --noEmit -p pbs-backend/tsconfig.json)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\pbs-webapp\\\\src\\\\app\\\\core\\\\api\\\\\" -Recurse -Force | Select-Object -ExpandProperty FullName | ForEach-Object { $_ -replace [regex]::Escape\\(\"c:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\\"\\), \"\" } | Sort-Object)",
+      "Bash(npx --no-install tsc --noEmit)",
+      "Bash(node_modules/.bin/prisma generate *)",
+      "Bash(npm test *)",
+      "Bash(node_modules/.bin/jest auth.service.spec.ts --runInBand --no-coverage)"
     ]
   }
 }

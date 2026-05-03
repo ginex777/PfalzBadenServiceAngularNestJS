@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Objekt, PaginatedResponse } from '../../core/models';
+import type { Objekt, PaginatedResponse } from '../../core/models';
 import { EvidenceApiClient, ObjectsApiClient } from '../../core/api/clients';
 
 interface EvidenceListItemApi {

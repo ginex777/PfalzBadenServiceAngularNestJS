@@ -2,8 +2,12 @@
   position: fixed;
   inset: 0;
   z-index: var(--app-z-overlay);
+  width: 100%;
+  border: 0;
+  padding: 0;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(3px);
+  cursor: default;
 }
 
 .app-modal {
@@ -40,7 +44,6 @@
   margin: 0;
   font-size: var(--app-text-lg);
   font-weight: 800;
-  letter-spacing: -0.02em;
 }
 
 .app-modal__close {

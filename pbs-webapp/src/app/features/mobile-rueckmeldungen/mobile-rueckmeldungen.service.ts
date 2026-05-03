@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { PaginatedResponse } from '../../core/models';
-import { MobileFeedbackKindApi, MobileFeedbackItemApi } from '../../core/api/api.contract';
+import type { PaginatedResponse } from '../../core/models';
+import type { MobileFeedbackKindApi, MobileFeedbackItemApi } from '../../core/api/api.contract';
 import { MobileFeedbackApiClient, ObjectsApiClient } from '../../core/api/clients';
 
 export type MobileFeedbackKind = MobileFeedbackKindApi;

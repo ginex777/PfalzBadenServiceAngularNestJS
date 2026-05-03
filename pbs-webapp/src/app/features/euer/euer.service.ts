@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { BuchhaltungJahr, FirmaSettings } from '../../core/models';
-import { EuerErgebnis } from './euer.models';
+import type { Observable } from 'rxjs';
+import type { BuchhaltungJahr, FirmaSettings } from '../../core/models';
+import type { EuerErgebnis } from './euer.models';
 import { AccountingApiClient, PdfApiClient, SettingsApiClient } from '../../core/api/clients';
 
 @Injectable({ providedIn: 'root' })

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Objekt, PaginatedResponse } from '../../core/models';
-import {
+import type { Observable } from 'rxjs';
+import type { Objekt, PaginatedResponse } from '../../core/models';
+import type {
   ChecklistFieldApi,
   ChecklistSubmissionDetailApi,
   ChecklistSubmissionListItemApi,

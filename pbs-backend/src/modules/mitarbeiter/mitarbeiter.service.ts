@@ -4,12 +4,14 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
+import type { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import { TasksService } from '../tasks/tasks.service';
-import {
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import type { TasksService } from '../tasks/tasks.service';
+import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
+import type {
   CreateMitarbeiterDto,
   CreateMitarbeiterStundenDto,
   StempelStartDto,
@@ -24,6 +26,7 @@ export class MitarbeiterService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tasksService: TasksService,
+    private readonly accessPolicy: AccessPolicyService,
   ) {}
 
   async alleMitarbeiterLaden(
@@ -160,20 +163,15 @@ export class MitarbeiterService {
     mitarbeiterId: number,
     d: CreateMitarbeiterStundenDto,
   ) {
-    // FIXED: Auto-calculate wage if not provided
-    let lohn = d.lohn ?? 0;
-    const zuschlag = d.zuschlag ?? 0;
-
-    if (lohn === 0) {
-      // Auto-calculate from employee hourly rate
-      const mitarbeiter = await this.prisma.mitarbeiter.findUnique({
-        where: { id: BigInt(mitarbeiterId) },
-      });
-      if (mitarbeiter) {
-        const stunden = d.stunden;
-        lohn = Number(mitarbeiter.stundenlohn) * stunden;
-      }
-    }
+    const mitarbeiter = await this.prisma.mitarbeiter.findUnique({
+      where: { id: BigInt(mitarbeiterId) },
+    });
+    if (!mitarbeiter) throw new NotFoundException();
+    const wage = this.calculateWage(
+      d.stunden,
+      d.lohn_satz ?? Number(mitarbeiter.stundenlohn),
+      d.zuschlag_typ,
+    );
 
     const s = await this.prisma.mitarbeiterStunden.create({
       data: {
@@ -182,8 +180,8 @@ export class MitarbeiterService {
         stunden: new Prisma.Decimal(d.stunden),
         beschreibung: d.beschreibung ?? null,
         ort: d.ort ?? null,
-        lohn: new Prisma.Decimal(lohn),
-        zuschlag: new Prisma.Decimal(zuschlag),
+        lohn: new Prisma.Decimal(wage.baseWage),
+        zuschlag: new Prisma.Decimal(wage.surcharge),
         zuschlag_typ: d.zuschlag_typ ?? '',
         bezahlt: d.bezahlt ?? false,
       },
@@ -202,24 +200,41 @@ export class MitarbeiterService {
     stundenId: number,
     d: UpdateMitarbeiterStundenDto,
   ) {
+    const existing = await this.prisma.mitarbeiterStunden.findUnique({
+      where: { id: BigInt(stundenId) },
+    });
+    if (!existing) throw new NotFoundException();
+
+    const data: Prisma.MitarbeiterStundenUpdateInput = {};
+    if (d.datum !== undefined) data.datum = new Date(d.datum);
+    if (d.stunden !== undefined) data.stunden = new Prisma.Decimal(d.stunden);
+    if (d.beschreibung !== undefined)
+      data.beschreibung = d.beschreibung ?? null;
+    if (d.ort !== undefined) data.ort = d.ort ?? null;
+    if (d.zuschlag_typ !== undefined) data.zuschlag_typ = d.zuschlag_typ ?? '';
+    if (d.bezahlt !== undefined) data.bezahlt = d.bezahlt;
+
     if (
-      !(await this.prisma.mitarbeiterStunden.findUnique({
-        where: { id: BigInt(stundenId) },
-      }))
-    )
-      throw new NotFoundException();
+      d.stunden !== undefined ||
+      d.lohn_satz !== undefined ||
+      d.zuschlag_typ !== undefined
+    ) {
+      const mitarbeiter = await this.prisma.mitarbeiter.findUnique({
+        where: { id: existing.mitarbeiter_id },
+      });
+      if (!mitarbeiter) throw new NotFoundException();
+      const wage = this.calculateWage(
+        d.stunden ?? Number(existing.stunden),
+        d.lohn_satz ?? Number(mitarbeiter.stundenlohn),
+        d.zuschlag_typ ?? existing.zuschlag_typ ?? '',
+      );
+      data.lohn = new Prisma.Decimal(wage.baseWage);
+      data.zuschlag = new Prisma.Decimal(wage.surcharge);
+    }
+
     const s = await this.prisma.mitarbeiterStunden.update({
       where: { id: BigInt(stundenId) },
-      data: {
-        datum: new Date(d.datum),
-        stunden: new Prisma.Decimal(d.stunden),
-        beschreibung: d.beschreibung ?? null,
-        ort: d.ort ?? null,
-        lohn: new Prisma.Decimal(d.lohn ?? 0),
-        zuschlag: new Prisma.Decimal(d.zuschlag ?? 0),
-        zuschlag_typ: d.zuschlag_typ ?? '',
-        bezahlt: d.bezahlt ?? false,
-      },
+      data,
     });
     return {
       ...s,
@@ -246,7 +261,12 @@ export class MitarbeiterService {
 
   // ── Mobile Stempeluhr ─────────────────────────────────────────────────────
 
-  async stempelStart(mitarbeiterId: number, d: StempelStartDto) {
+  async stempelStart(
+    mitarbeiterId: number,
+    d: StempelStartDto,
+    auth: AccessPolicyAuth,
+  ) {
+    await this.accessPolicy.assertCanAccessEmployee(auth, mitarbeiterId);
     const objektId = d.objektId ?? null;
     if (objektId == null) {
       throw new BadRequestException({
@@ -266,6 +286,7 @@ export class MitarbeiterService {
           'Objekt existiert nicht. Bitte ein gueltiges Objekt auswaehlen.',
       });
     }
+    await this.accessPolicy.assertCanAccessObject(auth, objektId);
 
     // Close any open stempel first (safety)
     await this.prisma.stempel.updateMany({
@@ -288,7 +309,8 @@ export class MitarbeiterService {
     };
   }
 
-  async stempelStop(mitarbeiterId: number) {
+  async stempelStop(mitarbeiterId: number, auth: AccessPolicyAuth) {
+    await this.accessPolicy.assertCanAccessEmployee(auth, mitarbeiterId);
     const open = await this.prisma.stempel.findFirst({
       where: { mitarbeiter_id: BigInt(mitarbeiterId), stop: null },
       orderBy: { start: 'desc' },
@@ -314,7 +336,26 @@ export class MitarbeiterService {
     };
   }
 
-  async zeiterfassungLaden(mitarbeiterId: number) {
+  async aktiverStempel(mitarbeiterId: number, auth: AccessPolicyAuth) {
+    await this.accessPolicy.assertCanAccessEmployee(auth, mitarbeiterId);
+    const stamp = await this.prisma.stempel.findFirst({
+      where: { mitarbeiter_id: BigInt(mitarbeiterId), stop: null },
+      orderBy: { start: 'desc' },
+    });
+    if (!stamp) return null;
+    return {
+      id: Number(stamp.id),
+      mitarbeiter_id: Number(stamp.mitarbeiter_id),
+      objekt_id: stamp.objekt_id ? Number(stamp.objekt_id) : null,
+      start: stamp.start,
+      stop: null,
+      dauer_minuten: null,
+      notiz: stamp.notiz,
+    };
+  }
+
+  async zeiterfassungLaden(mitarbeiterId: number, auth: AccessPolicyAuth) {
+    await this.accessPolicy.assertCanAccessEmployee(auth, mitarbeiterId);
     const rows = await this.prisma.stempel.findMany({
       where: { mitarbeiter_id: BigInt(mitarbeiterId) },
       orderBy: { start: 'desc' },
@@ -329,5 +370,29 @@ export class MitarbeiterService {
       dauer_minuten: s.dauer_minuten,
       notiz: s.notiz,
     }));
+  }
+
+  private calculateWage(
+    hours: number,
+    hourlyRate: number,
+    surchargeType: string | null | undefined,
+  ): { baseWage: number; surcharge: number } {
+    const baseWage = this.roundCurrency(hours * hourlyRate);
+    const surchargePercent = this.parseSurchargePercent(surchargeType);
+    return {
+      baseWage,
+      surcharge: this.roundCurrency(baseWage * (surchargePercent / 100)),
+    };
+  }
+
+  private parseSurchargePercent(
+    surchargeType: string | null | undefined,
+  ): number {
+    const match = surchargeType?.trim().match(/^(\d+(?:\.\d+)?)%$/);
+    return match ? Number(match[1]) : 0;
+  }
+
+  private roundCurrency(value: number): number {
+    return Math.round(value * 100) / 100;
   }
 }

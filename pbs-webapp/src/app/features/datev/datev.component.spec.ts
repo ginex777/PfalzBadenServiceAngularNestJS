@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { DatevComponent } from './datev.component';
 
 describe('DatevComponent', () => {
@@ -7,7 +8,7 @@ describe('DatevComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [DatevComponent],
+      imports: [DatevComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DatevComponent);

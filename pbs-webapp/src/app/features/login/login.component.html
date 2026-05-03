@@ -36,7 +36,7 @@
           [ngModel]="password()"
           (ngModelChange)="password.set($event)"
           name="password"
-          autocomplete="current-password"
+          [attr.autocomplete]="setupModus() ? 'new-password' : 'current-password'"
           required
           [minlength]="setupModus() ? 8 : 1"
           placeholder="••••••••"

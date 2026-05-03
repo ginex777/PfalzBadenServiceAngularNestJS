@@ -47,7 +47,7 @@
               interface="popover"
               [value]="selectedTemplateId()"
               (ionChange)="onTemplateChanged($event.detail.value)"
-              placeholder="Checkliste auswaehlen"
+              placeholder="Checkliste auswählen"
             >
               @for (t of templates(); track t.id) {
                 <ion-select-option [value]="t.id">
@@ -74,8 +74,8 @@
     @if (!selectedTemplate()) {
       <div class="app-card empty-form">
         <div class="empty-form-inner">
-          <div class="empty-form-title">Keine Checkliste ausgewaehlt</div>
-          <div class="empty-form-text">Bitte waehle oben eine Checkliste aus.</div>
+          <div class="empty-form-title">Keine Checkliste ausgewählt</div>
+          <div class="empty-form-text">Wähle oben eine Checkliste aus, um mit dem Ausfüllen zu beginnen.</div>
         </div>
       </div>
     } @else {
@@ -88,93 +88,101 @@
             }
           </div>
 
-          <ion-list class="answers-list" lines="full">
+          <div class="answers-list" role="list">
             @for (f of fields(); track f.fieldId) {
-              <ion-item class="answer-item" [lines]="f.type === 'text' ? 'none' : 'full'">
-                <ion-label class="answer-label">
+              <div class="answer-item" role="listitem">
+                <div class="answer-label">
                   <div class="answer-label__title">
                     {{ f.label }} @if (f.required) { <span class="req">*</span> }
                   </div>
                   @if (f.helperText) {
                     <div class="answer-label__hint">{{ f.helperText }}</div>
                   }
-                </ion-label>
+                </div>
 
-                @switch (f.type) {
-                  @case ('boolean') {
-                    <ion-toggle
-                      slot="end"
-                      [checked]="(fieldValue(f.fieldId) ?? false) === true"
-                      (ionChange)="setBooleanAnswer(f.fieldId, $event.detail.checked)"
-                    ></ion-toggle>
-                  }
-                  @case ('number') {
-                    <ion-input
-                      slot="end"
-                      type="number"
-                      inputmode="decimal"
-                      [value]="fieldValue(f.fieldId) ?? ''"
-                      (ionInput)="onNumberAnswerInput(f.fieldId, $event)"
-                      placeholder="0"
-                    ></ion-input>
-                  }
-                  @case ('select') {
-                    <ion-select
-                      slot="end"
-                      interface="popover"
-                      [value]="fieldValue(f.fieldId) ?? ''"
-                      (ionChange)="setSelectAnswer(f.fieldId, $event.detail.value)"
-                      placeholder="Bitte auswaehlen"
-                    >
-                      @for (opt of f.options ?? []; track opt) {
-                        <ion-select-option [value]="opt">{{ opt }}</ion-select-option>
-                      }
-                    </ion-select>
-                  }
-                  @case ('foto') {
-                    <div class="foto-field">
-                      @if (fieldValue(f.fieldId)) {
-                        <ion-badge color="success" slot="end">Foto gespeichert</ion-badge>
-                      }
-                      <ion-button
-                        slot="end"
-                        size="small"
-                        fill="outline"
-                        [disabled]="photoUploading()[f.fieldId] || false"
-                        (click)="uploadFoto(f.fieldId)"
+                <div class="answer-control">
+                  @switch (f.type) {
+                    @case ('boolean') {
+                      <div class="answer-toggle-row">
+                        <span>{{ (fieldValue(f.fieldId) ?? false) === true ? 'Ja' : 'Nein' }}</span>
+                        <ion-toggle
+                          [checked]="(fieldValue(f.fieldId) ?? false) === true"
+                          (ionChange)="setBooleanAnswer(f.fieldId, $event.detail.checked)"
+                        ></ion-toggle>
+                      </div>
+                    }
+                    @case ('number') {
+                      <ion-input
+                        class="answer-input"
+                        type="number"
+                        inputmode="decimal"
+                        [value]="fieldValue(f.fieldId) ?? ''"
+                        (ionInput)="onNumberAnswerInput(f.fieldId, $event)"
+                        placeholder="0"
+                      ></ion-input>
+                    }
+                    @case ('select') {
+                      <ion-select
+                        class="answer-select"
+                        interface="popover"
+                        [value]="fieldValue(f.fieldId) ?? ''"
+                        (ionChange)="setSelectAnswer(f.fieldId, $event.detail.value)"
+                        placeholder="Bitte auswählen"
                       >
-                        @if (photoUploading()[f.fieldId]) {
-                          <ion-spinner name="crescent"></ion-spinner>
-                        } @else {
-                          {{ fieldValue(f.fieldId) ? 'Ändern' : 'Aufnehmen' }}
+                        @for (opt of f.options ?? []; track opt) {
+                          <ion-select-option [value]="opt">{{ opt }}</ion-select-option>
                         }
-                      </ion-button>
-                    </div>
+                      </ion-select>
+                    }
+                    @case ('foto') {
+                      <div class="foto-field">
+                        @if (fieldValue(f.fieldId)) {
+                          <ion-badge color="success">Foto gespeichert</ion-badge>
+                        }
+                        <ion-button
+                          class="foto-button"
+                          expand="block"
+                          fill="outline"
+                          [disabled]="photoUploading()[f.fieldId] || false"
+                          (click)="uploadFoto(f.fieldId)"
+                        >
+                          @if (photoUploading()[f.fieldId]) {
+                            <ion-spinner name="crescent"></ion-spinner>
+                          } @else {
+                            {{ fieldValue(f.fieldId) ? 'Ändern' : 'Aufnehmen' }}
+                          }
+                        </ion-button>
+                      </div>
+                    }
+                    @case ('kommentar') {
+                      <ion-textarea
+                        class="answer-textarea"
+                        [value]="fieldValue(f.fieldId) ?? ''"
+                        (ionInput)="onTextAnswerInput(f.fieldId, $event)"
+                        placeholder="Kommentar..."
+                        autoGrow="true"
+                        rows="4"
+                      ></ion-textarea>
+                    }
+                    @default {
+                      <ion-textarea
+                        class="answer-textarea"
+                        [value]="fieldValue(f.fieldId) ?? ''"
+                        (ionInput)="onTextAnswerInput(f.fieldId, $event)"
+                        placeholder="Antwort..."
+                        autoGrow="true"
+                        rows="3"
+                      ></ion-textarea>
+                    }
                   }
-                  @case ('kommentar') {
-                    <ion-textarea
-                      class="answer-textarea"
-                      [value]="fieldValue(f.fieldId) ?? ''"
-                      (ionInput)="onTextAnswerInput(f.fieldId, $event)"
-                      placeholder="Kommentar..."
-                      autoGrow="true"
-                      rows="4"
-                    ></ion-textarea>
-                  }
-                  @default {
-                    <ion-textarea
-                      class="answer-textarea"
-                      [value]="fieldValue(f.fieldId) ?? ''"
-                      (ionInput)="onTextAnswerInput(f.fieldId, $event)"
-                      placeholder="Antwort..."
-                      autoGrow="true"
-                      rows="3"
-                    ></ion-textarea>
-                  }
+                </div>
+
+                @if (requiredFieldErrors()[f.fieldId]) {
+                  <p class="field-required-hint">{{ requiredFieldErrors()[f.fieldId] }}</p>
                 }
-              </ion-item>
+              </div>
             }
-          </ion-list>
+          </div>
 
           <div class="submit-wrap">
             <ion-button class="submit-btn" expand="block" [disabled]="!canSubmit()" (click)="submit()">

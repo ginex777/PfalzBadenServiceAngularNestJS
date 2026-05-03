@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin } from 'rxjs';
-import { Rechnung, Angebot, Benachrichtigung, BuchhaltungJahr } from '../../core/models';
+import type { Observable} from 'rxjs';
+import { forkJoin } from 'rxjs';
+import type { Rechnung, Angebot, Benachrichtigung } from '../../core/models';
 import {
-  AccountingApiClient,
+  DashboardApiClient,
+  type DashboardYearlyStats,
   InvoicesApiClient,
   NotificationsApiClient,
   OffersApiClient,
@@ -12,7 +14,7 @@ export interface DashboardData {
   invoices: Rechnung[];
   offers: Angebot[];
   notifications: Benachrichtigung[];
-  accounting: BuchhaltungJahr;
+  yearlyStats: DashboardYearlyStats;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -20,14 +22,14 @@ export class DashboardService {
   private readonly invoicesApi = inject(InvoicesApiClient);
   private readonly offersApi = inject(OffersApiClient);
   private readonly notificationsApi = inject(NotificationsApiClient);
-  private readonly accountingApi = inject(AccountingApiClient);
+  private readonly dashboardApi = inject(DashboardApiClient);
 
   loadDashboardData(year: number): Observable<DashboardData> {
     return forkJoin({
       invoices: this.invoicesApi.loadInvoices(),
       offers: this.offersApi.loadOffers(),
       notifications: this.notificationsApi.loadNotifications(),
-      accounting: this.accountingApi.loadAccounting(year),
+      yearlyStats: this.dashboardApi.loadYearlyStats(year),
     });
   }
 

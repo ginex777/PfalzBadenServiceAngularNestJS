@@ -5,9 +5,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as crypto from 'crypto';
-import { PrismaService } from '../../core/database/prisma.service';
-import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import { EvidenceListQueryDto, UploadEvidenceDto } from './dto/nachweise.dto';
+import type { Prisma } from '@prisma/client';
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import type {
+  EvidenceListQueryDto,
+  UploadEvidenceDto,
+} from './dto/nachweise.dto';
+import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
 
 export interface EvidenceListItem {
   id: number;
@@ -27,17 +33,29 @@ export interface EvidenceListItem {
 export class NachweiseService {
   private readonly logger = new Logger(NachweiseService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly accessPolicy: AccessPolicyService,
+  ) {}
 
   async list(
     query: EvidenceListQueryDto,
+    auth: AccessPolicyAuth,
   ): Promise<PaginatedResponse<EvidenceListItem>> {
     const { page, pageSize } = query;
     const skip = (page - 1) * pageSize;
 
-    const where = query.objectId
-      ? { objekt_id: BigInt(query.objectId) }
-      : undefined;
+    const accessibleObjectIds =
+      await this.accessPolicy.accessibleObjectIds(auth);
+    const where: Prisma.NachweiseWhereInput = {};
+    if (query.objectId) where.objekt_id = BigInt(query.objectId);
+    if (accessibleObjectIds) {
+      this.accessPolicy.requireEmployeeMapping(auth);
+      where.OR = [
+        { objekt_id: { in: accessibleObjectIds } },
+        { mitarbeiter_id: BigInt(auth.employeeId) },
+      ];
+    }
 
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.nachweise.findMany({
@@ -82,7 +100,7 @@ export class NachweiseService {
     };
   }
 
-  async get(id: number) {
+  async get(id: number, auth: AccessPolicyAuth) {
     const row = await this.prisma.nachweise.findUnique({
       where: { id: BigInt(id) },
       select: {
@@ -100,6 +118,10 @@ export class NachweiseService {
       },
     });
     if (!row) throw new NotFoundException();
+    await this.assertCanAccessEvidenceRow(auth, {
+      objectId: Number(row.objekt_id),
+      employeeId: row.mitarbeiter_id ? Number(row.mitarbeiter_id) : null,
+    });
     return {
       ...row,
       id: Number(row.id),
@@ -108,16 +130,22 @@ export class NachweiseService {
     };
   }
 
-  async download(id: number) {
+  async download(id: number, auth: AccessPolicyAuth) {
     const row = await this.prisma.nachweise.findUnique({
       where: { id: BigInt(id) },
       select: {
+        objekt_id: true,
+        mitarbeiter_id: true,
         filename: true,
         mimetype: true,
         data: true,
       },
     });
     if (!row) throw new NotFoundException();
+    await this.assertCanAccessEvidenceRow(auth, {
+      objectId: Number(row.objekt_id),
+      employeeId: row.mitarbeiter_id ? Number(row.mitarbeiter_id) : null,
+    });
     return row;
   }
 
@@ -126,8 +154,9 @@ export class NachweiseService {
     dto: UploadEvidenceDto;
     createdBy: { email: string; fullName: string };
     employeeId?: number | null;
+    auth: AccessPolicyAuth;
   }) {
-    const { file, dto, createdBy, employeeId } = params;
+    const { file, dto, createdBy, employeeId, auth } = params;
 
     if (!file) {
       throw new BadRequestException({
@@ -141,6 +170,12 @@ export class NachweiseService {
         message: 'Nur Bilddateien sind erlaubt.',
       });
     }
+    if (!this.hasSupportedImageSignature(file.buffer)) {
+      throw new BadRequestException({
+        code: 'INVALID_FILE_SIGNATURE',
+        message: 'Die Datei ist kein unterstütztes Bildformat.',
+      });
+    }
 
     const objectRow = await this.prisma.objekte.findUnique({
       where: { id: BigInt(dto.objectId) },
@@ -152,6 +187,7 @@ export class NachweiseService {
         message: 'Objekt existiert nicht. Bitte ein gültiges Objekt auswählen.',
       });
     }
+    await this.accessPolicy.assertCanAccessObject(auth, dto.objectId);
 
     const sha256 = crypto
       .createHash('sha256')
@@ -213,5 +249,44 @@ export class NachweiseService {
       erstellt_von: row.erstellt_von,
       erstellt_von_name: row.erstellt_von_name,
     } satisfies EvidenceListItem;
+  }
+
+  private async assertCanAccessEvidenceRow(
+    auth: AccessPolicyAuth,
+    row: { objectId: number; employeeId: number | null },
+  ): Promise<void> {
+    if (
+      auth.role === 'mitarbeiter' &&
+      auth.employeeId != null &&
+      row.employeeId === auth.employeeId
+    ) {
+      return;
+    }
+    await this.accessPolicy.assertCanAccessObject(auth, row.objectId);
+  }
+
+  private hasSupportedImageSignature(buffer: Buffer): boolean {
+    if (buffer.length < 4) return false;
+    const isJpeg = buffer[0] === 0xff && buffer[1] === 0xd8;
+    const isPng =
+      buffer.length >= 8 &&
+      buffer[0] === 0x89 &&
+      buffer[1] === 0x50 &&
+      buffer[2] === 0x4e &&
+      buffer[3] === 0x47 &&
+      buffer[4] === 0x0d &&
+      buffer[5] === 0x0a &&
+      buffer[6] === 0x1a &&
+      buffer[7] === 0x0a;
+    const isGif =
+      buffer.length >= 6 &&
+      buffer.subarray(0, 3).toString('ascii') === 'GIF' &&
+      (buffer.subarray(3, 6).toString('ascii') === '87a' ||
+        buffer.subarray(3, 6).toString('ascii') === '89a');
+    const isWebp =
+      buffer.length >= 12 &&
+      buffer.subarray(0, 4).toString('ascii') === 'RIFF' &&
+      buffer.subarray(8, 12).toString('ascii') === 'WEBP';
+    return isJpeg || isPng || isGif || isWebp;
   }
 }

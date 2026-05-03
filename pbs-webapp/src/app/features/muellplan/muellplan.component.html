@@ -1,4 +1,4 @@
-﻿<div class="page-wrap">
+<div class="page-wrap">
   <app-page-title title="Müllplan" subtitle="Objekte, Termine & Vorlagen" />
 
   <div class="two-col">
@@ -7,14 +7,14 @@
       <div class="card-header">
         <h3 class="section-title">Objekte</h3>
         <div class="btn-group--sm">
-          <button class="btn btn-sm" (click)="facade.vorlagenModalOeffnen()">Vorlagen</button>
+          <button class="btn btn-sm" type="button" (click)="facade.vorlagenModalOeffnen()">Vorlagen</button>
         </div>
       </div>
 
       <app-objekt-liste
         [objects]="facade.objekte()"
         [currentObject]="facade.aktuellesObjekt()"
-        (select)="facade.objektAuswaehlen($event)"
+        (objectSelected)="facade.objektAuswaehlen($event)"
       />
 
       @if (facade.anstehendeTermine().length) {
@@ -60,15 +60,24 @@
   </div>
 </div>
 
-<!-- Filter modal -->
+<!-- Filter drawer -->
 @if (filterModalOffen()) {
-  <div class="modal-overlay" (click)="filterModalOffen.set(false)">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <h3 class="modal-title modal-title--sm">Filter</h3>
+  <app-drawer
+    [isOpen]="filterModalOffen()"
+    ariaLabel="Filter"
+    position="right"
+    (closed)="filterModalOffen.set(false)"
+  >
+    <div class="drawer-header">
+      <h3 class="drawer-title">Filter</h3>
+      <button class="app-modal__close" type="button" (click)="filterModalOffen.set(false)" aria-label="Schließen">×</button>
+    </div>
+    <div class="drawer-body">
       <div class="filter-row mb-sm">
         <div class="form-field form-field--flex">
-          <label class="form-hint">Müllart</label>
+          <label class="form-hint" for="filter-muellart">Müllart</label>
           <input
+            id="filter-muellart"
             class="form-input"
             type="text"
             placeholder="z.B. Bioabfall"
@@ -77,8 +86,9 @@
           />
         </div>
         <div class="form-field form-field--narrow-100">
-          <label class="form-hint">Monat</label>
+          <label class="form-hint" for="filter-monat">Monat</label>
           <select
+            id="filter-monat"
             class="form-input"
             [value]="facade.terminMonatFilter()"
             (change)="terminMonatFilterGeaendert($event)"
@@ -102,7 +112,8 @@
 
       <div class="modal-footer">
         <button
-          class="btn"
+          class="btn btn-sm"
+          type="button"
           (click)="
             facade.muellartFilter.set('');
             facade.terminMonatFilter.set('');
@@ -111,25 +122,30 @@
         >
           Zurücksetzen
         </button>
-        <button class="btn btn-primary" (click)="filterModalOffen.set(false)">Fertig</button>
+        <button class="btn btn-sm btn-primary" type="button" (click)="filterModalOffen.set(false)">Fertig</button>
       </div>
     </div>
-  </div>
+  </app-drawer>
 }
 
-<!-- Termin modal -->
+<!-- Termin drawer -->
 @if (facade.terminFormularSichtbar()) {
-  <div class="modal-overlay" (click)="facade.terminFormularSchliessen()">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <div class="modal-header-row">
-        <h3 class="modal-title">Termin</h3>
-        <button class="btn btn-sm" (click)="facade.terminFormularSchliessen()">Schließen</button>
-      </div>
-
+  <app-drawer
+    [isOpen]="facade.terminFormularSichtbar()"
+    ariaLabel="Termin"
+    position="right"
+    (closed)="facade.terminFormularSchliessen()"
+  >
+    <div class="drawer-header">
+      <h3 class="drawer-title">Termin</h3>
+      <button class="app-modal__close" type="button" (click)="facade.terminFormularSchliessen()" aria-label="Schließen">×</button>
+    </div>
+    <div class="drawer-body">
       <div class="form-row mb-sm">
         <div class="form-field">
-          <label>Müllart *</label>
+          <label class="form-hint" for="termin-muellart">Müllart *</label>
           <input
+            id="termin-muellart"
             class="form-input"
             type="text"
             [value]="facade.terminFormularDaten().muellart"
@@ -138,8 +154,9 @@
           />
         </div>
         <div class="form-field form-field--narrow-80">
-          <label>Farbe</label>
+          <label class="form-hint" for="termin-farbe">Farbe</label>
           <input
+            id="termin-farbe"
             class="color-input"
             type="color"
             [value]="facade.terminFormularDaten().farbe"
@@ -147,9 +164,10 @@
           />
         </div>
       </div>
-      <div class="form-field">
-        <label>Abholung *</label>
+      <div class="form-field mb-sm">
+        <label class="form-hint" for="termin-abholung">Abholung *</label>
         <input
+          id="termin-abholung"
           class="form-input"
           type="date"
           [value]="facade.terminFormularDaten().abholung"
@@ -158,144 +176,143 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn" (click)="facade.terminFormularSchliessen()">Abbrechen</button>
-        <button class="btn btn-primary" (click)="facade.terminSpeichern()">Speichern</button>
+        <button class="btn btn-sm" type="button" (click)="facade.terminFormularSchliessen()">Abbrechen</button>
+        <button class="btn btn-sm btn-primary" type="button" (click)="facade.terminSpeichern()">Speichern</button>
       </div>
     </div>
-  </div>
+  </app-drawer>
 }
 
 <!-- Vorlagen modal -->
-@if (facade.vorlagenModalSichtbar()) {
-  <div class="modal-overlay" (click)="facade.vorlagenModalSchliessen()">
-    <div class="modal modal--lg" (click)="$event.stopPropagation()">
-      <div class="modal-header-row">
-        <h3 class="modal-title">Vorlagen</h3>
-        <div class="btn-group">
-          <button class="btn btn-sm btn-primary" (click)="facade.vorlageFormularOeffnen()">
-            Vorlage
-          </button>
-          <button class="btn btn-sm" (click)="facade.vorlagenModalSchliessen()">Schließen</button>
-        </div>
-      </div>
+<app-modal
+  [isOpen]="facade.vorlagenModalSichtbar()"
+  title="Vorlagen"
+  size="lg"
+  (closed)="facade.vorlagenModalSchliessen()"
+>
+  <button class="btn btn-sm btn-primary" type="button" (click)="facade.vorlageFormularOeffnen()">Vorlage</button>
 
-      @if (!facade.vorlagen().length) {
-        <div class="leer-hinweis">Keine Vorlagen vorhanden.</div>
-      } @else {
-        <div class="vorlagen-liste">
-          @for (v of facade.vorlagen(); track v.id) {
-            <div class="vorlage-zeile">
-              <span class="vorlage-name">{{ v.name }}</span>
-              @if (v.pdf_name) {
-                <span class="code-inline">{{ v.pdf_name }}</span>
-                <button class="btn btn-sm" (click)="facade.vorlagePdfOeffnen(v.id)">PDF</button>
-              }
-              <button class="btn btn-sm btn-danger" (click)="facade.vorlageLoeschen(v.id)">
-                Löschen
-              </button>
-            </div>
+  @if (!facade.vorlagen().length) {
+    <div class="leer-hinweis">Keine Vorlagen vorhanden.</div>
+  } @else {
+    <div class="vorlagen-liste">
+      @for (v of facade.vorlagen(); track v.id) {
+        <div class="vorlage-zeile">
+          <span class="vorlage-name">{{ v.name }}</span>
+          @if (v.pdf_name) {
+            <span class="code-inline">{{ v.pdf_name }}</span>
+            <button class="btn btn-sm" type="button" (click)="facade.vorlagePdfOeffnen(v.id)">PDF</button>
+          }
+          <button class="btn btn-sm btn-danger" type="button" (click)="facade.vorlageLoeschen(v.id)">
+            Löschen
+          </button>
+        </div>
+      }
+    </div>
+  }
+</app-modal>
+
+<!-- Vorlage erstellen drawer -->
+<app-drawer
+  [isOpen]="facade.vorlageFormularSichtbar()"
+  ariaLabel="Vorlage erstellen"
+  position="right"
+  (closed)="facade.vorlageFormularSchliessen()"
+>
+  <div class="drawer-header">
+    <h3 class="drawer-title">Vorlage erstellen</h3>
+    <button class="app-modal__close" type="button" (click)="facade.vorlageFormularSchliessen()" aria-label="Schließen">×</button>
+  </div>
+  <div class="drawer-body">
+    <div class="form-row mb-sm">
+      <div class="form-field form-field--wide">
+        <label class="form-hint" for="vorlage-name">Name *</label>
+        <input
+          id="vorlage-name"
+          class="form-input"
+          type="text"
+          [value]="facade.vorlageFormularDaten().name"
+          (input)="vorlageFeldGeaendert('name', $event)"
+        />
+      </div>
+      <div class="form-field form-field--narrow-100">
+        <label class="form-hint" for="vorlage-jahr">Jahr</label>
+        <input
+          id="vorlage-jahr"
+          class="form-input input-year"
+          type="number"
+          [value]="facade.vorlageFormularDaten().jahr"
+          (input)="vorlageFeldGeaendert('jahr', $event)"
+        />
+      </div>
+    </div>
+
+    <div class="form-field mb-sm">
+      <label class="form-hint" for="vorlage-text">Abfuhrplan-Text *</label>
+      <textarea
+        id="vorlage-text"
+        class="form-input textarea-mono"
+        rows="8"
+        [value]="facade.vorlageFormularDaten().text"
+        (input)="vorlageFeldGeaendert('text', $event)"
+      ></textarea>
+      <div class="form-hint">
+        Tipp: Format wie "Januar: Bio 8, 22" oder Zeilen mit Monat+Tagen.
+      </div>
+    </div>
+
+    <div class="btn-group mb-sm">
+      <button class="btn btn-sm" type="button" (click)="facade.vorlageVorschauBerechnen()">Vorschau</button>
+    </div>
+
+    @if (facade.vorlageVorschau().length) {
+      <div class="vorschau-box">
+        <strong>Vorschau ({{ facade.vorlageVorschau().length }} Termine)</strong>
+        <div class="vorschau-liste">
+          @for (t of facade.vorlageVorschau().slice(0, 20); track t.datum + t.muellart) {
+            <span class="muell-badge" [style.background]="t.farbe"
+              >{{ t.muellart }} — {{ fmtDatum(t.datum) }}</span
+            >
           }
         </div>
-      }
+      </div>
+    }
+
+    <div class="modal-footer">
+      <button class="btn btn-sm" type="button" (click)="facade.vorlageFormularSchliessen()">Abbrechen</button>
+      <button class="btn btn-sm btn-primary" type="button" (click)="facade.vorlageSpeichern()">Speichern</button>
     </div>
   </div>
-}
-
-<!-- Vorlage erstellen modal -->
-@if (facade.vorlageFormularSichtbar()) {
-  <div class="modal-overlay" (click)="facade.vorlageFormularSchliessen()">
-    <div class="modal modal--lg" (click)="$event.stopPropagation()">
-      <div class="modal-header-row">
-        <h3 class="modal-title">Vorlage erstellen</h3>
-        <button class="btn btn-sm" (click)="facade.vorlageFormularSchliessen()">Schließen</button>
-      </div>
-
-      <div class="form-row mb-sm">
-        <div class="form-field form-field--wide">
-          <label>Name *</label>
-          <input
-            class="form-input"
-            type="text"
-            [value]="facade.vorlageFormularDaten().name"
-            (input)="vorlageFeldGeaendert('name', $event)"
-          />
-        </div>
-        <div class="form-field form-field--narrow-100">
-          <label>Jahr</label>
-          <input
-            class="form-input input-year"
-            type="number"
-            [value]="facade.vorlageFormularDaten().jahr"
-            (input)="vorlageFeldGeaendert('jahr', $event)"
-          />
-        </div>
-      </div>
-
-      <div class="form-field mb-sm">
-        <label>Abfuhrplan-Text *</label>
-        <textarea
-          class="form-input textarea-mono"
-          rows="8"
-          [value]="facade.vorlageFormularDaten().text"
-          (input)="vorlageFeldGeaendert('text', $event)"
-        ></textarea>
-        <div class="form-hint">
-          Tipp: Format wie "Januar: Bio 8, 22" oder Zeilen mit Monat+Tagen.
-        </div>
-      </div>
-
-      <div class="btn-group mb-sm">
-        <button class="btn" (click)="facade.vorlageVorschauBerechnen()">Vorschau</button>
-      </div>
-
-      @if (facade.vorlageVorschau().length) {
-        <div class="vorschau-box">
-          <strong>Vorschau ({{ facade.vorlageVorschau().length }} Termine)</strong>
-          <div class="vorschau-liste">
-            @for (t of facade.vorlageVorschau().slice(0, 20); track t.datum + t.muellart) {
-              <span class="muell-badge" [style.background]="t.farbe"
-                >{{ t.muellart }} — {{ fmtDatum(t.datum) }}</span
-              >
-            }
-          </div>
-        </div>
-      }
-
-      <div class="modal-footer">
-        <button class="btn" (click)="facade.vorlageFormularSchliessen()">Abbrechen</button>
-        <button class="btn btn-primary" (click)="facade.vorlageSpeichern()">Speichern</button>
-      </div>
-    </div>
-  </div>
-}
+</app-drawer>
 
 <!-- Vorlage anwenden modal -->
 @if (facade.vorlageAnwendenSichtbar()) {
-  <div class="modal-overlay" (click)="facade.vorlageAnwendenSchliessen()">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <h3 class="modal-title modal-title--sm">Vorlage anwenden</h3>
-
-      <div class="form-field mb-sm">
-        <label>Vorlage</label>
-        <select
-          class="form-input"
-          [value]="facade.vorlageAnwendenId() ?? ''"
-          (change)="vorlageAnwendenIdGeaendert($event)"
-        >
-          <option value="">Bitte wählen…</option>
-          @for (v of facade.vorlagen(); track v.id) {
-            <option [value]="v.id">{{ v.name }}</option>
-          }
-        </select>
-        <div class="form-hint">
-          Erstellt Termine für das aktuelle Jahr und speichert die Vorlage am Objekt.
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn" (click)="facade.vorlageAnwendenSchliessen()">Abbrechen</button>
-        <button class="btn btn-primary" (click)="facade.vorlageAnwenden()">Anwenden</button>
+  <app-modal
+    [isOpen]="facade.vorlageAnwendenSichtbar()"
+    title="Vorlage anwenden"
+    size="sm"
+    (closed)="facade.vorlageAnwendenSchliessen()"
+  >
+    <div class="form-field mb-sm">
+      <label class="form-hint" for="vorlage-anwenden-id">Vorlage</label>
+      <select
+        id="vorlage-anwenden-id"
+        class="form-input"
+        [value]="facade.vorlageAnwendenId() ?? ''"
+        (change)="vorlageAnwendenIdGeaendert($event)"
+      >
+        <option value="">Bitte wählen…</option>
+        @for (v of facade.vorlagen(); track v.id) {
+          <option [value]="v.id">{{ v.name }}</option>
+        }
+      </select>
+      <div class="form-hint">
+        Erstellt Termine für das aktuelle Jahr und speichert die Vorlage am Objekt.
       </div>
     </div>
-  </div>
+    <div class="modal-footer">
+      <button class="btn btn-sm" type="button" (click)="facade.vorlageAnwendenSchliessen()">Abbrechen</button>
+      <button class="btn btn-sm btn-primary" type="button" (click)="facade.vorlageAnwenden()">Anwenden</button>
+    </div>
+  </app-modal>
 }

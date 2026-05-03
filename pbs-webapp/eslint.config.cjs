@@ -61,7 +61,7 @@ module.exports = [
       'prefer-const': 'error',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-debugger': 'error',
-      'no-duplicate-imports': 'error',
+      'no-duplicate-imports': 'off',
       'no-self-compare': 'error',
       'no-template-curly-in-string': 'warn',
       'object-shorthand': ['error', 'always'],
@@ -101,10 +101,9 @@ module.exports = [
       '@angular-eslint/no-input-rename': 'error',
       '@angular-eslint/no-output-rename': 'error',
       '@angular-eslint/use-lifecycle-interface': 'error',
-      '@angular-eslint/component-max-inline-declarations': ['warn', {
-        template: 5,
-        styles: 5,
-      }],
+      // Small standalone components in this repo intentionally keep compact
+      // inline templates/styles; splitting them creates churn, not safety.
+      '@angular-eslint/component-max-inline-declarations': 'off',
     },
   },
 ];

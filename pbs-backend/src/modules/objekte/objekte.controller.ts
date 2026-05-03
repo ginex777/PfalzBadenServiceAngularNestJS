@@ -8,11 +8,14 @@ import {
   Post,
   Put,
   Query,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { ObjekteService } from './objekte.service';
-import {
+import type { ObjekteService } from './objekte.service';
+import type { AuthRequest } from '../auth/auth-request.type';
+import type {
   AktivitaetenQueryDto,
   CreateObjektDto,
   ListObjekteQueryDto,
@@ -35,8 +38,16 @@ export class ObjekteController {
   @Get('all')
   @ApiOperation({ summary: 'Alle Objekte (unpaginated) laden' })
   @Roles('admin', 'readonly', 'mitarbeiter')
-  findAllUnpaginated(@Query() query: ListObjekteQueryDto) {
-    return this.service.findAllUnpaginated(query.customerId);
+  findAllUnpaginated(
+    @Query() query: ListObjekteQueryDto,
+    @Req() req: AuthRequest,
+  ) {
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.findAllUnpaginated(query.customerId, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
 
   @Get(':id/aktivitaeten')

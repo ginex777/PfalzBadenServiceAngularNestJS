@@ -45,21 +45,21 @@
   <h4 class="section-title">Stunden eintragen</h4>
   <div class="form-row">
     <div class="form-field">
-      <label class="form-label">Datum *</label>
-      <input class="form-input" type="date" [formField]="stundenForm.datum" />
+      <label for="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-0" class="form-label">Datum *</label>
+      <input id="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-0" class="form-input" type="date" [formField]="stundenForm.datum" />
       @if (stundenForm.datum().touched() && stundenForm.datum().invalid()) {
         <span class="form-fehler">{{ stundenForm.datum().errors()[0]?.message }}</span>
       }
     </div>
     <div class="form-field">
-      <label class="form-label">Stunden *</label>
-      <input class="form-input" type="number" step="0.5" [formField]="stundenForm.stunden" />
+      <label for="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-1" class="form-label">Stunden *</label>
+      <input id="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-1" class="form-input" type="number" step="0.5" [formField]="stundenForm.stunden" />
       @if (stundenForm.stunden().touched() && stundenForm.stunden().invalid()) {
         <span class="form-fehler">{{ stundenForm.stunden().errors()[0]?.message }}</span>
       }
     </div>
     <div class="form-field">
-      <label class="form-label">Lohnsatz (€/h)</label>
+      <label for="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-2" class="form-label">Lohnsatz (€/h)</label>
       <input
         class="form-input"
         type="number"
@@ -71,7 +71,7 @@
       />
     </div>
     <div class="form-field">
-      <label class="form-label">Zuschlag</label>
+      <label for="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-3" class="form-label">Zuschlag</label>
       <select
         class="form-select"
         [value]="formularDaten().zuschlagProzent"
@@ -85,7 +85,7 @@
   </div>
   <div class="form-row">
     <div class="form-field">
-      <label class="form-label">Ort / Objekt</label>
+      <label for="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-4" class="form-label">Ort / Objekt</label>
       <input
         class="form-input"
         type="text"
@@ -95,7 +95,7 @@
       />
     </div>
     <div class="form-field form-field--wide">
-      <label class="form-label">Beschreibung</label>
+      <label for="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-5" class="form-label">Beschreibung</label>
       <input
         class="form-input"
         type="text"
@@ -108,7 +108,8 @@
 
   @if (lohnVorschau().gesamt > 0) {
     <div class="lohn-vorschau">
-      Grundlohn: <strong>{{ waehrungFormatieren(lohnVorschau().grundlohn) }}</strong>
+      UI-Vorschau Grundlohn:
+      <strong>{{ waehrungFormatieren(lohnVorschau().grundlohn) }}</strong>
       @if (lohnVorschau().zuschlag > 0) {
         + Zuschlag: <strong>{{ waehrungFormatieren(lohnVorschau().zuschlag) }}</strong>
       }
@@ -125,7 +126,7 @@
 <div class="card">
   <h4 class="section-title">Eingetragene Stunden ({{ stunden().length }})</h4>
   @if (stundenLaedt()) {
-    <app-skeleton-rows [anzahl]="4" />
+    <app-skeleton-rows [count]="4" />
   } @else if (!stunden().length) {
     <div class="leer">Noch keine Stunden eingetragen.</div>
   } @else {
@@ -176,7 +177,7 @@
 <div class="card">
   <h4 class="section-title">Mobile Stempeluhr ({{ stempelEintraege().length }})</h4>
   @if (stempelLaedt()) {
-    <app-skeleton-rows [anzahl]="3" />
+    <app-skeleton-rows [count]="3" />
   } @else if (!stempelEintraege().length) {
     <div class="leer">Keine Stempel-Einträge von der mobilen App.</div>
   } @else {

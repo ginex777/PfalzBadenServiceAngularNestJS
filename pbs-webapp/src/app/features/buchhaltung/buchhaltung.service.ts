@@ -3,14 +3,15 @@
 // ============================================================
 
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import {
+import type { Observable } from 'rxjs';
+import type {
   BuchhaltungEintrag,
   BuchhaltungJahr,
   VstPaid,
   GesperrterMonat,
   WiederkehrendeAusgabe,
   Beleg,
+  AccountingYearSummary,
 } from '../../core/models';
 import {
   AccountingApiClient,
@@ -28,10 +29,14 @@ export class BuchhaltungService {
     return this.accountingApi.loadAccounting(jahr);
   }
 
+  jahresZusammenfassungLaden(jahr: number): Observable<AccountingYearSummary> {
+    return this.accountingApi.loadAccountingSummary(jahr);
+  }
+
   batchSpeichern(
     jahr: number,
     monat: number,
-    zeilen: Partial<BuchhaltungEintrag>[],
+    zeilen: Array<Partial<BuchhaltungEintrag>>,
   ): Observable<BuchhaltungEintrag[]> {
     return this.accountingApi.saveAccountingBatch(jahr, monat, zeilen);
   }

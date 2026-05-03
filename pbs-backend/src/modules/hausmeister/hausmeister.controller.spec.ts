@@ -1,5 +1,6 @@
 import { HausmeisterService } from './hausmeister.service';
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { HausmeisterController } from './hausmeister.controller';
 
 describe('HausmeisterController', () => {

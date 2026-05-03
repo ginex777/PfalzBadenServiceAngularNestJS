@@ -1,9 +1,15 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { EinstellungenService, UserEintrag } from '../einstellungen/einstellungen.service';
+import type { UserEintrag } from '../einstellungen/einstellungen.service';
+import { EinstellungenService } from '../einstellungen/einstellungen.service';
 import { ToastService } from '../../core/services/toast.service';
 import { BenutzerFormularComponent } from './components/benutzer-formular/benutzer-formular.component';
-import { BenutzerNeuDaten, BenutzerBearbeitenDaten } from './benutzerverwaltung.models';
+import type { BenutzerNeuDaten, BenutzerBearbeitenDaten } from './benutzerverwaltung.models';
+import { ConfirmService } from '../../shared/services/confirm.service';
+import { DrawerComponent } from '../../shared/ui/drawer/drawer.component';
+import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
+import { StatusBadgeComponent } from '../../shared/ui/status-badge/status-badge.component';
 
 export type { UserEintrag };
 
@@ -11,18 +17,18 @@ export type { UserEintrag };
   selector: 'app-benutzerverwaltung',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BenutzerFormularComponent, DatePipe],
+  imports: [BenutzerFormularComponent, DatePipe, DrawerComponent, PageTitleComponent, StatusBadgeComponent],
   templateUrl: './benutzerverwaltung.component.html',
   styleUrl: './benutzerverwaltung.component.scss',
 })
 export class BenutzerverwaltungComponent implements OnInit {
   private readonly einstellungen = inject(EinstellungenService);
   private readonly toast = inject(ToastService);
+  private readonly confirm = inject(ConfirmService);
 
   readonly users = signal<UserEintrag[]>([]);
   readonly laedt = signal(false);
   readonly anlegenLaedt = signal(false);
-  readonly erfolg = signal<string | null>(null);
   readonly neuerUserSichtbar = signal(false);
   readonly bearbeiteterUser = signal<UserEintrag | null>(null);
 
@@ -69,7 +75,7 @@ export class BenutzerverwaltungComponent implements OnInit {
           this.users.update((l) => [...l, user]);
           this.anlegenLaedt.set(false);
           this.neuerUserSichtbar.set(false);
-          this._toast(`✓ ${user.email} angelegt`);
+          this.toast.success(`${user.email} angelegt`);
         },
         error: (e: { error?: { message?: string } }) => {
           this.anlegenLaedt.set(false);
@@ -85,18 +91,19 @@ export class BenutzerverwaltungComponent implements OnInit {
       next: (updated) => {
         this.users.update((l) => l.map((x) => (x.id === updated.id ? updated : x)));
         this.bearbeiteterUser.set(null);
-        this._toast('✓ Benutzer aktualisiert');
+        this.toast.success('Benutzer aktualisiert');
       },
       error: () => this.toast.error('Fehler beim Speichern.'),
     });
   }
 
-  loeschen(u: UserEintrag): void {
-    if (!confirm(`Benutzer "${u.email}" wirklich löschen?`)) return;
+  async loeschen(u: UserEintrag): Promise<void> {
+    const ok = await this.confirm.confirm({ message: `Benutzer "${u.email}" wirklich löschen?` });
+    if (!ok) return;
     this.einstellungen.deleteUser(u.id).subscribe({
       next: () => {
         this.users.update((l) => l.filter((x) => x.id !== u.id));
-        this._toast('✓ Benutzer gelöscht');
+        this.toast.success('Benutzer gelöscht');
       },
       error: (e: { error?: { message?: string } }) =>
         this.toast.error(e?.error?.message ?? 'Fehler beim Löschen.'),
@@ -108,8 +115,4 @@ export class BenutzerverwaltungComponent implements OnInit {
     return '–';
   }
 
-  private _toast(msg: string): void {
-    this.erfolg.set(msg);
-    setTimeout(() => this.erfolg.set(null), 4000);
-  }
 }

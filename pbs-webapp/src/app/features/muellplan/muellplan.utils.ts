@@ -143,7 +143,7 @@ export function parseVorlageText(text: string, jahr: number): ParsedTermin[] {
   const seen = new Set<string>();
   return results
     .filter((r) => {
-      const k = r.datum + '|' + r.muellart;
+      const k = `${r.datum  }|${  r.muellart}`;
       if (seen.has(k)) return false;
       seen.add(k);
       return true;

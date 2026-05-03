@@ -2,11 +2,12 @@
 import { MuellplanService } from './muellplan.service';
 import { BrowserService } from '../../core/services/browser.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Objekt, MuellplanTermin, MuellplanVorlage } from '../../core/models';
-import { TaskListItemApi } from '../aufgaben/aufgaben.models';
-import {
+import type { Objekt, MuellplanTermin, MuellplanVorlage } from '../../core/models';
+import type { TaskListItemApi } from '../aufgaben/aufgaben.models';
+import type {
   TerminFormularDaten,
-  VorlageFormularDaten,
+  VorlageFormularDaten} from './muellplan.models';
+import {
   LEERER_TERMIN,
   LEERE_VORLAGE,
 } from './muellplan.models';
@@ -32,7 +33,7 @@ export class MuellplanFacade {
   readonly terminFormularDaten = signal<TerminFormularDaten>({ ...LEERER_TERMIN });
   readonly vorlageFormularDaten = signal<VorlageFormularDaten>({ ...LEERE_VORLAGE });
   readonly vorlageAnwendenId = signal<number | null>(null);
-  readonly vorlageVorschau = signal<{ datum: string; muellart: string; farbe: string }[]>([]);
+  readonly vorlageVorschau = signal<Array<{ datum: string; muellart: string; farbe: string }>>([]);
 
   readonly erledigungsHistorie = signal<TaskListItemApi[]>([]);
   readonly historieZeigen = signal(false);
@@ -373,7 +374,6 @@ export class MuellplanFacade {
   }
 
   vorlagePdfOeffnen(vorlageId: number): void {
-    this.service.vorlagePdfUrl(vorlageId);
-    window.open(this.service.vorlagePdfUrl(vorlageId), '_blank');
+    this.browser.openUrl(this.service.vorlagePdfUrl(vorlageId));
   }
 }

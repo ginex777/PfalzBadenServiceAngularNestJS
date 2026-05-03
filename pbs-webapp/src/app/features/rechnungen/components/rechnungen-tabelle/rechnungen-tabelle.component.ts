@@ -8,23 +8,26 @@ import {
   inject,
 } from '@angular/core';
 import { ToastService } from '../../../../core/services/toast.service';
-import { Rechnung } from '../../../../core/models';
-import { RechnungFilter } from '../../rechnungen.models';
+import { BrowserService } from '../../../../core/services/browser.service';
+import type { Rechnung } from '../../../../core/models';
+import type { RechnungFilter } from '../../rechnungen.models';
+import type {
+  StatusBadgeTyp} from '../../../../shared/ui/status-badge/status-badge.component';
 import {
-  StatusBadgeComponent,
-  StatusBadgeTyp,
+  StatusBadgeComponent
 } from '../../../../shared/ui/status-badge/status-badge.component';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { ConfirmModalComponent } from '../../../../shared/ui/confirm-modal/confirm-modal.component';
 import { waehrungFormatieren, datumFormatieren, MONATE } from '../../../../core/utils/format.utils';
 import { MS_PER_DAY } from '../../../../core/constants';
 import { RoleAllowedDirective } from '../../../../core/directives/role-allowed.directive';
+import { OverflowMenuComponent } from '../../../../shared/ui/overflow-menu/overflow-menu.component';
 
 @Component({
   selector: 'app-rechnungen-tabelle',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [StatusBadgeComponent, EmptyStateComponent, ConfirmModalComponent, RoleAllowedDirective],
+  imports: [StatusBadgeComponent, EmptyStateComponent, ConfirmModalComponent, RoleAllowedDirective, OverflowMenuComponent],
   templateUrl: './rechnungen-tabelle.component.html',
   styleUrl: './rechnungen-tabelle.component.scss',
 })
@@ -44,6 +47,7 @@ export class RechnungenTabelleComponent {
   readonly bulkAlsGezahlt = output<Rechnung[]>();
 
   private readonly toast = inject(ToastService);
+  private readonly browser = inject(BrowserService);
 
   protected readonly waehrungFormatieren = waehrungFormatieren;
   protected readonly datumFormatieren = datumFormatieren;
@@ -114,8 +118,8 @@ export class RechnungenTabelleComponent {
     const checked = (event.target as HTMLInputElement).checked;
     if (checked) {
       const ids = this.sortierteListe()
-        .map((r) => r.id!)
-        .filter(Boolean);
+        .map((r) => r.id)
+        .filter((id): id is number => id != null);
       this.ausgewaehlt.set(new Set(ids));
     } else {
       this.ausgewaehlt.set(new Set());
@@ -173,13 +177,7 @@ export class RechnungenTabelleComponent {
           `${r.nr};"${r.empf}";${r.datum ?? ''};${r.brutto ?? 0};${r.bezahlt ? 'Bezahlt' : 'Offen'}`,
       ),
     ];
-    const blob = new Blob([zeilen.join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'rechnungen-export.csv';
-    a.click();
-    URL.revokeObjectURL(url);
+    this.browser.downloadCsv(zeilen.join('\n'), 'rechnungen-export.csv');
     this.toast.success(`${rechnungen.length} Rechnungen exportiert`);
     this.ausgewaehlt.set(new Set());
   }

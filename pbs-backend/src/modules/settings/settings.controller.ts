@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { SettingsService } from './settings.service';
-import { SaveSettingsDto } from './dto/settings.dto';
+import type { SettingsService } from './settings.service';
+import type { SaveSettingsDto } from './dto/settings.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 
 @Roles('admin')

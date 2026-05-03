@@ -174,17 +174,6 @@
             <td><app-status-badge [status]="statusTyp(rechnung)" /></td>
             <td class="actions-cell">
               <button class="btn-action" (click)="pdfGenerieren.emit(rechnung)">PDF</button>
-              <button class="btn-action" *roleAllowed="['admin']" (click)="kopieren.emit(rechnung)">
-                Als Kopie erstellen
-              </button>
-              <button
-                class="btn-action"
-                *roleAllowed="['admin']"
-                (click)="mahnung.emit(rechnung)"
-                title="Mahnungen verwalten"
-              >
-                Mahnung
-              </button>
               @if (!rechnung.bezahlt) {
                 <button
                   class="btn-action btn-action--success"
@@ -193,20 +182,24 @@
                 >
                   Bezahlt
                 </button>
-                <button
-                  class="btn-action"
-                  *roleAllowed="['admin']"
-                  (click)="bearbeiten.emit(rechnung)"
-                >
-                  Bearbeiten
-                </button>
-                <button
-                  class="btn-action btn-action--danger"
-                  *roleAllowed="['admin']"
-                  (click)="loeschenBestaetigen(rechnung.id!)"
-                >
-                  Löschen
-                </button>
+                <app-overflow-menu *roleAllowed="['admin']">
+                  <button class="btn-action" type="button" (click)="kopieren.emit(rechnung)">
+                    Kopie erstellen
+                  </button>
+                  <button class="btn-action" type="button" (click)="mahnung.emit(rechnung)">
+                    Mahnung
+                  </button>
+                  <button class="btn-action" type="button" (click)="bearbeiten.emit(rechnung)">
+                    Bearbeiten
+                  </button>
+                  <button
+                    class="btn-action btn-action--danger"
+                    type="button"
+                    (click)="loeschenBestaetigen(rechnung.id!)"
+                  >
+                    Löschen
+                  </button>
+                </app-overflow-menu>
               }
               @if (rechnung.bezahlt) {
                 <span class="gobd-hint">Gesperrt</span>

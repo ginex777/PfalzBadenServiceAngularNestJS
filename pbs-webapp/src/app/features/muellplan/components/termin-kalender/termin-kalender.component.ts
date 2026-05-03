@@ -3,11 +3,11 @@
 // ============================================================
 
 import { ChangeDetectionStrategy, Component, input, output, computed, signal } from '@angular/core';
-import { Objekt, MuellplanVorlage } from '../../../../core/models';
-import { TerminAnzeige } from '../../muellplan.models';
+import type { Objekt, MuellplanVorlage } from '../../../../core/models';
+import type { TerminAnzeige } from '../../muellplan.models';
 import { datumFormatieren } from '../../../../core/utils/format.utils';
 import { MONATE } from '../../../../core/utils/format.utils';
-import { TaskListItemApi } from '../../../aufgaben/aufgaben.models';
+import type { TaskListItemApi } from '../../../aufgaben/aufgaben.models';
 
 interface MonatsGruppe {
   label: string;

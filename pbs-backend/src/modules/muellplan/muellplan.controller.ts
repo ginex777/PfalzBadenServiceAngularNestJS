@@ -12,13 +12,15 @@ import {
   Res,
   UseInterceptors,
   UploadedFile,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import type { Response } from 'express';
 import { Workbook } from 'exceljs';
-import { MuellplanService } from './muellplan.service';
-import {
+import type { MuellplanService } from './muellplan.service';
+import type {
   ConfirmMuellplanPdfDto,
   CopyMuellplanTermineDto,
   CreateMuellplanTerminDto,
@@ -27,7 +29,13 @@ import {
   UpdateMuellplanTerminDto,
 } from './dto/muellplan.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import type { AuthRequest } from '../auth/auth-request.type';
+import { contentDispositionHeader } from '../../common/http/content-disposition';
+import {
+  validatePdfUpload,
+  validateWastePlanUpload,
+} from '../../common/files/upload-file';
 
 @Controller('api')
 export class MuellplanController {
@@ -35,13 +43,29 @@ export class MuellplanController {
 
   @Get('muellplan-upcoming')
   @Roles('admin', 'mitarbeiter')
-  async anstehendeTermineLaden(@Query('limit') limit?: string) {
-    return this.service.anstehendeTermineLaden(limit ? parseInt(limit) : 5);
+  async anstehendeTermineLaden(
+    @Query('limit') limit: string | undefined,
+    @Req() req: AuthRequest,
+  ) {
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.anstehendeTermineLaden(limit ? parseInt(limit) : 5, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
   @Get('muellplan/:objektId')
   @Roles('admin', 'mitarbeiter')
-  async termineLaden(@Param('objektId', ParseIntPipe) id: number) {
-    return this.service.termineLaden(id);
+  async termineLaden(
+    @Param('objektId', ParseIntPipe) id: number,
+    @Req() req: AuthRequest,
+  ) {
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.termineLaden(id, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
   @Post('muellplan')
   @Roles('admin')
@@ -66,8 +90,14 @@ export class MuellplanController {
   async terminErledigen(
     @Param('id', ParseIntPipe) id: number,
     @Body() b: ErledigunDto,
+    @Req() req: AuthRequest,
   ) {
-    return this.service.terminErledigen(id, b);
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.terminErledigen(id, b, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
 
   @Delete('muellplan/:id')
@@ -118,8 +148,12 @@ export class MuellplanController {
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    if (!file) return { error: 'Keine Datei' };
-    return this.service.vorlagePdfSpeichern(id, file.buffer, file.originalname);
+    const upload = validatePdfUpload(file, 'Muellplan template PDF');
+    return this.service.vorlagePdfSpeichern(
+      id,
+      Buffer.from(upload.data),
+      upload.filename,
+    );
   }
 
   @Get('muellplan-vorlagen/:id/pdf')
@@ -132,7 +166,7 @@ export class MuellplanController {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
-      `inline; filename="${v.pdf_name || 'muellplan.pdf'}"`,
+      contentDispositionHeader('inline', v.pdf_name || 'muellplan.pdf'),
     );
     res.send(v.pdf_data);
   }
@@ -149,17 +183,19 @@ export class MuellplanController {
     @Param('objektId', ParseIntPipe) objektId: number,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    if (!file) return { error: 'Keine Datei' };
+    const upload = validateWastePlanUpload(file);
+    const buffer = Buffer.from(upload.data);
     const meta = await this.service.muellplanPdfSpeichern(
       objektId,
-      file.buffer,
-      file.originalname,
+      buffer,
+      upload.filename,
     );
     // Excel/CSV direkt parsen
-    const ext = file.originalname.toLowerCase().split('.').pop() ?? '';
-    let parsed: { muellart: string; farbe: string; abholung: string }[] = [];
+    const ext = upload.filename.toLowerCase().split('.').pop() ?? '';
+    let parsed: Array<{ muellart: string; farbe: string; abholung: string }> =
+      [];
     if (['xlsx', 'xls'].includes(ext)) {
-      parsed = await this.excelCsvParsen(file.buffer);
+      parsed = await this.excelCsvParsen(buffer);
     }
     return { ...meta, parsed, verified: parsed.length === 0 ? 1 : 0 };
   }
@@ -169,21 +205,33 @@ export class MuellplanController {
   async muellplanPdfBestaetigen(
     @Param('objektId', ParseIntPipe) objektId: number,
     @Body() b: ConfirmMuellplanPdfDto,
+    @Req() req: AuthRequest,
   ) {
-    return this.service.muellplanPdfBestaetigen(objektId, b.termine ?? []);
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.muellplanPdfBestaetigen(objektId, b.termine ?? [], {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
 
   @Get('muellplan-pdf/:objektId')
   @Roles('admin', 'mitarbeiter')
   async muellplanPdfMetadaten(
     @Param('objektId', ParseIntPipe) objektId: number,
+    @Req() req: AuthRequest,
   ) {
-    return this.service.muellplanPdfMetadatenLaden(objektId);
+    const user = req.user;
+    if (!user) throw new BadRequestException('Missing auth context');
+    return this.service.muellplanPdfMetadatenLaden(objektId, {
+      role: user.rolle,
+      employeeId: user.mitarbeiterId ?? null,
+    });
   }
 
   private async excelCsvParsen(
     buffer: Buffer,
-  ): Promise<{ muellart: string; farbe: string; abholung: string }[]> {
+  ): Promise<Array<{ muellart: string; farbe: string; abholung: string }>> {
     const MUELL_KEYWORDS = [
       {
         keys: ['restmüll', 'restabfall', 'rest', 'grau'],
@@ -212,9 +260,14 @@ export class MuellplanController {
     try {
       const workbook = new Workbook();
 
-      await workbook.xlsx.load(buffer as any);
-      const results: { muellart: string; farbe: string; abholung: string }[] =
-        [];
+      const workbookData = new ArrayBuffer(buffer.byteLength);
+      new Uint8Array(workbookData).set(buffer);
+      await workbook.xlsx.load(workbookData);
+      const results: Array<{
+        muellart: string;
+        farbe: string;
+        abholung: string;
+      }> = [];
       workbook.eachSheet((worksheet) => {
         let firstRow = true;
         worksheet.eachRow((row) => {
@@ -235,7 +288,7 @@ export class MuellplanController {
           } else if (typeof dateVal === 'string') {
             const m1 = dateVal.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/);
             if (m1) {
-              const y = m1[3].length === 2 ? '20' + m1[3] : m1[3];
+              const y = m1[3].length === 2 ? `20${m1[3]}` : m1[3];
               dt = `${y}-${m1[2].padStart(2, '0')}-${m1[1].padStart(2, '0')}`;
             } else if (/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) dt = dateVal;
           }

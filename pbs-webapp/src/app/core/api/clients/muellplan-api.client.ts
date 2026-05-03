@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { MuellplanTermin, MuellplanVorlage, PaginatedResponse } from '../../models';
-import { TaskListItemApi } from '../../../features/aufgaben/aufgaben.models';
+import type { Observable } from 'rxjs';
+import type { MuellplanTermin, MuellplanVorlage, PaginatedResponse } from '../../models';
+import type { TaskListItemApi } from '../../../features/aufgaben/aufgaben.models';
 
 @Injectable({ providedIn: 'root' })
 export class MuellplanApiClient {
@@ -88,11 +88,10 @@ export class MuellplanApiClient {
   }
 
   async createMonthlyClosurePdf(objectId: number, monthIso: string): Promise<{ url?: string }> {
-    const response = await fetch(`${this.baseUrl}/pdf/muellplan/${objectId}?monat=${monthIso}`, {
+    const response = await fetch(`${this.baseUrl}/muellplan-pdf/${objectId}?monat=${monthIso}`, {
       method: 'POST',
     });
     if (!response.ok) return {};
     return (await response.json()) as { url?: string };
   }
 }
-

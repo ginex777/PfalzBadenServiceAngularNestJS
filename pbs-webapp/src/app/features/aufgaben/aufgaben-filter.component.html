@@ -1,7 +1,7 @@
 <div class="filter-card">
   <div class="filter-row filter-row--primary">
     <div class="form-field form-field--wide">
-      <label class="form-hint">Suche</label>
+      <label for="src-app-features-aufgaben-aufgaben-filter-component-0" class="form-hint">Suche</label>
       <input
         class="form-input"
         type="search"
@@ -12,7 +12,7 @@
     </div>
 
     <div class="form-field form-field--narrow-200">
-      <label class="form-hint">Status</label>
+      <label for="src-app-features-aufgaben-aufgaben-filter-component-1" class="form-hint">Status</label>
       <select
         class="form-input"
         [value]="filters().status.at(0) ?? ''"
@@ -26,7 +26,7 @@
     </div>
 
     <div class="form-field form-field--narrow-200">
-      <label class="form-hint">Typ</label>
+      <label for="src-app-features-aufgaben-aufgaben-filter-component-2" class="form-hint">Typ</label>
       <select
         class="form-input"
         [value]="filters().type.at(0) ?? ''"
@@ -40,7 +40,7 @@
     </div>
 
     <div class="form-field form-field--narrow-260">
-      <label class="form-hint">Kunde</label>
+      <label for="src-app-features-aufgaben-aufgaben-filter-component-3" class="form-hint">Kunde</label>
       <select
         class="form-input"
         [value]="filters().customerId ?? ''"
@@ -53,7 +53,7 @@
     </div>
 
     <div class="form-field form-field--narrow-260">
-      <label class="form-hint">Objekt</label>
+      <label for="src-app-features-aufgaben-aufgaben-filter-component-4" class="form-hint">Objekt</label>
       <select
         class="form-input"
         [value]="filters().objectId ?? ''"
@@ -66,7 +66,7 @@
     </div>
 
     <div class="form-field form-field--narrow-240">
-      <label class="form-hint">Mitarbeiter</label>
+      <label for="src-app-features-aufgaben-aufgaben-filter-component-5" class="form-hint">Mitarbeiter</label>
       <select
         class="form-input"
         [value]="filters().employeeId ?? ''"
@@ -79,8 +79,8 @@
     </div>
 
     <div class="form-field form-field--narrow-240">
-      <label class="form-hint">User</label>
-      <select class="form-input" [value]="filters().userId ?? ''" (change)="onUserChange($event)">
+      <label for="src-app-features-aufgaben-aufgaben-filter-component-6" class="form-hint">User</label>
+      <select id="src-app-features-aufgaben-aufgaben-filter-component-6" class="form-input" [value]="filters().userId ?? ''" (change)="onUserChange($event)">
         @for (opt of userOptions(); track opt.value) {
           <option [value]="opt.value">{{ opt.label }}</option>
         }
@@ -97,7 +97,7 @@
       <div class="filter-block__title">Zeitraum (Erstellt)</div>
       <div class="filter-block__fields">
         <div class="form-field">
-          <label class="form-hint">Von</label>
+          <label for="src-app-features-aufgaben-aufgaben-filter-component-7" class="form-hint">Von</label>
           <input
             class="form-input"
             type="date"
@@ -106,7 +106,7 @@
           />
         </div>
         <div class="form-field">
-          <label class="form-hint">Bis</label>
+          <label for="src-app-features-aufgaben-aufgaben-filter-component-8" class="form-hint">Bis</label>
           <input
             class="form-input"
             type="date"
@@ -121,7 +121,7 @@
       <div class="filter-block__title">Fälligkeit</div>
       <div class="filter-block__fields">
         <div class="form-field">
-          <label class="form-hint">Von</label>
+          <label for="src-app-features-aufgaben-aufgaben-filter-component-9" class="form-hint">Von</label>
           <input
             class="form-input"
             type="date"
@@ -130,7 +130,7 @@
           />
         </div>
         <div class="form-field">
-          <label class="form-hint">Bis</label>
+          <label for="src-app-features-aufgaben-aufgaben-filter-component-10" class="form-hint">Bis</label>
           <input
             class="form-input"
             type="date"

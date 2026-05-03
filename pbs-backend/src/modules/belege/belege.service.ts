@@ -5,9 +5,10 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import { validateReceiptUpload } from '../../common/files/upload-file';
 import * as crypto from 'crypto';
 
 export interface BelegListItem {
@@ -43,10 +44,10 @@ export class BelegeService {
     const typ = filter?.typ?.trim();
 
     const where =
-      jahr || typ || query
+      jahr !== undefined || typ || query
         ? {
             AND: [
-              jahr
+              jahr !== undefined
                 ? {
                     erstellt_am: {
                       gte: new Date(jahr, 0, 1),
@@ -120,9 +121,8 @@ export class BelegeService {
         aufbewahrung_bis: b.aufbewahrung_bis?.toISOString().slice(0, 10),
         erstellt_am: b.erstellt_am,
         buchung_name: b.buchhaltung?.name ?? null,
-        buchung_brutto: b.buchhaltung?.brutto
-          ? Number(b.buchhaltung.brutto)
-          : null,
+        buchung_brutto:
+          b.buchhaltung?.brutto != null ? Number(b.buchhaltung.brutto) : null,
         buchung_kategorie: b.buchhaltung?.kategorie ?? null,
       })),
       total,
@@ -169,14 +169,15 @@ export class BelegeService {
   }
 
   async belegHochladen(
-    file: Express.Multer.File,
+    file: Express.Multer.File | undefined,
     buchhaltungId?: number,
     typ = 'beleg',
     notiz?: string,
   ) {
+    const upload = validateReceiptUpload(file);
     const sha256 = crypto
       .createHash('sha256')
-      .update(file.buffer)
+      .update(upload.data)
       .digest('hex');
     const vorhanden = await this.prisma.belege.findUnique({
       where: { sha256 },
@@ -192,10 +193,10 @@ export class BelegeService {
     const b = await this.prisma.belege.create({
       data: {
         buchhaltung_id: buchhaltungId ? BigInt(buchhaltungId) : null,
-        filename: file.originalname,
-        mimetype: file.mimetype,
-        filesize: file.size,
-        data: Buffer.from(file.buffer) as unknown as Uint8Array<ArrayBuffer>,
+        filename: upload.filename,
+        mimetype: upload.mimetype,
+        filesize: upload.filesize,
+        data: upload.data,
         sha256,
         typ,
         notiz: notiz ?? null,

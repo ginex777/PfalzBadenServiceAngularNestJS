@@ -117,6 +117,10 @@
   min-height: 80px;
 }
 .wochen-karte {
+  display: block;
+  width: 100%;
+  border: none;
+  text-align: left;
   background: var(--primary);
   color: var(--gray-0);
   border-radius: 4px;
@@ -126,6 +130,11 @@
 
   &:hover {
     opacity: 0.85;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--gray-0);
+    outline-offset: 1px;
   }
 }
 .wochen-karte__ma {

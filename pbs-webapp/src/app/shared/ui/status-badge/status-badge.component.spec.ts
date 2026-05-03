@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { StatusBadgeComponent } from './status-badge.component';
 
 describe('StatusBadgeComponent', () => {
@@ -7,11 +8,12 @@ describe('StatusBadgeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [StatusBadgeComponent],
+      imports: [StatusBadgeComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StatusBadgeComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('status', 'offen');
     fixture.detectChanges();
   });
 

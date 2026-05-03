@@ -15,11 +15,12 @@ export class PdfTokenService {
   >();
 
   constructor() {
-    setInterval(() => this.cleanExpiredTokens(), 60_000);
+    const cleanupTimer = setInterval(() => this.cleanExpiredTokens(), 60_000);
+    cleanupTimer.unref?.();
   }
 
   createToken(pdf: Buffer, filename: string): { token: string; url: string } {
-    const token = crypto.randomBytes(8).toString('hex');
+    const token = crypto.randomBytes(16).toString('hex');
     this.tokenStore.set(token, {
       data: { pdf, filename },
       expires: Date.now() + 5 * 60 * 1000,
@@ -36,6 +37,7 @@ export class PdfTokenService {
       this.tokenStore.delete(token);
       return null;
     }
+    this.tokenStore.delete(token);
     return entry.data;
   }
 

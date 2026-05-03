@@ -1,17 +1,18 @@
 import { ChangeDetectionStrategy, Component, input, output, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Kunde } from '../../../../core/models';
-import { KundeUmsatz } from '../../kunden.models';
+import type { Kunde } from '../../../../core/models';
+import type { KundeUmsatz } from '../../kunden.models';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SkeletonRowsComponent } from '../../../../shared/ui/skeleton-rows/skeleton-rows.component';
 import { waehrungFormatieren } from '../../../../core/utils/format.utils';
 import { RoleAllowedDirective } from '../../../../core/directives/role-allowed.directive';
+import { OverflowMenuComponent } from '../../../../shared/ui/overflow-menu/overflow-menu.component';
 
 @Component({
   selector: 'app-kunden-tabelle',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EmptyStateComponent, RoleAllowedDirective, RouterLink, SkeletonRowsComponent],
+  imports: [EmptyStateComponent, RoleAllowedDirective, RouterLink, SkeletonRowsComponent, OverflowMenuComponent],
   templateUrl: './kunden-tabelle.component.html',
   styleUrl: './kunden-tabelle.component.scss',
 })

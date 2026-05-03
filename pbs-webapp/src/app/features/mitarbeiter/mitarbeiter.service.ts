@@ -1,7 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
-import { Mitarbeiter, MitarbeiterStunden } from '../../core/models';
+import type { Observable} from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import type { Mitarbeiter, MitarbeiterStunden } from '../../core/models';
 import { EmployeesApiClient, PdfApiClient } from '../../core/api/clients';
+import { BrowserService } from '../../core/services/browser.service';
 
 interface Stempel {
   id: number;
@@ -17,6 +19,7 @@ interface Stempel {
 export class MitarbeiterService {
   private readonly employeesApi = inject(EmployeesApiClient);
   private readonly pdfApi = inject(PdfApiClient);
+  private readonly browser = inject(BrowserService);
 
   alleLaden(): Observable<Mitarbeiter[]> {
     return this.employeesApi.loadEmployees();
@@ -64,6 +67,6 @@ export class MitarbeiterService {
   // Stundenabrechnung als PDF (serverseitig mit Handlebars)
   async abrechnungPdfOeffnen(mitarbeiterId: number): Promise<void> {
     const response = await firstValueFrom(this.pdfApi.createEmployeeStatementPdf(mitarbeiterId));
-    window.open(response.url, '_blank');
+    this.browser.openUrl(response.url);
   }
 }

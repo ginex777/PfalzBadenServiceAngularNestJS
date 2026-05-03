@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { EinsatzFormularComponent } from './einsatz-formular.component';
 
 describe('EinsatzFormularComponent', () => {
@@ -7,11 +8,20 @@ describe('EinsatzFormularComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EinsatzFormularComponent],
+      imports: [EinsatzFormularComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EinsatzFormularComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('daten', {
+      mitarbeiter_id: null,
+      mitarbeiter_name: '',
+      kunden_id: null,
+      kunden_name: '',
+      datum: '',
+      taetigkeiten: [{ beschreibung: '', stunden: 0 }],
+      notiz: '',
+    });
     fixture.detectChanges();
   });
 

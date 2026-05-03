@@ -1,0 +1,4 @@
+interface:
+  display_name: "Angular Developer"
+  short_description: "Official Angular guidance for PBS"
+  default_prompt: "Use $angular-developer for Angular best practices in PBS frontend work."

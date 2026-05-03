@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AktivitaetItem, AKTIVITAET_TYPE_LABELS, TaskType } from './aktivitaeten.models';
+import type { AktivitaetItem, TaskType } from './aktivitaeten.models';
+import { AKTIVITAET_TYPE_LABELS } from './aktivitaeten.models';
 
 @Component({
   selector: 'app-aktivitaeten-feed',

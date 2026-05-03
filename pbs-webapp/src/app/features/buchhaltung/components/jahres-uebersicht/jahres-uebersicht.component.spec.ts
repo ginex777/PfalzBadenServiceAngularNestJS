@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { JahresUebersichtComponent } from './jahres-uebersicht.component';
 
 describe('JahresUebersichtComponent', () => {
@@ -7,11 +8,15 @@ describe('JahresUebersichtComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [JahresUebersichtComponent],
+      imports: [JahresUebersichtComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(JahresUebersichtComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('jahr', 2026);
+    fixture.componentRef.setInput('quartalsDaten', []);
+    fixture.componentRef.setInput('jahresMonatsDaten', []);
+    fixture.componentRef.setInput('vstQuartale', []);
     fixture.detectChanges();
   });
 

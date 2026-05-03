@@ -7,7 +7,7 @@ import { AngeboteFacade } from './angebote.facade';
 import { AngeboteService } from './angebote.service';
 import { ToastService } from '../../core/services/toast.service';
 import { API_BASE_URL } from '../../core/tokens';
-import { Angebot } from '../../core/models';
+import type { Angebot } from '../../core/models';
 
 const testAngebote: Angebot[] = [
   {
@@ -199,7 +199,7 @@ describe('AngeboteFacade', () => {
     it('zeigt Fehler wenn empf oder nr fehlt', () => {
       facade.formularDaten.update((d) => ({ ...d, empf: '', nr: '' }));
       facade.speichern();
-      expect(facade.fehler()).toBeTruthy();
+      expect(mockToast.error).toHaveBeenCalledWith('Bitte Angebots-Nr. und Empfänger ausfüllen.');
       expect(mockService.createOffer).not.toHaveBeenCalled();
     });
 
@@ -214,6 +214,26 @@ describe('AngeboteFacade', () => {
       expect(facade.angebote()).toHaveLength(1);
       expect(facade.angebote()[0].id).toBe(99);
       expect(mockToast.success).toHaveBeenCalled();
+    });
+
+    it('sendet keine autoritative Angebotssumme an das Backend', () => {
+      const gespeichert = { ...testAngebote[0], id: 100, brutto: 238 };
+      mockService.createOffer.mockReturnValue(of(gespeichert));
+      facade.formularDaten.update((d) => ({
+        ...d,
+        empf: 'Neuer Kunde',
+        nr: '2026-100',
+        positionen: [{ bez: 'Pos 1', gesamtpreis: 200 }],
+      }));
+
+      facade.speichern();
+
+      expect(mockService.createOffer).toHaveBeenCalledWith(
+        expect.not.objectContaining({ brutto: expect.any(Number) }),
+      );
+      expect(mockService.createOffer).toHaveBeenCalledWith(
+        expect.objectContaining({ positionen: [{ bez: 'Pos 1', gesamtpreis: 200 }] }),
+      );
     });
 
     it('aktualisiert vorhandenes Angebot bei Bearbeitungsmodus', () => {

@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { PaginatedResponse, PdfArchiveEntry } from '../../models';
+import type { PaginatedResponse, PdfArchiveEntry } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class PdfArchiveApiClient {

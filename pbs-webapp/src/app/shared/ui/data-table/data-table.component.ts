@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
-export interface TabellenSpalte<T> {
-  schluessel: keyof T | string;
-  bezeichnung: string;
-  ausrichtung?: 'links' | 'rechts' | 'mitte';
-  breite?: string;
+export interface TableColumn<T> {
+  key: keyof T | string;
+  label: string;
+  align?: 'left' | 'right' | 'center';
+  width?: string;
 }
 
 @Component({
@@ -15,16 +15,23 @@ export interface TabellenSpalte<T> {
   styleUrl: './data-table.component.scss',
 })
 export class DataTableComponent<T extends Record<string, unknown>> {
-  readonly spalten = input.required<TabellenSpalte<T>[]>();
-  readonly zeilen = input.required<T[]>();
-  readonly laedt = input<boolean>(false);
-  readonly zeilenklick = output<T>();
+  readonly columns = input.required<Array<TableColumn<T>>>();
+  readonly rows = input.required<T[]>();
+  readonly isLoading = input<boolean>(false);
+  readonly rowClick = output<T>();
 
-  protected zeilenKlickAusfuehren(zeile: T): void {
-    this.zeilenklick.emit(zeile);
+  protected handleRowClick(row: T): void {
+    this.rowClick.emit(row);
   }
 
-  protected zellenWertLesen(zeile: T, schluessel: keyof T | string): unknown {
-    return zeile[schluessel as keyof T];
+  protected onRowKeydown(event: KeyboardEvent, row: T): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.rowClick.emit(row);
+    }
+  }
+
+  protected readCellValue(row: T, key: keyof T | string): unknown {
+    return row[key as keyof T];
   }
 }

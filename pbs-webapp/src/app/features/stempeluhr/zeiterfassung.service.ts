@@ -1,20 +1,19 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { ZeiterfassungListResponse, ZeiterfassungFilterState } from './zeiterfassung.models';
+import { inject, Injectable } from '@angular/core';
+import type { Observable } from 'rxjs';
+import type { ZeiterfassungListResponse, ZeiterfassungFilterState } from './zeiterfassung.models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ZeiterfassungService {
   private readonly baseUrl = '/api/stempeluhr';
-
-  constructor(private http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   list(
     filters: ZeiterfassungFilterState,
-    page: number = 1,
-    pageSize: number = 50,
+    page = 1,
+    pageSize = 50,
   ): Observable<ZeiterfassungListResponse> {
     let params = new HttpParams().set('page', String(page)).set('pageSize', String(pageSize));
 

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { AktivitaetenListResponse, AktivitaetenFilterState } from './aktivitaeten.models';
+import type { Observable } from 'rxjs';
+import type { AktivitaetenListResponse, AktivitaetenFilterState } from './aktivitaeten.models';
 
 @Injectable({
   providedIn: 'root',

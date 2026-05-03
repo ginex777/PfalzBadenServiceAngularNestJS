@@ -81,66 +81,60 @@
 
   <!-- Sammel-Mahnung Modal -->
   @if (facade.sammelMahnungSichtbar()) {
-    <div class="modal-overlay" (click)="facade.sammelMahnungSchliessen()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <h3 class="modal-heading">Sammel-Mahnung</h3>
-        <textarea
-          class="form-input mahnung-textarea"
-          rows="12"
-          [value]="facade.sammelMahnungText()"
-          readonly
-        ></textarea>
-        <div class="modal-footer">
-          @if (facade.sammelMahnungEmail()) {
-            <a
-              class="btn btn-danger link-btn"
-              [href]="
-                'https://outlook.office365.com/mail/deeplink/compose?to=' +
-                facade.sammelMahnungEmail() +
-                '&subject=' +
-                facade.sammelMahnungBetreff() +
-                '&body=' +
-                facade.sammelMahnungText()
-              "
-              target="_blank"
-              >Outlook öffnen</a
-            >
-          }
-          <button class="btn" (click)="mahnungKopieren()">Kopieren</button>
-          <button class="btn" (click)="facade.sammelMahnungSchliessen()">Schließen</button>
-        </div>
+    <app-modal [isOpen]="facade.sammelMahnungSichtbar()" title="Sammel-Mahnung" size="md" (closed)="facade.sammelMahnungSchliessen()">
+      <textarea
+        class="form-input mahnung-textarea"
+        rows="12"
+        [value]="facade.sammelMahnungText()"
+        readonly
+      ></textarea>
+      <div class="modal-footer">
+        @if (facade.sammelMahnungEmail()) {
+          <a
+            class="btn btn-danger link-btn"
+            [href]="
+              'https://outlook.office365.com/mail/deeplink/compose?to=' +
+              facade.sammelMahnungEmail() +
+              '&subject=' +
+              facade.sammelMahnungBetreff() +
+              '&body=' +
+              facade.sammelMahnungText()
+            "
+            target="_blank"
+            >Outlook öffnen</a
+          >
+        }
+        <button class="btn" (click)="mahnungKopieren()">Kopieren</button>
+        <button class="btn" (click)="facade.sammelMahnungSchliessen()">Schließen</button>
       </div>
-    </div>
+    </app-modal>
   }
 
-  <!-- Kunde erstellen / bearbeiten Modal -->
+  <!-- Kunde erstellen / bearbeiten Drawer -->
   @if (facade.formularSichtbar()) {
-    <div class="modal-overlay" (click)="bearbeitungAbbrechen()">
-      <div class="modal modal--lg" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3 class="modal-title">
-            @if (facade.bearbeiteterKunde()) {
-              Kunde bearbeiten
-            } @else {
-              Neuer Kunde
-            }
-          </h3>
-          <button class="modal-close" (click)="bearbeitungAbbrechen()" title="Schließen">✕</button>
-        </div>
-
-        <div class="modal-body">
-          <app-kunden-formular
-            *roleAllowed="['admin']"
-            [bearbeiteterKunde]="facade.bearbeiteterKunde()"
-            (gespeichert)="speichern($event)"
-            (abgebrochen)="bearbeitungAbbrechen()"
-          />
-        </div>
-
+    <app-drawer [isOpen]="facade.formularSichtbar()" ariaLabel="Kunde Formular" position="right" (closed)="bearbeitungAbbrechen()">
+      <div class="drawer-header">
+        <h3 class="drawer-title">
+          @if (facade.bearbeiteterKunde()) {
+            Kunde bearbeiten
+          } @else {
+            Neuer Kunde
+          }
+        </h3>
+        <button class="app-modal__close" type="button" (click)="bearbeitungAbbrechen()" aria-label="Schließen">×</button>
+      </div>
+      <div class="drawer-body">
+        <app-kunden-formular
+          *roleAllowed="['admin']"
+          [bearbeiteterKunde]="facade.bearbeiteterKunde()"
+          (gespeichert)="speichern($event)"
+          (abgebrochen)="bearbeitungAbbrechen()"
+          (geaendert)="facade.formGeaendert.set(true)"
+        />
         <div class="modal-footer">
           <button class="btn" (click)="bearbeitungAbbrechen()">Abbrechen</button>
         </div>
       </div>
-    </div>
+    </app-drawer>
   }
 </div>

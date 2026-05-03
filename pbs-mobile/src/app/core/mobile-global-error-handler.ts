@@ -1,13 +1,13 @@
 import { ErrorHandler, Injectable } from '@angular/core';
-import * as SentryCapacitor from '@sentry/capacitor';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class MobileGlobalErrorHandler implements ErrorHandler {
   handleError(error: unknown): void {
     // Keep console output for local debugging (Sentry is prod-only by default).
-    // eslint-disable-next-line no-console
     console.error('Global error caught:', error);
-    SentryCapacitor.captureException(error);
+    if (environment.production) {
+      void import('@sentry/capacitor').then((sentry) => sentry.captureException(error));
+    }
   }
 }
-

@@ -1,20 +1,22 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
-import { Angebot } from '../../../../core/models';
-import { AngebotFilter } from '../../angebote.models';
+import type { Angebot } from '../../../../core/models';
+import type { AngebotFilter } from '../../angebote.models';
+import type {
+  StatusBadgeTyp} from '../../../../shared/ui/status-badge/status-badge.component';
 import {
-  StatusBadgeComponent,
-  StatusBadgeTyp,
+  StatusBadgeComponent
 } from '../../../../shared/ui/status-badge/status-badge.component';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { ConfirmModalComponent } from '../../../../shared/ui/confirm-modal/confirm-modal.component';
 import { waehrungFormatieren, datumFormatieren } from '../../../../core/utils/format.utils';
 import { RoleAllowedDirective } from '../../../../core/directives/role-allowed.directive';
+import { OverflowMenuComponent } from '../../../../shared/ui/overflow-menu/overflow-menu.component';
 
 @Component({
   selector: 'app-angebote-tabelle',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [StatusBadgeComponent, EmptyStateComponent, ConfirmModalComponent, RoleAllowedDirective],
+  imports: [StatusBadgeComponent, EmptyStateComponent, ConfirmModalComponent, RoleAllowedDirective, OverflowMenuComponent],
   templateUrl: './angebote-tabelle.component.html',
   styleUrl: './angebote-tabelle.component.scss',
 })

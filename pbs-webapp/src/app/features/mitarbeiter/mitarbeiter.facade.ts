@@ -1,11 +1,12 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { MitarbeiterService } from './mitarbeiter.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Mitarbeiter, MitarbeiterStunden } from '../../core/models';
-import {
+import type { Mitarbeiter, MitarbeiterStunden } from '../../core/models';
+import type {
   MitarbeiterFormularDaten,
   StundenFormularDaten,
-  StundenStatistik,
+  StundenStatistik} from './mitarbeiter.models';
+import {
   LEERES_STUNDEN_FORMULAR,
 } from './mitarbeiter.models';
 
@@ -188,16 +189,12 @@ export class MitarbeiterFacade {
       this.toast.error('Datum und Stunden sind Pflichtfelder.');
       return;
     }
-    const rate = f.lohnSatz || ma.stundenlohn;
-    const grundlohn = Math.round(f.stunden * rate * 100) / 100;
-    const zuschlag = Math.round(((grundlohn * f.zuschlagProzent) / 100) * 100) / 100;
     const payload: Partial<MitarbeiterStunden> = {
       datum: f.datum,
       stunden: f.stunden,
       beschreibung: f.beschreibung,
       ort: f.ort,
-      lohn: grundlohn,
-      zuschlag,
+      lohn_satz: f.lohnSatz || undefined,
       zuschlag_typ: f.zuschlagProzent ? `${f.zuschlagProzent}%` : '',
       bezahlt: false,
     };
@@ -213,7 +210,7 @@ export class MitarbeiterFacade {
   bezahltToggle(id: number, bezahlt: boolean): void {
     const s = this.stunden().find((x) => x.id === id);
     if (!s) return;
-    this.service.stundenAktualisieren(id, { ...s, bezahlt }).subscribe({
+    this.service.stundenAktualisieren(id, { bezahlt }).subscribe({
       next: (aktualisiert) =>
         this.stunden.update((list) => list.map((x) => (x.id === id ? aktualisiert : x))),
     });

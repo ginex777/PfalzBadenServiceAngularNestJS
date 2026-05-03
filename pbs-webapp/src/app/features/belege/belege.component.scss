@@ -148,6 +148,22 @@
     text-decoration: underline;
   }
 }
+.link-button,
+.notiz-button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  padding: 0;
+  text-align: left;
+}
+
+.link-button:focus-visible,
+.notiz-button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
 .buchung-name {
   font-size: 12px;
   font-weight: 500;

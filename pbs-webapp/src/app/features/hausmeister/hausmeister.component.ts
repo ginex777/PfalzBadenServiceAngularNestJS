@@ -1,7 +1,8 @@
+import type {
+  OnInit} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   inject,
   signal,
   computed,
@@ -10,9 +11,10 @@ import { HausmeisterFacade } from './hausmeister.facade';
 import { EinsatzListeComponent } from './components/einsatz-liste/einsatz-liste.component';
 import { EinsatzFormularComponent } from './components/einsatz-formular/einsatz-formular.component';
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
+import { DrawerComponent } from '../../shared/ui/drawer/drawer.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { StatCardComponent } from '../../shared/ui/stat-card/stat-card.component';
-import { HausmeisterEinsatz } from '../../core/models';
+import type { HausmeisterEinsatz } from '../../core/models';
 import { MONATE } from '../../core/utils/format.utils';
 
 const WOCHENTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
@@ -25,6 +27,7 @@ const WOCHENTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
     EinsatzListeComponent,
     EinsatzFormularComponent,
     ConfirmModalComponent,
+    DrawerComponent,
     PageTitleComponent,
     StatCardComponent,
   ],

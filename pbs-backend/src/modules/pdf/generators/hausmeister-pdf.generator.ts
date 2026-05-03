@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../../core/database/prisma.service';
-import { PdfRenderService } from '../pdf-render.service';
-import { PdfTokenService } from '../pdf-token.service';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
+import type { PrismaService } from '../../../core/database/prisma.service';
+import type { PdfRenderService } from '../pdf-render.service';
+import type { PdfTokenService } from '../pdf-token.service';
 
 const MONATE_DE = [
   'Januar',
@@ -28,12 +33,22 @@ export class HausmeisterPdfGenerator {
 
   async createEinsatzPdf(
     einsatzId: number,
+    auth: { role: string; employeeId: number | null },
   ): Promise<{ token: string; url: string }> {
     const einsatz = await this.prisma.hausmeisterEinsaetze.findUnique({
       where: { id: BigInt(einsatzId) },
     });
     if (!einsatz)
       throw new NotFoundException(`Einsatz ${einsatzId} nicht gefunden`);
+    if (auth.role === 'mitarbeiter') {
+      this.requireEmployeeMapping(auth);
+      const rowEmployeeId = einsatz.mitarbeiter_id
+        ? Number(einsatz.mitarbeiter_id)
+        : null;
+      if (rowEmployeeId !== auth.employeeId) {
+        throw new NotFoundException(`Einsatz ${einsatzId} nicht gefunden`);
+      }
+    }
     const firma = await this.render.loadFirma();
     const now = new Date().toLocaleString('de-DE', {
       day: '2-digit',
@@ -43,8 +58,10 @@ export class HausmeisterPdfGenerator {
       minute: '2-digit',
     });
     const taetigkeiten =
-      (einsatz.taetigkeiten as { beschreibung: string; stunden: number }[]) ??
-      [];
+      (einsatz.taetigkeiten as Array<{
+        beschreibung: string;
+        stunden: number;
+      }>) ?? [];
 
     const kontext = {
       firma,
@@ -75,7 +92,7 @@ export class HausmeisterPdfGenerator {
         referenz_nr: einsatz.datum.toISOString().slice(0, 10),
         referenz_id: einsatz.id,
         empf: einsatz.mitarbeiter_name,
-        titel: `Hausmeisterdienste ${this.render.formatDate(einsatz.datum.toISOString().slice(0, 10))}${einsatz.kunden_name ? ' – ' + einsatz.kunden_name : ''}`,
+        titel: `Hausmeisterdienste ${this.render.formatDate(einsatz.datum.toISOString().slice(0, 10))}${einsatz.kunden_name ? ` – ${einsatz.kunden_name}` : ''}`,
         datum: einsatz.datum,
         filename,
         html_body: html,
@@ -88,6 +105,7 @@ export class HausmeisterPdfGenerator {
   async createMonatsnachweisPdf(
     monat: string,
     mitarbeiterName?: string,
+    auth?: { role: string; employeeId: number | null },
   ): Promise<{ token: string; url: string }> {
     const [y, mo] = monat.split('-').map(Number);
     const vonDatum = new Date(y, mo - 1, 1);
@@ -101,12 +119,15 @@ export class HausmeisterPdfGenerator {
       minute: '2-digit',
     });
 
-    const where = mitarbeiterName
-      ? {
-          datum: { gte: vonDatum, lte: bisDatum },
-          mitarbeiter_name: mitarbeiterName,
-        }
-      : { datum: { gte: vonDatum, lte: bisDatum } };
+    const where: Prisma.HausmeisterEinsaetzeWhereInput = {
+      datum: { gte: vonDatum, lte: bisDatum },
+    };
+    if (auth?.role === 'mitarbeiter') {
+      this.requireEmployeeMapping(auth);
+      where.mitarbeiter_id = BigInt(auth.employeeId);
+    } else if (mitarbeiterName) {
+      where.mitarbeiter_name = mitarbeiterName;
+    }
 
     const rows = await this.prisma.hausmeisterEinsaetze.findMany({
       where,
@@ -125,9 +146,11 @@ export class HausmeisterPdfGenerator {
         e.datum.toISOString().slice(0, 10),
       ),
       taetigkeiten:
-        (e.taetigkeiten as { beschreibung: string; stunden: number }[]) ?? [],
+        (e.taetigkeiten as Array<{ beschreibung: string; stunden: number }>) ??
+        [],
       taetigkeitenText: (
-        (e.taetigkeiten as { beschreibung: string; stunden: number }[]) ?? []
+        (e.taetigkeiten as Array<{ beschreibung: string; stunden: number }>) ??
+        []
       )
         .map(
           (t) =>
@@ -149,7 +172,7 @@ export class HausmeisterPdfGenerator {
 
     const html = this.render.renderTemplate('hausmeister-monat.hbs', kontext);
     const pdf = await this.render.createPdfWithHeaderFooter(html, firma);
-    const filename = `Monatsnachweis_Hausmeister_${mitarbeiterName ? mitarbeiterName.replace(/\s+/g, '_') + '_' : ''}${monat}.pdf`;
+    const filename = `Monatsnachweis_Hausmeister_${mitarbeiterName ? `${mitarbeiterName.replace(/\s+/g, '_')}_` : ''}${monat}.pdf`;
 
     await this.prisma.pdfArchive.create({
       data: {
@@ -163,5 +186,18 @@ export class HausmeisterPdfGenerator {
     });
 
     return this.token.createToken(pdf, filename);
+  }
+
+  private requireEmployeeMapping(auth: {
+    role: string;
+    employeeId: number | null;
+  }): asserts auth is { role: string; employeeId: number } {
+    if (auth.employeeId == null) {
+      throw new BadRequestException({
+        code: 'MISSING_EMPLOYEE_MAPPING',
+        message:
+          'Kein Mitarbeiter-Mapping vorhanden. Bitte Admin kontaktieren (User <-> Mitarbeiter zuordnen).',
+      });
+    }
   }
 }

@@ -39,4 +39,3 @@ export function initSentry(): void {
 }
 
 export { Sentry };
-

@@ -1,4 +1,4 @@
-import { SettingsKey } from '../models';
+import type { SettingsKey } from '../models';
 
 export interface DatevValidierungsMeldung {
   typ: 'error' | 'warning';

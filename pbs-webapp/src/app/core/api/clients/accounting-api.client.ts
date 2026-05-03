@@ -1,7 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { BuchhaltungEintrag, BuchhaltungJahr, GesperrterMonat, VstPaid } from '../../models';
+import type { Observable } from 'rxjs';
+import type {
+  AccountingYearSummary,
+  BuchhaltungEintrag,
+  BuchhaltungJahr,
+  GesperrterMonat,
+  VstPaid,
+} from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class AccountingApiClient {
@@ -12,6 +18,10 @@ export class AccountingApiClient {
     return this.http.get<BuchhaltungJahr>(`${this.baseUrl}/buchhaltung/${year}`);
   }
 
+  loadAccountingSummary(year: number): Observable<AccountingYearSummary> {
+    return this.http.get<AccountingYearSummary>(`${this.baseUrl}/buchhaltung/${year}/summary`);
+  }
+
   createAccountingEntry(data: Partial<BuchhaltungEintrag>): Observable<BuchhaltungEintrag> {
     return this.http.post<BuchhaltungEintrag>(`${this.baseUrl}/buchhaltung`, data);
   }
@@ -19,7 +29,7 @@ export class AccountingApiClient {
   saveAccountingBatch(
     year: number,
     month: number,
-    rows: Partial<BuchhaltungEintrag>[],
+    rows: Array<Partial<BuchhaltungEintrag>>,
   ): Observable<BuchhaltungEintrag[]> {
     return this.http.post<BuchhaltungEintrag[]>(`${this.baseUrl}/buchhaltung/batch`, {
       jahr: year,
@@ -59,4 +69,3 @@ export class AccountingApiClient {
     return this.http.delete<void>(`${this.baseUrl}/gesperrte-monate/${year}/${month}`);
   }
 }
-

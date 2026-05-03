@@ -1,6 +1,9 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Muellplan</ion-title>
+    <ion-title>Müllplan</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="logout()">Abmelden</ion-button>
+    </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="context-toolbar">
     <app-objekt-kontext />
@@ -31,21 +34,21 @@
         @if (isLoading() || isLoadingPickups()) {
           <p class="hint">Lade Termine...</p>
         } @else if (!selectedObjectId()) {
-          <p class="hint">Bitte zuerst ein Objekt auswaehlen.</p>
+          <p class="hint">Bitte zuerst ein Objekt auswählen.</p>
         } @else if (objectPickups().length === 0) {
           <p class="hint">Keine Termine hinterlegt.</p>
         } @else {
           <ion-list lines="inset">
             @for (pickup of objectPickups(); track pickup.id) {
-              <ion-item [class.pickup-done]="pickup.erledigt">
-                <span class="color-dot" [style.backgroundColor]="pickupColor(pickup.farbe)"></span>
+              <ion-item [class.pickup-done]="pickup.isDone">
+                <span class="color-dot" [style.backgroundColor]="pickupColor(pickup.color)"></span>
                 <ion-label>
-                  <h3>{{ pickup.muellart }}</h3>
-                  <p>{{ pickup.abholung | date: 'dd.MM.yyyy' }}</p>
+                  <h3>{{ pickup.wasteType }}</h3>
+                  <p>{{ pickup.pickupDate | date: 'dd.MM.yyyy' }}</p>
                 </ion-label>
-                @if (pickup.erledigt) {
+                @if (pickup.isDone) {
                   <ion-badge slot="end" color="success">Erledigt</ion-badge>
-                } @else if (isPickupToday(pickup.abholung)) {
+                } @else if (pickup.isToday) {
                   <ion-badge slot="end" color="warning">Heute</ion-badge>
                   <ion-button
                     slot="end"
@@ -56,7 +59,7 @@
                   >
                     Abhaken
                   </ion-button>
-                } @else if (isPickupDue(pickup.abholung)) {
+                } @else if (pickup.isDue) {
                   <ion-badge slot="end" color="danger">Faellig</ion-badge>
                   <ion-button
                     slot="end"
@@ -88,12 +91,12 @@
           <ion-list lines="inset">
             @for (pickup of upcomingPickups(); track pickup.id) {
               <ion-item>
-                <span class="color-dot" [style.backgroundColor]="pickupColor(pickup.farbe)"></span>
+                <span class="color-dot" [style.backgroundColor]="pickupColor(pickup.color)"></span>
                 <ion-label>
-                  <h3>{{ pickup.muellart }} · {{ pickup.abholung | date: 'dd.MM.yyyy' }}</h3>
-                  <p>{{ pickup.objekt_name || ('Objekt #' + pickup.objekt_id) }}</p>
+                  <h3>{{ pickup.wasteType }} · {{ pickup.pickupDate | date: 'dd.MM.yyyy' }}</h3>
+                  <p>{{ pickup.objectName || ('Objekt #' + pickup.objectId) }}</p>
                 </ion-label>
-                @if (isPickupToday(pickup.abholung)) {
+                @if (pickup.isToday) {
                   <ion-badge slot="end" color="warning">Heute</ion-badge>
                 }
               </ion-item>

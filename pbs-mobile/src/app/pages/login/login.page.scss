@@ -22,7 +22,7 @@ ion-content {
   padding: 0.85rem;
   border-radius: 0.95rem;
   border: 1px solid #ffe1c5;
-  background: linear-gradient(180deg, #fffaf5 0%, #fff 100%);
+  background: var(--app-warm-surface);
 }
 
 .login-badge {
@@ -84,19 +84,11 @@ ion-content {
   color: #b42318;
 }
 
-.submit-button {
+ion-button[type="submit"] {
   margin-top: 0.2rem;
-  border: 0;
-  min-height: 3rem;
-  border-radius: 0.95rem;
-  background: linear-gradient(135deg, #ff7a00, #ff9a2f);
-  color: #fff;
-  padding: 0.85rem 1rem;
+  --border-radius: 0.95rem;
+  --background: var(--app-primary-action-bg);
+  --color: #fff;
+  --box-shadow: 0 10px 24px rgba(255, 122, 0, 0.28);
   font-weight: 700;
-  box-shadow: 0 10px 24px rgba(255, 122, 0, 0.28);
-}
-
-.submit-button:disabled {
-  opacity: 0.65;
-  box-shadow: none;
 }

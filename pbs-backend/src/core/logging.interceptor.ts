@@ -1,13 +1,13 @@
-import {
-  Injectable,
+import type {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Injectable } from '@nestjs/common';
+import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { Request } from 'express';
-import { PinoLogger } from 'nestjs-pino';
+import type { Request } from 'express';
+import type { PinoLogger } from 'nestjs-pino';
 
 type RequestWithId = Request & { id?: string };
 

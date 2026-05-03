@@ -1,11 +1,22 @@
 @if (isOpen()) {
-  <div class="app-modal__overlay" (click)="close()" aria-hidden="true"></div>
-  <div class="app-modal app-modal--{{ size() }}" role="dialog" aria-modal="true">
+  <button
+    class="app-modal__overlay"
+    type="button"
+    tabindex="-1"
+    (click)="close()"
+    aria-label="Modal schließen"
+  ></button>
+  <div
+    class="app-modal app-modal--{{ size() }}"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="title() ? 'app-modal-title' : null"
+  >
     @if (title()) {
       <div class="app-modal__header">
-        <h2 class="app-modal__title">{{ title() }}</h2>
+        <h2 class="app-modal__title" id="app-modal-title">{{ title() }}</h2>
         <button class="app-modal__close" type="button" (click)="close()" aria-label="Schließen">
-          ×
+          x
         </button>
       </div>
     }

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { Mitarbeiter } from '../../../../core/models';
+import type { Mitarbeiter } from '../../../../core/models';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SkeletonRowsComponent } from '../../../../shared/ui/skeleton-rows/skeleton-rows.component';
 
@@ -25,6 +25,6 @@ export class MitarbeiterListeComponent {
   }
 
   protected fmt(n: number): string {
-    return n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    return `${n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })  } €`;
   }
 }

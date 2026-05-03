@@ -1,8 +1,9 @@
 import { Controller, Get, Query, Res } from '@nestjs/common';
 import { Workbook } from 'exceljs';
 import type { Response } from 'express';
-import { PrismaService } from '../../core/database/prisma.service';
+import type { PrismaService } from '../../core/database/prisma.service';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { contentDispositionHeader } from '../../common/http/content-disposition';
 
 function calcTax(brutto: number, mwst: number) {
   const ust = brutto - brutto / (1 + mwst / 100);
@@ -218,7 +219,7 @@ export class DatevController {
       m = monat !== undefined ? parseInt(monat) : -1;
     const firma = await this.firmaLaden();
     const rows = await this.buchungenLaden(j, m);
-    const warnings: { typ: string; msg: string; count: number }[] = [];
+    const warnings: Array<{ typ: string; msg: string; count: number }> = [];
     const required = {
       steuernr: 'Steuernummer',
       datev_beraternr: 'DATEV Beraternummer',
@@ -361,7 +362,10 @@ export class DatevController {
     res.setHeader('Content-Type', 'text/csv; charset=windows-1252');
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename="DATEV_Buchungsstapel_${j}_${monatLabel}.csv"`,
+      contentDispositionHeader(
+        'attachment',
+        `DATEV_Buchungsstapel_${j}_${monatLabel}.csv`,
+      ),
     );
     res.send(csv);
   }
@@ -391,7 +395,7 @@ export class DatevController {
       'Dezember',
     ];
 
-    const buchungenData: (string | number)[][] = [
+    const buchungenData: Array<Array<string | number>> = [
       [
         'Datum',
         'Typ',
@@ -437,7 +441,7 @@ export class DatevController {
     const buchSheet = workbook.addWorksheet('Buchungen');
     buchSheet.addRows(buchungenData);
 
-    const summaryData: (string | number)[][] = [
+    const summaryData: Array<Array<string | number>> = [
       ['Firmenname:', firma['firma'] ?? ''],
       ['Steuernummer:', firma['steuernr'] ?? ''],
       ['USt-IdNr.:', firma['ustId'] ?? ''],
@@ -516,7 +520,10 @@ export class DatevController {
     );
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename="DATEV_Excel_${j}_${monatLabel}.xlsx"`,
+      contentDispositionHeader(
+        'attachment',
+        `DATEV_Excel_${j}_${monatLabel}.xlsx`,
+      ),
     );
     res.send(buf);
   }

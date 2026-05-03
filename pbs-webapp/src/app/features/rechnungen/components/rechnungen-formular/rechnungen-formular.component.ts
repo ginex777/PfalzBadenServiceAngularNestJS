@@ -7,9 +7,10 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { form, required, applyEach, SchemaPathTree } from '@angular/forms/signals';
-import { Rechnung, Kunde, RechnungPosition } from '../../../../core/models';
-import { RechnungFormularDaten } from '../../rechnungen.models';
+import type { SchemaPathTree } from '@angular/forms/signals';
+import { form, required, applyEach } from '@angular/forms/signals';
+import type { Rechnung, Kunde, RechnungPosition } from '../../../../core/models';
+import type { RechnungFormularDaten } from '../../rechnungen.models';
 import { waehrungFormatieren } from '../../../../core/utils/format.utils';
 
 function positionSchema(p: SchemaPathTree<RechnungPosition>): void {

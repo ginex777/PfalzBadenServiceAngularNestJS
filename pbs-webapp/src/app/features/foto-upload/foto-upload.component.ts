@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { NachweiseService } from '../nachweise/nachweise.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Objekt } from '../../core/models';
+import type { Objekt } from '../../core/models';
 
 @Component({
   selector: 'app-foto-upload',
@@ -32,7 +33,7 @@ export class FotoUploadComponent implements OnInit {
     this.service.loadObjectsAll().subscribe({
       next: (rows) => {
         this.objects.set(rows);
-        if (rows.length > 0) this.selectedObjectId.set(rows[0]!.id);
+        if (rows.length === 1) this.selectedObjectId.set(rows[0].id);
         this.objectsLoading.set(false);
       },
       error: () => this.objectsLoading.set(false),

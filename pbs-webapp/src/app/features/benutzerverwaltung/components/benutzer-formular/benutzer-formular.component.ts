@@ -1,18 +1,20 @@
+import type {
+  OnChanges,
+  SimpleChanges} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnChanges,
-  SimpleChanges,
   computed,
   input,
   output,
   signal,
 } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
-import { UserEintrag } from '../../benutzerverwaltung.component';
-import {
+import type { UserEintrag } from '../../benutzerverwaltung.component';
+import type {
   BenutzerBearbeitenDaten,
-  BenutzerNeuDaten,
+  BenutzerNeuDaten} from '../../benutzerverwaltung.models';
+import {
   LEERER_BENUTZER,
   LEERES_BEARBEITEN_FORMULAR,
   ROLLEN_OPTIONEN,
@@ -26,11 +28,11 @@ import {
   templateUrl: './benutzer-formular.component.html',
 })
 export class BenutzerFormularComponent implements OnChanges {
-  readonly bearbeiteterUser = input<UserEintrag | null>(null);
-  readonly laedt = input(false);
-  readonly neuGespeichert = output<BenutzerNeuDaten>();
-  readonly bearbeitenGespeichert = output<BenutzerBearbeitenDaten>();
-  readonly abgebrochen = output<void>();
+  readonly editedUser = input<UserEintrag | null>(null);
+  readonly isLoading = input(false);
+  readonly created = output<BenutzerNeuDaten>();
+  readonly updated = output<BenutzerBearbeitenDaten>();
+  readonly canceled = output<void>();
 
   protected readonly rollenOptionen = ROLLEN_OPTIONEN;
 
@@ -47,7 +49,7 @@ export class BenutzerFormularComponent implements OnChanges {
     required(schema.rolle, { message: 'Rolle ist erforderlich' });
   });
 
-  protected readonly istBearbeiten = computed(() => this.bearbeiteterUser() !== null);
+  protected readonly istBearbeiten = computed(() => this.editedUser() !== null);
 
   protected readonly neuGueltig = computed(() => {
     const d = this.neuModell();
@@ -69,8 +71,8 @@ export class BenutzerFormularComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['bearbeiteterUser']) {
-      const u = this.bearbeiteterUser();
+    if (changes['editedUser']) {
+      const u = this.editedUser();
       if (u) {
         this.bearbeitenModell.set({ vorname: u.vorname ?? '', nachname: u.nachname ?? '', rolle: u.rolle });
       } else {
@@ -82,16 +84,16 @@ export class BenutzerFormularComponent implements OnChanges {
   protected speichern(): void {
     if (this.istBearbeiten()) {
       if (!this.bearbeitenGueltig()) return;
-      this.bearbeitenGespeichert.emit({ ...this.bearbeitenModell() });
+      this.updated.emit({ ...this.bearbeitenModell() });
     } else {
       if (!this.neuGueltig()) return;
-      this.neuGespeichert.emit({ ...this.neuModell() });
+      this.created.emit({ ...this.neuModell() });
       this.neuModell.set({ ...LEERER_BENUTZER });
     }
   }
 
   protected abbrechen(): void {
     this.neuModell.set({ ...LEERER_BENUTZER });
-    this.abgebrochen.emit();
+    this.canceled.emit();
   }
 }

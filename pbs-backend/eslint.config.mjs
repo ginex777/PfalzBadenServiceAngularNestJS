@@ -57,7 +57,7 @@ export default tseslint.config(
       'prefer-const': 'error',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-debugger': 'error',
-      'no-duplicate-imports': 'error',
+      'no-duplicate-imports': 'off',
       'no-self-compare': 'error',
       'no-template-curly-in-string': 'warn',
       'object-shorthand': ['error', 'always'],

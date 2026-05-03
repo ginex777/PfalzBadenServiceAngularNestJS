@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Param, ParseIntPipe } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
+import type { PrismaService } from '../../core/database/prisma.service';
 
 @Controller('api/benachrichtigungen')
 export class BenachrichtigungenController {

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, firstValueFrom } from 'rxjs';
-import {
+import type { Observable} from 'rxjs';
+import { forkJoin, firstValueFrom } from 'rxjs';
+import type {
   Rechnung,
   Kunde,
   FirmaSettings,
@@ -16,6 +17,7 @@ import {
   RemindersApiClient,
   SettingsApiClient,
 } from '../../core/api/clients';
+import { BrowserService } from '../../core/services/browser.service';
 
 @Injectable({ providedIn: 'root' })
 export class RechnungenService {
@@ -25,6 +27,7 @@ export class RechnungenService {
   private readonly pdfApi = inject(PdfApiClient);
   private readonly remindersApi = inject(RemindersApiClient);
   private readonly auditLogApi = inject(AuditLogApiClient);
+  private readonly browser = inject(BrowserService);
 
   rechnungenUndKundenLaden(): Observable<{ rechnungen: Rechnung[]; kunden: Kunde[] }> {
     return forkJoin({
@@ -52,7 +55,7 @@ export class RechnungenService {
   // PDF wird jetzt serverseitig mit Handlebars generiert — kein HTML vom Frontend
   async pdfOeffnen(rechnung: Rechnung, _firma: FirmaSettings): Promise<void> {
     const response = await firstValueFrom(this.pdfApi.createInvoicePdf(rechnung.id));
-    window.open(response.url, '_blank');
+    this.browser.openUrl(response.url);
   }
 
   loadReminders(rechnungId: number): Observable<Mahnung[]> {
@@ -75,7 +78,7 @@ export class RechnungenService {
     return positionen.reduce((s, p) => s + (parseFloat(String(p.gesamtpreis)) || 0), 0);
   }
 
-  bruttoBerechnen(positionen: RechnungPosition[], mwstSatz: number = 19): number {
+  bruttoBerechnen(positionen: RechnungPosition[], mwstSatz = 19): number {
     const netto = this.nettoSummeBerechnen(positionen);
     return netto * (1 + mwstSatz / 100);
   }

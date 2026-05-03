@@ -1,24 +1,31 @@
-@if (sichtbar()) {
-  <div class="onboarding-overlay" (click)="schliessen()">
+@if (visible()) {
+  <div class="onboarding-overlay">
+    <button
+      class="onboarding-backdrop"
+      type="button"
+      aria-label="Onboarding schließen"
+      (click)="close()"
+    ></button>
     <div
       class="onboarding-modal"
-      (click)="$event.stopPropagation()"
       role="dialog"
       aria-modal="true"
       aria-label="Willkommen bei PBS"
+      tabindex="-1"
+      (keydown.escape)="close()"
     >
       <div class="onboarding-header">
         <h2 class="onboarding-titel">Willkommen bei PBS Buchhaltung</h2>
-        <p class="onboarding-sub">In 3 Schritten startklar — dauert unter 5 Minuten.</p>
+        <p class="onboarding-sub">In 3 Schritten startklar - dauert unter 5 Minuten.</p>
       </div>
 
       <ol class="onboarding-schritte">
-        <li class="onboarding-schritt" [class.onboarding-schritt--erledigt]="schritte().firma">
-          <span class="onboarding-schritt__check">{{ schritte().firma ? '✓' : '1' }}</span>
+        <li class="onboarding-schritt" [class.onboarding-schritt--erledigt]="steps().company">
+          <span class="onboarding-schritt__check">{{ steps().company ? '✓' : '1' }}</span>
           <div class="onboarding-schritt__inhalt">
             <a
               [routerLink]="['/einstellungen']"
-              (click)="schliessen()"
+              (click)="close()"
               class="onboarding-schritt__link"
             >
               Firmendaten eingeben
@@ -26,10 +33,10 @@
             <p class="onboarding-schritt__hint">Name, Adresse und Bankverbindung für Rechnungen</p>
           </div>
         </li>
-        <li class="onboarding-schritt" [class.onboarding-schritt--erledigt]="schritte().kunde">
-          <span class="onboarding-schritt__check">{{ schritte().kunde ? '✓' : '2' }}</span>
+        <li class="onboarding-schritt" [class.onboarding-schritt--erledigt]="steps().customer">
+          <span class="onboarding-schritt__check">{{ steps().customer ? '✓' : '2' }}</span>
           <div class="onboarding-schritt__inhalt">
-            <a [routerLink]="['/kunden']" (click)="schliessen()" class="onboarding-schritt__link">
+            <a [routerLink]="['/kunden']" (click)="close()" class="onboarding-schritt__link">
               Ersten Kunden anlegen
             </a>
             <p class="onboarding-schritt__hint">
@@ -37,12 +44,12 @@
             </p>
           </div>
         </li>
-        <li class="onboarding-schritt" [class.onboarding-schritt--erledigt]="schritte().rechnung">
-          <span class="onboarding-schritt__check">{{ schritte().rechnung ? '✓' : '3' }}</span>
+        <li class="onboarding-schritt" [class.onboarding-schritt--erledigt]="steps().invoice">
+          <span class="onboarding-schritt__check">{{ steps().invoice ? '✓' : '3' }}</span>
           <div class="onboarding-schritt__inhalt">
             <a
               [routerLink]="['/rechnungen']"
-              (click)="schliessen()"
+              (click)="close()"
               class="onboarding-schritt__link"
             >
               Erste Rechnung erstellen
@@ -55,11 +62,11 @@
       </ol>
 
       <div class="onboarding-footer">
-        @if (alleErledigt()) {
-          <p class="onboarding-fertig">Alles erledigt — Sie sind startklar!</p>
+        @if (allDone()) {
+          <p class="onboarding-fertig">Alles erledigt - Sie sind startklar!</p>
         }
-        <button class="btn btn-primary" (click)="schliessen()" type="button">
-          {{ alleErledigt() ? "Los geht's" : 'Später einrichten' }}
+        <button class="btn btn-primary" (click)="close()" type="button">
+          {{ allDone() ? "Los geht's" : 'Später einrichten' }}
         </button>
       </div>
     </div>

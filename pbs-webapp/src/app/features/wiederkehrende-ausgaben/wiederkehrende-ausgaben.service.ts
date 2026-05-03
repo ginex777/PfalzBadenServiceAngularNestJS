@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { WiederkehrendeAusgabe } from '../../core/models';
+import type { Observable } from 'rxjs';
+import type { WiederkehrendeAusgabe } from '../../core/models';
 import { RecurringExpensesApiClient } from '../../core/api/clients';
 
 @Injectable({ providedIn: 'root' })

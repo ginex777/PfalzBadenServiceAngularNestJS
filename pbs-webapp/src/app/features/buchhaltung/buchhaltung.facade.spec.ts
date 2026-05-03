@@ -6,10 +6,11 @@ import { BuchhaltungFacade } from './buchhaltung.facade';
 import { BuchhaltungService } from './buchhaltung.service';
 import { ToastService } from '../../core/services/toast.service';
 import { API_BASE_URL } from '../../core/tokens';
-import { BuchhaltungEintrag } from '../../core/models';
+import type { BuchhaltungEintrag } from '../../core/models';
 
 const mockService = {
   jahresDateLaden: jest.fn(),
+  jahresZusammenfassungLaden: jest.fn(),
   loadVst: jest.fn(),
   loadLockedMonths: jest.fn(),
   batchSpeichern: jest.fn(),
@@ -26,6 +27,9 @@ function makeZeile(
   overrides: Partial<BuchhaltungEintrag & { _tempId: string }> = {},
 ): BuchhaltungEintrag & { _tempId: string } {
   const base = {
+    id: 1,
+    jahr: 2026,
+    monat: 1,
     typ: 'inc',
     brutto: 100,
     mwst: 19,
@@ -42,6 +46,20 @@ describe('BuchhaltungFacade', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockService.jahresDateLaden.mockReturnValue(of({}));
+    mockService.jahresZusammenfassungLaden.mockReturnValue(
+      of({
+        months: Array.from({ length: 12 }, (_, month) => ({
+          month,
+          incomeNet: 0,
+          incomeVat: 0,
+          expenseNet: 0,
+          inputVat: 0,
+          vatLiability: 0,
+          profit: 0,
+        })),
+        quarters: [],
+      }),
+    );
     mockService.loadVst.mockReturnValue(of([]));
     mockService.loadLockedMonths.mockReturnValue(of([]));
 
@@ -107,10 +125,17 @@ describe('BuchhaltungFacade', () => {
     it('berechnet Einnahmen-Netto korrekt (brutto 119€ mit 19% MwSt → Netto ~100€)', () => {
       facade.aktuellerMonat.set(0);
       facade.gesperrteMonateSet.set(new Set());
-      // Inject zeile direkt
-      // @ts-expect-error test-only access to private state
-      facade['_einnahmenZeilen'].set({
-        0: [makeZeile({ brutto: 119, mwst: 19, typ: 'inc' })],
+      facade['_jahresZusammenfassung'].set({
+        months: Array.from({ length: 12 }, (_, month) => ({
+          month,
+          incomeNet: month === 0 ? 100 : 0,
+          incomeVat: month === 0 ? 19 : 0,
+          expenseNet: 0,
+          inputVat: 0,
+          vatLiability: month === 0 ? 19 : 0,
+          profit: month === 0 ? 100 : 0,
+        })),
+        quarters: [],
       });
 
       const ergebnis = facade.aktuellesMonatsergebnis();
@@ -120,9 +145,17 @@ describe('BuchhaltungFacade', () => {
 
     it('berechnet Ausgaben-Vorsteuer mit Abzugsquote', () => {
       facade.aktuellerMonat.set(0);
-      // @ts-expect-error test-only access to private state
-      facade['_ausgabenZeilen'].set({
-        0: [makeZeile({ brutto: 119, mwst: 19, abzug: 50, typ: 'exp' })],
+      facade['_jahresZusammenfassung'].set({
+        months: Array.from({ length: 12 }, (_, month) => ({
+          month,
+          incomeNet: 0,
+          incomeVat: 0,
+          expenseNet: month === 0 ? 50 : 0,
+          inputVat: month === 0 ? 9.5 : 0,
+          vatLiability: month === 0 ? -9.5 : 0,
+          profit: month === 0 ? -50 : 0,
+        })),
+        quarters: [],
       });
 
       const ergebnis = facade.aktuellesMonatsergebnis();
@@ -132,13 +165,17 @@ describe('BuchhaltungFacade', () => {
 
     it('berechnet Gewinn = Einnahmen-Netto minus Ausgaben-Netto', () => {
       facade.aktuellerMonat.set(5);
-      // @ts-expect-error test-only access to private state
-      facade['_einnahmenZeilen'].set({
-        5: [makeZeile({ brutto: 119, mwst: 19, typ: 'inc' })],
-      });
-      // @ts-expect-error test-only access to private state
-      facade['_ausgabenZeilen'].set({
-        5: [makeZeile({ brutto: 59.5, mwst: 19, abzug: 100, typ: 'exp' })],
+      facade['_jahresZusammenfassung'].set({
+        months: Array.from({ length: 12 }, (_, month) => ({
+          month,
+          incomeNet: month === 5 ? 100 : 0,
+          incomeVat: month === 5 ? 19 : 0,
+          expenseNet: month === 5 ? 50 : 0,
+          inputVat: month === 5 ? 9.5 : 0,
+          vatLiability: month === 5 ? 9.5 : 0,
+          profit: month === 5 ? 50 : 0,
+        })),
+        quarters: [],
       });
 
       const ergebnis = facade.aktuellesMonatsergebnis();
@@ -152,7 +189,6 @@ describe('BuchhaltungFacade', () => {
       facade.gesperrteMonateSet.set(new Set());
       const z1 = makeZeile({ _tempId: 'a', brutto: 100, typ: 'inc' });
       const z2 = makeZeile({ _tempId: 'b', brutto: 200, typ: 'inc' });
-      // @ts-expect-error test-only access to private state
       facade['_einnahmenZeilen'].set({ 0: [z1, z2] });
 
       facade.zeileKopieren('inc', 'a');
@@ -170,7 +206,7 @@ describe('BuchhaltungFacade', () => {
       facade.aktuellerMonat.set(0);
       facade.gesperrteMonateSet.set(new Set());
       const saved = [
-        { id: 1, typ: 'inc', brutto: 100, mwst: 19, abzug: 100 },
+        { id: 1, jahr: 2026, monat: 1, typ: 'inc', brutto: 100, mwst: 19, abzug: 100 },
       ] as BuchhaltungEintrag[];
       mockService.batchSpeichern.mockReturnValue(of(saved));
 

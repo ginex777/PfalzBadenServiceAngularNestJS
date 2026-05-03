@@ -1,11 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PdfArchivFacade } from './pdf-archiv.facade';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
 import { SkeletonRowsComponent } from '../../shared/ui/skeleton-rows/skeleton-rows.component';
 import { PaginierungComponent } from '../../shared/ui/paginierung/paginierung.component';
-import { PdfArchivFilter, PDF_TYP_LABELS } from './pdf-archiv.models';
+import type { PdfArchivFilter} from './pdf-archiv.models';
+import { PDF_TYP_LABELS } from './pdf-archiv.models';
 import { datumFormatieren } from '../../core/utils/format.utils';
 
 @Component({
@@ -20,10 +23,11 @@ export class PdfArchivComponent implements OnInit {
   protected readonly facade = inject(PdfArchivFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly typLabels = PDF_TYP_LABELS;
   protected readonly datumFormatieren = datumFormatieren;
 
-  protected readonly filterOptionen: { id: PdfArchivFilter; label: string }[] = [
+  protected readonly filterOptionen: Array<{ id: PdfArchivFilter; label: string }> = [
     { id: 'alle', label: 'Alle' },
     { id: 'rechnung', label: 'Rechnungen' },
     { id: 'angebot', label: 'Angebote' },
@@ -34,7 +38,7 @@ export class PdfArchivComponent implements OnInit {
 
   ngOnInit(): void {
     // Deep-link support: ?typ=hausmeister&q=Max (legacy: ?empf=Max)
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const page = params['page'] ? Number(params['page']) : 1;
       const pageSize = params['pageSize'] ? Number(params['pageSize']) : 25;
       const q = (params['q'] ?? params['empf'] ?? '') as string;

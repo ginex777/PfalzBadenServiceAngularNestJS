@@ -5,8 +5,14 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { BuchhaltungService } from './buchhaltung.service';
 import { ToastService } from '../../core/services/toast.service';
-import { BuchhaltungEintrag, BuchhaltungJahr, VstPaid } from '../../core/models';
-import {
+import type {
+  AccountingMonthSummary,
+  AccountingYearSummary,
+  BuchhaltungEintrag,
+  BuchhaltungJahr,
+  VstPaid,
+} from '../../core/models';
+import type {
   BuchhaltungZeile,
   MonatsDaten,
   QuartalsDaten,
@@ -14,7 +20,7 @@ import {
   AnsichtsModus,
   SpeicherStatus,
 } from './buchhaltung.models';
-import { steuerBerechnen, MONATE, KATEGORIEN } from '../../core/utils/format.utils';
+import { MONATE, KATEGORIEN } from '../../core/utils/format.utils';
 import { forkJoin } from 'rxjs';
 
 function neuesTempId(): string {
@@ -23,6 +29,21 @@ function neuesTempId(): string {
 
 function eintragZuZeile(e: BuchhaltungEintrag): BuchhaltungZeile {
   return { ...e, _tempId: neuesTempId() };
+}
+
+function leereJahresZusammenfassung(): AccountingYearSummary {
+  return {
+    months: Array.from({ length: 12 }, (_, month) => ({
+      month,
+      incomeNet: 0,
+      incomeVat: 0,
+      expenseNet: 0,
+      inputVat: 0,
+      vatLiability: 0,
+      profit: 0,
+    })),
+    quarters: [],
+  };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -39,6 +60,8 @@ export class BuchhaltungFacade {
 
   /** Rohdaten vom Server: monat (0-11) → { inc, exp } */
   private readonly _jahresDaten = signal<BuchhaltungJahr>({});
+  private readonly _jahresZusammenfassung =
+    signal<AccountingYearSummary>(leereJahresZusammenfassung());
   /** In-Memory Zeilen pro Monat */
   private readonly _einnahmenZeilen = signal<Record<number, BuchhaltungZeile[]>>({});
   private readonly _ausgabenZeilen = signal<Record<number, BuchhaltungZeile[]>>({});
@@ -67,7 +90,7 @@ export class BuchhaltungFacade {
   });
 
   readonly aktuellesMonatsergebnis = computed<MonatsDaten>(() =>
-    this._monatsDatenBerechnen(this.aktuellerMonat()),
+    this._monatsDatenAusServerSummary(this._jahresZusammenfassung().months[this.aktuellerMonat()]),
   );
 
   readonly quartalsDaten = computed<QuartalsDaten[]>(() => {
@@ -115,7 +138,7 @@ export class BuchhaltungFacade {
       const elster = this._elsterDatenBerechnen(q.monate);
       const zahllast = elster.kz83 + elster.kz85 - elster.kz66;
       const bezahlt = !!this._vstPaid()[schluessel];
-      const datum = (this._vstPaid()[schluessel + '_date'] as string) ?? '';
+      const datum = (this._vstPaid()[`${schluessel  }_date`] as string) ?? '';
       const offen = bezahlt ? 0 : zahllast;
       return {
         schluessel,
@@ -137,17 +160,19 @@ export class BuchhaltungFacade {
 
     forkJoin({
       jahresDaten: this.service.jahresDateLaden(jahr),
+      zusammenfassung: this.service.jahresZusammenfassungLaden(jahr),
       vstDaten: this.service.loadVst(jahr),
       gesperrte: this.service.loadLockedMonths(jahr),
     }).subscribe({
-      next: ({ jahresDaten, vstDaten, gesperrte }) => {
+      next: ({ jahresDaten, zusammenfassung, vstDaten, gesperrte }) => {
         this._jahresDatenVerarbeiten(jahresDaten);
+        this._jahresZusammenfassung.set(zusammenfassung);
         this._vstDatenVerarbeiten(vstDaten);
         this.gesperrteMonateSet.set(new Set(gesperrte.map((g) => g.monat)));
         this.ladelaeuft.set(false);
       },
       error: (err: Error) => {
-        this.toast.error('Daten konnten nicht geladen werden: ' + err.message);
+        this.toast.error(`Daten konnten nicht geladen werden: ${  err.message}`);
         this.ladelaeuft.set(false);
       },
     });
@@ -325,7 +350,7 @@ export class BuchhaltungFacade {
     const einnahmen = this._einnahmenZeilen()[monat] ?? [];
     const ausgaben = this._ausgabenZeilen()[monat] ?? [];
 
-    const zeilen: Partial<BuchhaltungEintrag>[] = [
+    const zeilen: Array<Partial<BuchhaltungEintrag>> = [
       ...einnahmen.map(({ _tempId: _, ...z }) => ({ ...z, typ: 'inc' as const, jahr, monat })),
       ...ausgaben.map(({ _tempId: _, ...z }) => ({ ...z, typ: 'exp' as const, jahr, monat })),
     ];
@@ -336,13 +361,23 @@ export class BuchhaltungFacade {
       this.service.batchSpeichern(jahr, monat, zeilen).subscribe({
         next: (gespeichert) => {
           this._idsNachSpeichernAktualisieren(monat, gespeichert);
-          this.speicherStatus.set({ dirty: false, speichernLaeuft: false });
-          this.toast.success('Buchhaltung gespeichert.');
-          resolve();
+          this.service.jahresZusammenfassungLaden(jahr).subscribe({
+            next: (zusammenfassung) => {
+              this._jahresZusammenfassung.set(zusammenfassung);
+              this.speicherStatus.set({ dirty: false, speichernLaeuft: false });
+              this.toast.success('Buchhaltung gespeichert.');
+              resolve();
+            },
+            error: (err: Error) => {
+              this.speicherStatus.set({ dirty: false, speichernLaeuft: false });
+              this.toast.error(`Zusammenfassung konnte nicht geladen werden: ${  err.message}`);
+              resolve();
+            },
+          });
         },
         error: (err: Error) => {
           this.speicherStatus.set({ dirty: true, speichernLaeuft: false });
-          this.toast.error('Speichern fehlgeschlagen: ' + err.message);
+          this.toast.error(`Speichern fehlgeschlagen: ${  err.message}`);
           reject(err);
         },
       });
@@ -353,7 +388,7 @@ export class BuchhaltungFacade {
   lockMonth(): void {
     const monat = this.aktuellerMonat();
     const jahr = this.aktuellesJahr();
-    const name = MONATE[monat] + ' ' + jahr;
+    const name = `${MONATE[monat]  } ${  jahr}`;
     this.bestaetigenDialog.set({
       titel: 'Monat sperren',
       nachricht: `${name} sperren? (GoBD §146 AO — keine Änderungen mehr möglich)`,
@@ -364,7 +399,7 @@ export class BuchhaltungFacade {
               this.gesperrteMonateSet.update((s) => new Set([...s, monat]));
               this.bestaetigenDialog.set(null);
             },
-            error: (err: Error) => this.toast.error('Sperren fehlgeschlagen: ' + err.message),
+            error: (err: Error) => this.toast.error(`Sperren fehlgeschlagen: ${  err.message}`),
           });
         };
         if (this.speicherStatus().dirty) {
@@ -379,7 +414,7 @@ export class BuchhaltungFacade {
   unlockMonth(): void {
     const monat = this.aktuellerMonat();
     const jahr = this.aktuellesJahr();
-    const name = MONATE[monat] + ' ' + jahr;
+    const name = `${MONATE[monat]  } ${  jahr}`;
     this.bestaetigenDialog.set({
       titel: 'Monat entsperren',
       nachricht: `${name} entsperren? Buchungen können dann wieder bearbeitet werden.`,
@@ -393,7 +428,7 @@ export class BuchhaltungFacade {
             });
             this.bestaetigenDialog.set(null);
           },
-          error: (err: Error) => this.toast.error('Entsperren fehlgeschlagen: ' + err.message),
+          error: (err: Error) => this.toast.error(`Entsperren fehlgeschlagen: ${  err.message}`),
         });
       },
     });
@@ -440,19 +475,19 @@ export class BuchhaltungFacade {
         this.batchSpeichern();
       },
       error: (err: Error) =>
-        this.toast.error('Wiederkehrende Kosten konnten nicht geladen werden: ' + err.message),
+        this.toast.error(`Wiederkehrende Kosten konnten nicht geladen werden: ${  err.message}`),
     });
   }
 
   // ── VST-Tracking ─────────────────────────────────────────────────────────
   vstAlsGezahltMarkieren(schluessel: string): void {
     const heute = new Date().toISOString().slice(0, 10);
-    this._vstPaid.update((v) => ({ ...v, [schluessel]: true, [schluessel + '_date']: heute }));
+    this._vstPaid.update((v) => ({ ...v, [schluessel]: true, [`${schluessel  }_date`]: heute }));
     this._saveVst(schluessel);
   }
 
   vstZahlungZuruecksetzen(schluessel: string): void {
-    this._vstPaid.update((v) => ({ ...v, [schluessel]: false, [schluessel + '_date']: '' }));
+    this._vstPaid.update((v) => ({ ...v, [schluessel]: false, [`${schluessel  }_date`]: '' }));
     this._saveVst(schluessel);
   }
 
@@ -469,11 +504,9 @@ export class BuchhaltungFacade {
           ...(this._einnahmenZeilen()[monat] ?? []),
           ...(this._ausgabenZeilen()[monat] ?? []),
         ];
-        alleZeilen
-          .filter((z) => z.id)
-          .forEach((z) => {
-            this.service.eintragLoeschen(z.id!).subscribe();
-          });
+        alleZeilen.forEach((z) => {
+          if (z.id) this.service.eintragLoeschen(z.id).subscribe();
+        });
         this._einnahmenZeilen.update((z) => ({ ...z, [monat]: [] }));
         this._ausgabenZeilen.update((z) => ({ ...z, [monat]: [] }));
         this.speicherStatus.set({ dirty: false, speichernLaeuft: false });
@@ -502,7 +535,7 @@ export class BuchhaltungFacade {
     const vstMap: Record<string, boolean | string> = {};
     vstDaten.forEach((r) => {
       vstMap[r.quartal] = !!r.paid;
-      if (r.datum) vstMap[r.quartal + '_date'] = r.datum;
+      if (r.datum) vstMap[`${r.quartal  }_date`] = r.datum;
     });
     this._vstPaid.set(vstMap);
   }
@@ -514,7 +547,7 @@ export class BuchhaltungFacade {
         jahr: this.aktuellesJahr(),
         quartal: schluessel,
         paid: !!paid[schluessel],
-        datum: (paid[schluessel + '_date'] as string) ?? '',
+        datum: (paid[`${schluessel  }_date`] as string) ?? '',
       })
       .subscribe();
   }
@@ -547,62 +580,26 @@ export class BuchhaltungFacade {
   }
 
   private _monatsDatenBerechnen(monat: number): MonatsDaten {
-    const einnahmen = this._einnahmenZeilen()[monat] ?? [];
-    const ausgaben = this._ausgabenZeilen()[monat] ?? [];
+    return this._monatsDatenAusServerSummary(this._jahresZusammenfassung().months[monat]);
+  }
 
-    let einnahmenNetto = 0,
-      einnahmenUst = 0,
-      ausgabenNetto = 0,
-      vorsteuer = 0;
-
-    einnahmen.forEach((r) => {
-      const ust = steuerBerechnen(r.brutto, r.mwst);
-      einnahmenUst += ust;
-      einnahmenNetto += r.brutto - ust;
-    });
-
-    ausgaben.forEach((r) => {
-      const ust = steuerBerechnen(r.brutto, r.mwst);
-      const abzug = r.abzug ?? 100;
-      vorsteuer += ust * (abzug / 100);
-      ausgabenNetto += (r.brutto - ust) * (abzug / 100);
-    });
-
+  private _monatsDatenAusServerSummary(summary: AccountingMonthSummary | undefined): MonatsDaten {
     return {
-      einnahmenNetto,
-      einnahmenUst,
-      ausgabenNetto,
-      vorsteuer,
-      zahllast: einnahmenUst - vorsteuer,
-      gewinn: einnahmenNetto - ausgabenNetto,
+      einnahmenNetto: summary?.incomeNet ?? 0,
+      einnahmenUst: summary?.incomeVat ?? 0,
+      ausgabenNetto: summary?.expenseNet ?? 0,
+      vorsteuer: summary?.inputVat ?? 0,
+      zahllast: summary?.vatLiability ?? 0,
+      gewinn: summary?.profit ?? 0,
     };
   }
 
   private _elsterDatenBerechnen(monate: number[]) {
-    let kz81 = 0,
-      kz83 = 0,
-      kz86 = 0,
-      kz85 = 0,
-      kz66 = 0;
-    monate.forEach((m) => {
-      (this._einnahmenZeilen()[m] ?? []).forEach((r) => {
-        const t = steuerBerechnen(r.brutto, r.mwst);
-        const netto = r.brutto - t;
-        if (r.mwst === 19) {
-          kz81 += netto;
-          kz83 += t;
-        } else if (r.mwst === 7) {
-          kz86 += netto;
-          kz85 += t;
-        }
-      });
-      (this._ausgabenZeilen()[m] ?? []).forEach((r) => {
-        const t = steuerBerechnen(r.brutto, r.mwst);
-        const abzug = r.abzug ?? 100;
-        kz66 += t * (abzug / 100);
-      });
-    });
-    return { kz81, kz83, kz86, kz85, kz66 };
+    return (
+      this._jahresZusammenfassung().quarters.find((quarter) =>
+        quarter.months.every((month) => monate.includes(month)),
+      )?.elster ?? { kz81: 0, kz83: 0, kz86: 0, kz85: 0, kz66: 0 }
+    );
   }
 
   private _alsDirtyMarkieren(): void {

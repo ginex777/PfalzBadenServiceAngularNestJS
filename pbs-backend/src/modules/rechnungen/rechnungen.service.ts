@@ -5,12 +5,19 @@ import {
   ConflictException,
   ForbiddenException,
 } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';
-import { AuditService } from '../../modules/audit/audit.service';
-import { Prisma, Rechnungen } from '@prisma/client';
-import { CreateRechnungDto, UpdateRechnungDto } from './dto/rechnung.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import type { PrismaService } from '../../core/database/prisma.service';
+import type { AuditService } from '../../modules/audit/audit.service';
+import type { Rechnungen } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import type { CreateRechnungDto, UpdateRechnungDto } from './dto/rechnung.dto';
+import type { PaginationDto } from '../../common/dto/pagination.dto';
+import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import {
+  calculateBillingTotals,
+  calculateDueDate,
+  positionsFromJson,
+  positionsToJson,
+} from '../billing/billing-calculations';
 
 @Injectable()
 export class RechnungenService {
@@ -124,7 +131,7 @@ export class RechnungenService {
 
     const neu = await this.prisma.rechnungen.update({
       where: { id: BigInt(id) },
-      data: this.mapData(daten),
+      data: this.mapData(daten, alt),
     });
     await this.audit.log('rechnungen', BigInt(id), 'UPDATE', alt, neu, nutzer);
     return this.mapRechnung(neu);
@@ -144,14 +151,34 @@ export class RechnungenService {
     return { ok: true };
   }
 
-  private mapData(d: UpdateRechnungDto): Prisma.RechnungenUpdateInput {
+  private mapData(
+    d: UpdateRechnungDto,
+    existing: Rechnungen,
+  ): Prisma.RechnungenUpdateInput {
     const data: Prisma.RechnungenUpdateInput = {};
+    const paymentTermDays = d.zahlungsziel ?? existing.zahlungsziel ?? 14;
+    const invoiceDate =
+      d.datum !== undefined
+        ? d.datum
+          ? new Date(d.datum)
+          : null
+        : existing.datum;
+    const positions =
+      d.positionen !== undefined
+        ? d.positionen
+        : positionsFromJson(existing.positionen ?? Prisma.JsonNull);
+    const vatRate = d.mwst_satz ?? Number(existing.mwst_satz);
+    const shouldRecalculateTotal =
+      d.positionen !== undefined || d.mwst_satz !== undefined;
+    const shouldRecalculateDueDate =
+      d.datum !== undefined || d.zahlungsziel !== undefined;
+
     if (d.nr !== undefined) data.nr = d.nr;
     if (d.empf !== undefined) data.empf = d.empf;
     if (d.str !== undefined) data.str = d.str ?? null;
     if (d.ort !== undefined) data.ort = d.ort ?? null;
     if (d.titel !== undefined) data.titel = d.titel ?? null;
-    if (d.datum !== undefined) data.datum = d.datum ? new Date(d.datum) : null;
+    if (d.datum !== undefined) data.datum = invoiceDate;
     if (d.leistungsdatum !== undefined)
       data.leistungsdatum = d.leistungsdatum ?? null;
     if (d.email !== undefined) data.email = d.email ?? null;
@@ -161,38 +188,46 @@ export class RechnungenService {
         ? { connect: { id: BigInt(d.kunden_id) } }
         : { disconnect: true };
     }
-    if (d.brutto !== undefined) data.brutto = new Prisma.Decimal(d.brutto);
-    if (d.frist !== undefined) data.frist = d.frist ? new Date(d.frist) : null;
+    if (shouldRecalculateTotal)
+      data.brutto = new Prisma.Decimal(
+        calculateBillingTotals(positions, vatRate).brutto,
+      );
+    if (shouldRecalculateDueDate)
+      data.frist = calculateDueDate(invoiceDate, paymentTermDays);
     if (d.bezahlt !== undefined) data.bezahlt = d.bezahlt;
     if (d.bezahlt_am !== undefined)
       data.bezahlt_am = d.bezahlt_am ? new Date(d.bezahlt_am) : null;
     if (d.positionen !== undefined)
-      data.positionen = d.positionen as unknown as Prisma.InputJsonValue;
+      data.positionen = positionsToJson(positions);
     if (d.mwst_satz !== undefined)
       data.mwst_satz = new Prisma.Decimal(d.mwst_satz);
     return data;
   }
 
   private mapDataCreate(d: CreateRechnungDto): Prisma.RechnungenCreateInput {
+    const paymentTermDays = d.zahlungsziel ?? 14;
+    const invoiceDate = d.datum ? new Date(d.datum) : null;
+    const vatRate = d.mwst_satz ?? 19;
+    const totals = calculateBillingTotals(d.positionen, vatRate);
+
     return {
       nr: d.nr,
       empf: d.empf,
       str: d.str ?? null,
       ort: d.ort ?? null,
       titel: d.titel ?? null,
-      datum: d.datum ? new Date(d.datum) : null,
+      datum: invoiceDate,
       leistungsdatum: d.leistungsdatum ?? null,
       email: d.email ?? null,
-      zahlungsziel: d.zahlungsziel ?? 14,
+      zahlungsziel: paymentTermDays,
       kunden: d.kunden_id
         ? { connect: { id: BigInt(d.kunden_id) } }
         : undefined,
-      brutto: new Prisma.Decimal(d.brutto),
-      frist: d.frist ? new Date(d.frist) : null,
+      brutto: new Prisma.Decimal(totals.brutto),
+      frist: calculateDueDate(invoiceDate, paymentTermDays),
       bezahlt: d.bezahlt ?? false,
       bezahlt_am: d.bezahlt_am ? new Date(d.bezahlt_am) : null,
-      positionen:
-        (d.positionen as unknown as Prisma.InputJsonValue) ?? Prisma.JsonNull,
+      positionen: positionsToJson(d.positionen),
       mwst_satz: new Prisma.Decimal(d.mwst_satz ?? 19),
     };
   }

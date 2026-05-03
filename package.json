@@ -6,10 +6,24 @@
     "start:backend": "npm run start:dev --prefix pbs-backend",
     "build:frontend": "npm run build --prefix pbs-webapp",
     "build:backend": "npm run build --prefix pbs-backend",
+    "check:api-contract": "node tools/check-api-contract.cjs",
+    "check:mojibake": "node tools/check-mojibake.cjs",
+    "check:unsafe-casts": "node tools/check-unsafe-casts.cjs",
+    "smoke:e2e-mobile-web": "node tools/e2e-mobile-web-smoke.cjs",
     "lint:backend": "npm run lint --prefix pbs-backend",
     "lint:webapp": "npm run lint --prefix pbs-webapp",
     "lint:mobile": "npm run lint --prefix pbs-mobile",
+    "lint:check:backend": "npm run lint:check --prefix pbs-backend",
+    "lint:check:webapp": "npm run lint:check --prefix pbs-webapp",
+    "lint:check:mobile": "npm run lint:check --prefix pbs-mobile",
+    "lint:fix:backend": "npm run lint:fix --prefix pbs-backend",
+    "lint:fix:webapp": "npm run lint:fix --prefix pbs-webapp",
+    "lint:fix:mobile": "npm run lint:fix --prefix pbs-mobile",
     "format": "npm run format --prefix pbs-backend && npm run format --prefix pbs-webapp && npm run format --prefix pbs-mobile",
-    "lint": "npm run lint --prefix pbs-backend && npm run lint --prefix pbs-webapp && npm run lint --prefix pbs-mobile"
+    "lint": "npm run lint:check",
+    "lint:check": "npm run lint:check --prefix pbs-backend && npm run lint:check --prefix pbs-webapp && npm run lint:check --prefix pbs-mobile",
+    "lint:fix": "npm run lint:fix --prefix pbs-backend && npm run lint:fix --prefix pbs-webapp && npm run lint:fix --prefix pbs-mobile",
+    "test:coverage:webapp": "npm run test:coverage --prefix pbs-webapp -- --run",
+    "test:coverage:mobile": "npm run test:coverage --prefix pbs-mobile"
   }
 }

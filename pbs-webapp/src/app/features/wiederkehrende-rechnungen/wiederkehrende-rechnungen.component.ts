@@ -1,17 +1,19 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { WiederkehrendeRechnungenFacade } from './wiederkehrende-rechnungen.facade';
 import { WrFormularComponent } from './components/wr-formular/wr-formular.component';
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
-import { WrFormularDaten } from './wiederkehrende-rechnungen.models';
+import { DrawerComponent } from '../../shared/ui/drawer/drawer.component';
+import type { WrFormularDaten } from './wiederkehrende-rechnungen.models';
 import { datumFormatieren, waehrungFormatieren } from '../../core/utils/format.utils';
 
 @Component({
   selector: 'app-wiederkehrende-rechnungen',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WrFormularComponent, ConfirmModalComponent, PageTitleComponent, EmptyStateComponent],
+  imports: [WrFormularComponent, ConfirmModalComponent, PageTitleComponent, EmptyStateComponent, DrawerComponent],
   templateUrl: './wiederkehrende-rechnungen.component.html',
   styleUrl: './wiederkehrende-rechnungen.component.scss',
 })

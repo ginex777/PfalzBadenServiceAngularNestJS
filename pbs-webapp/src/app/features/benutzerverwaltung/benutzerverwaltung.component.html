@@ -1,17 +1,10 @@
 <div class="page-wrap">
-  <div class="page-header">
-    <h1 class="page-title">Benutzerverwaltung</h1>
-    <p class="page-sub">Benutzer anlegen, bearbeiten und löschen</p>
-  </div>
-
-  @if (erfolg()) {
-    <div class="banner banner--ok">{{ erfolg() }}</div>
-  }
+  <app-page-title title="Benutzerverwaltung" subtitle="Benutzer anlegen, bearbeiten und löschen" />
 
   <div class="card">
     <div class="liste-header">
       <h3 class="section-title">Alle Benutzer</h3>
-      <button class="btn btn-primary" (click)="neuerUserOeffnen()">Neuer Benutzer</button>
+      <button class="btn btn-sm btn-primary" type="button" (click)="neuerUserOeffnen()">Neuer Benutzer</button>
     </div>
     @if (laedt()) {
       <p class="hint">Lade…</p>
@@ -19,7 +12,7 @@
       <p class="hint">Keine Benutzer vorhanden.</p>
     } @else {
       <div class="tabelle-scroll">
-        <table class="data-table">
+        <table class="table">
           <thead>
             <tr>
               <th>Vorname</th>
@@ -40,11 +33,13 @@
                 <td>
                   <span class="rolle-badge rolle-{{ u.rolle }}">{{ u.rolle }}</span>
                 </td>
-                <td>{{ u.aktiv ? 'Aktiv' : 'Inaktiv' }}</td>
+                <td>
+                  <app-status-badge [status]="u.aktiv ? 'aktiv' : 'inaktiv'" />
+                </td>
                 <td>{{ u.created_at | date: 'dd.MM.yyyy' }}</td>
                 <td class="td-aktionen">
-                  <button class="btn-action" (click)="bearbeitenOeffnen(u)">Bearbeiten</button>
-                  <button class="btn-action btn-action--danger" (click)="loeschen(u)">Löschen</button>
+                  <button class="btn-action" type="button" (click)="bearbeitenOeffnen(u)">Bearbeiten</button>
+                  <button class="btn-action btn-action--danger" type="button" (click)="loeschen(u)">Löschen</button>
                 </td>
               </tr>
             }
@@ -55,41 +50,37 @@
   </div>
 </div>
 
-<!-- Neuer Benutzer Modal -->
+<!-- Neuer Benutzer Drawer -->
 @if (neuerUserSichtbar()) {
-  <div class="modal-overlay" (click)="neuerUserSchliessen()">
-    <div class="modal modal--lg" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3 class="modal-title">Neuer Benutzer</h3>
-        <button class="modal-close" (click)="neuerUserSchliessen()" title="Schließen">✕</button>
-      </div>
-      <div class="modal-body">
-        <app-benutzer-formular
-          [bearbeiteterUser]="null"
-          [laedt]="anlegenLaedt()"
-          (neuGespeichert)="anlegen($event)"
-          (abgebrochen)="neuerUserSchliessen()"
-        />
-      </div>
+  <app-drawer [isOpen]="neuerUserSichtbar()" ariaLabel="Neuer Benutzer" position="right" (closed)="neuerUserSchliessen()">
+    <div class="drawer-header">
+      <h3 class="drawer-title">Neuer Benutzer</h3>
+      <button class="app-modal__close" type="button" (click)="neuerUserSchliessen()" aria-label="Schließen">×</button>
     </div>
-  </div>
+    <div class="drawer-body">
+      <app-benutzer-formular
+        [editedUser]="null"
+        [isLoading]="anlegenLaedt()"
+        (created)="anlegen($event)"
+        (canceled)="neuerUserSchliessen()"
+      />
+    </div>
+  </app-drawer>
 }
 
-<!-- Bearbeiten Modal -->
+<!-- Bearbeiten Drawer -->
 @if (bearbeiteterUser()) {
-  <div class="modal-overlay" (click)="bearbeitenSchliessen()">
-    <div class="modal modal--lg" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3 class="modal-title">{{ bearbeiteterUser()!.email }} bearbeiten</h3>
-        <button class="modal-close" (click)="bearbeitenSchliessen()" title="Schließen">✕</button>
-      </div>
-      <div class="modal-body">
-        <app-benutzer-formular
-          [bearbeiteterUser]="bearbeiteterUser()"
-          (bearbeitenGespeichert)="bearbeitenSpeichern($event)"
-          (abgebrochen)="bearbeitenSchliessen()"
-        />
-      </div>
+  <app-drawer [isOpen]="!!bearbeiteterUser()" ariaLabel="Benutzer bearbeiten" position="right" (closed)="bearbeitenSchliessen()">
+    <div class="drawer-header">
+      <h3 class="drawer-title">{{ bearbeiteterUser()!.email }} bearbeiten</h3>
+      <button class="app-modal__close" type="button" (click)="bearbeitenSchliessen()" aria-label="Schließen">×</button>
     </div>
-  </div>
+    <div class="drawer-body">
+      <app-benutzer-formular
+        [editedUser]="bearbeiteterUser()"
+        (updated)="bearbeitenSpeichern($event)"
+        (canceled)="bearbeitenSchliessen()"
+      />
+    </div>
+  </app-drawer>
 }

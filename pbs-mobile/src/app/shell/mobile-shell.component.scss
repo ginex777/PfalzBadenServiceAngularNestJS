@@ -27,7 +27,7 @@
 }
 
 .mobile-tab-button.tab-selected {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 122, 0, 0.09) 100%);
+  background: var(--app-warm-surface);
   transform: translateY(-1px);
 }
 
@@ -36,7 +36,7 @@
   align-items: center;
   gap: 0.6rem;
   padding: 0.65rem 1rem;
-  background: linear-gradient(90deg, rgba(255, 122, 0, 0.12) 0%, rgba(255, 122, 0, 0.08) 100%);
+  background: var(--app-warm-surface);
   border-bottom: 1px solid rgba(255, 122, 0, 0.2);
   font-family: 'Courier New', monospace;
   font-size: 0.875rem;

@@ -9,7 +9,7 @@
       <div
         class="objekt-karte"
         [class.aktiv]="currentObject()?.id === obj.id"
-        (click)="select.emit(obj)"
+        (click)="objectSelected.emit(obj)"
       >
         <div class="objekt-name">{{ obj.name }}</div>
         @if (obj.strasse || obj.ort) {

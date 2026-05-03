@@ -12,21 +12,23 @@ import { forkJoin, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Kunde, Mitarbeiter, Objekt } from '../../core/models';
+import type { Kunde, Mitarbeiter, Objekt } from '../../core/models';
 import { EmployeesApiClient } from '../../core/api/clients';
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
 import { ErrorStateComponent } from '../../shared/ui/error-state/error-state.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
 import { RoleAllowedDirective } from '../../core/directives/role-allowed.directive';
-import { HasUnsavedChanges } from '../../core/guards/unsaved-changes.guard';
+import type { HasUnsavedChanges } from '../../core/guards/unsaved-changes.guard';
 import { ObjektFormularComponent } from './components/objekt-formular/objekt-formular.component';
-import { EMPTY_OBJECT_FORM, ObjectFormData } from './objekte.models';
+import type { ObjectFormData } from './objekte.models';
+import { EMPTY_OBJECT_FORM } from './objekte.models';
 import { ObjectsService } from './objekte.service';
-import {
+import type {
   AktivitaetItem,
   AktivitaetenFilterState,
-  DEFAULT_AKTIVITAETEN_FILTER,
-  DropdownOption,
+  DropdownOption} from './aktivitaeten.models';
+import {
+  DEFAULT_AKTIVITAETEN_FILTER
 } from './aktivitaeten.models';
 import { AktivitaetenfeedComponent } from './aktivitaeten-feed.component';
 import { AktivitaetenFilterComponent } from './aktivitaeten-filter.component';
@@ -104,7 +106,8 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
 
   hatUngespeicherteAenderungen(): boolean {
     const current = this.form();
-    return JSON.stringify(current) !== JSON.stringify(this.initialSnapshot);
+    const snap = this.initialSnapshot;
+    return (Object.keys(current) as Array<keyof ObjectFormData>).some((key) => current[key] !== snap[key]);
   }
 
   protected load(): void {
@@ -207,14 +210,16 @@ export class ObjektDetailComponent implements HasUnsavedChanges {
     };
 
     const existing = this.existingObject();
-    const request =
-      this.mode() === 'create'
-        ? this.service.createObject(basePayload)
-        : this.service.updateObject(existing!.id, {
-            ...basePayload,
-            vorlage_id: existing?.vorlage_id,
-            filter_typen: existing?.filter_typen ?? '',
-          });
+    let request = this.service.createObject(basePayload);
+
+    if (this.mode() !== 'create') {
+      if (!existing) return;
+      request = this.service.updateObject(existing.id, {
+        ...basePayload,
+        vorlage_id: existing.vorlage_id,
+        filter_typen: existing.filter_typen ?? '',
+      });
+    }
 
     this.isLoading.set(true);
     request.subscribe({
