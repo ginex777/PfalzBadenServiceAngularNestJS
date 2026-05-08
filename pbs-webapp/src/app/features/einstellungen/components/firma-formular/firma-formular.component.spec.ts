@@ -13,7 +13,7 @@ describe('FirmaFormularComponent', () => {
 
     fixture = TestBed.createComponent(FirmaFormularComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('firma', {
+    fixture.componentRef.setInput('company', {
       name: '',
       strasse: '',
       ort: '',

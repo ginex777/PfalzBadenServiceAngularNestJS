@@ -1,8 +1,8 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+﻿import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { Vertraege } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import type { PrismaService } from '../../core/database/prisma.service';
-import type { AuditService } from '../audit/audit.service';
+import { PrismaService } from '../../core/database/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import type { CreateVertragDto, UpdateVertragDto } from './dto/vertrag.dto';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';

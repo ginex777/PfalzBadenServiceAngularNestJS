@@ -1,10 +1,10 @@
-import {
+﻿import {
   BadRequestException,
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
-import type { PrismaService } from '../../core/database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 
 export type AccessPolicyAuth = {
   role: string;

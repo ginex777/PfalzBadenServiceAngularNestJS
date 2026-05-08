@@ -1,14 +1,14 @@
-import {
+﻿import {
   BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
-import type { PrismaService } from '../../core/database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import type { TasksService } from '../tasks/tasks.service';
-import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import { TasksService } from '../tasks/tasks.service';
+import { AccessPolicyService } from '../access-policy/access-policy.service';
 import type {
   ChecklistFieldDto,
   ChecklistFieldType,
@@ -216,7 +216,7 @@ export function validateAndNormalizeAnswers(params: {
       if (!options.includes(String(value))) {
         throw new BadRequestException({
           code: 'INVALID_OPTION',
-          message: `Ungültige Auswahl für: ${field.label}`,
+          message: `UngÃ¼ltige Auswahl fÃ¼r: ${field.label}`,
         });
       }
     }
@@ -521,7 +521,8 @@ export class ChecklistenService {
     if (!objectExists) {
       throw new BadRequestException({
         code: 'INVALID_OBJECT',
-        message: 'Objekt existiert nicht. Bitte ein gültiges Objekt auswählen.',
+        message:
+          'Objekt existiert nicht. Bitte ein gÃ¼ltiges Objekt auswÃ¤hlen.',
       });
     }
 
@@ -618,7 +619,7 @@ export class ChecklistenService {
     await this.prisma.benachrichtigungen.create({
       data: {
         typ: 'MOBILE_CHECKLIST',
-        titel: `Neue Checkliste: ${template.name} • ${objectExists.name}`,
+        titel: `Neue Checkliste: ${template.name} â€¢ ${objectExists.name}`,
         nachricht: note ? note : undefined,
         link: `/checklisten`,
         gelesen: false,
@@ -724,13 +725,13 @@ export class ChecklistenService {
     const defaults: CreateChecklistTemplateDto[] = [
       {
         name: 'Winterdienst',
-        description: 'Standard-Checkliste für Räumen/Streuen vor Ort.',
+        description: 'Standard-Checkliste fÃ¼r RÃ¤umen/Streuen vor Ort.',
         isActive: true,
         fields: [
           { fieldId: 'area', label: 'Bereich', type: 'text', required: true },
           {
             fieldId: 'cleared',
-            label: 'Geräumt',
+            label: 'GerÃ¤umt',
             type: 'boolean',
             required: true,
           },
@@ -750,18 +751,18 @@ export class ChecklistenService {
       },
       {
         name: 'Gartenarbeit',
-        description: 'Nachweis für regelmäßige Pflegearbeiten.',
+        description: 'Nachweis fÃ¼r regelmÃ¤ÃŸige Pflegearbeiten.',
         isActive: true,
         fields: [
           {
             fieldId: 'tasks',
-            label: 'Arbeiten durchgeführt',
+            label: 'Arbeiten durchgefÃ¼hrt',
             type: 'text',
             required: true,
           },
           {
             fieldId: 'wasteRemoved',
-            label: 'Grünschnitt entsorgt',
+            label: 'GrÃ¼nschnitt entsorgt',
             type: 'boolean',
             required: false,
           },
@@ -770,7 +771,7 @@ export class ChecklistenService {
       },
       {
         name: 'Aufzugskontrolle',
-        description: 'Kurzprotokoll für die Sicht-/Funktionskontrolle.',
+        description: 'Kurzprotokoll fÃ¼r die Sicht-/Funktionskontrolle.',
         isActive: true,
         fields: [
           {
@@ -781,7 +782,7 @@ export class ChecklistenService {
           },
           {
             fieldId: 'doorsOk',
-            label: 'Türen / Schließung ok',
+            label: 'TÃ¼ren / SchlieÃŸung ok',
             type: 'boolean',
             required: true,
           },
@@ -793,7 +794,7 @@ export class ChecklistenService {
           },
           {
             fieldId: 'issues',
-            label: 'Auffälligkeiten',
+            label: 'AuffÃ¤lligkeiten',
             type: 'text',
             required: false,
           },

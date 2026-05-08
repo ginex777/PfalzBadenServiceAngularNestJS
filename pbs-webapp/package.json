@@ -14,6 +14,8 @@
     "test": "node ../tools/run-webapp-tests.cjs",
     "test:watch": "vitest --watch",
     "test:coverage": "node ../tools/run-webapp-tests.cjs --coverage",
+    "test:coverage:logic": "node ../tools/run-webapp-tests.cjs --coverage && node ../tools/check-webapp-logic-coverage.cjs",
+    "test:coverage:quality": "node ../tools/run-webapp-tests.cjs --coverage && node ../tools/check-webapp-logic-coverage.cjs && node ../tools/check-webapp-ui-coverage.cjs",
     "test:ng": "ng test",
     "sentry:sourcemaps": "sentry-cli releases new \"$SENTRY_RELEASE\" && sentry-cli releases files \"$SENTRY_RELEASE\" upload-sourcemaps dist/pbs-webapp/browser --url-prefix \"~/\" --rewrite && sentry-cli releases finalize \"$SENTRY_RELEASE\""
   },

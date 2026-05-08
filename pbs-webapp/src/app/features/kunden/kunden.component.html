@@ -18,41 +18,26 @@
     </div>
 
     <app-kunden-tabelle
-      [kunden]="facade.seitenKunden()"
-      [umsaetze]="facade.umsaetze()"
-      [laedt]="facade.laedt()"
-      [suchbegriff]="facade.suchbegriff()"
-      (bearbeiten)="bearbeitungStarten($event)"
-      (loeschen)="loeschenBestaetigen($event)"
-      (rechnung)="zuRechnungNavigieren($event)"
-      (angebot)="zuAngebotNavigieren($event)"
-      (offenePosten)="offenePostenAnzeigen($event)"
-      (neuAnlegen)="facade.bearbeitungStarten(null)"
+      [customers]="facade.seitenKunden()"
+      [revenues]="facade.umsaetze()"
+      [loading]="facade.laedt()"
+      [searchTerm]="facade.suchbegriff()"
+      (editRequested)="bearbeitungStarten($event)"
+      (deleteRequested)="loeschenBestaetigen($event)"
+      (createInvoiceRequested)="zuRechnungNavigieren($event)"
+      (createQuoteRequested)="zuAngebotNavigieren($event)"
+      (openItemsRequested)="offenePostenAnzeigen($event)"
+      (createRequested)="facade.bearbeitungStarten(null)"
     />
 
     @if (facade.gesamtSeiten() > 1) {
-      <div class="pagination">
-        <button
-          class="btn btn-sm"
-          [disabled]="facade.aktuelleSeite() <= 1"
-          (click)="facade.seiteZurueck()"
-        >
-          ← Zurück
-        </button>
-        <span class="pagination-info"
-          >Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{
-            facade.seitenKunden().length
-          }}
-          von {{ facade.gefilterteKunden().length }} Kunden)</span
-        >
-        <button
-          class="btn btn-sm"
-          [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()"
-          (click)="facade.seiteVor()"
-        >
-          Weiter →
-        </button>
-      </div>
+      <app-paginierung
+        [page]="facade.aktuelleSeite()"
+        [pageSize]="facade.PAGE_SIZE"
+        [total]="facade.gefilterteKunden().length"
+        [showPageSize]="false"
+        (pageChange)="facade.seiteSetzen($event)"
+      />
     }
   </div>
 
@@ -72,16 +57,21 @@
   <!-- Offene Posten Modal -->
   @if (facade.offenePostenSichtbar() && facade.offenePosten()) {
     <app-offene-posten-modal
-      [daten]="facade.offenePosten()!"
-      (geschlossen)="facade.offenePostenSchliessen()"
-      (neueRechnung)="offenePostenRechnungNavigieren($event)"
-      (sammelMahnung)="facade.sammelMahnungOeffnen($event)"
+      [data]="facade.offenePosten()!"
+      (closed)="facade.offenePostenSchliessen()"
+      (newInvoice)="offenePostenRechnungNavigieren($event)"
+      (bulkReminder)="facade.sammelMahnungOeffnen($event)"
     />
   }
 
   <!-- Sammel-Mahnung Modal -->
   @if (facade.sammelMahnungSichtbar()) {
-    <app-modal [isOpen]="facade.sammelMahnungSichtbar()" title="Sammel-Mahnung" size="md" (closed)="facade.sammelMahnungSchliessen()">
+    <app-modal
+      [isOpen]="facade.sammelMahnungSichtbar()"
+      title="Sammel-Mahnung"
+      size="md"
+      (closed)="facade.sammelMahnungSchliessen()"
+    >
       <textarea
         class="form-input mahnung-textarea"
         rows="12"
@@ -112,28 +102,22 @@
 
   <!-- Kunde erstellen / bearbeiten Drawer -->
   @if (facade.formularSichtbar()) {
-    <app-drawer [isOpen]="facade.formularSichtbar()" ariaLabel="Kunde Formular" position="right" (closed)="bearbeitungAbbrechen()">
-      <div class="drawer-header">
-        <h3 class="drawer-title">
-          @if (facade.bearbeiteterKunde()) {
-            Kunde bearbeiten
-          } @else {
-            Neuer Kunde
-          }
-        </h3>
-        <button class="app-modal__close" type="button" (click)="bearbeitungAbbrechen()" aria-label="Schließen">×</button>
-      </div>
-      <div class="drawer-body">
-        <app-kunden-formular
-          *roleAllowed="['admin']"
-          [bearbeiteterKunde]="facade.bearbeiteterKunde()"
-          (gespeichert)="speichern($event)"
-          (abgebrochen)="bearbeitungAbbrechen()"
-          (geaendert)="facade.formGeaendert.set(true)"
-        />
-        <div class="modal-footer">
-          <button class="btn" (click)="bearbeitungAbbrechen()">Abbrechen</button>
-        </div>
+    <app-drawer
+      [isOpen]="facade.formularSichtbar()"
+      ariaLabel="Kunde Formular"
+      [title]="facade.bearbeiteterKunde() ? 'Kunde bearbeiten' : 'Neuer Kunde'"
+      position="right"
+      (closed)="bearbeitungAbbrechen()"
+    >
+      <app-kunden-formular
+        *roleAllowed="['admin']"
+        [editingCustomer]="facade.bearbeiteterKunde()"
+        (saved)="speichern($event)"
+        (cancelled)="bearbeitungAbbrechen()"
+        (changed)="facade.formGeaendert.set(true)"
+      />
+      <div class="modal-footer">
+        <button class="btn" (click)="bearbeitungAbbrechen()">Abbrechen</button>
       </div>
     </app-drawer>
   }

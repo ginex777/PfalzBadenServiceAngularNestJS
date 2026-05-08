@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import type { PrismaService } from '../../../core/database/prisma.service';
-import type { PdfRenderService } from '../pdf-render.service';
-import type { PdfTokenService } from '../pdf-token.service';
+﻿import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { PdfRenderService } from '../pdf-render.service';
+import { PdfTokenService } from '../pdf-token.service';
 
 @Injectable()
 export class RechnungPdfGenerator {
@@ -36,13 +36,13 @@ export class RechnungPdfGenerator {
 
     const datumStr = rechnung.datum
       ? this.render.formatDate(rechnung.datum.toISOString().slice(0, 10))
-      : '–';
+      : 'â€“';
     const zahlDatum = rechnung.datum
       ? this.render.addDays(
           rechnung.datum.toISOString().slice(0, 10),
           rechnung.zahlungsziel ?? 14,
         )
-      : '–';
+      : 'â€“';
 
     const kontext = {
       firma,

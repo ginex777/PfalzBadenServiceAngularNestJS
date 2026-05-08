@@ -1,4 +1,4 @@
-import {
+﻿import {
   Body,
   Controller,
   Get,
@@ -15,7 +15,7 @@ import type {
   TaskListQueryDto,
   UpdateTaskDto,
 } from './dto/tasks.dto';
-import type { TasksService } from './tasks.service';
+import { TasksService } from './tasks.service';
 
 @ApiTags('Aufgaben')
 @ApiSecurity('x-nutzer')

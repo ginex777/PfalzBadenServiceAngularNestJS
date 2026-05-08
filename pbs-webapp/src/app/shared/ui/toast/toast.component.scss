@@ -19,9 +19,9 @@
   font-size: 13px;
   font-weight: 500;
   box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border-glass);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-soft);
+  backdrop-filter: var(--surface-blur);
+  -webkit-backdrop-filter: var(--surface-blur);
   animation: toast-in 0.2s ease;
   pointer-events: all;
 

@@ -8,11 +8,12 @@
 
 .objekt-kontext__text {
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .objekt-kontext__label {
   font-size: 0.7rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   text-transform: uppercase;
   font-weight: 800;
   color: var(--app-text-muted);
@@ -43,7 +44,9 @@
 
 .objekt-kontext__btn {
   --color: var(--app-accent-strong);
+  flex: 0 0 auto;
   font-weight: 800;
+  min-height: var(--touch-target-min);
 }
 
 .objekt-kontext__locked-hint {

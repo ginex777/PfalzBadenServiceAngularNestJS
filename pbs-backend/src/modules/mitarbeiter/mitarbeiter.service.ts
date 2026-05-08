@@ -1,15 +1,15 @@
-import {
+﻿import {
   BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import type { TasksService } from '../tasks/tasks.service';
-import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import { TasksService } from '../tasks/tasks.service';
+import { AccessPolicyService } from '../access-policy/access-policy.service';
 import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
 import type {
   CreateMitarbeiterDto,
@@ -259,7 +259,7 @@ export class MitarbeiterService {
     return { ok: true };
   }
 
-  // ── Mobile Stempeluhr ─────────────────────────────────────────────────────
+  // â”€â”€ Mobile Stempeluhr â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   async stempelStart(
     mitarbeiterId: number,

@@ -8,30 +8,30 @@
     </div>
 
     <app-mitarbeiter-liste
-      [mitarbeiter]="facade.mitarbeiter()"
-      [laedt]="facade.laedt()"
-      (bearbeiten)="facade.formularOeffnen($event)"
-      (loeschen)="facade.loeschenBestaetigen($event)"
-      (stundenOeffnen)="facade.stundenOeffnen($event)"
-      (aktivToggle)="facade.aktivToggle($event.id, $event.aktiv)"
+      [employees]="facade.mitarbeiter()"
+      [loading]="facade.laedt()"
+      (edit)="facade.formularOeffnen($event)"
+      (delete)="facade.loeschenBestaetigen($event)"
+      (openHours)="facade.stundenOeffnen($event)"
+      (toggleActive)="facade.aktivToggle($event.id, $event.active)"
     />
   } @else {
     <app-stunden-erfassung
-      [mitarbeiter]="facade.aktiverMitarbeiter()!"
-      [stunden]="facade.stunden()"
-      [stundenLaedt]="facade.stundenLaedt()"
-      [stempelEintraege]="facade.stempelEintraege()"
-      [stempelLaedt]="facade.stempelLaedt()"
-      [formularDaten]="facade.stundenFormular()"
-      [lohnVorschau]="facade.lohnVorschau()"
+      [employee]="facade.aktiverMitarbeiter()!"
+      [hours]="facade.stunden()"
+      [hoursLoading]="facade.stundenLaedt()"
+      [timeClockEntries]="facade.stempelEintraege()"
+      [timeClockLoading]="facade.stempelLaedt()"
+      [formData]="facade.stundenFormular()"
+      [payrollPreview]="facade.lohnVorschau()"
       [statistik]="facade.statistik()"
-      (zurueck)="facade.stundenSchliessen()"
-      (eintragen)="facade.stundenEintragen()"
-      (bezahltToggle)="facade.bezahltToggle($event.id, $event.bezahlt)"
-      (loeschen)="facade.stundenLoeschenBestaetigen($event)"
-      (feldGeaendert)="stundenFeldGeaendert($event)"
-      (pdfGenerieren)="facade.abrechnungPdfGenerieren()"
-      (stempelZuStundenKonvertieren)="stempelZuStundenKonvertieren($event)"
+      (back)="facade.stundenSchliessen()"
+      (add)="facade.stundenEintragen()"
+      (togglePaid)="facade.bezahltToggle($event.id, $event.paid)"
+      (delete)="facade.stundenLoeschenBestaetigen($event)"
+      (fieldChanged)="stundenFeldGeaendert($event)"
+      (generatePdf)="facade.abrechnungPdfGenerieren()"
+      (convertTimeClockEntry)="stempelZuStundenKonvertieren($event)"
     />
   }
 
@@ -51,26 +51,20 @@
     />
   }
 
-  <!-- Mitarbeiter erstellen / bearbeiten Drawer -->
+  <!-- Mitarbeiter erstellen / edit Drawer -->
   @if (facade.formularSichtbar()) {
-    <app-drawer [isOpen]="facade.formularSichtbar()" ariaLabel="Mitarbeiter Formular" position="right" (closed)="facade.formularSchliessen()">
-      <div class="drawer-header">
-        <h3 class="drawer-title">
-          @if (facade.bearbeiteterMitarbeiter()) {
-            Mitarbeiter bearbeiten
-          } @else {
-            Neuer Mitarbeiter
-          }
-        </h3>
-        <button class="app-modal__close" type="button" (click)="facade.formularSchliessen()" aria-label="Schließen">×</button>
-      </div>
-      <div class="drawer-body">
-        <app-mitarbeiter-formular
-          [bearbeiteterMitarbeiter]="facade.bearbeiteterMitarbeiter()"
-          (gespeichert)="speichern($event)"
-          (abgebrochen)="facade.formularSchliessen()"
-        />
-      </div>
+    <app-drawer
+      [isOpen]="facade.formularSichtbar()"
+      ariaLabel="Mitarbeiter Formular"
+      [title]="facade.bearbeiteterMitarbeiter() ? 'Mitarbeiter bearbeiten' : 'Neuer Mitarbeiter'"
+      position="right"
+      (closed)="facade.formularSchliessen()"
+    >
+      <app-mitarbeiter-formular
+        [editedEmployee]="facade.bearbeiteterMitarbeiter()"
+        (saved)="speichern($event)"
+        (cancelled)="facade.formularSchliessen()"
+      />
     </app-drawer>
   }
 </div>

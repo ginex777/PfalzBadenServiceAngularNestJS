@@ -1,6 +1,6 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+﻿import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { Prisma, Objekte, TaskType } from '@prisma/client';
-import type { PrismaService } from '../../core/database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import type {
@@ -8,7 +8,7 @@ import type {
   CreateObjektDto,
   UpdateObjektDto,
 } from './dto/objekte.dto';
-import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import { AccessPolicyService } from '../access-policy/access-policy.service';
 import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
 
 type ObjektResponse = {

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -8,7 +8,7 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import type { MahnungenService } from './mahnungen.service';
+import { MahnungenService } from './mahnungen.service';
 import type { CreateMahnungDto } from './dto/mahnung.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AllowReadonlyWrite } from '../auth/decorators/allow-readonly-write.decorator';
@@ -26,7 +26,7 @@ export class MahnungenController {
   }
 
   @Get(':rechnungId')
-  @ApiOperation({ summary: 'Mahnungen für eine Rechnung laden' })
+  @ApiOperation({ summary: 'Mahnungen fÃ¼r eine Rechnung laden' })
   findByInvoice(@Param('rechnungId', ParseIntPipe) id: number) {
     return this.service.findByInvoice(id);
   }
@@ -38,7 +38,7 @@ export class MahnungenController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Mahnung löschen' })
+  @ApiOperation({ summary: 'Mahnung lÃ¶schen' })
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.service.delete(id);
   }

@@ -13,7 +13,7 @@ describe('MitarbeiterListeComponent', () => {
 
     fixture = TestBed.createComponent(MitarbeiterListeComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('mitarbeiter', []);
+    fixture.componentRef.setInput('employees', []);
     fixture.detectChanges();
   });
 

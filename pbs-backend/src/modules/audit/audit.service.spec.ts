@@ -1,97 +1,50 @@
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
 import { AuditService } from './audit.service';
-import { PrismaService } from '../../core/database/prisma.service';
 
-const mockPrisma = {
-  auditLog: {
-    create: jest.fn(),
-  },
-};
+describe('AuditService queries', () => {
+  const prisma = {
+    auditLog: {
+      findMany: jest.fn(),
+      count: jest.fn(),
+      create: jest.fn(),
+    },
+    $transaction: jest.fn(),
+  };
 
-describe('AuditService', () => {
   let service: AuditService;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AuditService,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
-    }).compile();
-
-    service = module.get<AuditService>(AuditService);
+  beforeEach(() => {
     jest.clearAllMocks();
+    service = new AuditService(prisma as never);
   });
 
-  it('sollte erstellt werden', () => {
-    expect(service).toBeDefined();
+  it('lists distinct tables', async () => {
+    prisma.auditLog.findMany.mockResolvedValue([{ tabelle: 'rechnung' }]);
+
+    await expect(service.listTables()).resolves.toEqual(['rechnung']);
+    expect(prisma.auditLog.findMany).toHaveBeenCalledWith({
+      distinct: ['tabelle'],
+      select: { tabelle: true },
+      orderBy: { tabelle: 'asc' },
+      take: 1000,
+    });
   });
 
-  describe('log()', () => {
-    it('speichert CREATE-Eintrag mit korrekten Feldern', async () => {
-      mockPrisma.auditLog.create.mockResolvedValue({});
-      const neuWert = { id: 1, name: 'Test' };
+  it('returns paginated audit rows with numeric ids', async () => {
+    prisma.$transaction.mockResolvedValue([
+      [{ id: BigInt(1), datensatz_id: BigInt(2), tabelle: 'rechnung' }],
+      1,
+    ]);
 
-      await service.log('kunden', 1, 'CREATE', null, neuWert, 'Dennis');
-
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: {
-          tabelle: 'kunden',
-          datensatz_id: 1n,
-          aktion: 'CREATE',
-          alt_wert: undefined,
-          neu_wert: neuWert,
-          nutzer: 'Dennis',
-          nutzer_name: null,
-        },
-      });
+    await expect(
+      service.findAll({ page: 2, pageSize: 10, q: 'rechnung' }),
+    ).resolves.toEqual({
+      data: [{ id: 1, datensatz_id: 2, tabelle: 'rechnung' }],
+      total: 1,
+      page: 2,
+      pageSize: 10,
     });
-
-    it('speichert UPDATE-Eintrag mit alt_wert und neu_wert', async () => {
-      mockPrisma.auditLog.create.mockResolvedValue({});
-      const alt = { id: 5, name: 'Alt' };
-      const neu = { id: 5, name: 'Neu' };
-
-      await service.log('rechnungen', BigInt(5), 'UPDATE', alt, neu, 'Tester');
-
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: {
-          tabelle: 'rechnungen',
-          datensatz_id: 5n,
-          aktion: 'UPDATE',
-          alt_wert: alt,
-          neu_wert: neu,
-          nutzer: 'Tester',
-          nutzer_name: null,
-        },
-      });
-    });
-
-    it('speichert DELETE-Eintrag ohne neu_wert', async () => {
-      mockPrisma.auditLog.create.mockResolvedValue({});
-      const alt = { id: 2, name: 'Gelöscht' };
-
-      await service.log('angebote', 2, 'DELETE', alt, null, undefined);
-
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          aktion: 'DELETE',
-          alt_wert: alt,
-          neu_wert: undefined,
-          nutzer: null,
-        }),
-      });
-    });
-
-    it('setzt nutzer auf null wenn nicht angegeben', async () => {
-      mockPrisma.auditLog.create.mockResolvedValue({});
-
-      await service.log('kunden', 1, 'CREATE', null, {});
-
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({ nutzer: null }),
-      });
-    });
+    expect(prisma.auditLog.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 }),
+    );
   });
 });

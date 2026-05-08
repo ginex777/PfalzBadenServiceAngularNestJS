@@ -1,7 +1,7 @@
-import type { ExceptionFilter, ArgumentsHost } from '@nestjs/common';
+﻿import type { ExceptionFilter, ArgumentsHost } from '@nestjs/common';
 import { Catch, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import type { PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import { Sentry, isSentryEnabled } from './sentry.util';
 
 type RequestWithId = Request & { id?: string };

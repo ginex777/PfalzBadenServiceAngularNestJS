@@ -14,8 +14,8 @@ export class MonatsTabsComponent {
   readonly gesperrteMonateSet = input.required<Set<number>>();
   readonly monatHatDaten = input.required<(monat: number) => boolean>();
 
-  readonly monatGewaehlt = output<number>();
-  readonly jahresansichtGewaehlt = output<void>();
+  readonly monthSelected = output<number>();
+  readonly yearViewSelected = output<void>();
 
   protected readonly monate = MONATE;
 
@@ -40,10 +40,10 @@ export class MonatsTabsComponent {
   }
 
   protected monatWaehlen(monat: number): void {
-    this.monatGewaehlt.emit(monat);
+    this.monthSelected.emit(monat);
   }
 
   protected jahresansichtWaehlen(): void {
-    this.jahresansichtGewaehlt.emit();
+    this.yearViewSelected.emit();
   }
 }

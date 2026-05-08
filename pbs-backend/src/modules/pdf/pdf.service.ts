@@ -1,15 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
-import type { PdfTokenService } from './pdf-token.service';
-import type { PdfRenderService } from './pdf-render.service';
-import type { RechnungPdfGenerator } from './generators/rechnung-pdf.generator';
-import type { AngebotPdfGenerator } from './generators/angebot-pdf.generator';
-import type { MahnungPdfGenerator } from './generators/mahnung-pdf.generator';
-import type { EuerPdfGenerator } from './generators/euer-pdf.generator';
-import type { HausmeisterPdfGenerator } from './generators/hausmeister-pdf.generator';
-import type { MitarbeiterPdfGenerator } from './generators/mitarbeiter-pdf.generator';
-import type { VertragPdfGenerator } from './generators/vertrag-pdf.generator';
-import type { ChecklistePdfGenerator } from './generators/checkliste-pdf.generator';
+﻿import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../core/database/prisma.service';
+import { PdfTokenService } from './pdf-token.service';
+import { PdfRenderService } from './pdf-render.service';
+import { RechnungPdfGenerator } from './generators/rechnung-pdf.generator';
+import { AngebotPdfGenerator } from './generators/angebot-pdf.generator';
+import { MahnungPdfGenerator } from './generators/mahnung-pdf.generator';
+import { EuerPdfGenerator } from './generators/euer-pdf.generator';
+import { HausmeisterPdfGenerator } from './generators/hausmeister-pdf.generator';
+import { MitarbeiterPdfGenerator } from './generators/mitarbeiter-pdf.generator';
+import { VertragPdfGenerator } from './generators/vertrag-pdf.generator';
+import { ChecklistePdfGenerator } from './generators/checkliste-pdf.generator';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
@@ -29,7 +29,7 @@ export class PdfService {
     private readonly checklisteGen: ChecklistePdfGenerator,
   ) {}
 
-  // ── PDF Generators ──────────────────────────────────────────────────────────
+  // â”€â”€ PDF Generators â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   createRechnungPdf(id: number) {
     return this.rechnungGen.create(id);
   }
@@ -72,12 +72,12 @@ export class PdfService {
     return this.checklisteGen.createSubmissionPdf(submissionId, auth);
   }
 
-  // ── Token ───────────────────────────────────────────────────────────────────
+  // â”€â”€ Token â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   getToken(token: string) {
     return this.tokenService.getToken(token);
   }
 
-  // ── Archiv ──────────────────────────────────────────────────────────────────
+  // â”€â”€ Archiv â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async getArchive(
     pagination: PaginationDto,
     filter?: { q?: string; typ?: string },
@@ -165,7 +165,7 @@ export class PdfService {
     });
     if (!row?.html_body)
       throw new NotFoundException(
-        'Kein HTML gespeichert — Regenerierung nicht möglich',
+        'Kein HTML gespeichert â€” Regenerierung nicht mÃ¶glich',
       );
     const firma = await this.renderService.loadFirma();
     return this.renderService.createPdfWithHeaderFooter(row.html_body, firma);

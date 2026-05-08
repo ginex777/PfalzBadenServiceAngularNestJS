@@ -9,6 +9,7 @@ import { SearchToolbarComponent } from '../../shared/ui/search-toolbar/search-to
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
 import { ModalComponent } from '../../shared/ui/modal/modal.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
+import { PaginierungComponent } from '../../shared/ui/paginierung/paginierung.component';
 import type { Angebot, RechnungPosition } from '../../core/models';
 import type { AngebotFilter, AngebotFormularDaten } from './angebote.models';
 import { BrowserService } from '../../core/services/browser.service';
@@ -24,6 +25,7 @@ import { BrowserService } from '../../core/services/browser.service';
     ConfirmModalComponent,
     ModalComponent,
     PageTitleComponent,
+    PaginierungComponent,
   ],
   templateUrl: './angebote.component.html',
   styleUrl: './angebote.component.scss',

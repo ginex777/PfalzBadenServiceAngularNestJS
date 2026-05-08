@@ -1,4 +1,4 @@
-Ôªøimport { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { MuellplanService } from './muellplan.service';
 import { BrowserService } from '../../core/services/browser.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -136,7 +136,7 @@ export class MuellplanFacade {
     const daten = this.terminFormularDaten();
     const objekt = this.aktuellesObjekt();
     if (!objekt || !daten.muellart || !daten.abholung) {
-      this.toast.error('M√ºllart und Datum sind Pflichtfelder.');
+      this.toast.error('M¸llart und Datum sind Pflichtfelder.');
       return;
     }
     const editId = this.bearbeiteterTermin()?.id;
@@ -158,7 +158,7 @@ export class MuellplanFacade {
   terminLoeschen(id: number): void {
     this.service.terminLoeschen(id).subscribe({
       next: () => this.termine.update((list) => list.filter((t) => t.id !== id)),
-      error: () => this.toast.error('Termin konnte nicht gel√∂scht werden.'),
+      error: () => this.toast.error('Termin konnte nicht gelˆscht werden.'),
     });
   }
 
@@ -231,13 +231,13 @@ export class MuellplanFacade {
   vorlageLoeschen(id: number): void {
     this.service.vorlageLoeschen(id).subscribe({
       next: () => this.vorlagen.update((list) => list.filter((v) => v.id !== id)),
-      error: () => this.toast.error('Vorlage konnte nicht gel√∂scht werden.'),
+      error: () => this.toast.error('Vorlage konnte nicht gelˆscht werden.'),
     });
   }
 
   vorlageAnwendenOeffnen(): void {
     if (!this.aktuellesObjekt()) {
-      this.toast.error('Bitte zuerst ein Objekt ausw√§hlen.');
+      this.toast.error('Bitte zuerst ein Objekt ausw‰hlen.');
       return;
     }
     this.vorlageAnwendenId.set(this.aktuellesObjekt()?.vorlage_id ?? null);
@@ -252,7 +252,7 @@ export class MuellplanFacade {
     const vorlageId = this.vorlageAnwendenId();
     const objekt = this.aktuellesObjekt();
     if (!objekt || !vorlageId) {
-      this.toast.error('Bitte eine Vorlage ausw√§hlen.');
+      this.toast.error('Bitte eine Vorlage ausw‰hlen.');
       return;
     }
     const vorlage = this.vorlagen().find((v) => v.id === vorlageId);
@@ -319,7 +319,7 @@ export class MuellplanFacade {
   // --- Copy terms ---
   kopierenModalOeffnen(): void {
     if (!this.aktuellesObjekt()) {
-      this.toast.error('Bitte zuerst ein Objekt ausw√§hlen.');
+      this.toast.error('Bitte zuerst ein Objekt ausw‰hlen.');
       return;
     }
     this.kopierenVonObjektId.set(null);
@@ -335,7 +335,7 @@ export class MuellplanFacade {
     const vonId = this.kopierenVonObjektId();
     const zielObjekt = this.aktuellesObjekt();
     if (!vonId || !zielObjekt) {
-      this.toast.error('Bitte ein Quell-Objekt ausw√§hlen.');
+      this.toast.error('Bitte ein Quell-Objekt ausw‰hlen.');
       return;
     }
     this.service.termineKopieren(vonId, zielObjekt.id).subscribe({
@@ -353,7 +353,7 @@ export class MuellplanFacade {
   monatsabschlussPdfGenerieren(): void {
     const objekt = this.aktuellesObjekt();
     if (!objekt) {
-      this.toast.error('Bitte zuerst ein Objekt ausw√§hlen.');
+      this.toast.error('Bitte zuerst ein Objekt ausw‰hlen.');
       return;
     }
     this.service

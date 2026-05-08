@@ -1,11 +1,11 @@
-import {
+﻿import {
   Injectable,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import type { PrismaService } from '../../../core/database/prisma.service';
-import type { PdfRenderService } from '../pdf-render.service';
-import type { PdfTokenService } from '../pdf-token.service';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { PdfRenderService } from '../pdf-render.service';
+import { PdfTokenService } from '../pdf-token.service';
 
 type AuthContext = { role: string; employeeId: number | null };
 
@@ -22,12 +22,12 @@ function asArray<T>(value: unknown): T[] {
 }
 
 function formatValue(value: unknown): string {
-  if (value === null || value === undefined) return '—';
+  if (value === null || value === undefined) return 'â€”';
   if (typeof value === 'boolean') return value ? 'Ja' : 'Nein';
   if (typeof value === 'number')
-    return Number.isFinite(value) ? String(value) : '—';
-  if (typeof value === 'string') return value.trim() || '—';
-  return '—';
+    return Number.isFinite(value) ? String(value) : 'â€”';
+  if (typeof value === 'string') return value.trim() || 'â€”';
+  return 'â€”';
 }
 
 @Injectable()

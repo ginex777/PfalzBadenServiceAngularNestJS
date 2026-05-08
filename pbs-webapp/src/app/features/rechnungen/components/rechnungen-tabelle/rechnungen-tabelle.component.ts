@@ -32,19 +32,19 @@ import { OverflowMenuComponent } from '../../../../shared/ui/overflow-menu/overf
   styleUrl: './rechnungen-tabelle.component.scss',
 })
 export class RechnungenTabelleComponent {
-  readonly rechnungen = input.required<Rechnung[]>();
-  readonly laedt = input<boolean>(false);
-  readonly aktiverFilter = input<RechnungFilter>('alle');
+  readonly invoices = input.required<Rechnung[]>();
+  readonly loading = input<boolean>(false);
+  readonly activeFilter = input<RechnungFilter>('alle');
 
-  readonly bearbeiten = output<Rechnung>();
-  readonly loeschen = output<number>();
-  readonly alsGezahlt = output<Rechnung>();
-  readonly pdfGenerieren = output<Rechnung>();
-  readonly filterAendern = output<RechnungFilter>();
-  readonly kopieren = output<Rechnung>();
-  readonly mahnung = output<Rechnung>();
-  readonly bulkLoeschen = output<number[]>();
-  readonly bulkAlsGezahlt = output<Rechnung[]>();
+  readonly editRequested = output<Rechnung>();
+  readonly deleteRequested = output<number>();
+  readonly markPaid = output<Rechnung>();
+  readonly generatePdf = output<Rechnung>();
+  readonly filterChange = output<RechnungFilter>();
+  readonly copyRequested = output<Rechnung>();
+  readonly reminder = output<Rechnung>();
+  readonly bulkDelete = output<number[]>();
+  readonly bulkMarkPaid = output<Rechnung[]>();
 
   private readonly toast = inject(ToastService);
   private readonly browser = inject(BrowserService);
@@ -70,7 +70,7 @@ export class RechnungenTabelleComponent {
     const asc = this.sortAufsteigend();
     const mf = this.monatFilter();
 
-    let liste = [...this.rechnungen()];
+    let liste = [...this.invoices()];
     if (mf !== '') {
       const m = parseInt(mf);
       liste = liste.filter((r) => r.datum && new Date(r.datum).getMonth() === m);
@@ -94,7 +94,7 @@ export class RechnungenTabelleComponent {
 
   protected onFilterSelectChange(event: Event): void {
     const val = (event.target as HTMLSelectElement).value as RechnungFilter;
-    this.filterAendern.emit(val);
+    this.filterChange.emit(val);
   }
 
   protected monatGeaendert(event: Event): void {
@@ -103,7 +103,7 @@ export class RechnungenTabelleComponent {
 
   protected suchbegriffLeeren(): void {
     this.monatFilter.set('');
-    this.filterAendern.emit('alle');
+    this.filterChange.emit('alle');
   }
 
   protected auswahlToggle(id: number): void {
@@ -133,7 +133,7 @@ export class RechnungenTabelleComponent {
   protected loeschenBestaetigt(): void {
     const id = this.pendingDeleteId();
     if (id !== null) {
-      this.loeschen.emit(id);
+      this.deleteRequested.emit(id);
     }
     this.pendingDeleteId.set(null);
   }
@@ -145,7 +145,7 @@ export class RechnungenTabelleComponent {
   }
 
   protected bulkLoeschenBestaetigt(): void {
-    this.bulkLoeschen.emit(this.pendingBulkDelete());
+    this.bulkDelete.emit(this.pendingBulkDelete());
     this.pendingBulkDelete.set([]);
     this.ausgewaehlt.set(new Set());
   }
@@ -158,7 +158,7 @@ export class RechnungenTabelleComponent {
       this.toast.info('Alle gewählten Rechnungen sind bereits bezahlt.');
       return;
     }
-    this.bulkAlsGezahlt.emit(rechnungen);
+    this.bulkMarkPaid.emit(rechnungen);
     this.ausgewaehlt.set(new Set());
   }
 

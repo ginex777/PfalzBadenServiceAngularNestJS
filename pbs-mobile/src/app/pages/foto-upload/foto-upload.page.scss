@@ -48,7 +48,7 @@ ion-content {
 }
 
 .photo-action {
-  --border-radius: 0.9rem;
+  --border-radius: var(--app-radius-lg);
   height: 3rem;
   font-weight: 700;
   margin: 0;
@@ -71,7 +71,7 @@ ion-content {
   width: 100%;
   max-height: 52vh;
   object-fit: contain;
-  border-radius: 0.85rem;
+  border-radius: var(--app-radius-lg);
   background: var(--app-surface-2, #0f172a);
 }
 
@@ -90,7 +90,7 @@ ion-content {
 
 .preview-actions-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
   gap: 0.6rem;
 }
 

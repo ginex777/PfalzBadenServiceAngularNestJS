@@ -47,6 +47,13 @@ function findMuellType(text: string): { name: string; farbe: string } | null {
   return null;
 }
 
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function parseVorlageText(text: string, jahr: number): ParsedTermin[] {
   const results: ParsedTermin[] = [];
   const lines = text
@@ -58,7 +65,11 @@ export function parseVorlageText(text: string, jahr: number): ParsedTermin[] {
   // e.g. "Januar: Biotonne 8.22, Restmüll 8.22"
   const isFormatA = lines.some((l) => {
     const ll = l.toLowerCase();
-    return Object.keys(MONTH_ABBR).some((m) => ll.startsWith(m) && ll.includes(':'));
+    const colonIdx = ll.indexOf(':');
+    if (colonIdx < 0) return false;
+    const monthPrefix = ll.slice(0, colonIdx);
+    const rest = ll.slice(colonIdx + 1);
+    return Object.keys(MONTH_ABBR).some((m) => monthPrefix.startsWith(m)) && findMuellType(rest) !== null;
   });
 
   if (isFormatA) {
@@ -86,7 +97,7 @@ export function parseVorlageText(text: string, jahr: number): ParsedTermin[] {
           const dt = new Date(jahr, mo - 1, day);
           if (!isNaN(dt.getTime()) && dt.getMonth() === mo - 1) {
             results.push({
-              datum: dt.toISOString().slice(0, 10),
+              datum: formatLocalDate(dt),
               muellart: type.name,
               farbe: type.farbe,
             });
@@ -114,7 +125,7 @@ export function parseVorlageText(text: string, jahr: number): ParsedTermin[] {
             const dt = new Date(jahr, mo - 1, day);
             if (!isNaN(dt.getTime()) && dt.getMonth() === mo - 1) {
               results.push({
-                datum: dt.toISOString().slice(0, 10),
+                datum: formatLocalDate(dt),
                 muellart: currentType.name,
                 farbe: currentType.farbe,
               });

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Post,
   Get,
@@ -17,7 +17,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { Request, Response, CookieOptions } from 'express';
-import type { AuthService } from './auth.service';
+import { AuthService } from './auth.service';
 import type { LoginDto } from './dto/login.dto';
 import type { SetupDto } from './dto/setup.dto';
 import type { CreateUserDto, UpdateUserDto } from './dto/users.dto';
@@ -44,7 +44,7 @@ export class AuthController {
     };
   }
 
-  /** First-run setup — only works when 0 users exist */
+  /** First-run setup â€” only works when 0 users exist */
   @Public()
   @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @Post('setup')

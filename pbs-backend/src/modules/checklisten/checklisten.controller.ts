@@ -1,4 +1,4 @@
-import {
+﻿import {
   Body,
   Controller,
   Get,
@@ -20,7 +20,7 @@ import type {
   CreateChecklistTemplateDto,
   UpdateChecklistTemplateDto,
 } from './dto/checklisten.dto';
-import type { ChecklistenService } from './checklisten.service';
+import { ChecklistenService } from './checklisten.service';
 import type { AuthRequest } from '../auth/auth-request.type';
 
 @Controller('api/checklisten')

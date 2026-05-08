@@ -81,6 +81,7 @@
       border-color: var(--app-color-border);
     }
   }
+
 }
 
 .sidebar__group-link {
@@ -121,7 +122,7 @@
   text-align: left;
   font-size: var(--app-text-xs);
   font-weight: 850;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--app-color-muted);
 }
@@ -162,6 +163,7 @@
       border-color: var(--app-color-border);
     }
   }
+
 }
 
 .sidebar__link--aktiv {
@@ -226,6 +228,7 @@
       border-color: var(--app-color-border-strong);
     }
   }
+
 }
 
 .sidebar__logout-btn {
@@ -250,5 +253,18 @@
       color: var(--app-color-danger, #e53e3e);
       background: color-mix(in srgb, var(--app-color-danger, #e53e3e) 8%, transparent);
     }
+  }
+
+}
+
+.sidebar__group-btn,
+.sidebar__group-link,
+.sidebar__link,
+.sidebar__theme-btn,
+.sidebar__logout-btn {
+  &:focus-visible {
+    outline: none;
+    border-color: var(--app-color-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-color-primary) 22%, transparent);
   }
 }

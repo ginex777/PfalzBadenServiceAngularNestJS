@@ -13,7 +13,7 @@ describe('TerminListeComponent', () => {
 
     fixture = TestBed.createComponent(TerminListeComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('termine', []);
+    fixture.componentRef.setInput('terms', []);
     fixture.detectChanges();
   });
 

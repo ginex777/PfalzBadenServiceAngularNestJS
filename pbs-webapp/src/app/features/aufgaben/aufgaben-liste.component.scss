@@ -1,7 +1,7 @@
 .table-wrap {
   overflow: auto;
   border: 1px solid var(--border-strong);
-  border-radius: 14px;
+  border-radius: var(--radius);
 }
 
 .aufgaben-table {

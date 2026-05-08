@@ -10,14 +10,14 @@ import type { FirmaSettings } from '../../../../core/models';
   styleUrl: './firma-formular.component.scss',
 })
 export class FirmaFormularComponent {
-  readonly firma = input.required<FirmaSettings>();
-  readonly speichert = input<boolean>(false);
-  readonly erfolg = input<string | null>(null);
-  readonly fehler = input<string | null>(null);
-  readonly speichern = output<void>();
-  readonly feldAktualisieren = output<{ feld: keyof FirmaSettings; wert: string }>();
+  readonly company = input.required<FirmaSettings>();
+  readonly saving = input<boolean>(false);
+  readonly success = input<string | null>(null);
+  readonly error = input<string | null>(null);
+  readonly save = output<void>();
+  readonly updateField = output<{ field: keyof FirmaSettings; value: string }>();
 
   protected feldGeaendert(feld: keyof FirmaSettings, event: Event): void {
-    this.feldAktualisieren.emit({ feld, wert: (event.target as HTMLInputElement).value });
+    this.updateField.emit({ field: feld, value: (event.target as HTMLInputElement).value });
   }
 }

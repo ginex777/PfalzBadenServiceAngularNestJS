@@ -1,14 +1,14 @@
 <div class="stunden-header">
-  <button class="btn btn-sm btn-secondary" (click)="zurueck.emit()">Zurück</button>
-  <h3 class="stunden-titel">Stunden: {{ mitarbeiter().name }}</h3>
-  <span class="stunden-lohn">{{ waehrungFormatieren(mitarbeiter().stundenlohn) }}/h</span>
-  <button class="btn btn-sm" (click)="pdfGenerieren.emit()" title="Stundenabrechnung als PDF">
+  <button class="btn btn-sm btn-secondary" (click)="back.emit()">Zurück</button>
+  <h3 class="stunden-titel">Stunden: {{ employee().name }}</h3>
+  <span class="stunden-lohn">{{ waehrungFormatieren(employee().stundenlohn) }}/h</span>
+  <button class="btn btn-sm" (click)="generatePdf.emit()" title="Stundenabrechnung als PDF">
     PDF Abrechnung
   </button>
   <a
     class="btn btn-sm"
     [routerLink]="['/pdf-archiv']"
-    [queryParams]="{ typ: 'hausmeister', empf: mitarbeiter().name }"
+    [queryParams]="{ typ: 'hausmeister', empf: employee().name }"
     title="Hausmeister PDFs für diesen Mitarbeiter"
     >Hausmeister PDFs</a
   >
@@ -46,16 +46,16 @@
   <div class="form-row">
     <div class="form-field">
       <label for="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-0" class="form-label">Datum *</label>
-      <input id="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-0" class="form-input" type="date" [formField]="stundenForm.datum" />
-      @if (stundenForm.datum().touched() && stundenForm.datum().invalid()) {
-        <span class="form-fehler">{{ stundenForm.datum().errors()[0]?.message }}</span>
+      <input id="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-0" class="form-input" type="date" [formField]="hoursForm.datum" />
+      @if (hoursForm.datum().touched() && hoursForm.datum().invalid()) {
+        <span class="form-fehler">{{ hoursForm.datum().errors()[0]?.message }}</span>
       }
     </div>
     <div class="form-field">
       <label for="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-1" class="form-label">Stunden *</label>
-      <input id="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-1" class="form-input" type="number" step="0.5" [formField]="stundenForm.stunden" />
-      @if (stundenForm.stunden().touched() && stundenForm.stunden().invalid()) {
-        <span class="form-fehler">{{ stundenForm.stunden().errors()[0]?.message }}</span>
+      <input id="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-1" class="form-input" type="number" step="0.5" [formField]="hoursForm.stunden" />
+      @if (hoursForm.stunden().touched() && hoursForm.stunden().invalid()) {
+        <span class="form-fehler">{{ hoursForm.stunden().errors()[0]?.message }}</span>
       }
     </div>
     <div class="form-field">
@@ -65,16 +65,16 @@
         type="number"
         min="0"
         step="0.5"
-        [value]="formularDaten().lohnSatz || mitarbeiter().stundenlohn"
+        [value]="formData().lohnSatz || employee().stundenlohn"
         (input)="onFeld('lohnSatz', $event)"
-        [placeholder]="mitarbeiter().stundenlohn.toString()"
+        [placeholder]="employee().stundenlohn.toString()"
       />
     </div>
     <div class="form-field">
       <label for="src-app-features-mitarbeiter-components-stunden-erfassung-stunden-erfassung-component-3" class="form-label">Zuschlag</label>
       <select
         class="form-select"
-        [value]="formularDaten().zuschlagProzent"
+        [value]="formData().zuschlagProzent"
         (change)="onFeld('zuschlagProzent', $event)"
       >
         @for (opt of zuschlagOptionen; track opt.wert) {
@@ -90,7 +90,7 @@
         class="form-input"
         type="text"
         placeholder="z.B. Musterstraße 1"
-        [value]="formularDaten().ort"
+        [value]="formData().ort"
         (input)="onFeld('ort', $event)"
       />
     </div>
@@ -100,34 +100,34 @@
         class="form-input"
         type="text"
         placeholder="Tätigkeitsbeschreibung"
-        [value]="formularDaten().beschreibung"
+        [value]="formData().beschreibung"
         (input)="onFeld('beschreibung', $event)"
       />
     </div>
   </div>
 
-  @if (lohnVorschau().gesamt > 0) {
+  @if (payrollPreview().gesamt > 0) {
     <div class="lohn-vorschau">
       UI-Vorschau Grundlohn:
-      <strong>{{ waehrungFormatieren(lohnVorschau().grundlohn) }}</strong>
-      @if (lohnVorschau().zuschlag > 0) {
-        + Zuschlag: <strong>{{ waehrungFormatieren(lohnVorschau().zuschlag) }}</strong>
+      <strong>{{ waehrungFormatieren(payrollPreview().grundlohn) }}</strong>
+      @if (payrollPreview().zuschlag > 0) {
+        + Zuschlag: <strong>{{ waehrungFormatieren(payrollPreview().zuschlag) }}</strong>
       }
-      = <strong class="gesamt">{{ waehrungFormatieren(lohnVorschau().gesamt) }}</strong>
+      = <strong class="gesamt">{{ waehrungFormatieren(payrollPreview().gesamt) }}</strong>
     </div>
   }
 
-  <button class="btn btn-primary" [disabled]="stundenForm().invalid()" (click)="eintragen.emit()">
+  <button class="btn btn-primary" [disabled]="hoursForm().invalid()" (click)="add.emit()">
     Stunden eintragen
   </button>
 </div>
 
 <!-- Stunden-Tabelle -->
 <div class="card">
-  <h4 class="section-title">Eingetragene Stunden ({{ stunden().length }})</h4>
-  @if (stundenLaedt()) {
+  <h4 class="section-title">Eingetragene Stunden ({{ hours().length }})</h4>
+  @if (hoursLoading()) {
     <app-skeleton-rows [count]="4" />
-  } @else if (!stunden().length) {
+  } @else if (!hours().length) {
     <div class="leer">Noch keine Stunden eingetragen.</div>
   } @else {
     <div class="tabelle-scroll">
@@ -145,7 +145,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (s of stunden(); track s.id) {
+          @for (s of hours(); track s.id) {
             <tr [class.bezahlt]="s.bezahlt">
               <td>{{ datumFormatieren(s.datum) }}</td>
               <td>{{ s.stunden.toLocaleString('de-DE', { minimumFractionDigits: 1 }) }} h</td>
@@ -161,7 +161,7 @@
                 />
               </td>
               <td>
-                <button class="btn-action btn-action--danger" (click)="loeschen.emit(s.id)">
+                <button class="btn-action btn-action--danger" (click)="delete.emit(s.id)">
                   Löschen
                 </button>
               </td>
@@ -175,10 +175,10 @@
 
 <!-- Mobile Stempeluhr Daten -->
 <div class="card">
-  <h4 class="section-title">Mobile Stempeluhr ({{ stempelEintraege().length }})</h4>
-  @if (stempelLaedt()) {
+  <h4 class="section-title">Mobile Stempeluhr ({{ timeClockEntries().length }})</h4>
+  @if (timeClockLoading()) {
     <app-skeleton-rows [count]="3" />
-  } @else if (!stempelEintraege().length) {
+  } @else if (!timeClockEntries().length) {
     <div class="leer">Keine Stempel-Einträge von der mobilen App.</div>
   } @else {
     <div class="tabelle-scroll">
@@ -194,7 +194,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (s of stempelEintraege(); track s.id) {
+          @for (s of timeClockEntries(); track s.id) {
             <tr>
               <td>{{ datumFormatieren(s.start.split('T')[0]) }}</td>
               <td>{{ zeitFormatieren(s.start) }}</td>
@@ -203,7 +203,7 @@
               <td>{{ s.notiz || '–' }}</td>
               <td>
                 @if (s.stop && s.dauer_minuten) {
-                  <button class="btn-action" (click)="stempelZuStundenKonvertieren.emit(s)">
+                  <button class="btn-action" (click)="convertTimeClockEntry.emit(s)">
                     → Zu Stunden
                   </button>
                 }

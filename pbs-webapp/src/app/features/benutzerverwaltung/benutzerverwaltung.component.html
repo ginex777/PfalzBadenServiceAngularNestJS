@@ -21,7 +21,7 @@
               <th>Rolle</th>
               <th>Status</th>
               <th>Erstellt</th>
-              <th>Aktionen</th>
+              <th class="actions-col">Aktionen</th>
             </tr>
           </thead>
           <tbody>
@@ -36,8 +36,8 @@
                 <td>
                   <app-status-badge [status]="u.aktiv ? 'aktiv' : 'inaktiv'" />
                 </td>
-                <td>{{ u.created_at | date: 'dd.MM.yyyy' }}</td>
-                <td class="td-aktionen">
+                <td class="date-cell">{{ u.created_at | date: 'dd.MM.yyyy' }}</td>
+                <td class="actions-cell">
                   <button class="btn-action" type="button" (click)="bearbeitenOeffnen(u)">Bearbeiten</button>
                   <button class="btn-action btn-action--danger" type="button" (click)="loeschen(u)">Löschen</button>
                 </td>
@@ -52,35 +52,23 @@
 
 <!-- Neuer Benutzer Drawer -->
 @if (neuerUserSichtbar()) {
-  <app-drawer [isOpen]="neuerUserSichtbar()" ariaLabel="Neuer Benutzer" position="right" (closed)="neuerUserSchliessen()">
-    <div class="drawer-header">
-      <h3 class="drawer-title">Neuer Benutzer</h3>
-      <button class="app-modal__close" type="button" (click)="neuerUserSchliessen()" aria-label="Schließen">×</button>
-    </div>
-    <div class="drawer-body">
-      <app-benutzer-formular
-        [editedUser]="null"
-        [isLoading]="anlegenLaedt()"
-        (created)="anlegen($event)"
-        (canceled)="neuerUserSchliessen()"
-      />
-    </div>
+  <app-drawer [isOpen]="neuerUserSichtbar()" ariaLabel="Neuer Benutzer" title="Neuer Benutzer" position="right" (closed)="neuerUserSchliessen()">
+    <app-benutzer-formular
+      [editedUser]="null"
+      [isLoading]="anlegenLaedt()"
+      (created)="anlegen($event)"
+      (canceled)="neuerUserSchliessen()"
+    />
   </app-drawer>
 }
 
 <!-- Bearbeiten Drawer -->
 @if (bearbeiteterUser()) {
-  <app-drawer [isOpen]="!!bearbeiteterUser()" ariaLabel="Benutzer bearbeiten" position="right" (closed)="bearbeitenSchliessen()">
-    <div class="drawer-header">
-      <h3 class="drawer-title">{{ bearbeiteterUser()!.email }} bearbeiten</h3>
-      <button class="app-modal__close" type="button" (click)="bearbeitenSchliessen()" aria-label="Schließen">×</button>
-    </div>
-    <div class="drawer-body">
-      <app-benutzer-formular
-        [editedUser]="bearbeiteterUser()"
-        (updated)="bearbeitenSpeichern($event)"
-        (canceled)="bearbeitenSchliessen()"
-      />
-    </div>
+  <app-drawer [isOpen]="!!bearbeiteterUser()" ariaLabel="Benutzer bearbeiten" [title]="bearbeiteterUser()!.email + ' bearbeiten'" position="right" (closed)="bearbeitenSchliessen()">
+    <app-benutzer-formular
+      [editedUser]="bearbeiteterUser()"
+      (updated)="bearbeitenSpeichern($event)"
+      (canceled)="bearbeitenSchliessen()"
+    />
   </app-drawer>
 }

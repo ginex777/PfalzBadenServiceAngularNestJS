@@ -1,12 +1,12 @@
-@if (bearbeiteteRechnung()) {
-  @if (bearbeiteteRechnung()!.bezahlt) {
+@if (editedInvoice()) {
+  @if (editedInvoice()!.bezahlt) {
     <div class="locked-banner">
-      🔒 Rechnung {{ bearbeiteteRechnung()!.nr }} ist als bezahlt markiert und kann nicht bearbeitet
+      🔒 Rechnung {{ editedInvoice()!.nr }} ist als bezahlt markiert und kann nicht bearbeitet
       werden
     </div>
   } @else {
     <div class="editing-banner">
-      ✏️ Bearbeitung: Rechnung {{ bearbeiteteRechnung()!.nr }} — Änderungen werden gespeichert
+      ✏️ Bearbeitung: Rechnung {{ editedInvoice()!.nr }} — Änderungen werden gespeichert
     </div>
   }
 }
@@ -19,14 +19,14 @@
       <input
         id="rf-nr"
         type="text"
-        [value]="formularDaten().nr"
+        [value]="formData().nr"
         placeholder="R-2026-001"
         [disabled]="istGesperrt()"
-        [class.error]="beruehrt()['nr'] && !formularDaten().nr.trim()"
+        [class.error]="touched()['nr'] && !formData().nr.trim()"
         (input)="onFeldChange('nr', $event)"
         (blur)="beruehren('nr')"
       />
-      @if (beruehrt()['nr'] && !formularDaten().nr.trim()) {
+      @if (touched()['nr'] && !formData().nr.trim()) {
         <span class="form-fehler">Rechnungs-Nr. ist erforderlich</span>
       }
     </div>
@@ -35,7 +35,7 @@
       <input
         id="rf-datum"
         type="date"
-        [value]="formularDaten().datum"
+        [value]="formData().datum"
         [disabled]="istGesperrt()"
         (input)="onFeldChange('datum', $event)"
       />
@@ -45,7 +45,7 @@
       <input
         id="rf-titel"
         type="text"
-        [value]="formularDaten().titel"
+        [value]="formData().titel"
         placeholder="Rechnung April"
         [disabled]="istGesperrt()"
         (input)="onFeldChange('titel', $event)"
@@ -58,8 +58,8 @@
       <label for="rf-kunde">Kunde auswählen</label>
       <select id="rf-kunde" [disabled]="istGesperrt()" (change)="onKundeChange($event)">
         <option value="">-- Kunde wählen --</option>
-        @for (kunde of kunden(); track kunde.id) {
-          <option [value]="kunde.id" [selected]="formularDaten().kunden_id === kunde.id">
+        @for (kunde of customers(); track kunde.id) {
+          <option [value]="kunde.id" [selected]="formData().kunden_id === kunde.id">
             {{ kunde.name }}{{ kunde.ort ? ' – ' + kunde.ort : '' }}
           </option>
         }
@@ -70,14 +70,14 @@
       <input
         id="rf-empf"
         type="text"
-        [value]="formularDaten().empf"
+        [value]="formData().empf"
         placeholder="Firmenname"
         [disabled]="istGesperrt()"
-        [class.error]="beruehrt()['empf'] && !formularDaten().empf.trim()"
+        [class.error]="touched()['empf'] && !formData().empf.trim()"
         (input)="onFeldChange('empf', $event)"
         (blur)="beruehren('empf')"
       />
-      @if (beruehrt()['empf'] && !formularDaten().empf.trim()) {
+      @if (touched()['empf'] && !formData().empf.trim()) {
         <span class="form-fehler">Empfänger ist erforderlich</span>
       }
     </div>
@@ -89,7 +89,7 @@
       <input
         id="rf-str"
         type="text"
-        [value]="formularDaten().str"
+        [value]="formData().str"
         placeholder="Musterstraße 1"
         (input)="onFeldChange('str', $event)"
       />
@@ -99,7 +99,7 @@
       <input
         id="rf-ort"
         type="text"
-        [value]="formularDaten().ort"
+        [value]="formData().ort"
         placeholder="12345 Musterstadt"
         (input)="onFeldChange('ort', $event)"
       />
@@ -109,21 +109,21 @@
       <input
         id="rf-email"
         type="email"
-        [value]="formularDaten().email"
+        [value]="formData().email"
         placeholder="kunde@firma.de"
         [disabled]="istGesperrt()"
         [class.error]="
-          beruehrt()['email'] &&
-          !!formularDaten().email &&
-          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formularDaten().email)
+          touched()['email'] &&
+          !!formData().email &&
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData().email)
         "
         (input)="onFeldChange('email', $event)"
         (blur)="beruehren('email')"
       />
       @if (
-        beruehrt()['email'] &&
-        formularDaten().email &&
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formularDaten().email)
+        touched()['email'] &&
+        formData().email &&
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData().email)
       ) {
         <span class="form-fehler">Ungültige E-Mail-Adresse</span>
       }
@@ -145,7 +145,7 @@
         <input
           id="rf-leistungsdatum"
           type="text"
-          [value]="formularDaten().leistungsdatum"
+          [value]="formData().leistungsdatum"
           placeholder="z.B. April 2026 oder 01.04. – 30.04.2026"
           (input)="onFeldChange('leistungsdatum', $event)"
         />
@@ -157,7 +157,7 @@
           type="number"
           min="1"
           max="365"
-          [value]="formularDaten().zahlungsziel"
+          [value]="formData().zahlungsziel"
           (input)="onSelectChange('zahlungsziel', $event)"
         />
       </div>
@@ -167,11 +167,11 @@
           <span class="hint-label">(§14 UStG)</span>
         </label>
         <select id="rf-mwst" (change)="onSelectChange('mwst_satz', $event)">
-          <option value="19" [selected]="formularDaten().mwst_satz === 19">
+          <option value="19" [selected]="formData().mwst_satz === 19">
             19 % (Regelsteuersatz)
           </option>
-          <option value="7" [selected]="formularDaten().mwst_satz === 7">7 % (ermäßigt)</option>
-          <option value="0" [selected]="formularDaten().mwst_satz === 0">
+          <option value="7" [selected]="formData().mwst_satz === 7">7 % (ermäßigt)</option>
+          <option value="0" [selected]="formData().mwst_satz === 0">
             0 % (steuerfrei / §19 UStG)
           </option>
         </select>
@@ -215,7 +215,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (pos of formularDaten().positionen; track $index) {
+      @for (pos of formData().positionen; track $index) {
         <tr>
           <td class="pos-nr">{{ $index + 1 }}</td>
           <td>
@@ -265,15 +265,15 @@
               class="btn-action"
               title="Position duplizieren"
               [disabled]="istGesperrt()"
-              (click)="positionKopieren.emit($index)"
+              (click)="copyLineItem.emit($index)"
             >
               Duplizieren
             </button>
-            @if (formularDaten().positionen.length > 1) {
+            @if (formData().positionen.length > 1) {
               <button
                 class="btn-action btn-action--danger"
                 [disabled]="istGesperrt()"
-                (click)="positionEntfernen.emit($index)"
+                (click)="removeLineItem.emit($index)"
                 title="Position entfernen"
               >
                 Entfernen
@@ -286,22 +286,22 @@
   </table>
 </div>
 
-<button class="btn btn-sm" [disabled]="istGesperrt()" (click)="positionHinzufuegen.emit()">
+<button class="btn btn-sm" [disabled]="istGesperrt()" (click)="addLineItem.emit()">
   Position hinzufügen
 </button>
 
 <div class="totals-block">
   <div class="totals-row">
     <span>Nettobetrag (UI-Vorschau):</span>
-    <span>{{ waehrungFormatieren(netto()) }}</span>
+    <span>{{ waehrungFormatieren(netTotal()) }}</span>
   </div>
   <div class="totals-row">
-    <span>MwSt. {{ formularDaten().mwst_satz }} % (UI-Vorschau):</span>
-    <span>{{ waehrungFormatieren(mwstBetrag()) }}</span>
+    <span>MwSt. {{ formData().mwst_satz }} % (UI-Vorschau):</span>
+    <span>{{ waehrungFormatieren(vatAmount()) }}</span>
   </div>
   <div class="totals-row totals-row--total">
     <span>Gesamtbetrag (UI-Vorschau):</span>
-    <span>{{ waehrungFormatieren(brutto()) }}</span>
+    <span>{{ waehrungFormatieren(grossTotal()) }}</span>
   </div>
 </div>
 
@@ -332,19 +332,19 @@
 <div class="form-actions">
   <button
     class="btn btn-primary"
-    [disabled]="speichert() || istGesperrt() || !istFormularGueltig()"
-    (click)="speichern.emit()"
+    [disabled]="saving() || istGesperrt() || !istFormularGueltig()"
+    (click)="saveRequested.emit()"
   >
-    @if (speichert()) {
+    @if (saving()) {
       <span class="spinner" aria-hidden="true"></span> Speichert…
     } @else {
       Speichern & Senden
     }
   </button>
-  <button class="btn" [disabled]="istGesperrt() || !istFormularGueltig()" (click)="vorschau.emit()">
+  <button class="btn" [disabled]="istGesperrt() || !istFormularGueltig()" (click)="preview.emit()">
     Vorschau
   </button>
-  @if (bearbeiteteRechnung()) {
-    <button class="btn" (click)="abbrechen.emit()">Abbrechen</button>
+  @if (editedInvoice()) {
+    <button class="btn" (click)="cancelRequested.emit()">Abbrechen</button>
   }
 </div>

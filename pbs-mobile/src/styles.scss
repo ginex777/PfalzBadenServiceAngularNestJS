@@ -29,6 +29,10 @@
   --app-space-1: 0.5rem;
   --app-space-2: 0.75rem;
   --app-space-3: 1rem;
+  --app-radius-sm: 0.5rem;
+  --app-radius-md: 0.75rem;
+  --app-radius-lg: 0.75rem;
+  --app-radius-xl: 0.75rem;
 
   --ion-background-color: var(--app-bg);
   --ion-text-color: var(--app-text-strong);
@@ -98,7 +102,7 @@ body.ion-disable-user-behavior:not(.plt-hybrid) {
 }
 
 .app-hero {
-  border-radius: 1rem;
+  border-radius: var(--app-radius-xl);
   border: 1px solid rgba(255, 255, 255, 0.25);
   background: var(--app-hero-bg);
   color: #fff;
@@ -111,7 +115,7 @@ body.ion-disable-user-behavior:not(.plt-hybrid) {
   opacity: 0.85;
   font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   font-weight: 700;
 }
 
@@ -131,14 +135,14 @@ body.ion-disable-user-behavior:not(.plt-hybrid) {
 .app-card {
   margin: 0;
   border: 1px solid var(--app-border);
-  border-radius: 0.95rem;
+  border-radius: var(--app-radius-lg);
   box-shadow: var(--app-shadow-soft);
 }
 
 .app-state-banner {
   margin: 0;
   border: 1px solid transparent;
-  border-radius: 0.8rem;
+  border-radius: var(--app-radius-md);
   font-size: 0.85rem;
   padding: 0.7rem 0.75rem;
 }
@@ -158,8 +162,8 @@ body.ion-disable-user-behavior:not(.plt-hybrid) {
 .app-btn {
   appearance: none;
   border: 1px solid transparent;
-  border-radius: 0.8rem;
-  min-height: 2.8rem;
+  border-radius: var(--app-radius-md);
+  min-height: var(--touch-target-min);
   padding: 0.65rem 0.9rem;
   font-size: 0.9rem;
   font-weight: 700;

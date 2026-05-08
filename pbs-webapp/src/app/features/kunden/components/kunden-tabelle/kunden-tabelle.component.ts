@@ -12,22 +12,28 @@ import { OverflowMenuComponent } from '../../../../shared/ui/overflow-menu/overf
   selector: 'app-kunden-tabelle',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EmptyStateComponent, RoleAllowedDirective, RouterLink, SkeletonRowsComponent, OverflowMenuComponent],
+  imports: [
+    EmptyStateComponent,
+    RoleAllowedDirective,
+    RouterLink,
+    SkeletonRowsComponent,
+    OverflowMenuComponent,
+  ],
   templateUrl: './kunden-tabelle.component.html',
   styleUrl: './kunden-tabelle.component.scss',
 })
 export class KundenTabelleComponent {
-  readonly kunden = input.required<Kunde[]>();
-  readonly umsaetze = input<KundeUmsatz[]>([]);
-  readonly laedt = input<boolean>(false);
-  readonly suchbegriff = input<string>('');
+  readonly customers = input.required<Kunde[]>();
+  readonly revenues = input<KundeUmsatz[]>([]);
+  readonly loading = input<boolean>(false);
+  readonly searchTerm = input<string>('');
 
-  readonly bearbeiten = output<Kunde>();
-  readonly loeschen = output<number>();
-  readonly rechnung = output<Kunde>();
-  readonly angebot = output<Kunde>();
-  readonly offenePosten = output<number>();
-  readonly neuAnlegen = output<void>();
+  readonly editRequested = output<Kunde>();
+  readonly deleteRequested = output<number>();
+  readonly createInvoiceRequested = output<Kunde>();
+  readonly createQuoteRequested = output<Kunde>();
+  readonly openItemsRequested = output<number>();
+  readonly createRequested = output<void>();
 
   protected readonly waehrungFormatieren = waehrungFormatieren;
 
@@ -37,7 +43,7 @@ export class KundenTabelleComponent {
   protected readonly sortierteKunden = computed(() => {
     const col = this.sortSpalte();
     const asc = this.sortAufsteigend();
-    return [...this.kunden()].sort((a, b) => {
+    return [...this.customers()].sort((a, b) => {
       const va = String(a[col] ?? '');
       const vb = String(b[col] ?? '');
       return asc ? va.localeCompare(vb) : vb.localeCompare(va);
@@ -54,7 +60,7 @@ export class KundenTabelleComponent {
   }
 
   protected umsatzFuerKunde(kundeId: number): KundeUmsatz | undefined {
-    return this.umsaetze().find((u) => u.kundeId === kundeId);
+    return this.revenues().find((u) => u.kundeId === kundeId);
   }
 
   protected hatVerknuepfteDokumente(kundeId: number): boolean {

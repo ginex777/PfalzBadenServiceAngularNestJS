@@ -13,27 +13,27 @@ import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
   styleUrl: './offene-posten-modal.component.scss',
 })
 export class OffenePostenModalComponent {
-  readonly daten = input.required<OffenePostenDaten>();
+  readonly data = input.required<OffenePostenDaten>();
 
-  readonly geschlossen = output<void>();
-  readonly neueRechnung = output<number>();
-  readonly sammelMahnung = output<number>();
+  readonly closed = output<void>();
+  readonly newInvoice = output<number>();
+  readonly bulkReminder = output<number>();
 
   protected readonly waehrungFormatieren = waehrungFormatieren;
   protected readonly datumFormatieren = datumFormatieren;
 
   protected schliessen(): void {
-    this.geschlossen.emit();
+    this.closed.emit();
   }
 
   protected createInvoice(): void {
-    this.neueRechnung.emit(this.daten().kundeId);
-    this.geschlossen.emit();
+    this.newInvoice.emit(this.data().kundeId);
+    this.closed.emit();
   }
 
-  protected sammelMahnungSenden(): void {
-    this.sammelMahnung.emit(this.daten().kundeId);
-    this.geschlossen.emit();
+  protected bulkReminderSenden(): void {
+    this.bulkReminder.emit(this.data().kundeId);
+    this.closed.emit();
   }
 
   protected rechnungStatusText(bezahlt: boolean, ueberfaellig: boolean): string {

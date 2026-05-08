@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -19,7 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import type { Response } from 'express';
 import { Workbook } from 'exceljs';
-import type { MuellplanService } from './muellplan.service';
+import { MuellplanService } from './muellplan.service';
 import type {
   ConfirmMuellplanPdfDto,
   CopyMuellplanTermineDto,
@@ -234,8 +234,8 @@ export class MuellplanController {
   ): Promise<Array<{ muellart: string; farbe: string; abholung: string }>> {
     const MUELL_KEYWORDS = [
       {
-        keys: ['restmüll', 'restabfall', 'rest', 'grau'],
-        name: 'Restmüll',
+        keys: ['restmÃ¼ll', 'restabfall', 'rest', 'grau'],
+        name: 'RestmÃ¼ll',
         farbe: '#6b7280',
       },
       {
@@ -251,11 +251,11 @@ export class MuellplanController {
       },
       { keys: ['glas'], name: 'Glas', farbe: '#0891b2' },
       {
-        keys: ['grünschnitt', 'grün', 'garten'],
-        name: 'Grünschnitt',
+        keys: ['grÃ¼nschnitt', 'grÃ¼n', 'garten'],
+        name: 'GrÃ¼nschnitt',
         farbe: '#65a30d',
       },
-      { keys: ['sperrmüll', 'sperr'], name: 'Sperrmüll', farbe: '#7c3aed' },
+      { keys: ['sperrmÃ¼ll', 'sperr'], name: 'SperrmÃ¼ll', farbe: '#7c3aed' },
     ];
     try {
       const workbook = new Workbook();

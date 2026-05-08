@@ -23,10 +23,10 @@ import { LEERES_FORMULAR } from '../../kunden.models';
   styleUrl: './kunden-formular.component.scss',
 })
 export class KundenFormularComponent implements OnChanges {
-  readonly bearbeiteterKunde = input<Kunde | null>(null);
-  readonly gespeichert = output<KundenFormularDaten>();
-  readonly abgebrochen = output<void>();
-  readonly geaendert = output<void>();
+  readonly editingCustomer = input<Kunde | null>(null);
+  readonly saved = output<KundenFormularDaten>();
+  readonly cancelled = output<void>();
+  readonly changed = output<void>();
 
   protected readonly formModell = signal<KundenFormularDaten>({ ...LEERES_FORMULAR });
 
@@ -58,8 +58,8 @@ export class KundenFormularComponent implements OnChanges {
   });
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['bearbeiteterKunde']) {
-      const kunde = this.bearbeiteterKunde();
+    if (changes['editingCustomer']) {
+      const kunde = this.editingCustomer();
       this.formModell.set(
         kunde
           ? {
@@ -78,25 +78,25 @@ export class KundenFormularComponent implements OnChanges {
   protected speichern(): void {
     if (!this.istFormularGueltig()) return;
     const daten = this.formModell();
-    this.gespeichert.emit({ ...daten, name: daten.name.trim() });
+    this.saved.emit({ ...daten, name: daten.name.trim() });
     this.formModell.set({ ...LEERES_FORMULAR });
   }
 
   protected onFeldGeaendert(): void {
-    this.geaendert.emit();
+    this.changed.emit();
   }
 
   protected abbrechen(): void {
     this.formModell.set({ ...LEERES_FORMULAR });
-    this.abgebrochen.emit();
+    this.cancelled.emit();
   }
 
   protected get titelText(): string {
-    const kunde = this.bearbeiteterKunde();
+    const kunde = this.editingCustomer();
     return kunde ? `Kunde bearbeiten: ${kunde.name}` : 'Neuer Kunde';
   }
 
   protected get submitLabel(): string {
-    return this.bearbeiteterKunde() ? 'Änderungen speichern' : 'Kunde anlegen';
+    return this.editingCustomer() ? 'Änderungen speichern' : 'Kunde anlegen';
   }
 }

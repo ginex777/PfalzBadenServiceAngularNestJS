@@ -59,7 +59,7 @@
               <th>Notiz</th>
               <th>Zeit</th>
               <th>Von</th>
-              <th class="col-aktionen">Aktionen</th>
+              <th class="actions-col">Aktionen</th>
             </tr>
           </thead>
           <tbody>
@@ -79,7 +79,7 @@
                 <td>{{ r.subtitle || '—' }}</td>
                 <td>{{ r.createdAt | date: 'short' }}</td>
                 <td>{{ r.createdByName || r.createdByEmail || '—' }}</td>
-                <td class="col-aktionen">
+                <td class="actions-cell">
                   <a class="btn btn-sm" [routerLink]="r.link">Öffnen</a>
                 </td>
               </tr>

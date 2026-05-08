@@ -1,5 +1,5 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
+﻿import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../core/database/prisma.service';
 import type { Prisma, MuellplanVorlagen } from '@prisma/client';
 import type {
   CreateMuellplanTerminDto,
@@ -10,8 +10,8 @@ import type {
 } from './dto/muellplan.dto';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import type { TasksService } from '../tasks/tasks.service';
-import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import { TasksService } from '../tasks/tasks.service';
+import { AccessPolicyService } from '../access-policy/access-policy.service';
 import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
 import { toPrismaBytes } from '../../common/files/upload-file';
 
@@ -358,8 +358,8 @@ export class MuellplanService {
     await this.prisma.benachrichtigungen.create({
       data: {
         typ: 'MOBILE_WASTEPLAN_CONFIRM',
-        titel: `Müllplan bestätigt: ${objectRow.name}`,
-        nachricht: added > 0 ? `${added} Termine übernommen.` : undefined,
+        titel: `MÃ¼llplan bestÃ¤tigt: ${objectRow.name}`,
+        nachricht: added > 0 ? `${added} Termine Ã¼bernommen.` : undefined,
         link: `/muellplan`,
         gelesen: false,
       },

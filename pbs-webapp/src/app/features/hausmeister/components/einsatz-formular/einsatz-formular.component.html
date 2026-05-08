@@ -3,11 +3,11 @@
     <label for="src-app-features-hausmeister-components-einsatz-formular-einsatz-formular-component-0" class="form-label">Mitarbeiter *</label>
     <select
       class="form-select"
-      [value]="daten().mitarbeiter_id ?? ''"
+      [value]="data().mitarbeiter_id ?? ''"
       (change)="mitarbeiterGeaendert($event)"
     >
       <option value="">-- Mitarbeiter wählen --</option>
-      @for (ma of mitarbeiter(); track ma.id) {
+      @for (ma of employees(); track ma.id) {
         <option [value]="ma.id">{{ ma.name }}</option>
       }
     </select>
@@ -26,11 +26,11 @@
     <label for="src-app-features-hausmeister-components-einsatz-formular-einsatz-formular-component-2" class="form-label">Kunde (optional)</label>
     <select
       class="form-select"
-      [value]="daten().kunden_id ?? ''"
+      [value]="data().kunden_id ?? ''"
       (change)="kundeGeaendert($event)"
     >
       <option value="">-- kein Kunde --</option>
-      @for (k of kunden(); track k.id) {
+      @for (k of customers(); track k.id) {
         <option [value]="k.id">{{ k.name }}</option>
       }
     </select>
@@ -40,9 +40,9 @@
 <div class="taetigkeiten-bereich">
   <div class="taetigkeiten-kopf">
     <label for="src-app-features-hausmeister-components-einsatz-formular-einsatz-formular-component-3" class="form-label">Tätigkeiten</label>
-    <button class="btn btn-sm" (click)="taetigkeitHinzufuegen.emit()">Tätigkeit</button>
+    <button class="btn btn-sm" (click)="addActivity.emit()">Tätigkeit</button>
   </div>
-  @for (t of daten().taetigkeiten; track $index) {
+  @for (t of data().taetigkeiten; track $index) {
     <div class="taetigkeit-zeile">
       <input
         class="form-input"
@@ -60,8 +60,8 @@
         [value]="t.stunden || ''"
         (input)="taetigkeitStundenGeaendert($index, $event)"
       />
-      @if (daten().taetigkeiten.length > 1) {
-        <button class="btn-remove" (click)="taetigkeitEntfernen.emit($index)">×</button>
+      @if (data().taetigkeiten.length > 1) {
+        <button class="btn-remove" (click)="removeActivity.emit($index)">×</button>
       }
     </div>
   }
@@ -69,7 +69,7 @@
     Gesamt:
     <strong
       >{{
-        stundenGesamt().toLocaleString('de-DE', { minimumFractionDigits: 1 })
+        totalHours().toLocaleString('de-DE', { minimumFractionDigits: 1 })
       }}
       Stunden</strong
     >
@@ -82,13 +82,13 @@
     class="form-input"
     rows="2"
     placeholder="Interne Notizen…"
-    [value]="daten().notiz"
+    [value]="data().notiz"
     (input)="notizGeaendert($event)"
   ></textarea>
 </div>
 
 <div class="modal-footer">
-  <button class="btn" (click)="abbrechen.emit()">Abbrechen</button>
+  <button class="btn" (click)="cancelRequested.emit()">Abbrechen</button>
   <label for="src-app-features-hausmeister-components-einsatz-formular-einsatz-formular-component-5" class="checkbox-label">
     <input
       type="checkbox"
@@ -101,14 +101,14 @@
   <button
     class="btn btn-primary"
     [disabled]="einsatzForm().invalid()"
-    (click)="speichern.emit({ withPdf: true, syncStunden: syncStunden() })"
+    (click)="saveRequested.emit({ withPdf: true, syncStunden: syncStunden() })"
   >
     Speichern & PDF
   </button>
   <button
     class="btn"
     [disabled]="einsatzForm().invalid()"
-    (click)="speichern.emit({ withPdf: false, syncStunden: syncStunden() })"
+    (click)="saveRequested.emit({ withPdf: false, syncStunden: syncStunden() })"
   >
     Nur speichern
   </button>

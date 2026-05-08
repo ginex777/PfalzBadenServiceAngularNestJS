@@ -1,5 +1,6 @@
 import { ForbiddenException } from '@nestjs/common';
 import type { ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { RolesGuard } from './roles.guard';
 
 function contextWithRole(role: string | undefined): ExecutionContext {
@@ -22,22 +23,25 @@ function contextWithRole(role: string | undefined): ExecutionContext {
 
 describe('RolesGuard', () => {
   it('allows routes without required roles', () => {
-    const reflector = { getAllAndOverride: jest.fn(() => undefined) };
-    const guard = new RolesGuard(reflector as never);
+    const reflector = new Reflector();
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
+    const guard = new RolesGuard(reflector);
 
     expect(guard.canActivate(contextWithRole(undefined))).toBe(true);
   });
 
   it('allows users with a required role', () => {
-    const reflector = { getAllAndOverride: jest.fn(() => ['admin']) };
-    const guard = new RolesGuard(reflector as never);
+    const reflector = new Reflector();
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin']);
+    const guard = new RolesGuard(reflector);
 
     expect(guard.canActivate(contextWithRole('admin'))).toBe(true);
   });
 
   it('blocks users without a required role', () => {
-    const reflector = { getAllAndOverride: jest.fn(() => ['admin']) };
-    const guard = new RolesGuard(reflector as never);
+    const reflector = new Reflector();
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin']);
+    const guard = new RolesGuard(reflector);
 
     expect(() => guard.canActivate(contextWithRole('readonly'))).toThrow(
       ForbiddenException,

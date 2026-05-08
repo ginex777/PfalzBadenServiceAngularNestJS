@@ -32,10 +32,10 @@ function positionSchema(p: SchemaPathTree<RechnungPosition>): void {
   templateUrl: './wr-formular.component.html',
 })
 export class WrFormularComponent implements OnChanges {
-  readonly bearbeiteteRechnung = input<WiederkehrendeRechnung | null>(null);
-  readonly kunden = input.required<Kunde[]>();
-  readonly gespeichert = output<WrFormularDaten>();
-  readonly abgebrochen = output<void>();
+  readonly editedInvoice = input<WiederkehrendeRechnung | null>(null);
+  readonly customers = input.required<Kunde[]>();
+  readonly saved = output<WrFormularDaten>();
+  readonly cancelled = output<void>();
 
   protected readonly formModell = signal<WrFormularDaten>({ ...LEERES_WR_FORMULAR });
 
@@ -74,8 +74,8 @@ export class WrFormularComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['bearbeiteteRechnung']) {
-      const wr = this.bearbeiteteRechnung();
+    if (changes['editedInvoice']) {
+      const wr = this.editedInvoice();
       this.formModell.set(
         wr
           ? {
@@ -138,11 +138,11 @@ export class WrFormularComponent implements OnChanges {
 
   protected speichern(): void {
     if (!this.istGueltig()) return;
-    this.gespeichert.emit({ ...this.formModell() });
+    this.saved.emit({ ...this.formModell() });
   }
 
   protected abbrechen(): void {
     this.formModell.set({ ...LEERES_WR_FORMULAR });
-    this.abgebrochen.emit();
+    this.cancelled.emit();
   }
 }

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Injectable,
   Logger,
   UnauthorizedException,
@@ -67,11 +67,11 @@ export class AuthService {
       where: { email: dto.email.toLowerCase() },
     });
     if (!user || !user.aktiv) {
-      throw new UnauthorizedException('Ungültige Anmeldedaten');
+      throw new UnauthorizedException('UngÃ¼ltige Anmeldedaten');
     }
     const valid = await bcrypt.compare(dto.password, user.password_hash);
     if (!valid) {
-      throw new UnauthorizedException('Ungültige Anmeldedaten');
+      throw new UnauthorizedException('UngÃ¼ltige Anmeldedaten');
     }
 
     const mitarbeiterId = await this._resolveMitarbeiterId(user.id, user.email);
@@ -90,7 +90,10 @@ export class AuthService {
       select: { id: true },
     });
     if (allTokens.length > MAX_SESSIONS_PER_USER) {
-      const toDelete = allTokens.slice(0, allTokens.length - MAX_SESSIONS_PER_USER);
+      const toDelete = allTokens.slice(
+        0,
+        allTokens.length - MAX_SESSIONS_PER_USER,
+      );
       await this.prisma.refreshTokens.deleteMany({
         where: { id: { in: toDelete.map((t) => t.id) } },
       });
@@ -119,7 +122,11 @@ export class AuthService {
   }
 
   async refresh(tokenHash: string) {
-    const { token: stored, userId, familyId } = await this.findStoredRefreshToken(tokenHash);
+    const {
+      token: stored,
+      userId,
+      familyId,
+    } = await this.findStoredRefreshToken(tokenHash);
 
     if (!stored) {
       // Reuse detection: JWT verified but token not in DB
@@ -133,7 +140,7 @@ export class AuthService {
             where: { user_id: userId, family_id: familyId },
           });
           this.logger.warn(
-            `Refresh token reuse detected for user ${userId.toString()} family ${familyId} — session invalidated`,
+            `Refresh token reuse detected for user ${userId.toString()} family ${familyId} â€” session invalidated`,
           );
           await this.audit.log(
             'users',
@@ -163,11 +170,18 @@ export class AuthService {
     });
     const mitarbeiterId = await this._resolveMitarbeiterId(user.id, user.email);
     this.ensureEmployeeMapping(user.rolle, mitarbeiterId, user.email);
-    return this._issueTokens(user.id, user.email, user.rolle, mitarbeiterId, stored.family_id);
+    return this._issueTokens(
+      user.id,
+      user.email,
+      user.rolle,
+      mitarbeiterId,
+      stored.family_id,
+    );
   }
 
   async logout(refreshTokenHash: string) {
-    const { token: stored } = await this.findStoredRefreshToken(refreshTokenHash);
+    const { token: stored } =
+      await this.findStoredRefreshToken(refreshTokenHash);
     if (stored) {
       await this.prisma.refreshTokens.delete({
         where: { id: stored.id },
@@ -209,7 +223,12 @@ export class AuthService {
     const expiresAt = new Date(Date.now() + refreshExpiresInSec * 1000);
 
     await this.prisma.refreshTokens.create({
-      data: { user_id: userId, token_hash: hash, expires_at: expiresAt, family_id: resolvedFamilyId },
+      data: {
+        user_id: userId,
+        token_hash: hash,
+        expires_at: expiresAt,
+        family_id: resolvedFamilyId,
+      },
     });
 
     return { accessToken, refreshToken: refreshRaw };
@@ -270,7 +289,13 @@ export class AuthService {
   }
 
   private async findStoredRefreshToken(rawToken: string): Promise<{
-    token: { id: bigint; user_id: bigint; token_hash: string; expires_at: Date; family_id: string } | null;
+    token: {
+      id: bigint;
+      user_id: bigint;
+      token_hash: string;
+      expires_at: Date;
+      family_id: string;
+    } | null;
     userId: bigint | null;
     familyId: string | null;
   }> {
@@ -279,12 +304,13 @@ export class AuthService {
     let payloadFamilyId: string | null = null;
 
     try {
-      const payload = this.jwt.verify<{ userId?: string; sub?: string; familyId?: string }>(
-        rawToken,
-        {
-          secret: refreshSecret,
-        },
-      );
+      const payload = this.jwt.verify<{
+        userId?: string;
+        sub?: string;
+        familyId?: string;
+      }>(rawToken, {
+        secret: refreshSecret,
+      });
       payloadUserId = payload.userId ?? payload.sub ?? null;
       payloadFamilyId = payload.familyId ?? null;
     } catch {
@@ -296,7 +322,13 @@ export class AuthService {
     const userId = BigInt(payloadUserId);
     const candidates = await this.prisma.refreshTokens.findMany({
       where: { user_id: userId },
-      select: { id: true, user_id: true, token_hash: true, expires_at: true, family_id: true },
+      select: {
+        id: true,
+        user_id: true,
+        token_hash: true,
+        expires_at: true,
+        family_id: true,
+      },
     });
 
     for (const candidate of candidates) {
@@ -381,7 +413,7 @@ export class AuthService {
       });
       if (adminCount <= 1)
         throw new BadRequestException(
-          'Der letzte Admin kann nicht gelöscht werden',
+          'Der letzte Admin kann nicht gelÃ¶scht werden',
         );
     }
     await this.prisma.refreshTokens.deleteMany({ where: { user_id: id } });
@@ -395,7 +427,7 @@ export class AuthService {
       geloeschtVon,
       geloeschtVonName,
     );
-    return { message: 'Benutzer gelöscht' };
+    return { message: 'Benutzer gelÃ¶scht' };
   }
 
   async updateUser(

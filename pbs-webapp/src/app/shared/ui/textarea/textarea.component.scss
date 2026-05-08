@@ -1,9 +1,0 @@
-@use '../input/input.component.scss' as *;
-
-.app-field__control--textarea {
-  height: auto;
-  padding: var(--app-space-3) var(--app-space-4);
-  min-height: 96px;
-  resize: vertical;
-  line-height: 1.45;
-}

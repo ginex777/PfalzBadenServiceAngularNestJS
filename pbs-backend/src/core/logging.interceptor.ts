@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
@@ -7,7 +7,7 @@ import { Injectable } from '@nestjs/common';
 import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import type { Request } from 'express';
-import type { PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 
 type RequestWithId = Request & { id?: string };
 

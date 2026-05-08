@@ -1,11 +1,11 @@
-import {
+﻿import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import type { Prisma, Tasks } from '@prisma/client';
 import { TaskStatus, TaskType } from '@prisma/client';
-import type { PrismaService } from '../../core/database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import type {

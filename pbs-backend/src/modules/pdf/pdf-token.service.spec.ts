@@ -19,4 +19,15 @@ describe('PdfTokenService', () => {
     });
     expect(service.getToken(result.token)).toBeNull();
   });
+
+  it('uses configurable token expiry for deterministic tests', async () => {
+    process.env['PDF_TOKEN_TTL_MS'] = '10';
+    const service = new PdfTokenService();
+    const result = service.createToken(Buffer.from('pdf'), 'report.pdf');
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(service.getToken(result.token)).toBeNull();
+    delete process.env['PDF_TOKEN_TTL_MS'];
+  });
 });

@@ -13,13 +13,13 @@ import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
   styleUrl: './zahlungs-tracker.component.scss',
 })
 export class ZahlungsTrackerComponent {
-  readonly rechnungen = input.required<Rechnung[]>();
-  readonly bezahltDatum = input<string>('');
-  readonly bezahltKandidat = input<Rechnung | null>(null);
+  readonly invoices = input.required<Rechnung[]>();
+  readonly paidDate = input<string>('');
+  readonly paidCandidate = input<Rechnung | null>(null);
 
-  readonly alsGezahltBestaetigen = output<void>();
-  readonly alsGezahltAbbrechen = output<void>();
-  readonly bezahltDatumAendern = output<string>();
+  readonly confirmPaid = output<void>();
+  readonly cancelPaid = output<void>();
+  readonly paidDateChange = output<string>();
 
   protected readonly waehrungFormatieren = waehrungFormatieren;
   protected readonly datumFormatieren = datumFormatieren;
@@ -46,15 +46,15 @@ export class ZahlungsTrackerComponent {
   }
 
   protected onDatumChange(event: Event): void {
-    this.bezahltDatumAendern.emit((event.target as HTMLInputElement).value);
+    this.paidDateChange.emit((event.target as HTMLInputElement).value);
   }
 
   protected offeneRechnungen(): Rechnung[] {
-    return this.rechnungen().filter((r) => !r.bezahlt);
+    return this.invoices().filter((r) => !r.bezahlt);
   }
 
   protected ueberfaelligeRechnungen(): Rechnung[] {
-    return this.rechnungen().filter((r) => this.istUeberfaellig(r));
+    return this.invoices().filter((r) => this.istUeberfaellig(r));
   }
 
   protected offenerBetrag(): number {

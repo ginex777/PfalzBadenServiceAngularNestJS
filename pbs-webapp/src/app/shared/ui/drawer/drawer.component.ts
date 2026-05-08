@@ -26,6 +26,7 @@ export class DrawerComponent implements OnChanges {
   readonly isOpen = input<boolean>(false);
   readonly ariaLabel = input<string>('Drawer');
   readonly position = input<'left' | 'right'>('left');
+  readonly title = input<string>('');
 
   readonly closed = output<void>();
 

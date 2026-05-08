@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   Controller,
   DefaultValuePipe,
@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { Roles } from '../auth/decorators/roles.decorator';
 import type { AuthRequest } from '../auth/auth-request.type';
-import type { MobileSummaryService } from './mobile-summary.service';
+import { MobileSummaryService } from './mobile-summary.service';
 
 @Controller('api/mobile')
 export class MobileSummaryController {

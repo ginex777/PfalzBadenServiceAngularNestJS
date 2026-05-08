@@ -71,7 +71,9 @@
       "Bash(npx --no-install tsc --noEmit)",
       "Bash(node_modules/.bin/prisma generate *)",
       "Bash(npm test *)",
-      "Bash(node_modules/.bin/jest auth.service.spec.ts --runInBand --no-coverage)"
+      "Bash(node_modules/.bin/jest auth.service.spec.ts --runInBand --no-coverage)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\pbs-webapp\\\\src\\\\app\\\\features\" -Directory)",
+      "Bash(Select-Object Name)"
     ]
   }
 }

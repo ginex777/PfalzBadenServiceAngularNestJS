@@ -2,12 +2,12 @@
   <app-page-title title="Einstellungen" subtitle="Firma, Backup & System" />
 
   <app-firma-formular
-    [firma]="facade.firma()"
-    [speichert]="facade.speichert()"
-    [erfolg]="facade.erfolg()"
-    [fehler]="null"
-    (speichern)="facade.firmaSpeichern()"
-    (feldAktualisieren)="feldAktualisieren($event)"
+    [company]="facade.firma()"
+    [saving]="facade.speichert()"
+    [success]="facade.erfolg()"
+    [error]="null"
+    (save)="facade.firmaSpeichern()"
+    (updateField)="feldAktualisieren({ feld: $event.field, wert: $event.value })"
   />
 
   <!-- Datensicherung -->

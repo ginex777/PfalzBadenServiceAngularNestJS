@@ -1,7 +1,7 @@
-import type { OnApplicationBootstrap } from '@nestjs/common';
+﻿import type { OnApplicationBootstrap } from '@nestjs/common';
 import { Injectable, Logger } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
-import type { AuditService } from '../audit/audit.service';
+import { PrismaService } from '../../core/database/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import type { Prisma } from '@prisma/client';
 
 type WiederkehrendeRechnungRow = {
@@ -27,12 +27,12 @@ export class WiederkehrendScheduler implements OnApplicationBootstrap {
     const initial = setTimeout(() => void this.createRecurringInvoices(), 5000);
     initial.unref?.();
 
-    // Täglich um 6:00 Uhr ausführen
+    // TÃ¤glich um 6:00 Uhr ausfÃ¼hren
     const now = new Date();
     const nextRun = new Date();
     nextRun.setHours(6, 0, 0, 0);
 
-    // Wenn es bereits nach 6:00 Uhr ist, nächsten Tag
+    // Wenn es bereits nach 6:00 Uhr ist, nÃ¤chsten Tag
     if (now.getTime() > nextRun.getTime()) {
       nextRun.setDate(nextRun.getDate() + 1);
     }
@@ -71,7 +71,7 @@ export class WiederkehrendScheduler implements OnApplicationBootstrap {
           try {
             if (!wr.kunden_id) {
               this.logger.error(
-                `Wiederkehrende Rechnung ohne kunden_id übersprungen (id=${String(wr.id)})`,
+                `Wiederkehrende Rechnung ohne kunden_id Ã¼bersprungen (id=${String(wr.id)})`,
               );
               continue;
             }
@@ -107,11 +107,11 @@ export class WiederkehrendScheduler implements OnApplicationBootstrap {
 
             erstellteRechnungen++;
             this.logger.log(
-              `Wiederkehrende Rechnung erstellt: ${neueRechnung.nr} für ${wr.kunden_name}`,
+              `Wiederkehrende Rechnung erstellt: ${neueRechnung.nr} fÃ¼r ${wr.kunden_name}`,
             );
           } catch (error) {
             this.logger.error(
-              `Fehler beim Erstellen der wiederkehrenden Rechnung für ${wr.kunden_name}: ${error}`,
+              `Fehler beim Erstellen der wiederkehrenden Rechnung fÃ¼r ${wr.kunden_name}: ${error}`,
             );
           }
         }
@@ -126,7 +126,7 @@ export class WiederkehrendScheduler implements OnApplicationBootstrap {
       }
     } catch (error) {
       this.logger.error(
-        `Fehler beim Prüfen wiederkehrender Rechnungen: ${
+        `Fehler beim PrÃ¼fen wiederkehrender Rechnungen: ${
           (error as Error).message
         }`,
       );

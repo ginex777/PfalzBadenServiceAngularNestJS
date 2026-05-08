@@ -1,6 +1,6 @@
 <div class="filter-bar">
   <div class="filter-btns">
-    <select class="filter-select" [value]="aktiverFilter()" (change)="onFilterSelectChange($event)">
+    <select class="filter-select" [value]="activeFilter()" (change)="onFilterSelectChange($event)">
       <option value="alle">Alle Status</option>
       <option value="offen">Offen</option>
       <option value="gesendet">Gesendet</option>
@@ -15,7 +15,7 @@
     </select>
     <button class="btn btn-primary" (click)="filterLeeren()">Filter leeren</button>
   </div>
-  <span class="count-hint">{{ gefilterteAngebote().length }} Einträge</span>
+  <span class="count-hint">{{ gefiltertequotes().length }} Einträge</span>
 </div>
 
 @if (pendingDeleteId() !== null) {
@@ -28,13 +28,13 @@
   />
 }
 
-@if (laedt()) {
+@if (loading()) {
   <div class="skeleton-liste" aria-label="Lade Angebote" role="status">
     @for (i of [1, 2, 3, 4, 5, 6]; track i) {
       <div class="skeleton-zeile"></div>
     }
   </div>
-} @else if (angebote().length === 0) {
+} @else if (quotes().length === 0) {
   <app-empty-state
     title="Keine Angebote gefunden"
     description="Erstellen Sie Ihr erstes Angebot über das Formular."
@@ -51,11 +51,11 @@
           <th class="text-right">Betrag</th>
           <th>Gültig bis</th>
           <th>Status</th>
-          <th class="actions-col"></th>
+          <th class="actions-col">Aktionen</th>
         </tr>
       </thead>
       <tbody>
-        @for (angebot of gefilterteAngebote(); track angebot.id) {
+        @for (angebot of gefiltertequotes(); track angebot.id) {
           <tr
             [class.row--angenommen]="angebot.angenommen"
             [class.row--abgelehnt]="angebot.abgelehnt"
@@ -63,9 +63,9 @@
             <td class="nr-cell">{{ angebot.nr }}</td>
             <td>{{ angebot.titel || '–' }}</td>
             <td>{{ angebot.empf }}</td>
-            <td>{{ datumFormatieren(angebot.datum) }}</td>
+            <td class="date-cell">{{ datumFormatieren(angebot.datum) }}</td>
             <td class="text-right amount-cell">{{ waehrungFormatieren(angebot.brutto) }}</td>
-            <td>
+            <td class="date-cell">
               @if (angebot.gueltig_bis) {
                 <span [class.text-danger]="istAbgelaufen(angebot)">
                   {{ datumFormatieren(angebot.gueltig_bis) }}
@@ -81,7 +81,7 @@
               <button
                 class="btn-action"
                 title="PDF generieren"
-                (click)="pdfGenerieren.emit(angebot)"
+                (click)="generatePdf.emit(angebot)"
               >
                 PDF
               </button>
@@ -91,7 +91,7 @@
                   class="btn-action btn-action--primary"
                   *roleAllowed="['admin']"
                   title="Zu Rechnung konvertieren"
-                  (click)="zuRechnungKonvertieren.emit(angebot)"
+                  (click)="convertToInvoice.emit(angebot)"
                 >
                   → Rechnung
                 </button>
@@ -111,10 +111,10 @@
                   <option value="abgelehnt">Abgelehnt</option>
                 </select>
                 <app-overflow-menu *roleAllowed="['admin']">
-                  <button class="btn-action" type="button" (click)="kopieren.emit(angebot)">
+                  <button class="btn-action" type="button" (click)="copyRequested.emit(angebot)">
                     Kopie
                   </button>
-                  <button class="btn-action" type="button" (click)="bearbeiten.emit(angebot)">
+                  <button class="btn-action" type="button" (click)="editRequested.emit(angebot)">
                     Bearbeiten
                   </button>
                   <button

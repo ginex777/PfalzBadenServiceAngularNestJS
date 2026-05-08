@@ -1,17 +1,17 @@
-import {
+﻿import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
-import type { PrismaService } from '../../../core/database/prisma.service';
-import type { PdfRenderService } from '../pdf-render.service';
-import type { PdfTokenService } from '../pdf-token.service';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { PdfRenderService } from '../pdf-render.service';
+import { PdfTokenService } from '../pdf-token.service';
 
 const MONATE_DE = [
   'Januar',
   'Februar',
-  'März',
+  'MÃ¤rz',
   'April',
   'Mai',
   'Juni',
@@ -92,7 +92,7 @@ export class HausmeisterPdfGenerator {
         referenz_nr: einsatz.datum.toISOString().slice(0, 10),
         referenz_id: einsatz.id,
         empf: einsatz.mitarbeiter_name,
-        titel: `Hausmeisterdienste ${this.render.formatDate(einsatz.datum.toISOString().slice(0, 10))}${einsatz.kunden_name ? ` – ${einsatz.kunden_name}` : ''}`,
+        titel: `Hausmeisterdienste ${this.render.formatDate(einsatz.datum.toISOString().slice(0, 10))}${einsatz.kunden_name ? ` â€“ ${einsatz.kunden_name}` : ''}`,
         datum: einsatz.datum,
         filename,
         html_body: html,
@@ -135,7 +135,7 @@ export class HausmeisterPdfGenerator {
     });
     const monatName = `${MONATE_DE[mo - 1]} ${y}`;
     const titel = mitarbeiterName
-      ? `Monatsnachweis ${mitarbeiterName} – ${monatName}`
+      ? `Monatsnachweis ${mitarbeiterName} â€“ ${monatName}`
       : `Monatsnachweis ${monatName}`;
 
     const einsaetze = rows.map((e) => ({

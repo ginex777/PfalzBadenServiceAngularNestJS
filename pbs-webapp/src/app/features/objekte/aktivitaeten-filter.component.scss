@@ -1,7 +1,7 @@
 .filter-card {
   background: var(--surface);
   border: 1px solid var(--border-strong);
-  border-radius: 14px;
+  border-radius: var(--radius);
   padding: 1.25rem;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
@@ -36,7 +36,7 @@
 .filter-block__title {
   font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--gray-600);
   margin-bottom: 0.6rem;

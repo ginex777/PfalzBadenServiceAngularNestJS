@@ -13,7 +13,7 @@ describe('OffenePostenModalComponent', () => {
 
     fixture = TestBed.createComponent(OffenePostenModalComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('daten', {
+    fixture.componentRef.setInput('data', {
       kundeId: 1,
       kundeName: 'Test',
       offenSaldo: 0,

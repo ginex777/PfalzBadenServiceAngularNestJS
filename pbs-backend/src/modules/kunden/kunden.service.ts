@@ -1,11 +1,11 @@
-import {
+﻿import {
   Injectable,
   Logger,
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
-import type { AuditService } from '../../modules/audit/audit.service';
+import { PrismaService } from '../../core/database/prisma.service';
+import { AuditService } from '../../modules/audit/audit.service';
 import type { CreateKundeDto, UpdateKundeDto } from './dto/kunde.dto';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
@@ -101,7 +101,7 @@ export class KundenService {
     });
     if (reCount + angCount > 0) {
       throw new ConflictException(
-        `Kunde kann nicht gelöscht werden: ${reCount} Rechnung(en) und ${angCount} Angebot(e) verknüpft.`,
+        `Kunde kann nicht gelÃ¶scht werden: ${reCount} Rechnung(en) und ${angCount} Angebot(e) verknÃ¼pft.`,
       );
     }
     await this.prisma.kunden.delete({ where: { id: BigInt(id) } });

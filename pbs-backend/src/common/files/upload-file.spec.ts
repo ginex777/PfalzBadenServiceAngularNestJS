@@ -1,4 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
+import { Readable } from 'stream';
 import {
   validatePdfUpload,
   validateReceiptUpload,
@@ -21,7 +22,7 @@ function uploadFile(
     destination: '',
     filename: '',
     path: '',
-    stream: undefined as never,
+    stream: Readable.from(buffer),
   };
 }
 

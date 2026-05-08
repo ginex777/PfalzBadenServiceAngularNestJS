@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -15,7 +15,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import type { Response } from 'express';
-import type { BelegeService } from './belege.service';
+import { BelegeService } from './belege.service';
 import { contentDispositionHeader } from '../../common/http/content-disposition';
 import { Roles } from '../auth/decorators/roles.decorator';
 import type { BelegeQueryDto } from './dto/belege-query.dto';

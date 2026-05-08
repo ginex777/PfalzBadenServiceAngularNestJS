@@ -1,9 +1,9 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { BenachrichtigungenController } from './benachrichtigungen.controller';
-import { PrismaService } from '../../core/database/prisma.service';
+import { BenachrichtigungenService } from './benachrichtigungen.service';
 
-const mockPrisma = {};
+const mockBenachrichtigungenService = {};
 
 describe('BenachrichtigungenController', () => {
   let controller: BenachrichtigungenController;
@@ -11,7 +11,12 @@ describe('BenachrichtigungenController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BenachrichtigungenController],
-      providers: [{ provide: PrismaService, useValue: mockPrisma }],
+      providers: [
+        {
+          provide: BenachrichtigungenService,
+          useValue: mockBenachrichtigungenService,
+        },
+      ],
     }).compile();
 
     controller = module.get<BenachrichtigungenController>(

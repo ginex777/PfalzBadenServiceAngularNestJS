@@ -26,8 +26,8 @@ export class JahresUebersichtComponent {
   readonly jahresMonatsDaten = input.required<JahresMonatsDaten[]>();
   readonly vstQuartale = input.required<VstQuartal[]>();
 
-  readonly vstAlsGezahltMarkieren = output<string>();
-  readonly vstZahlungZuruecksetzen = output<string>();
+  readonly markVatPaid = output<string>();
+  readonly resetVatPayment = output<string>();
 
   protected formatieren(wert: number): string {
     return waehrungFormatieren(wert);
@@ -89,9 +89,9 @@ export class JahresUebersichtComponent {
 
   protected vstToggle(quartal: VstQuartal): void {
     if (quartal.bezahlt) {
-      this.vstZahlungZuruecksetzen.emit(quartal.schluessel);
+      this.resetVatPayment.emit(quartal.schluessel);
     } else {
-      this.vstAlsGezahltMarkieren.emit(quartal.schluessel);
+      this.markVatPaid.emit(quartal.schluessel);
     }
   }
 }

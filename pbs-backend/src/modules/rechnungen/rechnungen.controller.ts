@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -11,7 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags, ApiSecurity, ApiOperation } from '@nestjs/swagger';
-import type { RechnungenService } from './rechnungen.service';
+import { RechnungenService } from './rechnungen.service';
 import type { CreateRechnungDto, UpdateRechnungDto } from './dto/rechnung.dto';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -50,7 +50,7 @@ export class RechnungenController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Rechnung löschen' })
+  @ApiOperation({ summary: 'Rechnung lÃ¶schen' })
   delete(
     @Param('id', ParseIntPipe) id: number,
     @Headers('x-nutzer') nutzer?: string,

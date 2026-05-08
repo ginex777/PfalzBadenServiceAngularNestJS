@@ -1,12 +1,12 @@
-import {
+﻿import {
   Injectable,
   Logger,
   NotFoundException,
   ConflictException,
   ForbiddenException,
 } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
-import type { AuditService } from '../../modules/audit/audit.service';
+import { PrismaService } from '../../core/database/prisma.service';
+import { AuditService } from '../../modules/audit/audit.service';
 import type { Rechnungen } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import type { CreateRechnungDto, UpdateRechnungDto } from './dto/rechnung.dto';
@@ -111,14 +111,14 @@ export class RechnungenService {
     });
     if (!alt) throw new NotFoundException(`Rechnung ${id} nicht gefunden`);
 
-    // GoBD §146 AO: Bezahlte Rechnungen — nur Zahlungsstatus änderbar
+    // GoBD Â§146 AO: Bezahlte Rechnungen â€” nur Zahlungsstatus Ã¤nderbar
     if (alt.bezahlt && daten.bezahlt !== false) {
       throw new ForbiddenException(
-        'Bezahlte Rechnungen dürfen inhaltlich nicht geändert werden (GoBD §146 AO).',
+        'Bezahlte Rechnungen dÃ¼rfen inhaltlich nicht geÃ¤ndert werden (GoBD Â§146 AO).',
       );
     }
 
-    // Duplikat-Check bei Nr-Änderung
+    // Duplikat-Check bei Nr-Ã„nderung
     if (daten.nr !== undefined && daten.nr !== alt.nr) {
       const dup = await this.prisma.rechnungen.findFirst({
         where: { nr: daten.nr, id: { not: BigInt(id) } },
@@ -144,7 +144,7 @@ export class RechnungenService {
     if (!alt) throw new NotFoundException(`Rechnung ${id} nicht gefunden`);
     if (alt.bezahlt)
       throw new ForbiddenException(
-        'Bezahlte Rechnungen können nicht gelöscht werden (GoBD §146 AO).',
+        'Bezahlte Rechnungen kÃ¶nnen nicht gelÃ¶scht werden (GoBD Â§146 AO).',
       );
     await this.prisma.rechnungen.delete({ where: { id: BigInt(id) } });
     await this.audit.log('rechnungen', BigInt(id), 'DELETE', alt, null, nutzer);

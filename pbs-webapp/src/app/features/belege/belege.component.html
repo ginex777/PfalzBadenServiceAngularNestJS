@@ -20,15 +20,14 @@
         placeholder="Notiz (optional, max. 500 Zeichen)"
         [formField]="notizForm.notiz"
       />
-      <label class="btn btn-primary">
-        Datei wählen
-        <input
-          type="file"
-          accept=".pdf,.jpg,.jpeg,.png,.webp"
-          class="hidden-file-input"
-          (change)="dateiHochladen($event)"
-        />
-      </label>
+      <button class="btn btn-primary" type="button" (click)="fileInput.click()">Datei wählen</button>
+      <input
+        #fileInput
+        type="file"
+        accept=".pdf,.jpg,.jpeg,.png,.webp"
+        class="hidden-file-input"
+        (change)="dateiHochladen($event)"
+      />
     </div>
     @if (notizForm.notiz().touched() && notizForm.notiz().invalid()) {
       <span class="form-fehler">{{ notizForm.notiz().errors()[0]?.message }}</span>
@@ -108,7 +107,7 @@
               <th>Größe</th>
               <th>Hochgeladen</th>
               <th>Aufbewahrung bis</th>
-              <th class="col-aktionen">Aktionen</th>
+              <th class="actions-col">Aktionen</th>
             </tr>
           </thead>
           <tbody>
@@ -164,7 +163,7 @@
                 <td class="grau-text">{{ facade.dateigroesseFormatieren(b.filesize) }}</td>
                 <td class="grau-text">{{ datumFormatieren(b.erstellt_am) }}</td>
                 <td class="grau-text">{{ datumFormatieren(b.aufbewahrung_bis) }}</td>
-                <td class="td-aktionen">
+                <td class="actions-cell">
                   <a [href]="facade.downloadUrl(b.id)" class="btn btn-sm">Download</a>
                   <button
                     class="btn-action btn-action--danger"

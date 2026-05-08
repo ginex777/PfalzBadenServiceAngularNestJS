@@ -1,4 +1,5 @@
 import type { ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 
 const parentCanActivate = jest.fn(
   (_context: ExecutionContext): unknown => 'parent-result',
@@ -34,16 +35,18 @@ describe('JwtAuthGuard', () => {
   });
 
   it('allows public routes without invoking passport', () => {
-    const reflector = { getAllAndOverride: jest.fn(() => true) };
-    const guard = new JwtAuthGuard(reflector as never);
+    const reflector = new Reflector();
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(true);
+    const guard = new JwtAuthGuard(reflector);
 
     expect(guard.canActivate(context())).toBe(true);
     expect(parentCanActivate).not.toHaveBeenCalled();
   });
 
   it('delegates protected routes to passport jwt guard', () => {
-    const reflector = { getAllAndOverride: jest.fn(() => false) };
-    const guard = new JwtAuthGuard(reflector as never);
+    const reflector = new Reflector();
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
+    const guard = new JwtAuthGuard(reflector);
 
     expect(guard.canActivate(context())).toBe('parent-result');
     expect(parentCanActivate).toHaveBeenCalledTimes(1);

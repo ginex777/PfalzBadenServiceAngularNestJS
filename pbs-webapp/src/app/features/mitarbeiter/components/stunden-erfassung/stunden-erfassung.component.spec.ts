@@ -13,14 +13,14 @@ describe('StundenErfassungComponent', () => {
 
     fixture = TestBed.createComponent(StundenErfassungComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('mitarbeiter', {
+    fixture.componentRef.setInput('employee', {
       id: 1,
       name: 'Test',
       stundenlohn: 0,
       aktiv: true,
     });
-    fixture.componentRef.setInput('stunden', []);
-    fixture.componentRef.setInput('formularDaten', {
+    fixture.componentRef.setInput('hours', []);
+    fixture.componentRef.setInput('formData', {
       datum: '',
       stunden: 0,
       lohnSatz: 0,

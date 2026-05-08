@@ -61,6 +61,12 @@
     background: var(--app-color-surface-raised);
     border-color: var(--app-color-border-strong);
   }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--app-color-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-color-primary) 18%, transparent);
+  }
 }
 
 .app-modal__body {

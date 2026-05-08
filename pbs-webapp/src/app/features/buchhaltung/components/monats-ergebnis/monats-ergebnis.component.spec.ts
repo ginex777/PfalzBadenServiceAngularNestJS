@@ -13,8 +13,8 @@ describe('MonatsErgebnisComponent', () => {
 
     fixture = TestBed.createComponent(MonatsErgebnisComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('monatName', 'Januar');
-    fixture.componentRef.setInput('ergebnis', {
+    fixture.componentRef.setInput('monthName', 'Januar');
+    fixture.componentRef.setInput('result', {
       einnahmenNetto: 0,
       einnahmenUst: 0,
       ausgabenNetto: 0,

@@ -13,7 +13,7 @@ describe('EinnahmenTabelleComponent', () => {
 
     fixture = TestBed.createComponent(EinnahmenTabelleComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('zeilen', []);
+    fixture.componentRef.setInput('rows', []);
     fixture.detectChanges();
   });
 

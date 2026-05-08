@@ -52,10 +52,10 @@
 }
 
 .card {
-  background: var(--surface-glass);
-  backdrop-filter: var(--glass-blur-sm);
-  -webkit-backdrop-filter: var(--glass-blur-sm);
-  border: 1px solid var(--border-glass);
+  background: var(--surface-overlay);
+  backdrop-filter: var(--surface-blur-sm);
+  -webkit-backdrop-filter: var(--surface-blur-sm);
+  border: 1px solid var(--border-soft);
   border-radius: var(--radius);
   padding: 1rem 1.25rem;
 }

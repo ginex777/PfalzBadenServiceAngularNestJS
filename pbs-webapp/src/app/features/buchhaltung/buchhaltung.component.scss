@@ -38,7 +38,7 @@
 }
 
 // ── Button modifiers (combine with global .btn) ───────────────────────────────
-.btn--speichern {
+.btn-save {
   border-color: var(--primary-solid);
   background: var(--primary-light);
   color: var(--primary-solid);
@@ -49,7 +49,7 @@
   }
 }
 
-.btn--dirty {
+.btn-dirty {
   background: var(--warning);
   border-color: var(--warning);
   color: #fff;
@@ -60,7 +60,7 @@
   }
 }
 
-.btn--sperren {
+.btn-lock {
   color: var(--danger);
   border-color: var(--danger-light);
   &:hover:not(:disabled) {
@@ -70,7 +70,7 @@
   }
 }
 
-.btn--entsperren {
+.btn-unlock {
   color: var(--success);
   border-color: var(--success-muted);
   &:hover:not(:disabled) {
@@ -79,9 +79,7 @@
   }
 }
 
-.btn--gefaehrlich-klein {
-  font-size: 11px;
-  padding: 3px 8px;
+.btn-danger-outline {
   color: var(--danger);
   border-color: var(--danger-light);
   &:hover:not(:disabled) {

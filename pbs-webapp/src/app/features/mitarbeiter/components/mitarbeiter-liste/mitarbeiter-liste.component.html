@@ -1,6 +1,6 @@
-@if (laedt()) {
+@if (loading()) {
   <app-skeleton-rows [count]="5" />
-} @else if (!mitarbeiter().length) {
+} @else if (!employees().length) {
   <app-empty-state
     title="Keine Mitarbeiter vorhanden"
     description="Legen Sie Ihren ersten Mitarbeiter an."
@@ -15,11 +15,11 @@
           <th class="rechts">Stundenlohn</th>
           <th>Kontakt</th>
           <th class="mitte">Aktiv</th>
-          <th class="col-aktionen">Aktionen</th>
+          <th class="actions-col">Aktionen</th>
         </tr>
       </thead>
       <tbody>
-        @for (ma of mitarbeiter(); track ma.id) {
+        @for (ma of employees(); track ma.id) {
           <tr [class.inaktiv]="!ma.aktiv">
             <td class="td-name">
               <strong>{{ ma.name }}</strong>
@@ -44,15 +44,15 @@
                 (change)="aktivGeaendert(ma.id, $event)"
               />
             </td>
-            <td class="td-aktionen">
-              <button class="btn btn-sm" (click)="stundenOeffnen.emit(ma.id)">Stunden</button>
-              <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(ma)">
-                Bearbeiten
+            <td class="actions-cell">
+              <button class="btn btn-sm" (click)="openHours.emit(ma.id)">Stunden</button>
+              <button class="btn-action" title="edit" (click)="edit.emit(ma)">
+                edit
               </button>
               <button
                 class="btn-action btn-action--danger"
                 title="Löschen"
-                (click)="loeschen.emit(ma.id)"
+                (click)="delete.emit(ma.id)"
               >
                 Löschen
               </button>

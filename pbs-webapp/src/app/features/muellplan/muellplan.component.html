@@ -43,7 +43,7 @@
           [monthFilter]="monatFilter()"
           [hidePast]="facade.vergangeneAusblenden()"
           [hasActiveFilter]="hatAktivenFilter()"
-          [erledigungsHistorie]="facade.erledigungsHistorie()"
+          [completionHistory]="facade.erledigungsHistorie()"
           (addTerm)="facade.terminFormularOeffnen()"
           (termDoneChange)="terminErledigtAendern($event)"
           (deleteTerm)="facade.terminLoeschen($event)"
@@ -65,14 +65,10 @@
   <app-drawer
     [isOpen]="filterModalOffen()"
     ariaLabel="Filter"
+    title="Filter"
     position="right"
     (closed)="filterModalOffen.set(false)"
   >
-    <div class="drawer-header">
-      <h3 class="drawer-title">Filter</h3>
-      <button class="app-modal__close" type="button" (click)="filterModalOffen.set(false)" aria-label="Schließen">×</button>
-    </div>
-    <div class="drawer-body">
       <div class="filter-row mb-sm">
         <div class="form-field form-field--flex">
           <label class="form-hint" for="filter-muellart">Müllart</label>
@@ -124,7 +120,6 @@
         </button>
         <button class="btn btn-sm btn-primary" type="button" (click)="filterModalOffen.set(false)">Fertig</button>
       </div>
-    </div>
   </app-drawer>
 }
 
@@ -133,14 +128,10 @@
   <app-drawer
     [isOpen]="facade.terminFormularSichtbar()"
     ariaLabel="Termin"
+    title="Termin"
     position="right"
     (closed)="facade.terminFormularSchliessen()"
   >
-    <div class="drawer-header">
-      <h3 class="drawer-title">Termin</h3>
-      <button class="app-modal__close" type="button" (click)="facade.terminFormularSchliessen()" aria-label="Schließen">×</button>
-    </div>
-    <div class="drawer-body">
       <div class="form-row mb-sm">
         <div class="form-field">
           <label class="form-hint" for="termin-muellart">Müllart *</label>
@@ -179,7 +170,6 @@
         <button class="btn btn-sm" type="button" (click)="facade.terminFormularSchliessen()">Abbrechen</button>
         <button class="btn btn-sm btn-primary" type="button" (click)="facade.terminSpeichern()">Speichern</button>
       </div>
-    </div>
   </app-drawer>
 }
 
@@ -216,14 +206,10 @@
 <app-drawer
   [isOpen]="facade.vorlageFormularSichtbar()"
   ariaLabel="Vorlage erstellen"
+  title="Vorlage erstellen"
   position="right"
   (closed)="facade.vorlageFormularSchliessen()"
 >
-  <div class="drawer-header">
-    <h3 class="drawer-title">Vorlage erstellen</h3>
-    <button class="app-modal__close" type="button" (click)="facade.vorlageFormularSchliessen()" aria-label="Schließen">×</button>
-  </div>
-  <div class="drawer-body">
     <div class="form-row mb-sm">
       <div class="form-field form-field--wide">
         <label class="form-hint" for="vorlage-name">Name *</label>
@@ -282,7 +268,6 @@
       <button class="btn btn-sm" type="button" (click)="facade.vorlageFormularSchliessen()">Abbrechen</button>
       <button class="btn btn-sm btn-primary" type="button" (click)="facade.vorlageSpeichern()">Speichern</button>
     </div>
-  </div>
 </app-drawer>
 
 <!-- Vorlage anwenden modal -->

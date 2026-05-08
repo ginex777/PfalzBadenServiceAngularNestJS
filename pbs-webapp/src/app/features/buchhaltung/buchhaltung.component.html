@@ -5,8 +5,8 @@
     [ansichtsModus]="facade.ansichtsModus()"
     [gesperrteMonateSet]="facade.gesperrteMonateSet()"
     [monatHatDaten]="facade.monatHatDaten()"
-    (monatGewaehlt)="monatWechseln($event)"
-    (jahresansichtGewaehlt)="jahresansichtUmschalten()"
+    (monthSelected)="monatWechseln($event)"
+    (yearViewSelected)="jahresansichtUmschalten()"
   />
 
   <!-- Toolbar -->
@@ -20,7 +20,7 @@
     @if (facade.ansichtsModus() === 'monat') {
       @if (facade.speicherStatus().dirty) {
         <button
-          class="btn btn-sm btn--speichern btn--dirty"
+          class="btn btn-sm btn-save btn-dirty"
           (click)="batchSpeichern()"
           [disabled]="facade.speicherStatus().speichernLaeuft"
           type="button"
@@ -32,17 +32,17 @@
           }
         </button>
       } @else {
-        <button class="btn btn-sm btn--speichern" (click)="batchSpeichern()" type="button">
+        <button class="btn btn-sm btn-save" (click)="batchSpeichern()" type="button">
           Speichern
         </button>
       }
 
       @if (facade.istGesperrt()) {
-        <button class="btn btn-sm btn--entsperren" (click)="unlockMonth()" type="button">
+        <button class="btn btn-sm btn-unlock" (click)="unlockMonth()" type="button">
           Monat entsperren
         </button>
       } @else {
-        <button class="btn btn-sm btn--sperren" (click)="lockMonth()" type="button">
+        <button class="btn btn-sm btn-lock" (click)="lockMonth()" type="button">
           Monat sperren
         </button>
       }
@@ -72,7 +72,7 @@
             <h3 class="karte-titel">{{ aktuellerMonatName() }}</h3>
             @if (!facade.istGesperrt()) {
               <button
-                class="btn btn-sm btn--gefaehrlich-klein"
+                class="btn btn-xs btn-danger-outline"
                 (click)="monatLeeren()"
                 type="button"
               >
@@ -81,28 +81,28 @@
             }
           </div>
           <app-einnahmen-tabelle
-            [zeilen]="facade.aktuelleEinnahmen()"
-            [istGesperrt]="facade.istGesperrt()"
-            (zeileHinzufuegen)="einnahmeZeileHinzufuegen()"
-            (zeileEntfernen)="einnahmeZeileEntfernen($event)"
-            (zeileKopieren)="einnahmeZeileKopieren($event)"
-            (zeileAktualisieren)="einnahmeZeileAktualisieren($event)"
-            (belegOeffnen)="einnahmeBelegOeffnen($event)"
+            [rows]="facade.aktuelleEinnahmen()"
+            [isLocked]="facade.istGesperrt()"
+            (addRow)="addIncomeRow()"
+            (removeRow)="removeIncomeRow($event)"
+            (copyRow)="copyIncomeRow($event)"
+            (updateRow)="updateIncomeRow($event)"
+            (openReceipt)="openIncomeReceipt($event)"
           />
         </div>
 
         <!-- Ausgaben -->
         <div class="karte karte--ausgaben">
           <app-ausgaben-tabelle
-            [zeilen]="facade.aktuelleAusgaben()"
-            [istGesperrt]="facade.istGesperrt()"
-            (zeileHinzufuegen)="ausgabeZeileHinzufuegen()"
-            (zeileEntfernen)="ausgabeZeileEntfernen($event)"
-            (zeileKopieren)="ausgabeZeileKopieren($event)"
-            (zeileAktualisieren)="ausgabeZeileAktualisieren($event)"
-            (kategorieAktualisieren)="kategorieAktualisieren($event)"
-            (wiederkehrendeKostenAnwenden)="wiederkehrendeKostenAnwenden()"
-            (belegOeffnen)="ausgabeBelegOeffnen($event)"
+            [rows]="facade.aktuelleAusgaben()"
+            [isLocked]="facade.istGesperrt()"
+            (addRow)="addExpenseRow()"
+            (removeRow)="removeExpenseRow($event)"
+            (copyRow)="copyExpenseRow($event)"
+            (updateRow)="updateExpenseRow($event)"
+            (updateCategory)="updateCategory($event)"
+            (applyRecurringCosts)="applyRecurringCosts()"
+            (openReceipt)="openExpenseReceipt($event)"
           />
         </div>
       </div>
@@ -110,8 +110,8 @@
       <!-- Monatsergebnis (rechte Spalte) -->
       <div class="rechte-spalte">
         <app-monats-ergebnis
-          [ergebnis]="facade.aktuellesMonatsergebnis()"
-          [monatName]="aktuellerMonatName()"
+          [result]="facade.aktuellesMonatsergebnis()"
+          [monthName]="aktuellerMonatName()"
         />
       </div>
     </div>
@@ -124,8 +124,8 @@
       [quartalsDaten]="facade.quartalsDaten()"
       [jahresMonatsDaten]="facade.jahresMonatsDaten()"
       [vstQuartale]="facade.vstQuartale()"
-      (vstAlsGezahltMarkieren)="vstAlsGezahltMarkieren($event)"
-      (vstZahlungZuruecksetzen)="vstZahlungZuruecksetzen($event)"
+      (markVatPaid)="markVatPaid($event)"
+      (resetVatPayment)="resetVatPayment($event)"
     />
   }
 </div>
@@ -191,10 +191,10 @@
           <a
             [href]="getReceiptDownloadUrl(belegModal().beleg!.id, true)"
             target="_blank"
-            class="btn btn--klein"
+            class="btn btn-sm"
             >Anzeigen</a
           >
-          <a [href]="getReceiptDownloadUrl(belegModal().beleg!.id)" class="btn btn--klein"
+          <a [href]="getReceiptDownloadUrl(belegModal().beleg!.id)" class="btn btn-sm"
             >Download</a
           >
         </div>

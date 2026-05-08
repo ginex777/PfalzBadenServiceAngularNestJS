@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
+﻿import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../core/database/prisma.service';
 import type {
   ListStempeluhrQueryDto,
   StempelEintragDto,
   StempeluhrListResponseDto,
 } from './dto/stempeluhr.dto';
-import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import { AccessPolicyService } from '../access-policy/access-policy.service';
 import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
 
 @Injectable()

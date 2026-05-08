@@ -1,25 +1,15 @@
 <app-page-title title="Wiederkehrende Kosten" subtitle="Monatliche Fixkosten" />
 
-@if (facade.formularSichtbar()) {
-  <app-drawer
-    [isOpen]="facade.formularSichtbar()"
-    ariaLabel="Kostenpunkt Formular"
-    position="right"
-    (closed)="formularSchliessen()"
-  >
-    <div class="drawer-header">
-      <h3 class="drawer-title">
-        @if (facade.bearbeiteteAusgabe()) {
-          Kostenpunkt bearbeiten
-        } @else {
-          Neuer Kostenpunkt
-        }
-      </h3>
-      <button class="app-modal__close" type="button" (click)="formularSchliessen()" aria-label="Schließen">x</button>
-    </div>
-    <div class="drawer-body">
-      <div class="form-row">
-        <div class="form-field">
+  @if (facade.formularSichtbar()) {
+    <app-drawer
+      [isOpen]="facade.formularSichtbar()"
+      ariaLabel="Kostenpunkt Formular"
+      [title]="facade.bearbeiteteAusgabe() ? 'Kostenpunkt bearbeiten' : 'Neuer Kostenpunkt'"
+      position="right"
+      (closed)="formularSchliessen()"
+    >
+        <div class="form-row">
+          <div class="form-field">
           <label for="wka-name">Bezeichnung *</label>
           <input
             id="wka-name"
@@ -71,9 +61,8 @@
           Speichern
         </button>
       </div>
-    </div>
-  </app-drawer>
-}
+    </app-drawer>
+  }
 
 <div class="card">
   <div class="card-header">
@@ -136,7 +125,7 @@
               <td class="mitte">
                 <input type="checkbox" [checked]="a.aktiv" (change)="aktivToggle(a.id, $event)" />
               </td>
-              <td class="aktionen">
+              <td class="actions-cell">
                 <button class="btn-action" type="button" (click)="formularOeffnen(a)">Bearbeiten</button>
                 <button
                   class="btn-action btn-action--danger"

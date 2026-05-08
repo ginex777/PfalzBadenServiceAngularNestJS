@@ -1,23 +1,23 @@
 <app-modal
   [isOpen]="true"
-  [title]="'Offene Posten – ' + daten().kundeName"
+  [title]="'Offene Posten – ' + data().kundeName"
   size="lg"
   (closed)="schliessen()"
 >
   <!-- Kennzahlen -->
   <div class="kennzahlen">
     <div class="kennzahl kennzahl--danger">
-      <span class="kennzahl-wert">{{ waehrungFormatieren(daten().offenSaldo) }}</span>
-      <span class="kennzahl-label">{{ daten().offeneAnzahl }} offene Rechnung(en)</span>
+      <span class="kennzahl-wert">{{ waehrungFormatieren(data().offenSaldo) }}</span>
+      <span class="kennzahl-label">{{ data().offeneAnzahl }} offene Rechnung(en)</span>
     </div>
     <div class="kennzahl kennzahl--success">
-      <span class="kennzahl-wert">{{ waehrungFormatieren(daten().umsatzBezahlt) }}</span>
+      <span class="kennzahl-wert">{{ waehrungFormatieren(data().umsatzBezahlt) }}</span>
       <span class="kennzahl-label">Gesamtumsatz bezahlt</span>
     </div>
-    @if (daten().ueberfaelligeAnzahl > 0) {
+    @if (data().ueberfaelligeAnzahl > 0) {
       <div class="kennzahl kennzahl--warning">
-        <span class="kennzahl-wert">{{ daten().ueberfaelligeAnzahl }} überfällig</span>
-        <span class="kennzahl-label">{{ waehrungFormatieren(daten().ueberfaelligeSumme) }}</span>
+        <span class="kennzahl-wert">{{ data().ueberfaelligeAnzahl }} überfällig</span>
+        <span class="kennzahl-label">{{ waehrungFormatieren(data().ueberfaelligeSumme) }}</span>
       </div>
     }
   </div>
@@ -36,12 +36,12 @@
         </tr>
       </thead>
       <tbody>
-        @if (daten().rechnungen.length === 0) {
+        @if (data().rechnungen.length === 0) {
           <tr>
             <td colspan="6" class="leer">Keine Rechnungen vorhanden</td>
           </tr>
         } @else {
-          @for (re of daten().rechnungen; track re.id) {
+          @for (re of data().rechnungen; track re.id) {
             <tr>
               <td class="col-nr">{{ re.nr }}</td>
               <td class="col-titel">{{ re.titel || '–' }}</td>
@@ -65,9 +65,9 @@
   <!-- Aktionen -->
   <div class="modal-aktionen">
     <button class="btn btn-primary" (click)="createInvoice()">Neue Rechnung</button>
-    @if (daten().ueberfaelligeAnzahl > 0) {
-      <button class="btn btn-danger" (click)="sammelMahnungSenden()">
-        Sammel-Mahnung ({{ daten().ueberfaelligeAnzahl }})
+    @if (data().ueberfaelligeAnzahl > 0) {
+      <button class="btn btn-danger" (click)="bulkReminderSenden()">
+        Sammel-Mahnung ({{ data().ueberfaelligeAnzahl }})
       </button>
     }
     <button class="btn" (click)="schliessen()">Schließen</button>

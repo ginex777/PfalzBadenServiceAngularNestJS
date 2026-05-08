@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+﻿import { Injectable, NotFoundException } from '@nestjs/common';
 import * as Handlebars from 'handlebars';
-import type { PrismaService } from '../../../core/database/prisma.service';
-import type { PdfRenderService } from '../pdf-render.service';
-import type { PdfTokenService } from '../pdf-token.service';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { PdfRenderService } from '../pdf-render.service';
+import { PdfTokenService } from '../pdf-token.service';
 
 @Injectable()
 export class AngebotPdfGenerator {
@@ -51,7 +51,7 @@ export class AngebotPdfGenerator {
         positionen,
         datumFormatiert: angebot.datum
           ? this.render.formatDate(angebot.datum.toISOString().slice(0, 10))
-          : '–',
+          : 'â€“',
         gueltigBisFormatiert: angebot.gueltig_bis
           ? this.render.formatDate(
               angebot.gueltig_bis.toISOString().slice(0, 10),

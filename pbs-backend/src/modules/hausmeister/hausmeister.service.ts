@@ -1,5 +1,5 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
+﻿import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
@@ -7,7 +7,7 @@ import type {
   CreateHausmeisterEinsatzDto,
   UpdateHausmeisterEinsatzDto,
 } from './dto/hausmeister.dto';
-import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import { AccessPolicyService } from '../access-policy/access-policy.service';
 import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
 
 @Injectable()

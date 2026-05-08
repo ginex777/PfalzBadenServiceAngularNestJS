@@ -250,5 +250,16 @@ describe('KundenFacade', () => {
       facade.seiteZurueck();
       expect(facade.aktuelleSeite()).toBe(1);
     });
+
+    it('seiteSetzen() begrenzt die Seite auf den vorhandenen Bereich', () => {
+      const viele = Array.from({ length: 60 }, (_, i) => ({ ...testKunden[0], id: i + 1 }));
+      facade.kunden.set(viele);
+
+      facade.seiteSetzen(99);
+      expect(facade.aktuelleSeite()).toBe(3);
+
+      facade.seiteSetzen(0);
+      expect(facade.aktuelleSeite()).toBe(1);
+    });
   });
 });

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -11,7 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags, ApiSecurity, ApiOperation } from '@nestjs/swagger';
-import type { KundenService } from './kunden.service';
+import { KundenService } from './kunden.service';
 import type { CreateKundeDto, UpdateKundeDto } from './dto/kunde.dto';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -46,7 +46,7 @@ export class KundenController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Kunde löschen' })
+  @ApiOperation({ summary: 'Kunde lÃ¶schen' })
   delete(
     @Param('id', ParseIntPipe) id: number,
     @Headers('x-nutzer') user?: string,

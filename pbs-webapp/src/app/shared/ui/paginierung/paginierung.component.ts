@@ -12,6 +12,7 @@ export class PaginierungComponent {
   readonly pageSize = input.required<number>();
   readonly total = input.required<number>();
   readonly pageSizeOptions = input<readonly number[]>([10, 25, 50, 100]);
+  readonly showPageSize = input(true);
 
   readonly pageChange = output<number>();
   readonly pageSizeChange = output<number>();

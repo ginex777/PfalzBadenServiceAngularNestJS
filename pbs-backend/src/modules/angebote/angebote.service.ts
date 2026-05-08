@@ -1,6 +1,6 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
-import type { AuditService } from '../../modules/audit/audit.service';
+﻿import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../core/database/prisma.service';
+import { AuditService } from '../../modules/audit/audit.service';
 import type { Angebote } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import type { CreateAngebotDto, UpdateAngebotDto } from './dto/angebot.dto';

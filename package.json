@@ -8,8 +8,12 @@
     "build:backend": "npm run build --prefix pbs-backend",
     "check:api-contract": "node tools/check-api-contract.cjs",
     "check:mojibake": "node tools/check-mojibake.cjs",
+    "check:ui-consistency": "node tools/check-ui-consistency.cjs",
     "check:unsafe-casts": "node tools/check-unsafe-casts.cjs",
     "smoke:e2e-mobile-web": "node tools/e2e-mobile-web-smoke.cjs",
+    "smoke:visual": "node tools/visual-smoke.cjs",
+    "smoke:visual:web": "node tools/visual-smoke.cjs --target=web",
+    "smoke:visual:mobile": "node tools/visual-smoke.cjs --target=mobile",
     "lint:backend": "npm run lint --prefix pbs-backend",
     "lint:webapp": "npm run lint --prefix pbs-webapp",
     "lint:mobile": "npm run lint --prefix pbs-mobile",
@@ -23,7 +27,8 @@
     "lint": "npm run lint:check",
     "lint:check": "npm run lint:check --prefix pbs-backend && npm run lint:check --prefix pbs-webapp && npm run lint:check --prefix pbs-mobile",
     "lint:fix": "npm run lint:fix --prefix pbs-backend && npm run lint:fix --prefix pbs-webapp && npm run lint:fix --prefix pbs-mobile",
-    "test:coverage:webapp": "npm run test:coverage --prefix pbs-webapp -- --run",
+    "test:coverage:backend": "npm run test:coverage:services --prefix pbs-backend",
+    "test:coverage:webapp": "npm run test:coverage:quality --prefix pbs-webapp",
     "test:coverage:mobile": "npm run test:coverage --prefix pbs-mobile"
   }
 }

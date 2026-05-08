@@ -20,23 +20,8 @@
   @include shared.gesperrt-banner;
 }
 
-.btn-wiederkehrend {
+.recurring-costs-action {
   margin-left: auto;
-  padding: 0.25rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  font-size: 0.78rem;
-  cursor: pointer;
-  color: var(--gray-600);
-  white-space: nowrap;
-  transition: all 0.15s;
-
-  &:hover {
-    background: var(--primary-light);
-    color: var(--primary-dark);
-    border-color: var(--primary);
-  }
 }
 
 .kategorie-chips {
@@ -141,40 +126,9 @@
   align-items: center;
 }
 
-.btn-beleg {
-  @include shared.btn-aktion;
-  &--vorhanden {
-    color: var(--success);
-    border-color: var(--success-light);
-  }
-}
-
-.btn-kopie {
-  @include shared.btn-aktion;
-}
-
-.btn-loeschen {
-  @include shared.btn-aktion;
-  color: var(--danger);
-  &:hover {
-    background: var(--danger-light);
-  }
-}
-
 .gesperrt-label {
   font-size: 11px;
   color: var(--gray-400);
-}
-
-.btn-hinzufuegen {
-  @include shared.btn-hinzufuegen;
-  &--rot {
-    color: var(--danger);
-    border-color: var(--danger-light);
-    &:hover {
-      background: var(--danger-light);
-    }
-  }
 }
 
 .zusammenfassung {

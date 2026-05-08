@@ -39,7 +39,7 @@ ion-content {
   text-transform: uppercase;
   color: var(--app-text-muted);
   margin-bottom: 0.75rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
 }
 
 .runtime {
@@ -60,7 +60,7 @@ ion-content {
 .object-label {
   font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--app-text-muted);
 }
@@ -72,7 +72,7 @@ ion-content {
   --min-height: 3.2rem;
 
   border: 1px solid var(--app-border);
-  border-radius: 0.8rem;
+  border-radius: var(--app-radius-md);
 }
 
 .object-select.ion-disabled {
@@ -82,7 +82,7 @@ ion-content {
 .object-input {
   min-height: 2.8rem;
   border: 1px solid var(--app-border);
-  border-radius: 0.8rem;
+  border-radius: var(--app-radius-md);
   padding: 0.7rem 0.8rem;
   font-size: 0.95rem;
   color: var(--app-text-strong);
@@ -105,9 +105,9 @@ ion-content {
 }
 
 .primary-action {
-  --border-radius: 0.9rem;
+  --border-radius: var(--app-radius-lg);
   height: 3.4rem;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   font-weight: 700;
   margin: 0;
 }

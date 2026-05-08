@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -9,7 +9,7 @@ import {
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
-import type { WiederkehrendService } from './wiederkehrend.service';
+import { WiederkehrendService } from './wiederkehrend.service';
 import type {
   CreateWiederkehrendeAusgabeDto,
   CreateWiederkehrendeRechnungDto,

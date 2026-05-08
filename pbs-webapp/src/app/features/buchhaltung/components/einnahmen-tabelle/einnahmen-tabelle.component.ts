@@ -14,17 +14,17 @@ import {
   styleUrl: './einnahmen-tabelle.component.scss',
 })
 export class EinnahmenTabelleComponent {
-  readonly zeilen = input.required<BuchhaltungZeile[]>();
-  readonly istGesperrt = input<boolean>(false);
+  readonly rows = input.required<BuchhaltungZeile[]>();
+  readonly isLocked = input<boolean>(false);
 
-  readonly zeileHinzufuegen = output<void>();
-  readonly zeileEntfernen = output<string>();
-  readonly zeileKopieren = output<string>();
-  readonly zeileAktualisieren = output<{
+  readonly addRow = output<void>();
+  readonly removeRow = output<string>();
+  readonly copyRow = output<string>();
+  readonly updateRow = output<{
     tempId: string;
     aenderungen: Partial<BuchhaltungZeile>;
   }>();
-  readonly belegOeffnen = output<string>();
+  readonly openReceipt = output<string>();
 
   protected readonly mwstOptionen = [0, 7, 19];
   protected suchbegriff = '';
@@ -35,10 +35,10 @@ export class EinnahmenTabelleComponent {
     this.suchbegriff = target.value;
   }
 
-  protected gefilterteZeilen(): BuchhaltungZeile[] {
+  protected gefilterterows(): BuchhaltungZeile[] {
     const q = this.suchbegriff.toLowerCase();
-    if (!q) return this.zeilen();
-    return this.zeilen().filter(
+    if (!q) return this.rows();
+    return this.rows().filter(
       (z) =>
         (z.name ?? '').toLowerCase().includes(q) ||
         (z.renr ?? '').toLowerCase().includes(q) ||
@@ -55,15 +55,15 @@ export class EinnahmenTabelleComponent {
   }
 
   protected gesamtEinnahmenNetto(): number {
-    return this.zeilen().reduce((s, z) => s + nettoBerechnen(z.brutto, z.mwst), 0);
+    return this.rows().reduce((s, z) => s + nettoBerechnen(z.brutto, z.mwst), 0);
   }
 
   protected gesamtUst(): number {
-    return this.zeilen().reduce((s, z) => s + steuerBerechnen(z.brutto, z.mwst), 0);
+    return this.rows().reduce((s, z) => s + steuerBerechnen(z.brutto, z.mwst), 0);
   }
 
   protected gesamtBrutto(): number {
-    return this.zeilen().reduce((s, z) => s + (z.brutto || 0), 0);
+    return this.rows().reduce((s, z) => s + (z.brutto || 0), 0);
   }
 
   protected formatieren(wert: number): string {
@@ -75,7 +75,7 @@ export class EinnahmenTabelleComponent {
     feld: keyof BuchhaltungZeile,
     wert: string | number,
   ): void {
-    this.zeileAktualisieren.emit({
+    this.updateRow.emit({
       tempId,
       aenderungen: { [feld]: wert } as Partial<BuchhaltungZeile>,
     });
@@ -83,12 +83,12 @@ export class EinnahmenTabelleComponent {
 
   protected bruttoAktualisieren(tempId: string, event: Event): void {
     const wert = parseFloat((event.target as HTMLInputElement).value) || 0;
-    this.zeileAktualisieren.emit({ tempId, aenderungen: { brutto: Math.max(0, wert) } });
+    this.updateRow.emit({ tempId, aenderungen: { brutto: Math.max(0, wert) } });
   }
 
   protected mwstAktualisieren(tempId: string, event: Event): void {
     const wert = parseFloat((event.target as HTMLSelectElement).value);
-    this.zeileAktualisieren.emit({ tempId, aenderungen: { mwst: wert } });
+    this.updateRow.emit({ tempId, aenderungen: { mwst: wert } });
   }
 
   protected textfeldAktualisieren(
@@ -97,25 +97,25 @@ export class EinnahmenTabelleComponent {
     event: Event,
   ): void {
     const wert = (event.target as HTMLInputElement).value;
-    this.zeileAktualisieren.emit({
+    this.updateRow.emit({
       tempId,
       aenderungen: { [feld]: wert } as Partial<BuchhaltungZeile>,
     });
   }
 
   protected hinzufuegenKlicken(): void {
-    this.zeileHinzufuegen.emit();
+    this.addRow.emit();
   }
 
   protected entfernenKlicken(tempId: string): void {
-    this.zeileEntfernen.emit(tempId);
+    this.removeRow.emit(tempId);
   }
 
   protected kopierenKlicken(tempId: string): void {
-    this.zeileKopieren.emit(tempId);
+    this.copyRow.emit(tempId);
   }
 
   protected belegKlicken(tempId: string): void {
-    this.belegOeffnen.emit(tempId);
+    this.openReceipt.emit(tempId);
   }
 }

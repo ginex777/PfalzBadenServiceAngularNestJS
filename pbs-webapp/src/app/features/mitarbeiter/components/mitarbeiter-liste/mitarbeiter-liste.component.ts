@@ -12,16 +12,16 @@ import { SkeletonRowsComponent } from '../../../../shared/ui/skeleton-rows/skele
   styleUrl: './mitarbeiter-liste.component.scss',
 })
 export class MitarbeiterListeComponent {
-  readonly mitarbeiter = input.required<Mitarbeiter[]>();
-  readonly laedt = input<boolean>(false);
+  readonly employees = input.required<Mitarbeiter[]>();
+  readonly loading = input<boolean>(false);
 
-  readonly bearbeiten = output<Mitarbeiter>();
-  readonly loeschen = output<number>();
-  readonly stundenOeffnen = output<number>();
-  readonly aktivToggle = output<{ id: number; aktiv: boolean }>();
+  readonly edit = output<Mitarbeiter>();
+  readonly delete = output<number>();
+  readonly openHours = output<number>();
+  readonly toggleActive = output<{ id: number; active: boolean }>();
 
   protected aktivGeaendert(id: number, event: Event): void {
-    this.aktivToggle.emit({ id, aktiv: (event.target as HTMLInputElement).checked });
+    this.toggleActive.emit({ id, active: (event.target as HTMLInputElement).checked });
   }
 
   protected fmt(n: number): string {

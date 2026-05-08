@@ -99,6 +99,11 @@ export class AngeboteFacade {
     this.aktuelleSeite.update((p) => Math.min(this.gesamtSeiten(), p + 1));
   }
 
+  seiteSetzen(page: number): void {
+    if (!Number.isFinite(page)) return;
+    this.aktuelleSeite.set(Math.min(this.gesamtSeiten(), Math.max(1, Math.trunc(page))));
+  }
+
   readonly netto = computed(() => this.service.nettoBerechnen(this.formularDaten().positionen));
 
   readonly brutto = computed(() =>

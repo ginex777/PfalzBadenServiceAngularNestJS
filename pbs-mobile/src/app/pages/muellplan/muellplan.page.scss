@@ -15,7 +15,7 @@ ion-content {
 }
 
 .muellplan-hero {
-  border-radius: 1rem;
+  border-radius: var(--app-radius-xl);
   border: 1px solid rgba(255, 255, 255, 0.25);
   background: var(--app-hero-bg);
   color: #fff;
@@ -28,7 +28,7 @@ ion-content {
   opacity: 0.85;
   font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   font-weight: 700;
 }
 
@@ -48,7 +48,7 @@ ion-content {
 .muellplan-card {
   margin: 0;
   border: 1px solid var(--app-border);
-  border-radius: 0.95rem;
+  border-radius: var(--app-radius-lg);
   box-shadow: var(--app-shadow-soft);
 }
 

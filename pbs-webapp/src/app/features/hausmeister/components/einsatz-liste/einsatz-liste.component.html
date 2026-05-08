@@ -1,4 +1,4 @@
-@if (!einsaetze().length) {
+@if (!assignments().length) {
   <app-empty-state
     title="Keine Einsätze vorhanden"
     description="Legen Sie den ersten Hausmeistereinsatz an."
@@ -13,11 +13,11 @@
           <th>Kunde / Objekt</th>
           <th>Tätigkeiten</th>
           <th class="rechts">Stunden</th>
-          <th class="col-aktionen">Aktionen</th>
+          <th class="actions-col">Aktionen</th>
         </tr>
       </thead>
       <tbody>
-        @for (e of einsaetze(); track e.id) {
+        @for (e of assignments(); track e.id) {
           <tr [class.abgeschlossen]="e.abgeschlossen">
             <td>{{ datumFormatieren(e.datum) }}</td>
             <td class="td-name">{{ e.mitarbeiter_name }}</td>
@@ -38,17 +38,17 @@
             <td class="rechts stunden-gesamt">
               {{ e.stunden_gesamt.toLocaleString('de-DE', { minimumFractionDigits: 1 }) }} h
             </td>
-            <td class="td-aktionen">
-              <button class="btn-action" title="PDF erstellen" (click)="pdfGenerieren.emit(e)">
+            <td class="actions-cell">
+              <button class="btn-action" title="PDF erstellen" (click)="generatePdf.emit(e)">
                 PDF
               </button>
-              <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(e)">
-                Bearbeiten
+              <button class="btn-action" title="edit" (click)="editRequested.emit(e)">
+                edit
               </button>
               <button
                 class="btn-action btn-action--danger"
                 title="Löschen"
-                (click)="loeschen.emit(e.id)"
+                (click)="deleteRequested.emit(e.id)"
               >
                 Löschen
               </button>

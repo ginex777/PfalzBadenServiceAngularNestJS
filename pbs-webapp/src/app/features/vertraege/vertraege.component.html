@@ -20,7 +20,7 @@
         <option value="beendet">Beendet</option>
         <option value="gekuendigt">Gekündigt</option>
       </select>
-      <div style="margin-left:auto">
+      <div class="page-title-action">
         <button class="btn btn-sm btn-primary" type="button" (click)="neuStarten()">Neuer Vertrag</button>
       </div>
     </div>
@@ -80,15 +80,10 @@
     <app-drawer
       [isOpen]="formularSichtbar()"
       [ariaLabel]="ansicht() === 'neu' ? 'Neuer Vertrag' : 'Vertrag bearbeiten'"
+      [title]="ansicht() === 'neu' ? 'Neuer Vertrag' : 'Vertrag bearbeiten'"
       position="right"
       (closed)="abbrechen()"
     >
-      <div class="drawer-header">
-        <h3 class="drawer-title">{{ ansicht() === 'neu' ? 'Neuer Vertrag' : 'Vertrag bearbeiten' }}</h3>
-        <button class="app-modal__close" type="button" (click)="abbrechen()" aria-label="Schließen">×</button>
-      </div>
-      <div class="drawer-body">
-
         <div class="form-section">
           <h3>Auftraggeber</h3>
           <div class="form-grid">
@@ -258,7 +253,6 @@
           </button>
         </div>
 
-      </div>
     </app-drawer>
   }
 </div>

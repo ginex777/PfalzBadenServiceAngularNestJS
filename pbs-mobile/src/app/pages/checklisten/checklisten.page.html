@@ -14,18 +14,13 @@
   <div class="app-page-grid page-checklisten">
     <section class="app-hero">
       <p class="app-hero-label">Operativ</p>
-      <h1 class="app-hero-title">Kontrolle durchfuehren</h1>
-      <p class="app-hero-text">Checkliste ausfuellen und als Protokoll absenden.</p>
+      <h1 class="app-hero-title">Kontrolle durchführen</h1>
+      <p class="app-hero-text">Checkliste ausfüllen und als Protokoll absenden.</p>
     </section>
 
     @if (errorMessage()) {
-      <ion-card class="app-card error-card">
-        <ion-card-content>
-          <div class="error-title">Fehler</div>
-          <div class="error-text">{{ errorMessage() }}</div>
-          <ion-button expand="block" fill="outline" (click)="reload()">Neu laden</ion-button>
-        </ion-card-content>
-      </ion-card>
+      <div class="app-state-banner app-state-banner--error">{{ errorMessage() }}</div>
+      <ion-button expand="block" fill="outline" (click)="reload()">Neu laden</ion-button>
     }
 
     <ion-card class="app-card form-card">

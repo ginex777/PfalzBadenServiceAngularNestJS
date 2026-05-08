@@ -34,7 +34,7 @@
 .rolle-badge {
   display: inline-block;
   padding: 2px 8px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   font-size: 11px;
   font-weight: 600;
 

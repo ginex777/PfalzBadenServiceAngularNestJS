@@ -1,5 +1,5 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
+﻿import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../core/database/prisma.service';
 import type {
   WiederkehrendeAusgaben,
   WiederkehrendeRechnungen,

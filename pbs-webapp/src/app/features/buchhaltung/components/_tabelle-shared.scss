@@ -110,39 +110,6 @@
   }
 }
 
-@mixin btn-aktion {
-  padding: 0.2rem 0.45rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  font-size: 0.72rem;
-  cursor: pointer;
-  color: var(--gray-600);
-  transition: all 0.15s;
-  white-space: nowrap;
-
-  &:hover {
-    background: var(--gray-100);
-  }
-}
-
-@mixin btn-hinzufuegen {
-  align-self: flex-start;
-  padding: 0.35rem 0.75rem;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  font-size: 0.82rem;
-  cursor: pointer;
-  color: var(--gray-500);
-  transition: all 0.15s;
-  margin-top: 0.25rem;
-
-  &:hover {
-    background: var(--gray-50);
-  }
-}
-
 @mixin zusammenfassung {
   display: flex;
   flex-direction: column;

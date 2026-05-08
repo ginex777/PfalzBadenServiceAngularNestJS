@@ -20,7 +20,7 @@
         (change)="kundenIdGeaendert($event)"
       >
         <option value="">-- kein Kunde --</option>
-        @for (k of kunden(); track k.id) {
+        @for (k of customers(); track k.id) {
           <option [value]="k.id">{{ k.name }}</option>
         }
       </select>

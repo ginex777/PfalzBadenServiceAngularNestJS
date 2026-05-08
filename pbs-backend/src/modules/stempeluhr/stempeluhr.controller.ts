@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   Controller,
   Get,
@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
-import type { StempeluhrService } from './stempeluhr.service';
+import { StempeluhrService } from './stempeluhr.service';
 import type {
   ListStempeluhrQueryDto,
   StempeluhrListResponseDto,

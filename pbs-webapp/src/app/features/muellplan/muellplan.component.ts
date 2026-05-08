@@ -133,8 +133,12 @@ export class MuellplanComponent implements OnInit {
     const target = event.target;
     if (!(target instanceof HTMLInputElement) && !(target instanceof HTMLTextAreaElement)) return;
 
-    const value = feld === 'jahr' ? parseInt(target.value) : target.value;
-    this.facade.vorlageFormularFeldAktualisieren(feld, value as never);
+    if (feld === 'jahr') {
+      this.facade.vorlageFormularFeldAktualisieren('jahr', parseInt(target.value));
+      return;
+    }
+
+    this.facade.vorlageFormularFeldAktualisieren(feld, target.value);
   }
 
   protected vorlagePdfHochladen(vorlageId: number, event: Event): void {

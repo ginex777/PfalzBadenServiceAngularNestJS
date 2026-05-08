@@ -1,8 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+﻿import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import type { ConfigService } from '@nestjs/config';
-import type { PrismaService } from '../../../core/database/prisma.service';
+import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../../../core/database/prisma.service';
 
 export interface JwtPayload {
   sub?: string; // legacy user id as string

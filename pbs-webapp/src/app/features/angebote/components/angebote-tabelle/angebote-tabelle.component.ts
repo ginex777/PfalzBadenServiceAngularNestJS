@@ -21,17 +21,17 @@ import { OverflowMenuComponent } from '../../../../shared/ui/overflow-menu/overf
   styleUrl: './angebote-tabelle.component.scss',
 })
 export class AngeboteTabelleComponent {
-  readonly angebote = input.required<Angebot[]>();
-  readonly laedt = input<boolean>(false);
-  readonly aktiverFilter = input<AngebotFilter>('alle');
+  readonly quotes = input.required<Angebot[]>();
+  readonly loading = input<boolean>(false);
+  readonly activeFilter = input<AngebotFilter>('alle');
 
-  readonly bearbeiten = output<Angebot>();
-  readonly loeschen = output<number>();
-  readonly statusSetzen = output<{ id: number; status: 'angenommen' | 'abgelehnt' | 'gesendet' }>();
-  readonly pdfGenerieren = output<Angebot>();
-  readonly zuRechnungKonvertieren = output<Angebot>();
-  readonly filterAendern = output<AngebotFilter>();
-  readonly kopieren = output<Angebot>();
+  readonly editRequested = output<Angebot>();
+  readonly deleteRequested = output<number>();
+  readonly setStatus = output<{ id: number; status: 'angenommen' | 'abgelehnt' | 'gesendet' }>();
+  readonly generatePdf = output<Angebot>();
+  readonly convertToInvoice = output<Angebot>();
+  readonly filterChange = output<AngebotFilter>();
+  readonly copyRequested = output<Angebot>();
 
   protected readonly waehrungFormatieren = waehrungFormatieren;
   protected readonly datumFormatieren = datumFormatieren;
@@ -52,15 +52,15 @@ export class AngeboteTabelleComponent {
   protected monatFilter = '';
   protected readonly pendingDeleteId = signal<number | null>(null);
 
-  protected gefilterteAngebote(): Angebot[] {
-    if (this.monatFilter === '') return this.angebote();
+  protected gefiltertequotes(): Angebot[] {
+    if (this.monatFilter === '') return this.quotes();
     const m = parseInt(this.monatFilter);
-    return this.angebote().filter((a) => a.datum && new Date(a.datum).getMonth() === m);
+    return this.quotes().filter((a) => a.datum && new Date(a.datum).getMonth() === m);
   }
 
   protected onFilterSelectChange(event: Event): void {
     const val = (event.target as HTMLSelectElement).value as AngebotFilter;
-    this.filterAendern.emit(val);
+    this.filterChange.emit(val);
   }
 
   protected monatGeaendert(event: Event): void {
@@ -69,7 +69,7 @@ export class AngeboteTabelleComponent {
 
   protected filterLeeren(): void {
     this.monatFilter = '';
-    this.filterAendern.emit('alle');
+    this.filterChange.emit('alle');
   }
 
   protected onStatusChange(angebot: Angebot, event: Event): void {
@@ -77,10 +77,10 @@ export class AngeboteTabelleComponent {
     if (!status) return;
     (event.target as HTMLSelectElement).value = '';
     if (status === 'offen') {
-      this.statusSetzen.emit({ id: angebot.id, status: 'gesendet' }); // reset via gesendet=false
+      this.setStatus.emit({ id: angebot.id, status: 'gesendet' }); // reset via gesendet=false
       return;
     }
-    this.statusSetzen.emit({
+    this.setStatus.emit({
       id: angebot.id,
       status: status as 'angenommen' | 'abgelehnt' | 'gesendet',
     });
@@ -92,7 +92,7 @@ export class AngeboteTabelleComponent {
 
   protected loeschenBestaetigt(): void {
     const id = this.pendingDeleteId();
-    if (id !== null) this.loeschen.emit(id);
+    if (id !== null) this.deleteRequested.emit(id);
     this.pendingDeleteId.set(null);
   }
 

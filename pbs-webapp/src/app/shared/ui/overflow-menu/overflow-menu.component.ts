@@ -35,7 +35,7 @@ import {
       }
 
       .overflow-menu__trigger {
-        letter-spacing: 2px;
+        letter-spacing: 0;
         padding: 5px 10px;
         line-height: 1;
       }

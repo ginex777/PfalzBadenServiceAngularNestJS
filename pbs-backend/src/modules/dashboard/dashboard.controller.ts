@@ -1,11 +1,11 @@
-import {
+﻿import {
   Controller,
   Get,
   Query,
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
-import type { DashboardService } from './dashboard.service';
+import { DashboardService } from './dashboard.service';
 
 @Controller('api/dashboard')
 export class DashboardController {

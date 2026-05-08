@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -9,7 +9,7 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import type { BuchhaltungService } from './buchhaltung.service';
+import { BuchhaltungService } from './buchhaltung.service';
 import type {
   BuchhaltungEintragDto,
   BatchSpeichernDto,
@@ -58,7 +58,7 @@ export class BuchhaltungController {
   }
 
   @Delete('buchhaltung/:id')
-  @ApiOperation({ summary: 'Eintrag löschen' })
+  @ApiOperation({ summary: 'Eintrag lÃ¶schen' })
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.service.delete(id);
   }

@@ -11,41 +11,26 @@
     />
 
     <app-angebote-tabelle
-      [angebote]="facade.seitenAngebote()"
-      [laedt]="facade.laedt()"
-      [aktiverFilter]="facade.aktiverFilter()"
-      (bearbeiten)="onBearbeiten($event)"
-      (loeschen)="onLoeschen($event)"
-      (statusSetzen)="onStatusSetzen($event)"
-      (pdfGenerieren)="onPdfGenerieren($event)"
-      (zuRechnungKonvertieren)="onZuRechnungKonvertieren($event)"
-      (filterAendern)="onFilterAendern($event)"
-      (kopieren)="onKopieren($event)"
+      [quotes]="facade.seitenAngebote()"
+      [loading]="facade.laedt()"
+      [activeFilter]="facade.aktiverFilter()"
+      (editRequested)="onBearbeiten($event)"
+      (deleteRequested)="onLoeschen($event)"
+      (setStatus)="onStatusSetzen($event)"
+      (generatePdf)="onPdfGenerieren($event)"
+      (convertToInvoice)="onZuRechnungKonvertieren($event)"
+      (filterChange)="onFilterAendern($event)"
+      (copyRequested)="onKopieren($event)"
     />
 
     @if (facade.gesamtSeiten() > 1) {
-      <div class="pagination">
-        <button
-          class="btn btn-sm"
-          [disabled]="facade.aktuelleSeite() <= 1"
-          (click)="facade.seiteZurueck()"
-        >
-          ← Zurück
-        </button>
-        <span class="pagination-info"
-          >Seite {{ facade.aktuelleSeite() }} / {{ facade.gesamtSeiten() }} ({{
-            facade.gefilterteAngebote().length
-          }}
-          Einträge)</span
-        >
-        <button
-          class="btn btn-sm"
-          [disabled]="facade.aktuelleSeite() >= facade.gesamtSeiten()"
-          (click)="facade.seiteVor()"
-        >
-          Weiter →
-        </button>
-      </div>
+      <app-paginierung
+        [page]="facade.aktuelleSeite()"
+        [pageSize]="facade.PAGE_SIZE"
+        [total]="facade.gefilterteAngebote().length"
+        [showPageSize]="false"
+        (pageChange)="facade.seiteSetzen($event)"
+      />
     }
   </div>
 
@@ -69,23 +54,23 @@
     <div class="drawer-content">
       @if (facade.drawerSchritt() === 'formular') {
         <app-angebote-formular
-          [formularDaten]="facade.formularDaten()"
-          [kunden]="facade.kunden()"
-          [bearbeitetesAngebot]="facade.bearbeitetesAngebot()"
-          [speichert]="facade.speichert()"
-          [netto]="facade.netto()"
-          [brutto]="facade.brutto()"
-          [mwstBetrag]="facade.mwstBetrag()"
-          (speichern)="onSpeichern()"
-          (vorschau)="onVorschau()"
-          (abbrechen)="facade.drawerSchliessen()"
-          (positionHinzufuegen)="onPositionHinzufuegen()"
-          (positionEntfernen)="onPositionEntfernen($event)"
-          (positionKopieren)="onPositionKopieren($event)"
-          (positionAktualisieren)="onPositionAktualisieren($event)"
-          (feldAktualisieren)="onFeldAktualisieren($event)"
-          (kundeAuswaehlen)="onKundeAuswaehlen($event)"
-          (alsKundeSpeichern)="onAlsKundeSpeichern()"
+          [formData]="facade.formularDaten()"
+          [customers]="facade.kunden()"
+          [editedQuote]="facade.bearbeitetesAngebot()"
+          [saving]="facade.speichert()"
+          [netTotal]="facade.netto()"
+          [grossTotal]="facade.brutto()"
+          [vatAmount]="facade.mwstBetrag()"
+          (saveRequested)="onSpeichern()"
+          (preview)="onVorschau()"
+          (cancelRequested)="facade.drawerSchliessen()"
+          (addLineItem)="onPositionHinzufuegen()"
+          (removeLineItem)="onPositionEntfernen($event)"
+          (copyLineItem)="onPositionKopieren($event)"
+          (updateLineItem)="onPositionAktualisieren($event)"
+          (updateField)="onFeldAktualisieren({ feld: $event.field, wert: $event.value })"
+          (selectCustomer)="onKundeAuswaehlen($event)"
+          (saveAsCustomer)="onAlsKundeSpeichern()"
         />
       }
 

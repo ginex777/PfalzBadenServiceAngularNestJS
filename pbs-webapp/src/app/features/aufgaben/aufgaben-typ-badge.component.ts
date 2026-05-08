@@ -33,7 +33,7 @@ const TYPE_TONE: Record<TaskType, BadgeTone> = {
         border: 1px solid var(--border-strong);
         font-size: 0.75rem;
         font-weight: 600;
-        letter-spacing: 0.01em;
+        letter-spacing: 0;
         background: var(--surface);
         color: var(--gray-700);
         white-space: nowrap;

@@ -44,10 +44,8 @@ export default tseslint.config(
       '@typescript-eslint/no-non-null-assertion': 'warn',
       '@typescript-eslint/no-inferrable-types': 'error',
       '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
-      '@typescript-eslint/consistent-type-imports': ['error', {
-        prefer: 'type-imports',
-        disallowTypeAnnotations: false,
-      }],
+      // Nest constructor DI needs value imports for emitted metadata.
+      '@typescript-eslint/consistent-type-imports': 'off',
       '@typescript-eslint/no-empty-object-type': 'error',
       '@typescript-eslint/no-wrapper-object-types': 'error',
 

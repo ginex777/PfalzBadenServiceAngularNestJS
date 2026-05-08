@@ -10,25 +10,25 @@ import type { ZeiterfassungFilterState, DropdownOption } from './zeiterfassung.m
 })
 export class ZeiterfassungFilterComponent {
   readonly filters = input.required<ZeiterfassungFilterState>();
-  readonly mitarbeiter = input.required<readonly DropdownOption[]>();
-  readonly objekte = input.required<readonly DropdownOption[]>();
-  readonly kunden = input.required<readonly DropdownOption[]>();
+  readonly employees = input.required<readonly DropdownOption[]>();
+  readonly objects = input.required<readonly DropdownOption[]>();
+  readonly customers = input.required<readonly DropdownOption[]>();
 
   readonly filtersChange = output<ZeiterfassungFilterState>();
   readonly resetFilters = output<void>();
 
   protected mitarbeiterOptions = computed(() => {
-    const list = [...this.mitarbeiter()].sort((a, b) => a.name.localeCompare(b.name));
+    const list = [...this.employees()].sort((a, b) => a.name.localeCompare(b.name));
     return [{ id: 0, name: 'Alle Mitarbeiter' }, ...list];
   });
 
   protected objekteOptions = computed(() => {
-    const list = [...this.objekte()].sort((a, b) => a.name.localeCompare(b.name));
+    const list = [...this.objects()].sort((a, b) => a.name.localeCompare(b.name));
     return [{ id: 0, name: 'Alle Objekte' }, ...list];
   });
 
   protected kundenOptions = computed(() => {
-    const list = [...this.kunden()].sort((a, b) => a.name.localeCompare(b.name));
+    const list = [...this.customers()].sort((a, b) => a.name.localeCompare(b.name));
     return [{ id: 0, name: 'Alle Kunden' }, ...list];
   });
 

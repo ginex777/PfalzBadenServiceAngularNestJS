@@ -30,49 +30,49 @@ interface Stempel {
   styleUrl: './stunden-erfassung.component.scss',
 })
 export class StundenErfassungComponent {
-  readonly mitarbeiter = input.required<Mitarbeiter>();
-  readonly stunden = input.required<MitarbeiterStunden[]>();
-  readonly stundenLaedt = input<boolean>(false);
-  readonly formularDaten = input.required<StundenFormularDaten>();
-  readonly lohnVorschau = input<{ grundlohn: number; zuschlag: number; gesamt: number }>({
+  readonly employee = input.required<Mitarbeiter>();
+  readonly hours = input.required<MitarbeiterStunden[]>();
+  readonly hoursLoading = input<boolean>(false);
+  readonly formData = input.required<StundenFormularDaten>();
+  readonly payrollPreview = input<{ grundlohn: number; zuschlag: number; gesamt: number }>({
     grundlohn: 0,
     zuschlag: 0,
     gesamt: 0,
   });
   readonly statistik = input.required<StundenStatistik>();
-  readonly stempelEintraege = input<Stempel[]>([]);
-  readonly stempelLaedt = input<boolean>(false);
+  readonly timeClockEntries = input<Stempel[]>([]);
+  readonly timeClockLoading = input<boolean>(false);
 
-  readonly zurueck = output<void>();
-  readonly eintragen = output<void>();
-  readonly bezahltToggle = output<{ id: number; bezahlt: boolean }>();
-  readonly loeschen = output<number>();
-  readonly feldGeaendert = output<{ feld: keyof StundenFormularDaten; wert: string | number }>();
-  readonly pdfGenerieren = output<void>();
-  readonly stempelZuStundenKonvertieren = output<Stempel>();
+  readonly back = output<void>();
+  readonly add = output<void>();
+  readonly togglePaid = output<{ id: number; paid: boolean }>();
+  readonly delete = output<number>();
+  readonly fieldChanged = output<{ field: keyof StundenFormularDaten; value: string | number }>();
+  readonly generatePdf = output<void>();
+  readonly convertTimeClockEntry = output<Stempel>();
 
   protected readonly zuschlagOptionen = ZUSCHLAG_OPTIONEN;
   protected readonly datumFormatieren = datumFormatieren;
   protected readonly waehrungFormatieren = waehrungFormatieren;
 
-  protected readonly formModell = linkedSignal(() => this.formularDaten());
+  protected readonly formModell = linkedSignal(() => this.formData());
 
-  protected readonly stundenForm = form(this.formModell, (schema) => {
+  protected readonly hoursForm = form(this.formModell, (schema) => {
     required(schema.datum, { message: 'Datum erforderlich' });
     min(schema.stunden, 0.5, { message: 'Mindestens 0.5 Stunden' });
   });
 
   protected bezahltGeaendert(id: number, event: Event): void {
-    this.bezahltToggle.emit({ id, bezahlt: (event.target as HTMLInputElement).checked });
+    this.togglePaid.emit({ id, paid: (event.target as HTMLInputElement).checked });
   }
 
-  protected onFeld(feld: keyof StundenFormularDaten, event: Event): void {
+  protected onFeld(field: keyof StundenFormularDaten, event: Event): void {
     const el = event.target as HTMLInputElement | HTMLSelectElement;
-    const wert =
-      feld === 'stunden' || feld === 'lohnSatz' || feld === 'zuschlagProzent'
+    const value =
+      field === 'stunden' || field === 'lohnSatz' || field === 'zuschlagProzent'
         ? parseFloat(el.value) || 0
         : el.value;
-    this.feldGeaendert.emit({ feld, wert });
+    this.fieldChanged.emit({ field, value });
   }
 
   protected zeitFormatieren(isoString: string): string {

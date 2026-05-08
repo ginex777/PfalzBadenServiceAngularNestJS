@@ -81,40 +81,9 @@
   align-items: center;
 }
 
-.btn-beleg {
-  @include shared.btn-aktion;
-  &--vorhanden {
-    color: var(--success);
-    border-color: var(--success-light);
-  }
-}
-
-.btn-kopie {
-  @include shared.btn-aktion;
-}
-
-.btn-loeschen {
-  @include shared.btn-aktion;
-  color: var(--danger);
-  &:hover {
-    background: var(--danger-light);
-  }
-}
-
 .gesperrt-label {
   font-size: 11px;
   color: var(--gray-400);
-}
-
-.btn-hinzufuegen {
-  @include shared.btn-hinzufuegen;
-  &--gruen {
-    color: var(--success);
-    border-color: var(--success-light);
-    &:hover {
-      background: var(--success-light);
-    }
-  }
 }
 
 .zusammenfassung {

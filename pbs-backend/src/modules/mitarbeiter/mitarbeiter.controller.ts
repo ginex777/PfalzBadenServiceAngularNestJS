@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -11,7 +11,7 @@ import {
   Req,
   BadRequestException,
 } from '@nestjs/common';
-import type { MitarbeiterService } from './mitarbeiter.service';
+import { MitarbeiterService } from './mitarbeiter.service';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import type {
   CreateMitarbeiterDto,
@@ -80,7 +80,7 @@ export class MitarbeiterController {
   stundenLoeschen(@Param('id', ParseIntPipe) id: number) {
     return this.service.stundenLoeschen(id);
   }
-  // ── Mobile Stempeluhr ────────────────────────────────────────────────────────
+  // â”€â”€ Mobile Stempeluhr â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   @Post(':id/stempel/start') stempelStart(
     @Param('id', ParseIntPipe) id: number,
     @Body() b: StempelStartDto,

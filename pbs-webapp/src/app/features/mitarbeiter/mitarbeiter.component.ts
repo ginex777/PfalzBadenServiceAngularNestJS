@@ -46,10 +46,19 @@ export class MitarbeiterComponent implements OnInit {
   }
 
   protected stundenFeldGeaendert(event: {
-    feld: keyof StundenFormularDaten;
-    wert: string | number;
+    field: keyof StundenFormularDaten;
+    value: string | number;
   }): void {
-    this.facade.stundenFormularFeldAktualisieren(event.feld, event.wert as never);
+    switch (event.field) {
+      case 'stunden':
+      case 'lohnSatz':
+      case 'zuschlagProzent':
+        this.facade.stundenFormularFeldAktualisieren(event.field, Number(event.value));
+        break;
+      default:
+        this.facade.stundenFormularFeldAktualisieren(event.field, String(event.value));
+        break;
+    }
   }
 
   protected stempelZuStundenKonvertieren(stempel: Stempel): void {

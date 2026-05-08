@@ -12,11 +12,11 @@ import { datumFormatieren } from '../../../../core/utils/format.utils';
   styleUrl: './termin-liste.component.scss',
 })
 export class TerminListeComponent {
-  readonly termine = input.required<MuellplanTermin[]>();
+  readonly terms = input.required<MuellplanTermin[]>();
 
-  readonly bearbeiten = output<MuellplanTermin>();
-  readonly loeschen = output<number>();
-  readonly erledigtToggle = output<MuellplanTermin>();
+  readonly edit = output<MuellplanTermin>();
+  readonly delete = output<number>();
+  readonly toggleDone = output<MuellplanTermin>();
 
   protected readonly datumFormatieren = datumFormatieren;
 

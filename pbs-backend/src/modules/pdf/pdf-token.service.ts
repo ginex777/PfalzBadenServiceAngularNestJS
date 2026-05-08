@@ -23,12 +23,19 @@ export class PdfTokenService {
     const token = crypto.randomBytes(16).toString('hex');
     this.tokenStore.set(token, {
       data: { pdf, filename },
-      expires: Date.now() + 5 * 60 * 1000,
+      expires: Date.now() + this.tokenTtlMs,
     });
     const safeFilename = encodeURIComponent(
       filename.replace(/[^\w\-äöüÄÖÜß.]/g, '_'),
     );
     return { token, url: `/api/pdf/view/${token}/${safeFilename}` };
+  }
+
+  private get tokenTtlMs(): number {
+    const configured = Number(process.env['PDF_TOKEN_TTL_MS']);
+    return Number.isFinite(configured) && configured > 0
+      ? configured
+      : 5 * 60 * 1000;
   }
 
   getToken(token: string): PdfToken | null {

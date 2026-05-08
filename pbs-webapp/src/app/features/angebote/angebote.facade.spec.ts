@@ -161,6 +161,21 @@ describe('AngeboteFacade', () => {
       facade.seiteZurueck();
       expect(facade.aktuelleSeite()).toBe(1);
     });
+
+    it('seiteSetzen() begrenzt die Seite auf den vorhandenen Bereich', () => {
+      const viele = Array.from({ length: 30 }, (_, i) => ({
+        ...testAngebote[0],
+        id: i + 1,
+        nr: `${i + 1}`,
+      }));
+      facade.angebote.set(viele);
+
+      facade.seiteSetzen(99);
+      expect(facade.aktuelleSeite()).toBe(2);
+
+      facade.seiteSetzen(0);
+      expect(facade.aktuelleSeite()).toBe(1);
+    });
   });
 
   describe('loeschenAusfuehren()', () => {

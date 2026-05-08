@@ -5,6 +5,10 @@
   text-align: center;
 }
 
+.page-title-action {
+  margin-left: auto;
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -95,7 +99,7 @@
     }
   }
   &:hover:not(.vorlage-btn--aktiv) {
-    border-color: var(--primary-glass);
+    border-color: var(--primary-soft);
   }
 }
 
@@ -107,7 +111,7 @@
     font-weight: 700;
     color: var(--gray-500);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0;
     margin-bottom: 0.75rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--border);

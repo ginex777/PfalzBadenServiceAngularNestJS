@@ -30,7 +30,7 @@ export class TerminKalenderComponent {
   readonly monthFilter = input<number | null>(null);
   readonly hidePast = input<boolean>(false);
   readonly hasActiveFilter = input<boolean>(false);
-  readonly erledigungsHistorie = input<TaskListItemApi[]>([]);
+  readonly completionHistory = input<TaskListItemApi[]>([]);
 
   protected readonly aktiverTab = signal<'termine' | 'historie'>('termine');
 

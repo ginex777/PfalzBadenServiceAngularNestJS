@@ -1,6 +1,7 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
+import { Readable } from 'stream';
 import { BelegeService } from './belege.service';
 import { PrismaService } from '../../core/database/prisma.service';
 
@@ -43,7 +44,7 @@ function uploadFile(buffer = Buffer.from('%PDF-test')): Express.Multer.File {
     destination: '',
     filename: '',
     path: '',
-    stream: undefined as never,
+    stream: Readable.from(buffer),
   };
 }
 

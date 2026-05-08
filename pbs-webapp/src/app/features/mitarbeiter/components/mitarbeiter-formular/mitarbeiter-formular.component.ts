@@ -22,9 +22,9 @@ import { LEERES_MITARBEITER_FORMULAR } from '../../mitarbeiter.models';
   templateUrl: './mitarbeiter-formular.component.html',
 })
 export class MitarbeiterFormularComponent implements OnChanges {
-  readonly bearbeiteterMitarbeiter = input<Mitarbeiter | null>(null);
-  readonly gespeichert = output<MitarbeiterFormularDaten>();
-  readonly abgebrochen = output<void>();
+  readonly editedEmployee = input<Mitarbeiter | null>(null);
+  readonly saved = output<MitarbeiterFormularDaten>();
+  readonly cancelled = output<void>();
 
   protected readonly formModell = signal<MitarbeiterFormularDaten>({ ...LEERES_MITARBEITER_FORMULAR });
 
@@ -49,8 +49,8 @@ export class MitarbeiterFormularComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['bearbeiteterMitarbeiter']) {
-      const ma = this.bearbeiteterMitarbeiter();
+    if (changes['editedEmployee']) {
+      const ma = this.editedEmployee();
       this.formModell.set(
         ma
           ? {
@@ -69,11 +69,11 @@ export class MitarbeiterFormularComponent implements OnChanges {
 
   protected speichern(): void {
     if (!this.istGueltig()) return;
-    this.gespeichert.emit({ ...this.formModell() });
+    this.saved.emit({ ...this.formModell() });
   }
 
   protected abbrechen(): void {
     this.formModell.set({ ...LEERES_MITARBEITER_FORMULAR });
-    this.abgebrochen.emit();
+    this.cancelled.emit();
   }
 }

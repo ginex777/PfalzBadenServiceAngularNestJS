@@ -12,11 +12,11 @@ import { datumFormatieren } from '../../../../core/utils/format.utils';
   styleUrl: './einsatz-liste.component.scss',
 })
 export class EinsatzListeComponent {
-  readonly einsaetze = input.required<HausmeisterEinsatz[]>();
+  readonly assignments = input.required<HausmeisterEinsatz[]>();
 
-  readonly bearbeiten = output<HausmeisterEinsatz>();
-  readonly loeschen = output<number>();
-  readonly pdfGenerieren = output<HausmeisterEinsatz>();
+  readonly editRequested = output<HausmeisterEinsatz>();
+  readonly deleteRequested = output<number>();
+  readonly generatePdf = output<HausmeisterEinsatz>();
 
   protected readonly datumFormatieren = datumFormatieren;
 }

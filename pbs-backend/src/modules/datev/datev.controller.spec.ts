@@ -1,9 +1,9 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { DatevController } from './datev.controller';
-import { PrismaService } from '../../core/database/prisma.service';
+import { DatevService } from './datev.service';
 
-const mockPrisma = {};
+const mockDatevService = {};
 
 describe('DatevController', () => {
   let controller: DatevController;
@@ -11,7 +11,7 @@ describe('DatevController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [DatevController],
-      providers: [{ provide: PrismaService, useValue: mockPrisma }],
+      providers: [{ provide: DatevService, useValue: mockDatevService }],
     }).compile();
 
     controller = module.get<DatevController>(DatevController);

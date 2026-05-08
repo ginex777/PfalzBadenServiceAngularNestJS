@@ -8,9 +8,9 @@
 
   <app-zeiterfassung-filter
     [filters]="filters()"
-    [mitarbeiter]="mitarbeiter()"
-    [objekte]="objekte()"
-    [kunden]="kunden()"
+    [employees]="mitarbeiter()"
+    [objects]="objekte()"
+    [customers]="kunden()"
     (filtersChange)="onFiltersChange($event)"
     (reset)="onResetFilters()"
   />

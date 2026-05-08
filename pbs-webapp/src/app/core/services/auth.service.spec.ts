@@ -40,7 +40,7 @@ describe('AuthService', () => {
     localStorage.clear();
   });
 
-  it('clears web session state when refresh token is missing', () => {
+  it('clears web session state when cookie refresh fails', () => {
     localStorage.setItem(ACCESS_KEY, 'stale-access');
     localStorage.setItem(USER_KEY, JSON.stringify({ email: 'a@example.test', rolle: 'admin' }));
     configure();
@@ -48,6 +48,10 @@ describe('AuthService', () => {
     service.refreshTokens().subscribe({
       error: () => undefined,
     });
+
+    const request = httpMock.expectOne('https://api.test/api/auth/refresh');
+    expect(request.request.method).toBe('POST');
+    request.flush({ message: 'expired' }, { status: 401, statusText: 'Unauthorized' });
 
     expect(localStorage.getItem(ACCESS_KEY)).toBeNull();
     expect(localStorage.getItem(REFRESH_KEY)).toBeNull();

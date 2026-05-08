@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
+﻿import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()
 export class DashboardService {
@@ -59,7 +59,7 @@ export class DashboardService {
         tabelle: r.tabelle,
         aktion: r.aktion,
         zeitstempel: r.zeitstempel,
-        nutzer: r.nutzer_name ?? r.nutzer ?? '–',
+        nutzer: r.nutzer_name ?? r.nutzer ?? 'â€“',
         datensatzId: Number(r.datensatz_id),
         nr: wert?.['nr'] as string | undefined,
         empf: wert?.['empf'] as string | undefined,

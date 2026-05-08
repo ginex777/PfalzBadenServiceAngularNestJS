@@ -1,6 +1,23 @@
 @if (isOpen()) {
   <div class="app-drawer__overlay" (click)="close()" aria-hidden="true"></div>
-  <aside class="app-drawer app-drawer--{{ position() }}" role="dialog" aria-modal="true" [attr.aria-label]="ariaLabel()">
-    <ng-content />
+  <aside
+    class="app-drawer app-drawer--{{ position() }}"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="ariaLabel()"
+  >
+    @if (title()) {
+      <div class="drawer-header">
+        <h3 class="drawer-title">{{ title() }}</h3>
+        <button class="app-modal__close" type="button" (click)="close()" aria-label="Schliessen">
+          X
+        </button>
+      </div>
+      <div class="drawer-body">
+        <ng-content />
+      </div>
+    } @else {
+      <ng-content />
+    }
   </aside>
 }

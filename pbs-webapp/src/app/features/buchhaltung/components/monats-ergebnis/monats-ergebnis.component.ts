@@ -10,22 +10,22 @@ import { waehrungFormatieren } from '../../../../core/utils/format.utils';
   styleUrl: './monats-ergebnis.component.scss',
 })
 export class MonatsErgebnisComponent {
-  readonly ergebnis = input.required<MonatsDaten>();
-  readonly monatName = input.required<string>();
+  readonly result = input.required<MonatsDaten>();
+  readonly monthName = input.required<string>();
 
   protected formatieren(wert: number): string {
     return waehrungFormatieren(wert);
   }
 
   protected zahllastLabel(): string {
-    return this.ergebnis().zahllast < 0 ? 'Zahllast (Erstattung)' : 'Zahllast (an FA)';
+    return this.result().zahllast < 0 ? 'Zahllast (Erstattung)' : 'Zahllast (an FA)';
   }
 
   protected zahllastKlasse(): string {
-    return this.ergebnis().zahllast >= 0 ? 'wert--verlust' : 'wert--gewinn';
+    return this.result().zahllast >= 0 ? 'wert--verlust' : 'wert--gewinn';
   }
 
   protected gewinnKlasse(): string {
-    return this.ergebnis().gewinn >= 0 ? 'wert--gewinn' : 'wert--verlust';
+    return this.result().gewinn >= 0 ? 'wert--gewinn' : 'wert--verlust';
   }
 }

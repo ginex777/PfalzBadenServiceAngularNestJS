@@ -1,4 +1,4 @@
-import {
+﻿import {
   Body,
   Controller,
   Get,
@@ -19,7 +19,7 @@ import type {
   EvidenceListQueryDto,
   UploadEvidenceDto,
 } from './dto/nachweise.dto';
-import type { NachweiseService } from './nachweise.service';
+import { NachweiseService } from './nachweise.service';
 import type { AuthRequest } from '../auth/auth-request.type';
 import { contentDispositionHeader } from '../../common/http/content-disposition';
 
@@ -88,7 +88,7 @@ export class NachweiseController {
       throw new BadRequestException({
         code: 'MISSING_EMPLOYEE_MAPPING',
         message:
-          'Kein Mitarbeiter-Mapping vorhanden. Bitte Admin kontaktieren (User ↔ Mitarbeiter zuordnen).',
+          'Kein Mitarbeiter-Mapping vorhanden. Bitte Admin kontaktieren (User â†” Mitarbeiter zuordnen).',
       });
     }
 

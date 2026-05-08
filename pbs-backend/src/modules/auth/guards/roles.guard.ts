@@ -1,6 +1,6 @@
-import type { CanActivate, ExecutionContext } from '@nestjs/common';
+﻿import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Injectable, ForbiddenException } from '@nestjs/common';
-import type { Reflector } from '@nestjs/core';
+import { Reflector } from '@nestjs/core';
 import type { UserRole } from '../decorators/roles.decorator';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
@@ -17,7 +17,7 @@ export class RolesGuard implements CanActivate {
 
     const { user } = context.switchToHttp().getRequest();
     if (!required.includes(user?.rolle)) {
-      throw new ForbiddenException('Keine Berechtigung für diese Aktion');
+      throw new ForbiddenException('Keine Berechtigung fÃ¼r diese Aktion');
     }
     return true;
   }

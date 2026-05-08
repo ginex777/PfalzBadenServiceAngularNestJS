@@ -1,9 +1,9 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { EmailController } from './email.controller';
-import { PrismaService } from '../../core/database/prisma.service';
+import { EmailService } from './email.service';
 
-const mockPrisma = {};
+const mockEmailService = {};
 
 describe('EmailController', () => {
   let controller: EmailController;
@@ -11,7 +11,7 @@ describe('EmailController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [EmailController],
-      providers: [{ provide: PrismaService, useValue: mockPrisma }],
+      providers: [{ provide: EmailService, useValue: mockEmailService }],
     }).compile();
 
     controller = module.get<EmailController>(EmailController);

@@ -1,20 +1,20 @@
-@if (laedt()) {
+@if (loading()) {
   <app-skeleton-rows [count]="6" />
-} @else if (kunden().length === 0 && !suchbegriff()) {
+} @else if (customers().length === 0 && !searchTerm()) {
   <app-empty-state
     *roleAllowed="['admin']"
     title="Noch keine Kunden angelegt"
     description="Trage oben den ersten Kunden ein."
     actionLabel="Ersten Kunden anlegen"
-    (action)="neuAnlegen.emit()"
+    (action)="createRequested.emit()"
   />
   <app-empty-state
     *roleAllowed="['readonly', 'mitarbeiter']"
     title="Noch keine Kunden angelegt"
     description="Keine Kunden vorhanden."
   />
-} @else if (kunden().length === 0 && suchbegriff()) {
-  <div class="keine-treffer">Keine Treffer für „{{ suchbegriff() }}"</div>
+} @else if (customers().length === 0 && searchTerm()) {
+  <div class="keine-treffer">Keine Treffer für „{{ searchTerm() }}"</div>
 } @else {
   <div class="tabelle-wrapper">
     <table>
@@ -58,7 +58,7 @@
             }}</span>
           </th>
           <th class="text-right">Umsatz (bezahlt)</th>
-          <th></th>
+          <th class="actions-col">Aktionen</th>
         </tr>
       </thead>
       <tbody>
@@ -102,44 +102,46 @@
                 <span class="text-muted">–</span>
               }
             </td>
-            <td class="col-aktionen">
-              <div class="aktionen">
+            <td class="actions-cell">
+              <button
+                class="btn-action btn-action--primary"
+                *roleAllowed="['admin']"
+                (click)="createInvoiceRequested.emit(kunde)"
+              >
+                Rechnung
+              </button>
+              <button
+                class="btn-action btn-action--success"
+                *roleAllowed="['admin']"
+                (click)="createQuoteRequested.emit(kunde)"
+              >
+                Angebot
+              </button>
+              <app-overflow-menu *roleAllowed="['admin']">
                 <button
-                  class="btn-action btn-action--primary"
-                  *roleAllowed="['admin']"
-                  (click)="rechnung.emit(kunde)"
+                  class="btn-action"
+                  type="button"
+                  (click)="openItemsRequested.emit(kunde.id)"
                 >
-                  Rechnung
+                  Offene Posten
                 </button>
-                <button
-                  class="btn-action btn-action--success"
-                  *roleAllowed="['admin']"
-                  (click)="angebot.emit(kunde)"
-                >
-                  Angebot
+                <button class="btn-action" type="button" (click)="editRequested.emit(kunde)">
+                  Bearbeiten
                 </button>
-                <app-overflow-menu *roleAllowed="['admin']">
-                  <button class="btn-action" type="button" (click)="offenePosten.emit(kunde.id)">
-                    Offene Posten
+                @if (hatVerknuepfteDokumente(kunde.id)) {
+                  <span class="btn-action btn-action--disabled" title="Hat verknüpfte Dokumente"
+                    >Nicht löschbar</span
+                  >
+                } @else {
+                  <button
+                    class="btn-action btn-action--danger"
+                    type="button"
+                    (click)="deleteRequested.emit(kunde.id)"
+                  >
+                    Löschen
                   </button>
-                  <button class="btn-action" type="button" (click)="bearbeiten.emit(kunde)">
-                    Bearbeiten
-                  </button>
-                  @if (hatVerknuepfteDokumente(kunde.id)) {
-                    <span class="btn-action btn-action--disabled" title="Hat verknüpfte Dokumente"
-                      >Nicht löschbar</span
-                    >
-                  } @else {
-                    <button
-                      class="btn-action btn-action--danger"
-                      type="button"
-                      (click)="loeschen.emit(kunde.id)"
-                    >
-                      Löschen
-                    </button>
-                  }
-                </app-overflow-menu>
-              </div>
+                }
+              </app-overflow-menu>
             </td>
           </tr>
         }

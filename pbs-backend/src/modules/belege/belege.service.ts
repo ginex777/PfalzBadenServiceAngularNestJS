@@ -1,11 +1,11 @@
-import {
+﻿import {
   Injectable,
   Logger,
   NotFoundException,
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import { validateReceiptUpload } from '../../common/files/upload-file';
@@ -237,7 +237,7 @@ export class BelegeService {
     if (!b) throw new NotFoundException();
     if (b.aufbewahrung_bis && b.aufbewahrung_bis > new Date()) {
       throw new ForbiddenException(
-        `GoBD §147 AO: Aufbewahrungsfrist läuft bis ${b.aufbewahrung_bis.toISOString().slice(0, 10)}`,
+        `GoBD Â§147 AO: Aufbewahrungsfrist lÃ¤uft bis ${b.aufbewahrung_bis.toISOString().slice(0, 10)}`,
       );
     }
     await this.prisma.belege.delete({ where: { id: BigInt(id) } });

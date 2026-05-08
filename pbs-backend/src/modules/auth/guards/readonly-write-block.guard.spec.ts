@@ -1,5 +1,6 @@
 import { ForbiddenException } from '@nestjs/common';
 import type { ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { ReadonlyWriteBlockGuard } from './readonly-write-block.guard';
 
 function context(method: string, role?: string): ExecutionContext {
@@ -22,29 +23,33 @@ function context(method: string, role?: string): ExecutionContext {
 
 describe('ReadonlyWriteBlockGuard', () => {
   it('allows safe methods for readonly users', () => {
-    const reflector = { getAllAndOverride: jest.fn(() => false) };
-    const guard = new ReadonlyWriteBlockGuard(reflector as never);
+    const reflector = new Reflector();
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
+    const guard = new ReadonlyWriteBlockGuard(reflector);
 
     expect(guard.canActivate(context('GET', 'readonly'))).toBe(true);
   });
 
   it('allows writes for non-readonly users', () => {
-    const reflector = { getAllAndOverride: jest.fn(() => false) };
-    const guard = new ReadonlyWriteBlockGuard(reflector as never);
+    const reflector = new Reflector();
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
+    const guard = new ReadonlyWriteBlockGuard(reflector);
 
     expect(guard.canActivate(context('POST', 'admin'))).toBe(true);
   });
 
   it('allows explicitly permitted readonly writes', () => {
-    const reflector = { getAllAndOverride: jest.fn(() => true) };
-    const guard = new ReadonlyWriteBlockGuard(reflector as never);
+    const reflector = new Reflector();
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(true);
+    const guard = new ReadonlyWriteBlockGuard(reflector);
 
     expect(guard.canActivate(context('POST', 'readonly'))).toBe(true);
   });
 
   it('blocks readonly writes by default', () => {
-    const reflector = { getAllAndOverride: jest.fn(() => false) };
-    const guard = new ReadonlyWriteBlockGuard(reflector as never);
+    const reflector = new Reflector();
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
+    const guard = new ReadonlyWriteBlockGuard(reflector);
 
     expect(() => guard.canActivate(context('DELETE', 'readonly'))).toThrow(
       ForbiddenException,

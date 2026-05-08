@@ -1,6 +1,6 @@
-import type { OnModuleInit } from '@nestjs/common';
+﻿import type { OnModuleInit } from '@nestjs/common';
 import { Injectable, Logger } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()
 export class BenachrichtigungenScheduler implements OnModuleInit {
@@ -9,7 +9,7 @@ export class BenachrichtigungenScheduler implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   onModuleInit(): void {
-    // Beim Start sofort ausführen, dann alle 6h
+    // Beim Start sofort ausfÃ¼hren, dann alle 6h
     void this.benachrichtigungenPruefen();
     setInterval(
       () => void this.benachrichtigungenPruefen(),
@@ -26,7 +26,7 @@ export class BenachrichtigungenScheduler implements OnModuleInit {
       const in2Tagen = new Date(heute);
       in2Tagen.setDate(in2Tagen.getDate() + 2);
 
-      // 1. Überfällige Rechnungen
+      // 1. ÃœberfÃ¤llige Rechnungen
       const ueberfaellig = await this.prisma.rechnungen.findMany({
         where: { bezahlt: false, frist: { lt: heute } },
         select: { nr: true, empf: true, brutto: true, frist: true },
@@ -39,15 +39,15 @@ export class BenachrichtigungenScheduler implements OnModuleInit {
           await this.prisma.benachrichtigungen.create({
             data: {
               typ: 'rechnung',
-              titel: `Rechnung ${r.nr} überfällig`,
-              nachricht: `${r.empf} – ${Number(r.brutto).toFixed(2)} € – fällig seit ${r.frist?.toISOString().slice(0, 10)}`,
+              titel: `Rechnung ${r.nr} Ã¼berfÃ¤llig`,
+              nachricht: `${r.empf} â€“ ${Number(r.brutto).toFixed(2)} â‚¬ â€“ fÃ¤llig seit ${r.frist?.toISOString().slice(0, 10)}`,
               link: `/rechnungen`,
             },
           });
         }
       }
 
-      // 2. Rechnungen fällig in 3 Tagen
+      // 2. Rechnungen fÃ¤llig in 3 Tagen
       const baldFaellig = await this.prisma.rechnungen.findMany({
         where: { bezahlt: false, frist: { gte: heute, lte: in3Tagen } },
         select: { nr: true, empf: true, frist: true },
@@ -60,15 +60,15 @@ export class BenachrichtigungenScheduler implements OnModuleInit {
           await this.prisma.benachrichtigungen.create({
             data: {
               typ: 'rechnung',
-              titel: `Rechnung ${r.nr} bald fällig`,
-              nachricht: `${r.empf} – fällig am ${r.frist?.toISOString().slice(0, 10)}`,
+              titel: `Rechnung ${r.nr} bald fÃ¤llig`,
+              nachricht: `${r.empf} â€“ fÃ¤llig am ${r.frist?.toISOString().slice(0, 10)}`,
               link: `/rechnungen`,
             },
           });
         }
       }
 
-      // 3. Mülltermine in 2 Tagen
+      // 3. MÃ¼lltermine in 2 Tagen
       const muellTermine = await this.prisma.muellplan.findMany({
         where: { abholung: { gte: heute, lte: in2Tagen }, erledigt: false },
         include: { objekte: { select: { name: true } } },
@@ -81,8 +81,8 @@ export class BenachrichtigungenScheduler implements OnModuleInit {
           await this.prisma.benachrichtigungen.create({
             data: {
               typ: 'muellplan',
-              titel: `Mülltermin: ${t.muellart}`,
-              nachricht: `${t.objekte.name} – Rausstellen am ${t.abholung.toISOString().slice(0, 10)}`,
+              titel: `MÃ¼lltermin: ${t.muellart}`,
+              nachricht: `${t.objekte.name} â€“ Rausstellen am ${t.abholung.toISOString().slice(0, 10)}`,
               link: `/muellplan`,
             },
           });
@@ -106,8 +106,8 @@ export class BenachrichtigungenScheduler implements OnModuleInit {
           await this.prisma.benachrichtigungen.create({
             data: {
               typ: 'angebot',
-              titel: `Angebot ${a.nr} läuft ab`,
-              nachricht: `${a.empf} – gültig bis ${a.gueltig_bis?.toISOString().slice(0, 10)}`,
+              titel: `Angebot ${a.nr} lÃ¤uft ab`,
+              nachricht: `${a.empf} â€“ gÃ¼ltig bis ${a.gueltig_bis?.toISOString().slice(0, 10)}`,
               link: `/angebote`,
             },
           });
@@ -121,7 +121,7 @@ export class BenachrichtigungenScheduler implements OnModuleInit {
         where: { gelesen: true, erstellt_am: { lt: vor30Tagen } },
       });
 
-      // Audit-Log bereinigen (>2 Jahre für GoBD-Konformität)
+      // Audit-Log bereinigen (>2 Jahre fÃ¼r GoBD-KonformitÃ¤t)
       const vor2Jahren = new Date();
       vor2Jahren.setFullYear(vor2Jahren.getFullYear() - 2);
       const geloeschteAuditEintraege = await this.prisma.auditLog.deleteMany({
@@ -130,7 +130,7 @@ export class BenachrichtigungenScheduler implements OnModuleInit {
 
       if (geloeschteAuditEintraege.count > 0) {
         this.logger.log(
-          `${geloeschteAuditEintraege.count} alte Audit-Log Einträge bereinigt (älter als 2 Jahre)`,
+          `${geloeschteAuditEintraege.count} alte Audit-Log EintrÃ¤ge bereinigt (Ã¤lter als 2 Jahre)`,
         );
       }
 

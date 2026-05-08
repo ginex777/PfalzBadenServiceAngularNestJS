@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   Injectable,
   Logger,
@@ -6,13 +6,13 @@ import {
 } from '@nestjs/common';
 import * as crypto from 'crypto';
 import type { Prisma } from '@prisma/client';
-import type { PrismaService } from '../../core/database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import type {
   EvidenceListQueryDto,
   UploadEvidenceDto,
 } from './dto/nachweise.dto';
-import type { AccessPolicyService } from '../access-policy/access-policy.service';
+import { AccessPolicyService } from '../access-policy/access-policy.service';
 import type { AccessPolicyAuth } from '../access-policy/access-policy.service';
 
 export interface EvidenceListItem {
@@ -173,7 +173,7 @@ export class NachweiseService {
     if (!this.hasSupportedImageSignature(file.buffer)) {
       throw new BadRequestException({
         code: 'INVALID_FILE_SIGNATURE',
-        message: 'Die Datei ist kein unterstütztes Bildformat.',
+        message: 'Die Datei ist kein unterstÃ¼tztes Bildformat.',
       });
     }
 
@@ -184,7 +184,8 @@ export class NachweiseService {
     if (!objectRow) {
       throw new BadRequestException({
         code: 'INVALID_OBJECT',
-        message: 'Objekt existiert nicht. Bitte ein gültiges Objekt auswählen.',
+        message:
+          'Objekt existiert nicht. Bitte ein gÃ¼ltiges Objekt auswÃ¤hlen.',
       });
     }
     await this.accessPolicy.assertCanAccessObject(auth, dto.objectId);

@@ -1,25 +1,25 @@
-@if (bezahltKandidat()) {
+@if (paidCandidate()) {
   <app-modal
-    [isOpen]="!!bezahltKandidat()"
+    [isOpen]="!!paidCandidate()"
     title="Rechnung als bezahlt markieren"
     size="sm"
-    (closed)="alsGezahltAbbrechen.emit()"
+    (closed)="cancelPaid.emit()"
   >
     <p>
-      Rechnung <strong>{{ bezahltKandidat()!.nr }}</strong> — {{ bezahltKandidat()!.empf }}
+      Rechnung <strong>{{ paidCandidate()!.nr }}</strong> — {{ paidCandidate()!.empf }}
     </p>
     <p>
-      Betrag: <strong>{{ waehrungFormatieren(bezahltKandidat()!.brutto) }}</strong>
+      Betrag: <strong>{{ waehrungFormatieren(paidCandidate()!.brutto) }}</strong>
     </p>
     <div class="form-field">
       <label for="src-app-features-rechnungen-components-zahlungs-tracker-zahlungs-tracker-component-0">Zahlungsdatum</label>
-      <input id="src-app-features-rechnungen-components-zahlungs-tracker-zahlungs-tracker-component-0" type="date" [value]="bezahltDatum()" (input)="onDatumChange($event)" />
+      <input id="src-app-features-rechnungen-components-zahlungs-tracker-zahlungs-tracker-component-0" type="date" [value]="paidDate()" (input)="onDatumChange($event)" />
     </div>
     <div class="modal-footer">
-      <button class="btn btn-success" (click)="alsGezahltBestaetigen.emit()">
+      <button class="btn btn-success" (click)="confirmPaid.emit()">
         ✓ Als bezahlt markieren
       </button>
-      <button class="btn" (click)="alsGezahltAbbrechen.emit()">Abbrechen</button>
+      <button class="btn" (click)="cancelPaid.emit()">Abbrechen</button>
     </div>
   </app-modal>
 }

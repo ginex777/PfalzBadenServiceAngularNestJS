@@ -13,7 +13,7 @@ describe('ZahlungsTrackerComponent', () => {
 
     fixture = TestBed.createComponent(ZahlungsTrackerComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('rechnungen', []);
+    fixture.componentRef.setInput('invoices', []);
     fixture.detectChanges();
   });
 

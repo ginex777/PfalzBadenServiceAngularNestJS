@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   Controller,
   Get,
@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Roles } from '../auth/decorators/roles.decorator';
 import type { MobileFeedbackQueryDto } from './dto/mobile-feedback.dto';
-import type { MobileFeedbackService } from './mobile-feedback.service';
+import { MobileFeedbackService } from './mobile-feedback.service';
 import type { AuthRequest } from '../auth/auth-request.type';
 
 @Controller('api/mobile-feedback')

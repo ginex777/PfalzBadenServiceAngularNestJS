@@ -121,7 +121,7 @@
   color: var(--muted);
   padding: 14px;
   border: 1px dashed var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius);
 }
 
 .admin-form {
@@ -178,7 +178,7 @@
 
 .field-row {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: 12px;
   display: grid;
   grid-template-columns: 1fr 1fr 160px 120px;

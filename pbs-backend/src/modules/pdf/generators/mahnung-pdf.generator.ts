@@ -1,10 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import type { PrismaService } from '../../../core/database/prisma.service';
-import type { PdfRenderService } from '../pdf-render.service';
-import type { PdfTokenService } from '../pdf-token.service';
+﻿import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { PdfRenderService } from '../pdf-render.service';
+import { PdfTokenService } from '../pdf-token.service';
 
 const MAHNUNG_TEXTE: Record<number, string> = {
-  1: 'Wir möchten Sie freundlich daran erinnern, dass die oben genannte Rechnung noch nicht beglichen wurde.',
+  1: 'Wir mÃ¶chten Sie freundlich daran erinnern, dass die oben genannte Rechnung noch nicht beglichen wurde.',
   2: 'Trotz unserer ersten Mahnung ist die Rechnung noch immer nicht bezahlt. Wir bitten Sie dringend um Begleichung.',
   3: 'Dies ist unsere letzte Mahnung. Sollten Sie nicht innerhalb von 7 Tagen zahlen, werden wir rechtliche Schritte einleiten.',
 };
@@ -47,7 +47,7 @@ export class MahnungPdfGenerator {
 
     const datumStr = rechnung.datum
       ? this.render.formatDate(rechnung.datum.toISOString().slice(0, 10))
-      : '–';
+      : 'â€“';
     const mahnungDatumStr = this.render.formatDate(
       mahnung.datum.toISOString().slice(0, 10),
     );
@@ -56,7 +56,7 @@ export class MahnungPdfGenerator {
           rechnung.datum.toISOString().slice(0, 10),
           (rechnung.zahlungsziel ?? 14) + 14,
         )
-      : '–';
+      : 'â€“';
 
     const kontext = {
       firma,

@@ -9,21 +9,6 @@
   gap: 1rem;
 }
 
-.error-card {
-  border: 1px solid rgba(220, 38, 38, 0.2);
-  background: #fff7f7;
-}
-
-.error-title {
-  font-weight: 700;
-  margin-bottom: 0.25rem;
-}
-
-.error-text {
-  color: var(--app-text-muted);
-  margin-bottom: 0.75rem;
-}
-
 .answers-head {
   margin-bottom: 0.75rem;
 }
@@ -50,7 +35,7 @@
   gap: 0.75rem;
   padding: 0.9rem;
   border: 1px solid var(--app-border);
-  border-radius: 0.9rem;
+  border-radius: var(--app-radius-lg);
   background: rgba(255, 255, 255, 0.72);
 }
 
@@ -93,11 +78,11 @@
   width: 100%;
   --background: rgba(248, 250, 252, 0.9);
   --border-color: var(--app-border);
-  --border-radius: 0.75rem;
+  --border-radius: var(--app-radius-md);
   --padding-start: 0.75rem;
   --padding-end: 0.75rem;
   border: 1px solid var(--app-border);
-  border-radius: 0.75rem;
+  border-radius: var(--app-radius-md);
 }
 
 .answer-toggle-row {
@@ -125,7 +110,7 @@
 }
 
 .submit-btn {
-  --border-radius: 1rem;
+  --border-radius: var(--app-radius-xl);
   --box-shadow: 0 14px 28px rgba(18, 24, 38, 0.12);
 }
 
@@ -136,7 +121,7 @@
 .empty-form {
   padding: 1rem;
   border: 1px dashed var(--app-border);
-  border-radius: 1.25rem;
+  border-radius: var(--app-radius-xl);
   background: rgba(255, 255, 255, 0.65);
 }
 

@@ -23,9 +23,9 @@ const FOCUSABLE =
 export class ConfirmModalComponent implements OnInit {
   private readonly el = inject(ElementRef);
 
-  readonly title = input<string>('Bestätigung erforderlich');
+  readonly title = input<string>('Bestaetigung erforderlich');
   readonly message = input.required<string>();
-  readonly confirmLabel = input<string>('Löschen');
+  readonly confirmLabel = input<string>('Loeschen');
   readonly cancelLabel = input<string>('Abbrechen');
   readonly isDangerous = input<boolean>(true);
   readonly confirmed = output<void>();

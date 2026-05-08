@@ -15,19 +15,19 @@ import {
   styleUrl: './ausgaben-tabelle.component.scss',
 })
 export class AusgabenTabelleComponent {
-  readonly zeilen = input.required<BuchhaltungZeile[]>();
-  readonly istGesperrt = input<boolean>(false);
+  readonly rows = input.required<BuchhaltungZeile[]>();
+  readonly isLocked = input<boolean>(false);
 
-  readonly zeileHinzufuegen = output<void>();
-  readonly zeileEntfernen = output<string>();
-  readonly zeileKopieren = output<string>();
-  readonly zeileAktualisieren = output<{
+  readonly addRow = output<void>();
+  readonly removeRow = output<string>();
+  readonly copyRow = output<string>();
+  readonly updateRow = output<{
     tempId: string;
     aenderungen: Partial<BuchhaltungZeile>;
   }>();
-  readonly kategorieAktualisieren = output<{ tempId: string; kategorie: string }>();
-  readonly wiederkehrendeKostenAnwenden = output<void>();
-  readonly belegOeffnen = output<string>();
+  readonly updateCategory = output<{ tempId: string; category: string }>();
+  readonly applyRecurringCosts = output<void>();
+  readonly openReceipt = output<string>();
 
   protected readonly mwstOptionen = [0, 7, 19];
   protected readonly kategorienListe = Object.keys(KATEGORIEN);
@@ -41,16 +41,16 @@ export class AusgabenTabelleComponent {
   }
 
   protected verwendeteKategorien(): string[] {
-    const alle = this.zeilen()
+    const alle = this.rows()
       .map((z) => z.kategorie ?? '')
       .filter(Boolean);
     return [...new Set(alle)].sort();
   }
 
-  protected gefilterteZeilen(): BuchhaltungZeile[] {
+  protected gefilterterows(): BuchhaltungZeile[] {
     const q = this.suchbegriff.toLowerCase();
     const kf = this.kategorieFilter;
-    return this.zeilen().filter((z) => {
+    return this.rows().filter((z) => {
       if (kf && z.kategorie !== kf) return false;
       if (!q) return true;
       return (
@@ -67,7 +67,7 @@ export class AusgabenTabelleComponent {
   }
 
   protected kategorieAnzahl(kat: string): number {
-    return this.zeilen().filter((z) => z.kategorie === kat).length;
+    return this.rows().filter((z) => z.kategorie === kat).length;
   }
 
   protected nettoBerechnen(brutto: number, mwst: number, abzug: number): string {
@@ -81,21 +81,21 @@ export class AusgabenTabelleComponent {
   }
 
   protected gesamtAusgabenNetto(): number {
-    return this.zeilen().reduce((s, z) => {
+    return this.rows().reduce((s, z) => {
       const netto = nettoBerechnen(z.brutto, z.mwst);
       return s + netto * ((z.abzug ?? 100) / 100);
     }, 0);
   }
 
   protected gesamtVorsteuer(): number {
-    return this.zeilen().reduce((s, z) => {
+    return this.rows().reduce((s, z) => {
       const ust = steuerBerechnen(z.brutto, z.mwst);
       return s + ust * ((z.abzug ?? 100) / 100);
     }, 0);
   }
 
   protected gesamtBrutto(): number {
-    return this.zeilen().reduce((s, z) => s + (z.brutto || 0), 0);
+    return this.rows().reduce((s, z) => s + (z.brutto || 0), 0);
   }
 
   protected formatieren(wert: number): string {
@@ -108,22 +108,22 @@ export class AusgabenTabelleComponent {
 
   protected kategorieGeaendert(tempId: string, event: Event): void {
     const wert = (event.target as HTMLSelectElement).value;
-    this.kategorieAktualisieren.emit({ tempId, kategorie: wert });
+    this.updateCategory.emit({ tempId, category: wert });
   }
 
   protected bruttoAktualisieren(tempId: string, event: Event): void {
     const wert = parseFloat((event.target as HTMLInputElement).value) || 0;
-    this.zeileAktualisieren.emit({ tempId, aenderungen: { brutto: Math.max(0, wert) } });
+    this.updateRow.emit({ tempId, aenderungen: { brutto: Math.max(0, wert) } });
   }
 
   protected mwstAktualisieren(tempId: string, event: Event): void {
     const wert = parseFloat((event.target as HTMLSelectElement).value);
-    this.zeileAktualisieren.emit({ tempId, aenderungen: { mwst: wert } });
+    this.updateRow.emit({ tempId, aenderungen: { mwst: wert } });
   }
 
   protected abzugAktualisieren(tempId: string, event: Event): void {
     const wert = parseFloat((event.target as HTMLInputElement).value) || 0;
-    this.zeileAktualisieren.emit({
+    this.updateRow.emit({
       tempId,
       aenderungen: { abzug: Math.min(100, Math.max(0, wert)) },
     });
@@ -135,29 +135,29 @@ export class AusgabenTabelleComponent {
     event: Event,
   ): void {
     const wert = (event.target as HTMLInputElement).value;
-    this.zeileAktualisieren.emit({
+    this.updateRow.emit({
       tempId,
       aenderungen: { [feld]: wert } as Partial<BuchhaltungZeile>,
     });
   }
 
   protected hinzufuegenKlicken(): void {
-    this.zeileHinzufuegen.emit();
+    this.addRow.emit();
   }
 
   protected entfernenKlicken(tempId: string): void {
-    this.zeileEntfernen.emit(tempId);
+    this.removeRow.emit(tempId);
   }
 
   protected kopierenKlicken(tempId: string): void {
-    this.zeileKopieren.emit(tempId);
+    this.copyRow.emit(tempId);
   }
 
   protected belegKlicken(tempId: string): void {
-    this.belegOeffnen.emit(tempId);
+    this.openReceipt.emit(tempId);
   }
 
   protected wiederkehrendeKlicken(): void {
-    this.wiederkehrendeKostenAnwenden.emit();
+    this.applyRecurringCosts.emit();
   }
 }

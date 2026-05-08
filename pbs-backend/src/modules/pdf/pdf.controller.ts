@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import type { Request } from 'express';
-import type { PdfService } from './pdf.service';
+import { PdfService } from './pdf.service';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AllowReadonlyWrite } from '../auth/decorators/allow-readonly-write.decorator';
@@ -37,7 +37,7 @@ type AuthRequest = Request & {
 export class PdfController {
   constructor(private readonly service: PdfService) {}
 
-  // ── Neue JSON-basierte Endpunkte ─────────────────────────────────────────────
+  // â”€â”€ Neue JSON-basierte Endpunkte â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   @Post('rechnung')
   @Roles('admin', 'readonly')
   @AllowReadonlyWrite()
@@ -114,7 +114,7 @@ export class PdfController {
     });
   }
 
-  // ── Token-basierter Download ─────────────────────────────────────────────────
+  // â”€â”€ Token-basierter Download â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   @Public()
   @Get('view/:token/:filename')
   viewPdf(
@@ -125,7 +125,7 @@ export class PdfController {
     const entry = this.service.getToken(token);
     if (!entry) {
       res
-        .status(404)
+        .status(401)
         .json({ error: 'PDF nicht gefunden oder abgelaufen (5 Min. Limit)' });
       return;
     }
@@ -138,7 +138,7 @@ export class PdfController {
     res.send(entry.pdf);
   }
 
-  // ── Archiv ───────────────────────────────────────────────────────────────────
+  // â”€â”€ Archiv â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   @Get('archiv')
   @Roles('admin', 'readonly')
   getArchive(

@@ -13,6 +13,8 @@ export interface AuthUser {
 }
 
 const USER_KEY = 'pbs-auth-user';
+const LEGACY_ACCESS_KEY = 'pbs-access-token';
+const LEGACY_REFRESH_KEY = 'pbs-refresh-token';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -129,6 +131,8 @@ export class AuthService {
   }
 
   private _clearSession() {
+    localStorage.removeItem(LEGACY_ACCESS_KEY);
+    localStorage.removeItem(LEGACY_REFRESH_KEY);
     localStorage.removeItem(USER_KEY);
     this.accessToken.set(null);
     this.currentUser.set(null);

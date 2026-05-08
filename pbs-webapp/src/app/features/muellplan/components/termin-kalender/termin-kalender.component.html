@@ -14,13 +14,16 @@
         <option [value]="$index">{{ monat }}</option>
       }
     </select>
-    <label for="src-app-features-muellplan-components-termin-kalender-termin-kalender-component-0" class="btn btn-sm vergangene-toggle">
+    <label class="switch-toggle">
       <input
         type="checkbox"
         [checked]="hidePast()"
         (change)="onHidePastChange($event)"
       />
-      Vergangene
+      <span class="switch-toggle__track" aria-hidden="true">
+        <span class="switch-toggle__thumb"></span>
+      </span>
+      <span>Vergangene ausblenden</span>
     </label>
     <button class="btn btn-sm btn-primary" (click)="addTerm.emit()">Termin</button>
     <button
@@ -49,9 +52,9 @@
     [class.tab-btn--aktiv]="aktiverTab() === 'historie'"
     (click)="aktiverTab.set('historie')"
   >
-    Erledigungshistorie
-    @if (erledigungsHistorie().length) {
-      <span class="tab-badge">{{ erledigungsHistorie().length }}</span>
+    completionHistory
+    @if (completionHistory().length) {
+      <span class="tab-badge">{{ completionHistory().length }}</span>
     }
   </button>
 </div>
@@ -139,9 +142,9 @@
   }
 }
 
-<!-- Erledigungshistorie -->
+<!-- completionHistory -->
 @if (aktiverTab() === 'historie') {
-  @if (erledigungsHistorie().length === 0) {
+  @if (completionHistory().length === 0) {
     <div class="termin-leer">Keine erledigten Mülltermine.</div>
   } @else {
     <div class="termin-tabelle-wrap">
@@ -156,7 +159,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (h of erledigungsHistorie(); track h.id) {
+          @for (h of completionHistory(); track h.id) {
             <tr class="termin-zeile termin-zeile--erledigt">
               <td>{{ h.title }}</td>
               <td>{{ h.dueAt ? datumFormatieren(h.dueAt.slice(0, 10)) : '—' }}</td>

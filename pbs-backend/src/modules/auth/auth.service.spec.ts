@@ -310,7 +310,10 @@ describe('AuthService', () => {
       1n,
       'UPDATE',
       null,
-      expect.objectContaining({ aktion: 'token_reuse_detected', family_id: 'test-family' }),
+      expect.objectContaining({
+        aktion: 'token_reuse_detected',
+        family_id: 'test-family',
+      }),
       'system',
     );
   });
@@ -334,7 +337,10 @@ describe('AuthService', () => {
     ]);
     prisma.refreshTokens.deleteMany.mockResolvedValue({ count: 1 });
 
-    await service.login({ email: 'admin@example.com', password: 'correct-password' });
+    await service.login({
+      email: 'admin@example.com',
+      password: 'correct-password',
+    });
 
     expect(prisma.refreshTokens.deleteMany).toHaveBeenCalledWith({
       where: { id: { in: [1n] } },

@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
-import type { PuppeteerService } from './puppeteer.service';
+﻿import { Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from '../../core/database/prisma.service';
+import { PuppeteerService } from './puppeteer.service';
 import * as Handlebars from 'handlebars';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -21,14 +21,14 @@ export interface FirmaSettings {
   bic?: string;
 }
 
-// Handlebars helpers — registered once at module load
+// Handlebars helpers â€” registered once at module load
 Handlebars.registerHelper(
   'fmtEur',
   (n: number) =>
     `${(n || 0).toLocaleString('de-DE', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    })} €`,
+    })} â‚¬`,
 );
 Handlebars.registerHelper('posNr', (idx: number) => idx + 1);
 Handlebars.registerHelper('fmtStunden', (n: number) =>
@@ -155,7 +155,7 @@ export class PdfRenderService {
   }
 
   formatDate(s: string): string {
-    if (!s) return '–';
+    if (!s) return 'â€“';
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
       const [y, m, d] = s.split('-').map(Number);
       return new Date(y, m - 1, d).toLocaleDateString('de-DE', {
@@ -172,7 +172,7 @@ export class PdfRenderService {
   }
 
   addDays(date: string, days: number): string {
-    if (!date) return '–';
+    if (!date) return 'â€“';
     const [y, m, d] = date.split('-').map(Number);
     const dt = new Date(y, m - 1, d);
     dt.setDate(dt.getDate() + days);
@@ -187,7 +187,7 @@ export class PdfRenderService {
     return `${(n || 0).toLocaleString('de-DE', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    })} €`;
+    })} â‚¬`;
   }
 
   private buildHeaderFooterTemplates(firma: FirmaSettings): {

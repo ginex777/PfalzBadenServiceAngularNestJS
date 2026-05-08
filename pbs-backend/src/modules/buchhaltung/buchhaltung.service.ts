@@ -1,10 +1,10 @@
-import {
+﻿import {
   Injectable,
   Logger,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import type { PrismaService } from '../../core/database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 import type { Buchhaltung } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import type { BuchhaltungEintragDto, VstDto } from './dto/buchhaltung.dto';
@@ -204,7 +204,7 @@ export class BuchhaltungService {
     });
     if (gesperrt)
       throw new BadRequestException(
-        'Dieser Monat ist gesperrt (GoBD §146 AO). Keine Änderungen möglich.',
+        'Dieser Monat ist gesperrt (GoBD Â§146 AO). Keine Ã„nderungen mÃ¶glich.',
       );
   }
 

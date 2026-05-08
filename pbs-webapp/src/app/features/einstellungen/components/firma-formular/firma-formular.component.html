@@ -9,7 +9,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-0">Firmenname</label>
       <input
         type="text"
-        [value]="firma().firma || ''"
+        [value]="company().firma || ''"
         (input)="feldGeaendert('firma', $event)"
         placeholder="Pfalz-Baden Service"
       />
@@ -18,7 +18,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-1">Rechtsform / Zusatz</label>
       <input
         type="text"
-        [value]="firma().zusatz || ''"
+        [value]="company().zusatz || ''"
         (input)="feldGeaendert('zusatz', $event)"
         placeholder="Hassan Maatouk und Dennis Schuhmacher GbR"
       />
@@ -29,7 +29,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-2">Straße</label>
       <input
         type="text"
-        [value]="firma().strasse || ''"
+        [value]="company().strasse || ''"
         (input)="feldGeaendert('strasse', $event)"
         placeholder="Petronia-Steiner-Straße 3"
       />
@@ -38,7 +38,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-3">PLZ Ort</label>
       <input
         type="text"
-        [value]="firma().ort || ''"
+        [value]="company().ort || ''"
         (input)="feldGeaendert('ort', $event)"
         placeholder="67346 Speyer"
       />
@@ -49,7 +49,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-4">Steuernummer</label>
       <input
         type="text"
-        [value]="firma().steuernr || ''"
+        [value]="company().steuernr || ''"
         (input)="feldGeaendert('steuernr', $event)"
         placeholder="41/108/84558"
       />
@@ -58,7 +58,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-5">USt-IdNr. (optional)</label>
       <input
         type="text"
-        [value]="firma().ustId || ''"
+        [value]="company().ustId || ''"
         (input)="feldGeaendert('ustId', $event)"
         placeholder="DE123456789"
       />
@@ -69,7 +69,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-6">Geschäftsführer</label>
       <input
         type="text"
-        [value]="firma().gf || ''"
+        [value]="company().gf || ''"
         (input)="feldGeaendert('gf', $event)"
         placeholder="Hassan Maatouk"
       />
@@ -78,7 +78,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-7">Telefon</label>
       <input
         type="text"
-        [value]="firma().tel || ''"
+        [value]="company().tel || ''"
         (input)="feldGeaendert('tel', $event)"
         placeholder="0179 6150849"
       />
@@ -87,7 +87,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-8">E-Mail</label>
       <input
         type="text"
-        [value]="firma().email || ''"
+        [value]="company().email || ''"
         (input)="feldGeaendert('email', $event)"
         placeholder="kontakt@pfalzbaden-service.de"
       />
@@ -98,7 +98,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-9">Bank</label>
       <input
         type="text"
-        [value]="firma().bank || ''"
+        [value]="company().bank || ''"
         (input)="feldGeaendert('bank', $event)"
         placeholder="Sparkasse Vorderpfalz"
       />
@@ -107,7 +107,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-10">IBAN</label>
       <input
         type="text"
-        [value]="firma().iban || ''"
+        [value]="company().iban || ''"
         (input)="feldGeaendert('iban', $event)"
         placeholder="DE55 5455 0010 0194 3758 61"
       />
@@ -116,7 +116,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-11">BIC</label>
       <input
         type="text"
-        [value]="firma().bic || ''"
+        [value]="company().bic || ''"
         (input)="feldGeaendert('bic', $event)"
         placeholder="LUHSDE6XXX"
       />
@@ -127,7 +127,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-12">DATEV Beraternummer</label>
       <input
         type="text"
-        [value]="firma().datev_beraternr || ''"
+        [value]="company().datev_beraternr || ''"
         (input)="feldGeaendert('datev_beraternr', $event)"
         placeholder="99999"
       />
@@ -136,7 +136,7 @@
       <label for="src-app-features-einstellungen-components-firma-formular-firma-formular-component-13">DATEV Mandantennummer</label>
       <input
         type="text"
-        [value]="firma().datev_mandantennr || ''"
+        [value]="company().datev_mandantennr || ''"
         (input)="feldGeaendert('datev_mandantennr', $event)"
         placeholder="1"
       />
@@ -144,15 +144,15 @@
   </div>
 
   <div class="btn-group btn-group-mt">
-    <button class="btn btn-primary" [disabled]="speichert()" (click)="speichern.emit()">
-      {{ speichert() ? 'Wird gespeichert…' : 'Speichern' }}
+    <button class="btn btn-primary" [disabled]="saving()" (click)="save.emit()">
+      {{ saving() ? 'Wird gesaving…' : 'save' }}
     </button>
   </div>
 
-  @if (erfolg()) {
-    <div class="status-ok">{{ erfolg() }}</div>
+  @if (success()) {
+    <div class="status-ok">{{ success() }}</div>
   }
-  @if (fehler()) {
-    <div class="status-err">{{ fehler() }}</div>
+  @if (error()) {
+    <div class="status-err">{{ error() }}</div>
   }
 </div>

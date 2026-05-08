@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -13,8 +13,8 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
-import type { VertraegeService } from './vertraege.service';
-import type { PdfService } from '../pdf/pdf.service';
+import { VertraegeService } from './vertraege.service';
+import { PdfService } from '../pdf/pdf.service';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AllowReadonlyWrite } from '../auth/decorators/allow-readonly-write.decorator';

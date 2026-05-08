@@ -12,7 +12,7 @@ ion-content {
 .login-panel {
   width: 100%;
   max-width: 32rem;
-  border-radius: 1.25rem;
+  border-radius: var(--app-radius-xl);
   padding: 1.5rem;
   background: var(--app-surface);
 }
@@ -20,7 +20,7 @@ ion-content {
 .login-intro {
   margin-bottom: 1rem;
   padding: 0.85rem;
-  border-radius: 0.95rem;
+  border-radius: var(--app-radius-lg);
   border: 1px solid #ffe1c5;
   background: var(--app-warm-surface);
 }
@@ -28,7 +28,7 @@ ion-content {
 .login-badge {
   margin: 0;
   font-size: 0.7rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--app-accent-strong);
   font-weight: 700;
@@ -66,7 +66,7 @@ ion-content {
 .form-input {
   width: 100%;
   border: 1px solid var(--app-border);
-  border-radius: 0.9rem;
+  border-radius: var(--app-radius-lg);
   background: #fff;
   padding: 0.9rem 0.95rem;
   color: var(--app-text-strong);
@@ -86,7 +86,7 @@ ion-content {
 
 ion-button[type="submit"] {
   margin-top: 0.2rem;
-  --border-radius: 0.95rem;
+  --border-radius: var(--app-radius-lg);
   --background: var(--app-primary-action-bg);
   --color: #fff;
   --box-shadow: 0 10px 24px rgba(255, 122, 0, 0.28);

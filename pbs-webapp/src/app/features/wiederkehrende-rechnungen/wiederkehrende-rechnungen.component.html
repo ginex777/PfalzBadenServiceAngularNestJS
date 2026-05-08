@@ -2,25 +2,19 @@
 
 <!-- Formular Drawer -->
 @if (facade.formularSichtbar()) {
-  <app-drawer [isOpen]="facade.formularSichtbar()" ariaLabel="Vorlage Formular" position="right" (closed)="facade.formularSchliessen()">
-    <div class="drawer-header">
-      <h3 class="drawer-title">
-        @if (facade.bearbeiteteRechnung()) {
-          Vorlage bearbeiten
-        } @else {
-          Neue Vorlage
-        }
-      </h3>
-      <button class="app-modal__close" type="button" (click)="facade.formularSchliessen()" aria-label="Schließen">×</button>
-    </div>
-    <div class="drawer-body">
-      <app-wr-formular
-        [bearbeiteteRechnung]="facade.bearbeiteteRechnung()"
-        [kunden]="facade.kunden()"
-        (gespeichert)="speichern($event)"
-        (abgebrochen)="facade.formularSchliessen()"
-      />
-    </div>
+  <app-drawer
+    [isOpen]="facade.formularSichtbar()"
+    ariaLabel="Vorlage Formular"
+    [title]="facade.bearbeiteteRechnung() ? 'Vorlage bearbeiten' : 'Neue Vorlage'"
+    position="right"
+    (closed)="facade.formularSchliessen()"
+  >
+    <app-wr-formular
+      [editedInvoice]="facade.bearbeiteteRechnung()"
+      [customers]="facade.kunden()"
+      (saved)="speichern($event)"
+      (cancelled)="facade.formularSchliessen()"
+    />
   </app-drawer>
 }
 
@@ -49,7 +43,7 @@
           <th class="rechts">Betrag</th>
           <th>Letzte Erstellung</th>
           <th class="mitte">Aktiv</th>
-          <th class="col-aktionen">Aktionen</th>
+          <th class="actions-col">Aktionen</th>
         </tr>
       </thead>
       <tbody>
@@ -71,7 +65,7 @@
                 (change)="aktivToggleGeaendert(wr.id, $event)"
               />
             </td>
-            <td class="td-aktionen">
+            <td class="actions-cell">
               <button
                 class="btn btn-sm btn-primary"
                 type="button"

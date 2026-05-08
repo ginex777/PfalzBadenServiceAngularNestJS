@@ -1,4 +1,4 @@
-import type { ComponentFixture} from '@angular/core/testing';
+import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { RechnungenFormularComponent } from './rechnungen-formular.component';
 
@@ -13,7 +13,7 @@ describe('RechnungenFormularComponent', () => {
 
     fixture = TestBed.createComponent(RechnungenFormularComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('formularDaten', {
+    fixture.componentRef.setInput('formData', {
       nr: '',
       empf: '',
       str: '',
@@ -31,5 +31,18 @@ describe('RechnungenFormularComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('emits explicit save and cancel request events', () => {
+    const saveSpy = vi.fn();
+    const cancelSpy = vi.fn();
+    component.saveRequested.subscribe(saveSpy);
+    component.cancelRequested.subscribe(cancelSpy);
+
+    component.saveRequested.emit();
+    component.cancelRequested.emit();
+
+    expect(saveSpy).toHaveBeenCalledOnce();
+    expect(cancelSpy).toHaveBeenCalledOnce();
   });
 });

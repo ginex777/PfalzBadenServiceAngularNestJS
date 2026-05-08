@@ -2,7 +2,7 @@
   <div class="tabelle-kopf">
     <span class="badge badge--gruen">Einnahmen</span>
     <span class="anzahl"
-      >{{ zeilen().length }} Eintr{{ zeilen().length !== 1 ? 'äge' : 'ag' }}</span
+      >{{ rows().length }} Eintr{{ rows().length !== 1 ? 'äge' : 'ag' }}</span
     >
     <input
       type="search"
@@ -13,7 +13,7 @@
     />
   </div>
 
-  @if (istGesperrt()) {
+  @if (isLocked()) {
     <div class="gesperrt-banner">Gesperrt (GoBD §146 AO) — nur lesbar.</div>
   }
 
@@ -28,18 +28,18 @@
           <th class="col-mwst">MwSt.</th>
           <th class="col-netto">Netto</th>
           <th class="col-ust">USt.</th>
-          <th class="col-aktionen"></th>
+          <th class="actions-col">Aktionen</th>
         </tr>
       </thead>
       <tbody>
-        @for (zeile of gefilterteZeilen(); track zeile._tempId) {
+        @for (zeile of gefilterterows(); track zeile._tempId) {
           <tr>
             <td>
               <input
                 type="text"
                 [value]="zeile.renr ?? ''"
                 placeholder="R-001"
-                [readonly]="istGesperrt()"
+                [readonly]="isLocked()"
                 (input)="textfeldAktualisieren(zeile._tempId, 'renr', $event)"
                 class="eingabe"
               />
@@ -49,7 +49,7 @@
                 type="text"
                 [value]="zeile.name ?? ''"
                 placeholder="Bezeichnung"
-                [readonly]="istGesperrt()"
+                [readonly]="isLocked()"
                 (input)="textfeldAktualisieren(zeile._tempId, 'name', $event)"
                 class="eingabe"
               />
@@ -58,7 +58,7 @@
               <input
                 type="date"
                 [value]="zeile.datum ?? ''"
-                [readonly]="istGesperrt()"
+                [readonly]="isLocked()"
                 (input)="textfeldAktualisieren(zeile._tempId, 'datum', $event)"
                 class="eingabe"
               />
@@ -69,7 +69,7 @@
                 [value]="zeile.brutto"
                 min="0"
                 step="0.01"
-                [readonly]="istGesperrt()"
+                [readonly]="isLocked()"
                 (input)="bruttoAktualisieren(zeile._tempId, $event)"
                 class="eingabe eingabe--rechts"
               />
@@ -77,7 +77,7 @@
             <td>
               <select
                 [value]="zeile.mwst"
-                [disabled]="istGesperrt()"
+                [disabled]="isLocked()"
                 (change)="mwstAktualisieren(zeile._tempId, $event)"
                 class="eingabe"
               >
@@ -88,22 +88,22 @@
             </td>
             <td class="zahl">{{ nettoBerechnen(zeile.brutto, zeile.mwst) }}</td>
             <td class="zahl">{{ ustBerechnen(zeile.brutto, zeile.mwst) }}</td>
-            <td class="aktionen">
+            <td class="actions-cell">
               <button
-                class="btn-beleg"
-                [class.btn-beleg--vorhanden]="!!zeile.beleg_id"
+                class="btn-action"
+                [class.btn-action--success]="!!zeile.beleg_id"
                 (click)="belegKlicken(zeile._tempId)"
                 type="button"
                 [title]="zeile.beleg_id ? 'Beleg anzeigen/ändern' : 'Beleg hochladen'"
               >
                 {{ zeile.beleg_id ? 'Beleg' : 'Beleg' }}
               </button>
-              @if (!istGesperrt()) {
-                <button class="btn-kopie" (click)="kopierenKlicken(zeile._tempId)" type="button">
+              @if (!isLocked()) {
+                <button class="btn-action" (click)="kopierenKlicken(zeile._tempId)" type="button">
                   Kopie
                 </button>
                 <button
-                  class="btn-loeschen"
+                  class="btn-action btn-action--danger"
                   (click)="entfernenKlicken(zeile._tempId)"
                   type="button"
                 >
@@ -119,9 +119,9 @@
     </table>
   </div>
 
-  @if (!istGesperrt()) {
+  @if (!isLocked()) {
     <button
-      class="btn-hinzufuegen btn-hinzufuegen--gruen"
+      class="btn btn-sm btn-success"
       (click)="hinzufuegenKlicken()"
       type="button"
     >
@@ -129,7 +129,7 @@
     </button>
   }
 
-  @if (zeilen().length > 0) {
+  @if (rows().length > 0) {
     <div class="zusammenfassung">
       <div class="zusammenfassung-zeile">
         <span>Brutto (UI-Vorschau)</span>

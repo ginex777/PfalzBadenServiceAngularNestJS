@@ -1,4 +1,4 @@
-import {
+﻿import {
   Body,
   Controller,
   Delete,
@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
-import type { ObjekteService } from './objekte.service';
+import { ObjekteService } from './objekte.service';
 import type { AuthRequest } from '../auth/auth-request.type';
 import type {
   AktivitaetenQueryDto,
@@ -51,7 +51,7 @@ export class ObjekteController {
   }
 
   @Get(':id/aktivitaeten')
-  @ApiOperation({ summary: 'Aktivitäten für Objekt laden' })
+  @ApiOperation({ summary: 'AktivitÃ¤ten fÃ¼r Objekt laden' })
   getAktivitaeten(
     @Param('id', ParseIntPipe) id: number,
     @Query() query: AktivitaetenQueryDto,
@@ -74,7 +74,7 @@ export class ObjekteController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Objekt löschen/deaktivieren' })
+  @ApiOperation({ summary: 'Objekt lÃ¶schen/deaktivieren' })
   @Roles('admin')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);

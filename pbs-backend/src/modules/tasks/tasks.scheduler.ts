@@ -1,6 +1,6 @@
-import type { OnModuleInit } from '@nestjs/common';
+﻿import type { OnModuleInit } from '@nestjs/common';
 import { Injectable, Logger } from '@nestjs/common';
-import type { TasksService } from './tasks.service';
+import { TasksService } from './tasks.service';
 
 @Injectable()
 export class TasksScheduler implements OnModuleInit {

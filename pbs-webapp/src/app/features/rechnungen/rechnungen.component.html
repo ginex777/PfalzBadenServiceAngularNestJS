@@ -38,18 +38,18 @@
     />
 
     <app-rechnungen-tabelle
-      [rechnungen]="facade.seitenRechnungen()"
-      [laedt]="facade.laedt()"
-      [aktiverFilter]="facade.aktiverFilter()"
-      (bearbeiten)="onBearbeiten($event)"
-      (loeschen)="onLoeschen($event)"
-      (alsGezahlt)="onAlsGezahlt($event)"
-      (pdfGenerieren)="onPdfGenerieren($event)"
-      (filterAendern)="onFilterAendern($event)"
-      (kopieren)="onKopieren($event)"
-      (mahnung)="onMahnung($event)"
-      (bulkLoeschen)="onBulkLoeschen($event)"
-      (bulkAlsGezahlt)="onBulkAlsGezahlt($event)"
+      [invoices]="facade.seitenRechnungen()"
+      [loading]="facade.laedt()"
+      [activeFilter]="facade.aktiverFilter()"
+      (editRequested)="onBearbeiten($event)"
+      (deleteRequested)="onLoeschen($event)"
+      (markPaid)="onAlsGezahlt($event)"
+      (generatePdf)="onPdfGenerieren($event)"
+      (filterChange)="onFilterAendern($event)"
+      (copyRequested)="onKopieren($event)"
+      (reminder)="onMahnung($event)"
+      (bulkDelete)="onBulkLoeschen($event)"
+      (bulkMarkPaid)="onBulkAlsGezahlt($event)"
     />
 
     @if (facade.gesamtSeiten() > 1) {
@@ -79,12 +79,12 @@
   </div>
 
   <app-zahlungs-tracker
-    [rechnungen]="facade.rechnungen()"
-    [bezahltKandidat]="facade.bezahltKandidat()"
-    [bezahltDatum]="facade.bezahltDatum()"
-    (alsGezahltBestaetigen)="facade.alsGezahltMarkieren()"
-    (alsGezahltAbbrechen)="facade.alsGezahltMarkierenAbbrechen()"
-    (bezahltDatumAendern)="facade.bezahltDatum.set($event)"
+    [invoices]="facade.rechnungen()"
+    [paidCandidate]="facade.bezahltKandidat()"
+    [paidDate]="facade.bezahltDatum()"
+    (confirmPaid)="facade.alsGezahltMarkieren()"
+    (cancelPaid)="facade.alsGezahltMarkierenAbbrechen()"
+    (paidDateChange)="facade.bezahltDatum.set($event)"
   />
 
   @if (facade.loeschKandidat() !== null) {
@@ -136,7 +136,7 @@
                 <td class="mahnung-notiz-cell">{{ m.notiz || '–' }}</td>
                 <td>
                   <button
-                    class="btn btn-ghost btn-sm btn--danger-ghost"
+                    class="btn btn-ghost btn-sm btn-danger-ghost"
                     (click)="facade.deleteReminder(m.id)"
                     title="Mahnung löschen"
                   >
@@ -217,22 +217,22 @@
     <div class="drawer-content">
       @if (facade.drawerSchritt() === 'formular') {
         <app-rechnungen-formular
-          [formularDaten]="facade.formularDaten()"
-          [kunden]="facade.kunden()"
-          [bearbeiteteRechnung]="facade.bearbeiteteRechnung()"
-          [speichert]="facade.speichert()"
-          [netto]="facade.netto()"
-          [brutto]="facade.brutto()"
-          [mwstBetrag]="facade.mwstBetrag()"
-          (speichern)="onSpeichern()"
-          (vorschau)="onVorschau()"
-          (abbrechen)="facade.drawerSchliessen()"
-          (positionHinzufuegen)="onPositionHinzufuegen()"
-          (positionEntfernen)="onPositionEntfernen($event)"
-          (positionKopieren)="facade.positionKopieren($event)"
-          (positionAktualisieren)="onPositionAktualisieren($event)"
-          (feldAktualisieren)="onFeldAktualisieren($event)"
-          (kundeAuswaehlen)="onKundeAuswaehlen($event)"
+          [formData]="facade.formularDaten()"
+          [customers]="facade.kunden()"
+          [editedInvoice]="facade.bearbeiteteRechnung()"
+          [saving]="facade.speichert()"
+          [netTotal]="facade.netto()"
+          [grossTotal]="facade.brutto()"
+          [vatAmount]="facade.mwstBetrag()"
+          (saveRequested)="onSpeichern()"
+          (preview)="onVorschau()"
+          (cancelRequested)="facade.drawerSchliessen()"
+          (addLineItem)="onPositionHinzufuegen()"
+          (removeLineItem)="onPositionEntfernen($event)"
+          (copyLineItem)="facade.positionKopieren($event)"
+          (updateLineItem)="onPositionAktualisieren($event)"
+          (updateField)="onFeldAktualisieren({ feld: $event.field, wert: $event.value })"
+          (selectCustomer)="onKundeAuswaehlen($event)"
         />
 
         @if (facade.bearbeiteteRechnung()) {

@@ -1,11 +1,11 @@
-@if (!termine().length) {
+@if (!terms().length) {
   <app-empty-state
     title="Keine Termine vorhanden"
     description="Fügen Sie Abholtermine für dieses Objekt hinzu."
   />
 } @else {
   <div class="termin-liste">
-    @for (t of termine(); track t.id) {
+    @for (t of terms(); track t.id) {
       <div
         class="termin-zeile"
         [class.erledigt]="t.erledigt"
@@ -14,7 +14,7 @@
         <input
           type="checkbox"
           [checked]="t.erledigt"
-          (change)="erledigtToggle.emit(t)"
+          (change)="toggleDone.emit(t)"
           class="termin-check"
         />
         <span class="muell-badge" [style.background]="t.farbe">{{ t.muellart }}</span>
@@ -23,13 +23,13 @@
           <span class="ueberfaellig-badge">Überfällig</span>
         }
         <div class="termin-aktionen">
-          <button class="btn-action" title="Bearbeiten" (click)="bearbeiten.emit(t)">
-            Bearbeiten
+          <button class="btn-action" title="edit" (click)="edit.emit(t)">
+            edit
           </button>
           <button
             class="btn-action btn-action--danger"
             title="Löschen"
-            (click)="loeschen.emit(t.id)"
+            (click)="delete.emit(t.id)"
           >
             Löschen
           </button>

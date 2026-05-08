@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import type { PrismaService } from '../../../core/database/prisma.service';
-import type { PdfRenderService } from '../pdf-render.service';
-import type { PdfTokenService } from '../pdf-token.service';
+﻿import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { PdfRenderService } from '../pdf-render.service';
+import { PdfTokenService } from '../pdf-token.service';
 
 @Injectable()
 export class EuerPdfGenerator {
@@ -33,7 +33,7 @@ export class EuerPdfGenerator {
     };
     const html = this.render.renderTemplate('euer.hbs', kontext);
     const pdf = await this.render.createPdfFromHtml(html);
-    const filename = `EÜR_${jahr}.pdf`;
+    const filename = `EÃœR_${jahr}.pdf`;
 
     await this.prisma.pdfArchive.create({
       data: {

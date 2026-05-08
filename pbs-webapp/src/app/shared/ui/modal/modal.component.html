@@ -4,7 +4,7 @@
     type="button"
     tabindex="-1"
     (click)="close()"
-    aria-label="Modal schließen"
+    aria-label="Modal schliessen"
   ></button>
   <div
     class="app-modal app-modal--{{ size() }}"
@@ -15,8 +15,8 @@
     @if (title()) {
       <div class="app-modal__header">
         <h2 class="app-modal__title" id="app-modal-title">{{ title() }}</h2>
-        <button class="app-modal__close" type="button" (click)="close()" aria-label="Schließen">
-          x
+        <button class="app-modal__close" type="button" (click)="close()" aria-label="Schliessen">
+          X
         </button>
       </div>
     }

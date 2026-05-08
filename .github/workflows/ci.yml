@@ -29,6 +29,23 @@ jobs:
   backend:
     name: Backend
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: pbs
+          POSTGRES_USER: pbs
+          POSTGRES_PASSWORD: pbs_secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U pbs -d pbs"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://pbs:pbs_secret@localhost:5432/pbs
+      JWT_SECRET: ci-test-secret
     steps:
       - uses: actions/checkout@v4
 
@@ -51,8 +68,22 @@ jobs:
       - name: Build
         run: npm run build --prefix pbs-backend
 
-      - name: Tests
-        run: npm test --prefix pbs-backend
+      - name: Database migrations
+        run: npm run prisma:migrate:deploy --prefix pbs-backend
+
+      - name: Unit tests with service coverage gate
+        run: npm run test:coverage:services --prefix pbs-backend
+
+      - name: E2E tests
+        run: npm run test:e2e --prefix pbs-backend
+
+      - name: Upload backend coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-coverage
+          path: pbs-backend/coverage
+          if-no-files-found: ignore
 
   webapp:
     name: Webapp
@@ -83,7 +114,15 @@ jobs:
         run: npm test --prefix pbs-webapp
 
       - name: Coverage
-        run: npm run test:coverage --prefix pbs-webapp -- --run
+        run: npm run test:coverage:webapp
+
+      - name: Upload webapp coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: webapp-coverage
+          path: pbs-webapp/coverage
+          if-no-files-found: ignore
 
       - name: Upload Sentry sourcemaps (prod)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.SENTRY_AUTH_TOKEN != ''
@@ -123,6 +162,14 @@ jobs:
 
       - name: Coverage
         run: npm run test:coverage --prefix pbs-mobile
+
+      - name: Upload mobile coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-coverage
+          path: pbs-mobile/coverage
+          if-no-files-found: ignore
 
       - name: Upload Sentry sourcemaps (prod)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.SENTRY_AUTH_TOKEN != ''

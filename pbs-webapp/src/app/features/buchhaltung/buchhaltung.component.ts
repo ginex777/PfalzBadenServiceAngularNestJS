@@ -149,19 +149,19 @@ export class BuchhaltungComponent implements OnInit {
   }
 
   // ── Einnahmen ─────────────────────────────────────────────────────────────
-  protected einnahmeZeileHinzufuegen(): void {
+  protected addIncomeRow(): void {
     this.facade.einnahmeZeileHinzufuegen();
   }
 
-  protected einnahmeZeileEntfernen(tempId: string): void {
+  protected removeIncomeRow(tempId: string): void {
     this.facade.einnahmeZeileEntfernen(tempId);
   }
 
-  protected einnahmeZeileKopieren(tempId: string): void {
+  protected copyIncomeRow(tempId: string): void {
     this.facade.zeileKopieren('inc', tempId);
   }
 
-  protected einnahmeZeileAktualisieren(event: {
+  protected updateIncomeRow(event: {
     tempId: string;
     aenderungen: Partial<BuchhaltungZeile>;
   }): void {
@@ -169,39 +169,39 @@ export class BuchhaltungComponent implements OnInit {
   }
 
   // ── Ausgaben ──────────────────────────────────────────────────────────────
-  protected ausgabeZeileHinzufuegen(): void {
+  protected addExpenseRow(): void {
     this.facade.ausgabeZeileHinzufuegen();
   }
 
-  protected ausgabeZeileEntfernen(tempId: string): void {
+  protected removeExpenseRow(tempId: string): void {
     this.facade.ausgabeZeileEntfernen(tempId);
   }
 
-  protected ausgabeZeileKopieren(tempId: string): void {
+  protected copyExpenseRow(tempId: string): void {
     this.facade.zeileKopieren('exp', tempId);
   }
 
-  protected ausgabeZeileAktualisieren(event: {
+  protected updateExpenseRow(event: {
     tempId: string;
     aenderungen: Partial<BuchhaltungZeile>;
   }): void {
     this.facade.ausgabeZeileAktualisieren(event.tempId, event.aenderungen);
   }
 
-  protected kategorieAktualisieren(event: { tempId: string; kategorie: string }): void {
-    this.facade.kategorieAktualisieren(event.tempId, event.kategorie);
+  protected updateCategory(event: { tempId: string; category: string }): void {
+    this.facade.kategorieAktualisieren(event.tempId, event.category);
   }
 
-  protected wiederkehrendeKostenAnwenden(): void {
+  protected applyRecurringCosts(): void {
     this.facade.wiederkehrendeKostenAnwenden();
   }
 
   // ── VST ───────────────────────────────────────────────────────────────────
-  protected vstAlsGezahltMarkieren(schluessel: string): void {
+  protected markVatPaid(schluessel: string): void {
     this.facade.vstAlsGezahltMarkieren(schluessel);
   }
 
-  protected vstZahlungZuruecksetzen(schluessel: string): void {
+  protected resetVatPayment(schluessel: string): void {
     this.facade.vstZahlungZuruecksetzen(schluessel);
   }
 
@@ -282,11 +282,11 @@ export class BuchhaltungComponent implements OnInit {
     return this.service.getReceiptDownloadUrl(id, inline);
   }
 
-  protected einnahmeBelegOeffnen(tempId: string): void {
+  protected openIncomeReceipt(tempId: string): void {
     this.belegModalOeffnen({ typ: 'inc', tempId });
   }
 
-  protected ausgabeBelegOeffnen(tempId: string): void {
+  protected openExpenseReceipt(tempId: string): void {
     this.belegModalOeffnen({ typ: 'exp', tempId });
   }
 }

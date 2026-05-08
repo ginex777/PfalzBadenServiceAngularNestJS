@@ -7,6 +7,7 @@ import { OffenePostenModalComponent } from './components/offene-posten-modal/off
 import { ConfirmModalComponent } from '../../shared/ui/confirm-modal/confirm-modal.component';
 import { SearchToolbarComponent } from '../../shared/ui/search-toolbar/search-toolbar.component';
 import { PageTitleComponent } from '../../shared/ui/page-title/page-title.component';
+import { PaginierungComponent } from '../../shared/ui/paginierung/paginierung.component';
 import type { Kunde } from '../../core/models';
 import type { KundenFormularDaten } from './kunden.models';
 import { RoleAllowedDirective } from '../../core/directives/role-allowed.directive';
@@ -24,6 +25,7 @@ import { DrawerComponent } from '../../shared/ui/drawer/drawer.component';
     ConfirmModalComponent,
     SearchToolbarComponent,
     PageTitleComponent,
+    PaginierungComponent,
     RoleAllowedDirective,
     ModalComponent,
     DrawerComponent,

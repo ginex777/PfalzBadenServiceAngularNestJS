@@ -228,6 +228,44 @@ describe('mobile page workflows', () => {
     expect(page.toastMessage()).toBe('Nachweis erfolgreich hochgeladen!');
   });
 
+  it('keeps a captured photo available when evidence upload fails', async () => {
+    const evidence = {
+      upload: vi.fn(() =>
+        throwError(() => ({
+          error: { message: 'Datei ist zu groß.' },
+        })),
+      ),
+    };
+    configurePageTest([
+      { provide: EvidenceService, useValue: evidence },
+      {
+        provide: PhotoCaptureService,
+        useValue: {
+          captureFromCamera: vi.fn(async () => ({
+            dataUrl: 'data:image/jpeg;base64,cGhvdG8=',
+            blob: new Blob(['foto'], { type: 'image/jpeg' }),
+          })),
+        },
+      },
+    ]);
+    const page = TestBed.runInInjectionContext(() => new FotoUploadPage()) as FotoUploadPage & {
+      takePhoto(): Promise<void>;
+      upload(): void;
+      previewDataUrl: Signal<string | null>;
+      previewBlob: Signal<Blob | null>;
+      uploadFailed: Signal<boolean>;
+      toastMessage: Signal<string>;
+    };
+
+    await page.takePhoto();
+    page.upload();
+
+    expect(page.previewDataUrl()).toBe('data:image/jpeg;base64,cGhvdG8=');
+    expect(page.previewBlob()).toBeInstanceOf(Blob);
+    expect(page.uploadFailed()).toBe(true);
+    expect(page.toastMessage()).toBe('Datei ist zu groß.');
+  });
+
   it('submits checklist answers only after required fields are complete', async () => {
     const template: ChecklistTemplate = {
       id: 5,
@@ -283,6 +321,33 @@ describe('mobile page workflows', () => {
       ],
     } satisfies CreateChecklistSubmissionRequest);
     expect(page.toastMessage()).toBe('Checkliste gespeichert.');
+  });
+
+  it('shows checklist load errors without leaving stale templates selected', async () => {
+    const checklist = {
+      getTemplatesForObject: vi.fn(() => throwError(() => new Error('network'))),
+      submitChecklist: vi.fn(),
+    };
+    configurePageTest([
+      { provide: ChecklistService, useValue: checklist },
+      { provide: EvidenceService, useValue: { upload: vi.fn(() => of(evidenceItem)) } },
+      { provide: PhotoCaptureService, useValue: { captureWithPrompt: vi.fn() } },
+    ]);
+    const page = TestBed.runInInjectionContext(() => new ChecklistenPage()) as ChecklistenPage & {
+      templates: Signal<ChecklistTemplate[]>;
+      selectedTemplate: Signal<ChecklistTemplate | null>;
+      templatesLoading: Signal<boolean>;
+      errorMessage: Signal<string | null>;
+    };
+
+    page.ngOnInit();
+    page.ionViewWillEnter();
+    await settle();
+
+    expect(page.templates()).toEqual([]);
+    expect(page.selectedTemplate()).toBeNull();
+    expect(page.templatesLoading()).toBe(false);
+    expect(page.errorMessage()).toBe('Checklisten konnten nicht geladen werden.');
   });
 
   it('marks a waste pickup done and removes it from upcoming pickups', () => {

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -11,7 +11,7 @@ import {
   Req,
   BadRequestException,
 } from '@nestjs/common';
-import type { HausmeisterService } from './hausmeister.service';
+import { HausmeisterService } from './hausmeister.service';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import type {
   CreateHausmeisterEinsatzDto,
