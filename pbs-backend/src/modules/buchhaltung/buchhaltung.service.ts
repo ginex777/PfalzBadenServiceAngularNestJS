@@ -5,6 +5,7 @@
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import type { Buchhaltung } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import type { BuchhaltungEintragDto, VstDto } from './dto/buchhaltung.dto';
@@ -46,7 +47,10 @@ export interface AccountingYearSummary {
 export class BuchhaltungService {
   private readonly logger = new Logger(BuchhaltungService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
 
   async getYearData(
     jahr: number,
@@ -86,6 +90,7 @@ export class BuchhaltungService {
     const row = await this.prisma.buchhaltung.create({
       data: this.mapEntryData(daten),
     });
+    await this.audit.log('buchhaltung', row.id, 'CREATE', null, { jahr: row.jahr, monat: row.monat, typ: row.typ, brutto: Number(row.brutto) }, 'system');
     return this.mapBuchung(row);
   }
 
@@ -144,6 +149,7 @@ export class BuchhaltungService {
         belegnr: daten.belegnr ?? null,
       },
     });
+    await this.audit.log('buchhaltung', BigInt(id), 'UPDATE', { brutto: Number(alt.brutto), typ: alt.typ }, { brutto: Number(neu.brutto), typ: neu.typ }, 'system');
     return this.mapBuchung(neu);
   }
 
@@ -153,6 +159,7 @@ export class BuchhaltungService {
     });
     if (!alt) throw new NotFoundException(`Eintrag ${id} nicht gefunden`);
     await this.checkLockedMonth(alt.jahr, alt.monat);
+    await this.audit.log('buchhaltung', BigInt(id), 'DELETE', { jahr: alt.jahr, monat: alt.monat, typ: alt.typ, brutto: Number(alt.brutto) }, null, 'system');
     await this.prisma.buchhaltung.delete({ where: { id: BigInt(id) } });
     return { ok: true };
   }

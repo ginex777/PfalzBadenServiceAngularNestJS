@@ -72,7 +72,8 @@ export class AuthController {
     const ip = (req.headers['x-forwarded-for'] as string) ?? req.ip;
     const result = await this.auth.login(dto, ip);
     res.cookie(REFRESH_COOKIE, result.refreshToken, this.refreshCookieOptions);
-    return result;
+    const { refreshToken: _, ...responseBody } = result;
+    return responseBody;
   }
 
   @Public()
@@ -88,7 +89,8 @@ export class AuthController {
     if (!token) throw new UnauthorizedException('Kein Refresh-Token');
     const result = await this.auth.refresh(token);
     res.cookie(REFRESH_COOKIE, result.refreshToken, this.refreshCookieOptions);
-    return result;
+    const { refreshToken: _, ...responseBody } = result;
+    return responseBody;
   }
 
   @Post('logout')

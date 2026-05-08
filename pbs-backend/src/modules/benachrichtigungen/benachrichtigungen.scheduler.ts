@@ -1,15 +1,15 @@
-﻿import type { OnModuleInit } from '@nestjs/common';
+import type { OnModuleInit } from '@nestjs/common';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()
 export class BenachrichtigungenScheduler implements OnModuleInit {
   private readonly logger = new Logger(BenachrichtigungenScheduler.name);
+  private _running = false;
 
   constructor(private readonly prisma: PrismaService) {}
 
   onModuleInit(): void {
-    // Beim Start sofort ausfÃ¼hren, dann alle 6h
     void this.benachrichtigungenPruefen();
     setInterval(
       () => void this.benachrichtigungenPruefen(),
@@ -18,6 +18,8 @@ export class BenachrichtigungenScheduler implements OnModuleInit {
   }
 
   async benachrichtigungenPruefen(): Promise<void> {
+    if (this._running) return;
+    this._running = true;
     try {
       const heute = new Date();
       heute.setHours(0, 0, 0, 0);
@@ -26,119 +28,127 @@ export class BenachrichtigungenScheduler implements OnModuleInit {
       const in2Tagen = new Date(heute);
       in2Tagen.setDate(in2Tagen.getDate() + 2);
 
-      // 1. ÃœberfÃ¤llige Rechnungen
-      const ueberfaellig = await this.prisma.rechnungen.findMany({
-        where: { bezahlt: false, frist: { lt: heute } },
-        select: { nr: true, empf: true, brutto: true, frist: true },
+      // Fetch all candidates in parallel
+      const [ueberfaellig, baldFaellig, muellTermine, ablaufend] =
+        await Promise.all([
+          this.prisma.rechnungen.findMany({
+            where: { bezahlt: false, frist: { lt: heute } },
+            select: { nr: true, empf: true, brutto: true, frist: true },
+          }),
+          this.prisma.rechnungen.findMany({
+            where: { bezahlt: false, frist: { gte: heute, lte: in3Tagen } },
+            select: { nr: true, empf: true, frist: true },
+          }),
+          this.prisma.muellplan.findMany({
+            where: { abholung: { gte: heute, lte: in2Tagen }, erledigt: false },
+            include: { objekte: { select: { name: true } } },
+          }),
+          this.prisma.angebote.findMany({
+            where: {
+              angenommen: false,
+              abgelehnt: false,
+              gueltig_bis: { gte: heute, lte: in3Tagen },
+            },
+            select: { nr: true, empf: true, gueltig_bis: true },
+          }),
+        ]);
+
+      // Build candidate notification titles
+      const candidateTitles = [
+        ...ueberfaellig.map((r) => `Rechnung ${r.nr} überfällig`),
+        ...baldFaellig.map((r) => `Rechnung ${r.nr} bald fällig`),
+        ...muellTermine.map((t) => `Mülltermin: ${t.muellart}`),
+        ...ablaufend.map((a) => `Angebot ${a.nr} läuft ab`),
+      ];
+
+      if (candidateTitles.length === 0) {
+        this.logger.debug('Benachrichtigungs-Check: keine Kandidaten');
+        return;
+      }
+
+      // One query to find already-existing unread notifications
+      const vorhandene = await this.prisma.benachrichtigungen.findMany({
+        where: { titel: { in: candidateTitles }, gelesen: false },
+        select: { titel: true },
       });
+      const vorhandeneSet = new Set(vorhandene.map((n) => n.titel));
+
+      const neueNachrichten: {
+        typ: string;
+        titel: string;
+        nachricht: string;
+        link: string;
+      }[] = [];
+
       for (const r of ueberfaellig) {
-        const vorhanden = await this.prisma.benachrichtigungen.findFirst({
-          where: { titel: { contains: r.nr }, gelesen: false },
-        });
-        if (!vorhanden) {
-          await this.prisma.benachrichtigungen.create({
-            data: {
-              typ: 'rechnung',
-              titel: `Rechnung ${r.nr} Ã¼berfÃ¤llig`,
-              nachricht: `${r.empf} â€“ ${Number(r.brutto).toFixed(2)} â‚¬ â€“ fÃ¤llig seit ${r.frist?.toISOString().slice(0, 10)}`,
-              link: `/rechnungen`,
-            },
+        const titel = `Rechnung ${r.nr} überfällig`;
+        if (!vorhandeneSet.has(titel)) {
+          neueNachrichten.push({
+            typ: 'rechnung',
+            titel,
+            nachricht: `${r.empf} – ${Number(r.brutto).toFixed(2)} € – fällig seit ${r.frist?.toISOString().slice(0, 10)}`,
+            link: '/rechnungen',
           });
         }
       }
 
-      // 2. Rechnungen fÃ¤llig in 3 Tagen
-      const baldFaellig = await this.prisma.rechnungen.findMany({
-        where: { bezahlt: false, frist: { gte: heute, lte: in3Tagen } },
-        select: { nr: true, empf: true, frist: true },
-      });
       for (const r of baldFaellig) {
-        const vorhanden = await this.prisma.benachrichtigungen.findFirst({
-          where: { titel: { contains: r.nr }, gelesen: false },
-        });
-        if (!vorhanden) {
-          await this.prisma.benachrichtigungen.create({
-            data: {
-              typ: 'rechnung',
-              titel: `Rechnung ${r.nr} bald fÃ¤llig`,
-              nachricht: `${r.empf} â€“ fÃ¤llig am ${r.frist?.toISOString().slice(0, 10)}`,
-              link: `/rechnungen`,
-            },
+        const titel = `Rechnung ${r.nr} bald fällig`;
+        if (!vorhandeneSet.has(titel)) {
+          neueNachrichten.push({
+            typ: 'rechnung',
+            titel,
+            nachricht: `${r.empf} – fällig am ${r.frist?.toISOString().slice(0, 10)}`,
+            link: '/rechnungen',
           });
         }
       }
 
-      // 3. MÃ¼lltermine in 2 Tagen
-      const muellTermine = await this.prisma.muellplan.findMany({
-        where: { abholung: { gte: heute, lte: in2Tagen }, erledigt: false },
-        include: { objekte: { select: { name: true } } },
-      });
       for (const t of muellTermine) {
-        const vorhanden = await this.prisma.benachrichtigungen.findFirst({
-          where: { titel: { contains: t.objekte.name }, gelesen: false },
-        });
-        if (!vorhanden) {
-          await this.prisma.benachrichtigungen.create({
-            data: {
-              typ: 'muellplan',
-              titel: `MÃ¼lltermin: ${t.muellart}`,
-              nachricht: `${t.objekte.name} â€“ Rausstellen am ${t.abholung.toISOString().slice(0, 10)}`,
-              link: `/muellplan`,
-            },
+        const titel = `Mülltermin: ${t.muellart}`;
+        if (!vorhandeneSet.has(titel)) {
+          neueNachrichten.push({
+            typ: 'muellplan',
+            titel,
+            nachricht: `${t.objekte.name} – Rausstellen am ${t.abholung.toISOString().slice(0, 10)}`,
+            link: '/muellplan',
           });
         }
       }
 
-      // 4. Angebote ablaufend in 3 Tagen
-      const ablaufend = await this.prisma.angebote.findMany({
-        where: {
-          angenommen: false,
-          abgelehnt: false,
-          gueltig_bis: { gte: heute, lte: in3Tagen },
-        },
-        select: { nr: true, empf: true, gueltig_bis: true },
-      });
       for (const a of ablaufend) {
-        const vorhanden = await this.prisma.benachrichtigungen.findFirst({
-          where: { titel: { contains: a.nr }, gelesen: false },
-        });
-        if (!vorhanden) {
-          await this.prisma.benachrichtigungen.create({
-            data: {
-              typ: 'angebot',
-              titel: `Angebot ${a.nr} lÃ¤uft ab`,
-              nachricht: `${a.empf} â€“ gÃ¼ltig bis ${a.gueltig_bis?.toISOString().slice(0, 10)}`,
-              link: `/angebote`,
-            },
+        const titel = `Angebot ${a.nr} läuft ab`;
+        if (!vorhandeneSet.has(titel)) {
+          neueNachrichten.push({
+            typ: 'angebot',
+            titel,
+            nachricht: `${a.empf} – gültig bis ${a.gueltig_bis?.toISOString().slice(0, 10)}`,
+            link: '/angebote',
           });
         }
       }
 
-      // Alte gelesene Benachrichtigungen bereinigen (>30 Tage)
+      if (neueNachrichten.length > 0) {
+        await this.prisma.benachrichtigungen.createMany({
+          data: neueNachrichten,
+        });
+        this.logger.log(`${neueNachrichten.length} neue Benachrichtigungen erstellt`);
+      }
+
+      // Clean up old read notifications (>30 days) — safe to delete, not audit records
       const vor30Tagen = new Date();
       vor30Tagen.setDate(vor30Tagen.getDate() - 30);
       await this.prisma.benachrichtigungen.deleteMany({
         where: { gelesen: true, erstellt_am: { lt: vor30Tagen } },
       });
 
-      // Audit-Log bereinigen (>2 Jahre fÃ¼r GoBD-KonformitÃ¤t)
-      const vor2Jahren = new Date();
-      vor2Jahren.setFullYear(vor2Jahren.getFullYear() - 2);
-      const geloeschteAuditEintraege = await this.prisma.auditLog.deleteMany({
-        where: { zeitstempel: { lt: vor2Jahren } },
-      });
-
-      if (geloeschteAuditEintraege.count > 0) {
-        this.logger.log(
-          `${geloeschteAuditEintraege.count} alte Audit-Log EintrÃ¤ge bereinigt (Ã¤lter als 2 Jahre)`,
-        );
-      }
-
       this.logger.debug('Benachrichtigungs-Check abgeschlossen');
     } catch (e) {
       this.logger.warn(
         `Benachrichtigungs-Check fehlgeschlagen: ${(e as Error).message}`,
       );
+    } finally {
+      this._running = false;
     }
   }
 }

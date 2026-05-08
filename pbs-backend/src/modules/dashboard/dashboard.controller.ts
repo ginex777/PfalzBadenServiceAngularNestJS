@@ -5,8 +5,10 @@
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { DashboardService } from './dashboard.service';
 
+@Roles('admin', 'readonly')
 @Controller('api/dashboard')
 export class DashboardController {
   constructor(private readonly service: DashboardService) {}

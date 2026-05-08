@@ -1,6 +1,8 @@
 ﻿import { Controller, Get, Post, Param, ParseIntPipe } from '@nestjs/common';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { BenachrichtigungenService } from './benachrichtigungen.service';
 
+@Roles('admin', 'mitarbeiter', 'readonly')
 @Controller('api/benachrichtigungen')
 export class BenachrichtigungenController {
   constructor(

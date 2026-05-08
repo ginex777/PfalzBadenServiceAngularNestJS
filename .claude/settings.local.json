@@ -73,7 +73,16 @@
       "Bash(npm test *)",
       "Bash(node_modules/.bin/jest auth.service.spec.ts --runInBand --no-coverage)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\pbs-webapp\\\\src\\\\app\\\\features\" -Directory)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(npx ts-node *)",
+      "Bash(start cmd *)",
+      "Bash(node -e 'require\\('\\\\''dotenv'\\\\''\\).config\\({path:'\\\\''.env'\\\\''}\\); const {PrismaClient} = require\\('\\\\''@prisma/client'\\\\''\\); const {PrismaPg} = require\\('\\\\''@prisma/adapter-pg'\\\\''\\); const {Pool} = require\\('\\\\''pg'\\\\''\\); const pool = new Pool\\({connectionString: process.env.DATABASE_URL}\\); const adapter = new PrismaPg\\(pool\\); const p = new PrismaClient\\({adapter}\\); p.$queryRaw`SELECT 1 as ok`.then\\(r => {console.log\\('\\\\''DB connected:'\\\\'', JSON.stringify\\(r\\)\\); return p.$disconnect\\(\\);}\\).catch\\(e => {console.error\\(e.message\\); process.exit\\(1\\)}\\);')",
+      "Bash(set DATABASE_URL=postgresql://pbs:pbs_secret@localhost:5433/pbs)",
+      "PowerShell($env:DATABASE_URL = \"postgresql://pbs:pbs_secret@localhost:5433/pbs\"; Set-Location \"c:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\pbs-backend\"; npx prisma migrate status 2>&1)",
+      "Bash(node_modules/.bin/tsc --noEmit -p tsconfig.build.json)",
+      "Bash(ls node_modules/.bin/tsc*)",
+      "Bash(ls node_modules/typescript/bin/)",
+      "Bash(\"C:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\pbs-backend\\\\node_modules\\\\.bin\\\\tsc\" --noEmit -p \"C:\\\\Users\\\\Schuh\\\\Desktop\\\\Entwicklung\\\\PBS Angular NESTJS\\\\.claude\\\\worktrees\\\\agent-a3557991de913fb29\\\\pbs-backend\\\\tsconfig.build.json\")"
     ]
   }
 }

@@ -6,6 +6,7 @@
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import type { PaginationDto } from '../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import { validateReceiptUpload } from '../../common/files/upload-file';
@@ -31,7 +32,10 @@ export interface BelegListItem {
 export class BelegeService {
   private readonly logger = new Logger(BelegeService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
 
   async belegeLaden(
     pagination: PaginationDto,
@@ -211,6 +215,8 @@ export class BelegeService {
       });
     }
 
+    await this.audit.log('belege', b.id, 'CREATE', null, { filename: b.filename, typ, buchhaltung_id: buchhaltungId ?? null }, 'system');
+
     const { data: _, ...rest } = b;
     return {
       ...rest,
@@ -226,6 +232,7 @@ export class BelegeService {
       where: { id: BigInt(id) },
       data: { notiz },
     });
+    await this.audit.log('belege', BigInt(id), 'UPDATE', null, { notiz }, 'system');
     const { data: _, ...rest } = b;
     return { ...rest, id: Number(b.id) };
   }
@@ -240,6 +247,7 @@ export class BelegeService {
         `GoBD Â§147 AO: Aufbewahrungsfrist lÃ¤uft bis ${b.aufbewahrung_bis.toISOString().slice(0, 10)}`,
       );
     }
+    await this.audit.log('belege', BigInt(id), 'DELETE', { filename: b.filename, sha256: b.sha256, aufbewahrung_bis: b.aufbewahrung_bis?.toISOString() }, null, 'system');
     await this.prisma.belege.delete({ where: { id: BigInt(id) } });
     return { ok: true };
   }
